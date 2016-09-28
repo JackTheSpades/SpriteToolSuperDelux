@@ -1,0 +1,2413 @@
+DivisibleBoo.asm: -------- Critical Log --------
+DivisibleBoo.asm: 
+DivisibleBoo.asm: -------- Regular Log --------
+DivisibleBoo.asm: Processed:	'                    STA $1938,y             ;A'.
+DivisibleBoo.asm: Dynamic Sprite conversion: SUCCESS!
+DivisibleBoo.asm: Processed:	'!FramePointer = $C2,x'.
+DivisibleBoo.asm: Ignored:		'!maxStartingTime = #$60'.
+DivisibleBoo.asm: Ignored:		'!maxMoveTime = #$6A'.
+DivisibleBoo.asm: Processed:	'!88 = $88 ;You can change the tiles of boo here'.
+DivisibleBoo.asm: Processed:	'!8C = $8C'.
+DivisibleBoo.asm: Ignored:		'AND #$04'.
+DivisibleBoo.asm: Processed:	'STZ $AA,x'.
+DivisibleBoo.asm: Processed:	'STZ $B6,x'.
+DivisibleBoo.asm: Ignored:		'LDA #$01'.
+DivisibleBoo.asm: Ignored:		'LDA #$02'.
+DivisibleBoo.asm: Ignored:		'LDA #$04'.
+DivisibleBoo.asm: Ignored:		'CMP #$08			; | If sprite dead,'.
+DivisibleBoo.asm: Processed:	'LDA $9D				;\'.
+DivisibleBoo.asm: Processed:	'DEC $AA,x'.
+DivisibleBoo.asm: Processed:	'STZ $AA,x'.
+DivisibleBoo.asm: Processed:	'LDA $B6,x'.
+DivisibleBoo.asm: Processed:	'DEC $B6,x'.
+DivisibleBoo.asm: Processed:	'STZ $B6,x'.
+DivisibleBoo.asm: Processed:	'INC $B6,x'.
+DivisibleBoo.asm: Processed:	'STZ $B6,x'.
+DivisibleBoo.asm: Ignored:		'CMP #$02'.
+DivisibleBoo.asm: Processed:	'STZ $AA,x'.
+DivisibleBoo.asm: Processed:	'LDA $E4,x'.
+DivisibleBoo.asm: Processed:	'STA $00'.
+DivisibleBoo.asm: Processed:	'STA $01'.
+DivisibleBoo.asm: Ignored:		'REP #$20'.
+DivisibleBoo.asm: Processed:	'LDA $94'.
+DivisibleBoo.asm: Processed:	'CMP $00'.
+DivisibleBoo.asm: Ignored:		'SEP #$20'.
+DivisibleBoo.asm: Ignored:		'LDA #$01'.
+DivisibleBoo.asm: Processed:	'LDA $76'.
+DivisibleBoo.asm: Ignored:		'REP #$20'.
+DivisibleBoo.asm: Processed:	'LDA $94'.
+DivisibleBoo.asm: Processed:	'CMP $00'.
+DivisibleBoo.asm: Ignored:		'SEP #$20'.
+DivisibleBoo.asm: Ignored:		'LDA #$00'.
+DivisibleBoo.asm: Processed:	'LDA $76'.
+DivisibleBoo.asm: Processed:	'CMP $76'.
+DivisibleBoo.asm: Ignored:		'LDA #$02'.
+DivisibleBoo.asm: Ignored:		'LDA #$01'.
+DivisibleBoo.asm: Processed:	'STZ $B6,x'.
+DivisibleBoo.asm: Processed:	'STZ $AA,x'.
+DivisibleBoo.asm: Ignored:		'REP #$20'.
+DivisibleBoo.asm: Processed:	'LDA $96'.
+DivisibleBoo.asm: Processed:	'CMP $02'.
+DivisibleBoo.asm: Ignored:		'SEP #$20'.
+DivisibleBoo.asm: Ignored:		'REP #$20'.
+DivisibleBoo.asm: Processed:	'LDA $96'.
+DivisibleBoo.asm: Processed:	'CMP $02'.
+DivisibleBoo.asm: Ignored:		'SEP #$20'.
+DivisibleBoo.asm: Processed:	'INC $AA,x'.
+DivisibleBoo.asm: Processed:	'STZ $AA,x'.
+DivisibleBoo.asm: Processed:	'LDA $AA,x'.
+DivisibleBoo.asm: Processed:	'STA $AA,x'.
+DivisibleBoo.asm: Ignored:		'CMP #$F8'.
+DivisibleBoo.asm: Ignored:		'LDA #$F8'.
+DivisibleBoo.asm: Processed:	'STA $AA,x'.
+DivisibleBoo.asm: Ignored:		'REP #$20'.
+DivisibleBoo.asm: Processed:	'LDA $96'.
+DivisibleBoo.asm: Processed:	'CMP $02'.
+DivisibleBoo.asm: Ignored:		'SEP #$20'.
+DivisibleBoo.asm: Processed:	'DEC $AA,x'.
+DivisibleBoo.asm: Processed:	'STZ $AA,x'.
+DivisibleBoo.asm: Processed:	'LDA $AA,x'.
+DivisibleBoo.asm: Processed:	'STA $AA,x'.
+DivisibleBoo.asm: Ignored:		'CMP #$08'.
+DivisibleBoo.asm: Ignored:		'LDA #$08'.
+DivisibleBoo.asm: Processed:	'STA $AA,x'.
+DivisibleBoo.asm: Processed:	'LDA $E4,x'.
+DivisibleBoo.asm: Processed:	'STA $00'.
+DivisibleBoo.asm: Processed:	'STA $01'.
+DivisibleBoo.asm: Ignored:		'REP #$20'.
+DivisibleBoo.asm: Processed:	'LDA $94'.
+DivisibleBoo.asm: Processed:	'CMP $00'.
+DivisibleBoo.asm: Ignored:		'SEP #$20'.
+DivisibleBoo.asm: Processed:	'DEC $B6,x'.
+DivisibleBoo.asm: Processed:	'STZ $B6,x'.
+DivisibleBoo.asm: Ignored:		'LDA #$02'.
+DivisibleBoo.asm: Ignored:		'LDA #$01'.
+DivisibleBoo.asm: Processed:	'LDA $B6,x'.
+DivisibleBoo.asm: Processed:	'STA $B6,x'.
+DivisibleBoo.asm: Ignored:		'CMP #$08'.
+DivisibleBoo.asm: Ignored:		'LDA #$08'.
+DivisibleBoo.asm: Processed:	'STA $B6,x'.
+DivisibleBoo.asm: Ignored:		'REP #$20'.
+DivisibleBoo.asm: Processed:	'LDA $94'.
+DivisibleBoo.asm: Processed:	'CMP $00'.
+DivisibleBoo.asm: Ignored:		'SEP #$20'.
+DivisibleBoo.asm: Processed:	'INC $B6,x'.
+DivisibleBoo.asm: Processed:	'STZ $B6,x'.
+DivisibleBoo.asm: Ignored:		'LDA #$02'.
+DivisibleBoo.asm: Ignored:		'LDA #$01'.
+DivisibleBoo.asm: Processed:	'LDA $B6,x'.
+DivisibleBoo.asm: Processed:	'STA $B6,x'.
+DivisibleBoo.asm: Ignored:		'CMP #$F8'.
+DivisibleBoo.asm: Ignored:		'LDA #$F8'.
+DivisibleBoo.asm: Processed:	'STA $B6,x'.
+DivisibleBoo.asm: Processed:	'LDA $D8,x'.
+DivisibleBoo.asm: Processed:	'STA $02'.
+DivisibleBoo.asm: Processed:	'STA $03'.
+DivisibleBoo.asm: Processed:	'LDA $14'.
+DivisibleBoo.asm: Ignored:		'AND #$03'.
+DivisibleBoo.asm: Ignored:		'REP #$20'.
+DivisibleBoo.asm: Processed:	'LDA $02'.
+DivisibleBoo.asm: Processed:	'STA $02'.
+DivisibleBoo.asm: Ignored:		'SEP #$20'.
+DivisibleBoo.asm: Processed:	'LDA $02'.
+DivisibleBoo.asm: Processed:	'STA $D8,x'.
+DivisibleBoo.asm: Processed:	'LDA $03'.
+DivisibleBoo.asm: Ignored:		'LDA #$01'.
+DivisibleBoo.asm: Processed:	'LDA $E4,x'.
+DivisibleBoo.asm: Processed:	'LDA $D8,x'.
+DivisibleBoo.asm: Ignored:		'LDA #$0C'.
+DivisibleBoo.asm: Processed:	'LDA $00'.
+DivisibleBoo.asm: Processed:	'STA $B6,x'.
+DivisibleBoo.asm: Ignored:		'LDA #$10'.
+DivisibleBoo.asm: Processed:	'STA $AA,x'.
+DivisibleBoo.asm: Ignored:		'LDA #$01'.
+DivisibleBoo.asm: Ignored:		'CMP #$05'.
+DivisibleBoo.asm: Ignored:		'REP #$30'.
+DivisibleBoo.asm: Ignored:		'SEP #$30'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $01'.
+DivisibleBoo.asm: Ignored:		'db $02,$03,$04,$05'.
+DivisibleBoo.asm: Ignored:		'db $02,$03,$04,$05'.
+DivisibleBoo.asm: Ignored:		'db $02,$03,$04,$05'.
+DivisibleBoo.asm: Ignored:		'db $02,$03,$04,$05'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $01,$02,$03,$00'.
+DivisibleBoo.asm: Ignored:		'db $01,$02,$03,$00'.
+DivisibleBoo.asm: Ignored:		'db $01,$02,$03,$00'.
+DivisibleBoo.asm: Ignored:		'db $01,$02,$03,$00'.
+DivisibleBoo.asm: Ignored:		'db $04'.
+DivisibleBoo.asm: Ignored:		'db $04'.
+DivisibleBoo.asm: Ignored:		'db $04,$04,$04,$04'.
+DivisibleBoo.asm: Ignored:		'db $04,$04,$04,$04'.
+DivisibleBoo.asm: Ignored:		'db $04,$04,$04,$04'.
+DivisibleBoo.asm: Ignored:		'db $04,$04,$04,$04'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00,$00,$00,$00'.
+DivisibleBoo.asm: Ignored:		'db $00,$00,$00,$00'.
+DivisibleBoo.asm: Ignored:		'db $00,$00,$00,$00'.
+DivisibleBoo.asm: Ignored:		'db $00,$00,$00,$00'.
+DivisibleBoo.asm: Ignored:		'REP #$30'.
+DivisibleBoo.asm: Processed:	'STA $08'.
+DivisibleBoo.asm: Processed:	'STA $0A'.
+DivisibleBoo.asm: Ignored:		'LDA #$000C ;load y disp of mario on $04'.
+DivisibleBoo.asm: Processed:	'STA $04'.
+DivisibleBoo.asm: Processed:	'LDA $19'.
+DivisibleBoo.asm: Processed:	'STA $04'.
+DivisibleBoo.asm: Processed:	'LDA $96'.
+DivisibleBoo.asm: Processed:	'ADC $04'.
+DivisibleBoo.asm: Processed:	'STA $04 ;$04 is position + ydisp'.
+DivisibleBoo.asm: Ignored:		'STA $04 ;$04 is position + ydisp'.
+DivisibleBoo.asm: Ignored:		'LDA #$0000 ;if $04 is negative then change it to 0'.
+DivisibleBoo.asm: Processed:	'STA $04'.
+DivisibleBoo.asm: Processed:	'LDA $04'.
+DivisibleBoo.asm: Processed:	'STA $06 ;$06 = bottom'.
+DivisibleBoo.asm: Ignored:		'STA $06 ;$06 = bottom'.
+DivisibleBoo.asm: Processed:	'LDA $19'.
+DivisibleBoo.asm: Processed:	'LDA $06'.
+DivisibleBoo.asm: Processed:	'STA $06 ;if mario is big then add 8 to bottom'.
+DivisibleBoo.asm: Processed:	'LDA $06'.
+DivisibleBoo.asm: Processed:	'STA $06'.
+DivisibleBoo.asm: Processed:	'LDA $06'.
+DivisibleBoo.asm: Ignored:		'SEP #$20'.
+DivisibleBoo.asm: Ignored:		'SEP #$20'.
+DivisibleBoo.asm: Processed:	'LDA $E4,x'.
+DivisibleBoo.asm: Processed:	'STA $00'.
+DivisibleBoo.asm: Processed:	'STA $01'.
+DivisibleBoo.asm: Processed:	'LDA $D8,x'.
+DivisibleBoo.asm: Processed:	'STA $02'.
+DivisibleBoo.asm: Processed:	'STA $03'.
+DivisibleBoo.asm: Ignored:		'REP #$30'.
+DivisibleBoo.asm: Processed:	'LDY $08'.
+DivisibleBoo.asm: Processed:	'LDA $00'.
+DivisibleBoo.asm: Processed:	'STA $0E'.
+DivisibleBoo.asm: Processed:	'CMP $94'.
+DivisibleBoo.asm: Processed:	'LDA $0E'.
+DivisibleBoo.asm: Processed:	'LDA $94'.
+DivisibleBoo.asm: Processed:	'CMP $0E'.
+DivisibleBoo.asm: Processed:	'LDA $02'.
+DivisibleBoo.asm: Processed:	'STA $0E'.
+DivisibleBoo.asm: Processed:	'CMP $04'.
+DivisibleBoo.asm: Processed:	'LDA $0E'.
+DivisibleBoo.asm: Processed:	'LDA $06'.
+DivisibleBoo.asm: Processed:	'CMP $0E'.
+DivisibleBoo.asm: Processed:	'STA $0E'.
+DivisibleBoo.asm: Ignored:		'SEP #$30'.
+DivisibleBoo.asm: Ignored:		'LDX #$00'.
+DivisibleBoo.asm: Ignored:		'REP #$30'.
+DivisibleBoo.asm: Processed:	'CPY $0A'.
+DivisibleBoo.asm: Ignored:		'SEP #$30'.
+DivisibleBoo.asm: Ignored:		'db $20,$E0'.
+DivisibleBoo.asm: Ignored:		'db $20,$E0'.
+DivisibleBoo.asm: Ignored:		'LDA #$10'.
+DivisibleBoo.asm: Ignored:		'LDA #$03'.
+DivisibleBoo.asm: Ignored:		'LDA #$13'.
+DivisibleBoo.asm: Ignored:		'LDA #$02'.
+DivisibleBoo.asm: Processed:	'STA $C1,x'.
+DivisibleBoo.asm: Ignored:		'LDA #$C0'.
+DivisibleBoo.asm: Processed:	'STA $7D'.
+DivisibleBoo.asm: Processed:	'STZ $7B'.
+DivisibleBoo.asm: Processed:	'STA $B5,x'.
+DivisibleBoo.asm: Ignored:		'LDA #$30'.
+DivisibleBoo.asm: Processed:	'LDA $7D'.
+DivisibleBoo.asm: Ignored:		'LDA #$04'.
+DivisibleBoo.asm: Ignored:		'LDA #$02'.
+DivisibleBoo.asm: Processed:	'STZ $B6,x'.
+DivisibleBoo.asm: Processed:	'STZ $AA,x'.
+DivisibleBoo.asm: Ignored:		'AND #$04'.
+DivisibleBoo.asm: Ignored:		'LDA #$20'.
+DivisibleBoo.asm: Processed:	'STA $00'.
+DivisibleBoo.asm: Ignored:		'LDA #$E0'.
+DivisibleBoo.asm: Processed:	'STA $00'.
+DivisibleBoo.asm: Ignored:		'CPY #$08		; if the result is 8+...'.
+DivisibleBoo.asm: Ignored:		'CMP #$08		; if the number is 8+...'.
+DivisibleBoo.asm: Ignored:		'LDA #$08		; just use 8 when giving points'.
+DivisibleBoo.asm: Ignored:		'db $00,$06'.
+DivisibleBoo.asm: Ignored:		'db $00,$06'.
+DivisibleBoo.asm: Ignored:		'REP #$10'.
+DivisibleBoo.asm: Ignored:		'SEP #$10'.
+DivisibleBoo.asm: Ignored:		'REP #$30'.
+DivisibleBoo.asm: Processed:	'STA $0D'.
+DivisibleBoo.asm: Ignored:		'SEP #$20'.
+DivisibleBoo.asm: Processed:	'ADC $00'.
+DivisibleBoo.asm: Processed:	'ADC $01'.
+DivisibleBoo.asm: Processed:	'ORA $64'.
+DivisibleBoo.asm: Processed:	'CPX $0D'.
+DivisibleBoo.asm: Ignored:		'SEP #$10'.
+DivisibleBoo.asm: Ignored:		'LDA FramesTotalTiles,y ;load the total of tiles on $0E'.
+DivisibleBoo.asm: Ignored:		'LDY #$02 ;load the size'.
+DivisibleBoo.asm: Ignored:		'db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00'.
+DivisibleBoo.asm: Ignored:		'db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00'.
+DivisibleBoo.asm: Ignored:		'db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00'.
+DivisibleBoo.asm: Ignored:		'db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00'.
+DivisibleBoo.asm: Ignored:		'db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00'.
+DivisibleBoo.asm: Ignored:		'db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00'.
+DivisibleBoo.asm: Ignored:		'db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00'.
+DivisibleBoo.asm: Ignored:		'db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00'.
+DivisibleBoo.asm: Ignored:		'db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00'.
+DivisibleBoo.asm: Ignored:		'db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00'.
+DivisibleBoo.asm: Ignored:		'db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00'.
+DivisibleBoo.asm: Ignored:		'db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00'.
+DivisibleBoo.asm: Ignored:		'db $01,$01,$FF,$FF,$FF,$FF,$01,$01,$FF,$FF,$FF,$FF'.
+DivisibleBoo.asm: Ignored:		'db $01,$01,$FF,$FF,$FF,$FF,$01,$01,$FF,$FF,$FF,$FF'.
+DivisibleBoo.asm: Ignored:		'db $01,$01,$FF,$FF,$FF,$FF,$01,$01,$FF,$FF,$FF,$FF'.
+DivisibleBoo.asm: Ignored:		'db $01,$01,$FF,$FF,$FF,$FF,$01,$01,$FF,$FF,$FF,$FF'.
+DivisibleBoo.asm: Ignored:		'db $01,$01,$FF,$FF,$FF,$FF,$01,$01,$FF,$FF,$FF,$FF'.
+DivisibleBoo.asm: Ignored:		'db $01,$01,$FF,$FF,$FF,$FF,$01,$01,$FF,$FF,$FF,$FF'.
+DivisibleBoo.asm: Ignored:		'db $01,$01,$FF,$FF,$FF,$FF,$01,$01,$FF,$FF,$FF,$FF'.
+DivisibleBoo.asm: Ignored:		'db $01,$01,$FF,$FF,$FF,$FF,$01,$01,$FF,$FF,$FF,$FF'.
+DivisibleBoo.asm: Ignored:		'db $01,$01,$FF,$FF,$FF,$FF,$01,$01,$FF,$FF,$FF,$FF'.
+DivisibleBoo.asm: Ignored:		'db $01,$01,$FF,$FF,$FF,$FF,$01,$01,$FF,$FF,$FF,$FF'.
+DivisibleBoo.asm: Ignored:		'db $01,$01,$FF,$FF,$FF,$FF,$01,$01,$FF,$FF,$FF,$FF'.
+DivisibleBoo.asm: Ignored:		'db $01,$01,$FF,$FF,$FF,$FF,$01,$01,$FF,$FF,$FF,$FF'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $00'.
+DivisibleBoo.asm: Ignored:		'db $33'.
+DivisibleBoo.asm: Ignored:		'db $33'.
+DivisibleBoo.asm: Ignored:		'db $32'.
+DivisibleBoo.asm: Ignored:		'db $32'.
+DivisibleBoo.asm: Ignored:		'db $32'.
+DivisibleBoo.asm: Ignored:		'db $32'.
+DivisibleBoo.asm: Ignored:		'db $73'.
+DivisibleBoo.asm: Ignored:		'db $73'.
+DivisibleBoo.asm: Ignored:		'db $72'.
+DivisibleBoo.asm: Ignored:		'db $72'.
+DivisibleBoo.asm: Ignored:		'db $72'.
+DivisibleBoo.asm: Ignored:		'db $72'.
+DivisibleBoo.asm: Ignored:		'db $60'.
+DivisibleBoo.asm: Ignored:		'db $62'.
+DivisibleBoo.asm: Ignored:		'db $64'.
+DivisibleBoo.asm: Ignored:		'db $66'.
+DivisibleBoo.asm: Ignored:		'db $88'.
+DivisibleBoo.asm: Ignored:		'db $8C'.
+DivisibleBoo.asm: Ignored:		'db $60'.
+DivisibleBoo.asm: Ignored:		'db $62'.
+DivisibleBoo.asm: Ignored:		'db $64'.
+DivisibleBoo.asm: Ignored:		'db $66'.
+DivisibleBoo.asm: Ignored:		';       $00 = sprite x position relative to screen boarder'.
+DivisibleBoo.asm: Ignored:		';       $01 = sprite y position relative to screen boarder'.
+DivisibleBoo.asm: Ignored:		'db $0C,$1C'.
+DivisibleBoo.asm: Ignored:		'db $0C,$1C'.
+DivisibleBoo.asm: Ignored:		'db $01,$02'.
+DivisibleBoo.asm: Ignored:		'db $01,$02'.
+DivisibleBoo.asm: Processed:	'LDA $E4,x               ; \'.
+DivisibleBoo.asm: Processed:	'CMP $1A                 ;  | set horizontal offscreen if necessary'.
+DivisibleBoo.asm: Processed:	'SBC $1B                 ;  |'.
+DivisibleBoo.asm: Processed:	'LDA $E4,x               ;  |'.
+DivisibleBoo.asm: Ignored:		'REP #$20                ;  |'.
+DivisibleBoo.asm: Processed:	'SBC $1A                 ;  | mark sprite invalid if far enough off screen'.
+DivisibleBoo.asm: Ignored:		'SEP #$20                ;  |'.
+DivisibleBoo.asm: Ignored:		'AND #$01                ;  |'.
+DivisibleBoo.asm: Ignored:		'LDY #$00                ; \ set up loop'.
+DivisibleBoo.asm: Ignored:		'AND #$20                ;  | if not smushed (1662 & 0x20), go through loop twice'.
+DivisibleBoo.asm: Processed:	'LDA $D8,x               ; \'.
+DivisibleBoo.asm: Processed:	'CMP $1C                 ;  | (vert screen boundry)'.
+DivisibleBoo.asm: Processed:	'ROL $00                 ;  |'.
+DivisibleBoo.asm: Ignored:		'ADC #$00                ;  |'.
+DivisibleBoo.asm: Processed:	'LSR $00                 ;  |'.
+DivisibleBoo.asm: Processed:	'SBC $1D                 ;  |'.
+DivisibleBoo.asm: Processed:	'LDA $E4,x               ; \'.
+DivisibleBoo.asm: Processed:	'SBC $1A                 ;  | $00 = sprite x position relative to screen boarder'.
+DivisibleBoo.asm: Ignored:		'SBC $1A                 ;  | $00 = sprite x position relative to screen boarder'.
+DivisibleBoo.asm: Processed:	'STA $00                 ; /'.
+DivisibleBoo.asm: Processed:	'LDA $D8,x               ; \'.
+DivisibleBoo.asm: Processed:	'SBC $1C                 ;  | $01 = sprite y position relative to screen boarder'.
+DivisibleBoo.asm: Ignored:		'SBC $1C                 ;  | $01 = sprite y position relative to screen boarder'.
+DivisibleBoo.asm: Processed:	'STA $01                 ; /'.
+DivisibleBoo.asm: Ignored:		'db $40,$B0'.
+DivisibleBoo.asm: Ignored:		'db $40,$B0'.
+DivisibleBoo.asm: Ignored:		'db $01,$FF'.
+DivisibleBoo.asm: Ignored:		'db $01,$FF'.
+DivisibleBoo.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90		;bank 1 sizes'.
+DivisibleBoo.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90		;bank 1 sizes'.
+DivisibleBoo.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90		;bank 1 sizes'.
+DivisibleBoo.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90		;bank 1 sizes'.
+DivisibleBoo.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90		;bank 1 sizes'.
+DivisibleBoo.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90		;bank 1 sizes'.
+DivisibleBoo.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90		;bank 1 sizes'.
+DivisibleBoo.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90		;bank 1 sizes'.
+DivisibleBoo.asm: Ignored:		'db $30,$C0,$A0,$80,$A0,$40,$60,$B0		;bank 3 sizes'.
+DivisibleBoo.asm: Ignored:		'db $30,$C0,$A0,$80,$A0,$40,$60,$B0		;bank 3 sizes'.
+DivisibleBoo.asm: Ignored:		'db $30,$C0,$A0,$80,$A0,$40,$60,$B0		;bank 3 sizes'.
+DivisibleBoo.asm: Ignored:		'db $30,$C0,$A0,$80,$A0,$40,$60,$B0		;bank 3 sizes'.
+DivisibleBoo.asm: Ignored:		'db $30,$C0,$A0,$80,$A0,$40,$60,$B0		;bank 3 sizes'.
+DivisibleBoo.asm: Ignored:		'db $30,$C0,$A0,$80,$A0,$40,$60,$B0		;bank 3 sizes'.
+DivisibleBoo.asm: Ignored:		'db $30,$C0,$A0,$80,$A0,$40,$60,$B0		;bank 3 sizes'.
+DivisibleBoo.asm: Ignored:		'db $30,$C0,$A0,$80,$A0,$40,$60,$B0		;bank 3 sizes'.
+DivisibleBoo.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF		;bank 1 sizes'.
+DivisibleBoo.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF		;bank 1 sizes'.
+DivisibleBoo.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF		;bank 1 sizes'.
+DivisibleBoo.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF		;bank 1 sizes'.
+DivisibleBoo.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF		;bank 1 sizes'.
+DivisibleBoo.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF		;bank 1 sizes'.
+DivisibleBoo.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF		;bank 1 sizes'.
+DivisibleBoo.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF		;bank 1 sizes'.
+DivisibleBoo.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$00,$01,$FF		;bank 3 sizes'.
+DivisibleBoo.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$00,$01,$FF		;bank 3 sizes'.
+DivisibleBoo.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$00,$01,$FF		;bank 3 sizes'.
+DivisibleBoo.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$00,$01,$FF		;bank 3 sizes'.
+DivisibleBoo.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$00,$01,$FF		;bank 3 sizes'.
+DivisibleBoo.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$00,$01,$FF		;bank 3 sizes'.
+DivisibleBoo.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$00,$01,$FF		;bank 3 sizes'.
+DivisibleBoo.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$00,$01,$FF		;bank 3 sizes'.
+DivisibleBoo.asm: Ignored:		'LDA #$02                ; \ entry point of routine determines value of $03'.
+DivisibleBoo.asm: Ignored:		'LDA #$02                ; \ entry point of routine determines value of $03'.
+DivisibleBoo.asm: Ignored:		'LDA #$04                ;  |'.
+DivisibleBoo.asm: Ignored:		'LDA #$06                ;  |'.
+DivisibleBoo.asm: Ignored:		'LDA #$08                ;  |'.
+DivisibleBoo.asm: Ignored:		'LDA #$0A                ;  |'.
+DivisibleBoo.asm: Ignored:		'LDA #$0C                ;  |'.
+DivisibleBoo.asm: Ignored:		'LDA #$0E                ;  |'.
+DivisibleBoo.asm: Processed:	'STA $03					;  |'.
+DivisibleBoo.asm: Processed:	'STZ $03					; /'.
+DivisibleBoo.asm: Processed:	'LDA $5B                 ; \  goto VERTICAL_LEVEL if vertical level'.
+DivisibleBoo.asm: Ignored:		'AND #$01                ; |'.
+DivisibleBoo.asm: Processed:	'LDA $D8,x               ; \'.
+DivisibleBoo.asm: Ignored:		'ADC #$50                ; | if the sprite has gone off the bottom of the level...'.
+DivisibleBoo.asm: Ignored:		'ADC #$00                ; |'.
+DivisibleBoo.asm: Ignored:		'CMP #$02                ; |'.
+DivisibleBoo.asm: Ignored:		'AND #$04                ; |'.
+DivisibleBoo.asm: Processed:	'LDA $13                 ;A'.
+DivisibleBoo.asm: Ignored:		'AND #$01                ;A'.
+DivisibleBoo.asm: Processed:	'ORA $03                 ;A'.
+DivisibleBoo.asm: Processed:	'STA $01                 ;A'.
+DivisibleBoo.asm: Processed:	'LDA $1A                 ;A'.
+DivisibleBoo.asm: Processed:	'ROL $00                 ;A'.
+DivisibleBoo.asm: Processed:	'CMP $E4,x               ;A'.
+DivisibleBoo.asm: Processed:	'LDA $1B                 ;A'.
+DivisibleBoo.asm: Processed:	'LSR $00                 ;A'.
+DivisibleBoo.asm: Processed:	'STA $00                 ;A'.
+DivisibleBoo.asm: Processed:	'LSR $01                 ;A'.
+DivisibleBoo.asm: Ignored:		'EOR #$80                ;A'.
+DivisibleBoo.asm: Processed:	'STA $00                 ;A'.
+DivisibleBoo.asm: Processed:	'LDA $00                 ;A'.
+DivisibleBoo.asm: Ignored:		'CMP #$08                ; |'.
+DivisibleBoo.asm: Ignored:		'CPY #$FF                ;A'.
+DivisibleBoo.asm: Ignored:		'LDA #$00                ;A'.
+DivisibleBoo.asm: Ignored:		'AND #$04                ; |'.
+DivisibleBoo.asm: Processed:	'LDA $13                 ; \'.
+DivisibleBoo.asm: Processed:	'LDA $E4,x               ; \'.
+DivisibleBoo.asm: Ignored:		'CMP #$00                ;  | if the sprite has gone off the side of the level...'.
+DivisibleBoo.asm: Ignored:		'SBC #$00                ;  |'.
+DivisibleBoo.asm: Ignored:		'CMP #$02                ;  |'.
+DivisibleBoo.asm: Processed:	'LDA $13                 ;A'.
+DivisibleBoo.asm: Ignored:		'AND #$01                ;A'.
+DivisibleBoo.asm: Processed:	'STA $01                 ;A'.
+DivisibleBoo.asm: Processed:	'LDA $1C                 ;A'.
+DivisibleBoo.asm: Processed:	'ROL $00                 ;A'.
+DivisibleBoo.asm: Processed:	'CMP $D8,x               ;A'.
+DivisibleBoo.asm: Processed:	'LSR $00                 ;A'.
+DivisibleBoo.asm: Processed:	'STA $00                 ;A'.
+DivisibleBoo.asm: Processed:	'LDY $01                 ;A'.
+DivisibleBoo.asm: Ignored:		'EOR #$80                ;A'.
+DivisibleBoo.asm: Processed:	'STA $00                 ;A'.
+DivisibleBoo.asm: Processed:	'LDA $00                 ;A'.
+DivisibleBoo.asm: Processed:	'!AnFramePointer = $1504,x'.
+DivisibleBoo.asm: Processed:	'!AnPointer = $1510,x'.
+DivisibleBoo.asm: Processed:	'!AnimationTimer = $1540,x'.
+DivisibleBoo.asm: Processed:	'!GlobalFlipper = $1534,x'.
+DivisibleBoo.asm: Processed:	'!LocalFlipper = $1570,x'.
+DivisibleBoo.asm: Processed:	'!moveTimer = $1528,x'.
+DivisibleBoo.asm: Processed:	'!starting = $1594,x'.
+DivisibleBoo.asm: Processed:	'!startingTimer = $154C,x'.
+DivisibleBoo.asm: Processed:	'LDA $14C8,x			;\'.
+DivisibleBoo.asm: Unnecessary: 'LDA $322C,x'.
+DivisibleBoo.asm: Processed:	'LDA $14E0,x'.
+DivisibleBoo.asm: Ignored:		'ADC #$0018'.
+DivisibleBoo.asm: Ignored:		'ADC #$FFF8'.
+DivisibleBoo.asm: Ignored:		'ADC #$0010'.
+DivisibleBoo.asm: Ignored:		'ADC #$0030'.
+DivisibleBoo.asm: Ignored:		'ADC #$FFF0'.
+DivisibleBoo.asm: Unnecessary: 'LDA $322C,x'.
+DivisibleBoo.asm: Processed:	'LDA $14E0,x'.
+DivisibleBoo.asm: Ignored:		'ADC #$0018'.
+DivisibleBoo.asm: Ignored:		'ADC #$FFF8'.
+DivisibleBoo.asm: Unnecessary: 'LDA $3216,x'.
+DivisibleBoo.asm: Processed:	'LDA $14D4,x'.
+DivisibleBoo.asm: Unnecessary: 'STA $3216,x'.
+DivisibleBoo.asm: Processed:	'STA $14D4,x'.
+DivisibleBoo.asm: Ignored:		'.sin 	dw $0000,$0000,$0000,$0000,$0001,$0000,$0000,$0001,$0000,$0001,$0000,$0001,$0001,$0001,$0001,$0001'.
+DivisibleBoo.asm: Ignored:		'.sin 	dw $0000,$0000,$0000,$0000,$0001,$0000,$0000,$0001,$0000,$0001,$0000,$0001,$0001,$0001,$0001,$0001'.
+DivisibleBoo.asm: Ignored:		'.sin 	dw $0000,$0000,$0000,$0000,$0001,$0000,$0000,$0001,$0000,$0001,$0000,$0001,$0001,$0001,$0001,$0001'.
+DivisibleBoo.asm: Ignored:		'.sin 	dw $0000,$0000,$0000,$0000,$0001,$0000,$0000,$0001,$0000,$0001,$0000,$0001,$0001,$0001,$0001,$0001'.
+DivisibleBoo.asm: Ignored:		'.sin 	dw $0000,$0000,$0000,$0000,$0001,$0000,$0000,$0001,$0000,$0001,$0000,$0001,$0001,$0001,$0001,$0001'.
+DivisibleBoo.asm: Ignored:		'.sin 	dw $0000,$0000,$0000,$0000,$0001,$0000,$0000,$0001,$0000,$0001,$0000,$0001,$0001,$0001,$0001,$0001'.
+DivisibleBoo.asm: Ignored:		'.sin 	dw $0000,$0000,$0000,$0000,$0001,$0000,$0000,$0001,$0000,$0001,$0000,$0001,$0001,$0001,$0001,$0001'.
+DivisibleBoo.asm: Ignored:		'.sin 	dw $0000,$0000,$0000,$0000,$0001,$0000,$0000,$0001,$0000,$0001,$0000,$0001,$0001,$0001,$0001,$0001'.
+DivisibleBoo.asm: Ignored:		'.sin 	dw $0000,$0000,$0000,$0000,$0001,$0000,$0000,$0001,$0000,$0001,$0000,$0001,$0001,$0001,$0001,$0001'.
+DivisibleBoo.asm: Ignored:		'.sin 	dw $0000,$0000,$0000,$0000,$0001,$0000,$0000,$0001,$0000,$0001,$0000,$0001,$0001,$0001,$0001,$0001'.
+DivisibleBoo.asm: Ignored:		'.sin 	dw $0000,$0000,$0000,$0000,$0001,$0000,$0000,$0001,$0000,$0001,$0000,$0001,$0001,$0001,$0001,$0001'.
+DivisibleBoo.asm: Ignored:		'.sin 	dw $0000,$0000,$0000,$0000,$0001,$0000,$0000,$0001,$0000,$0001,$0000,$0001,$0001,$0001,$0001,$0001'.
+DivisibleBoo.asm: Ignored:		'.sin 	dw $0000,$0000,$0000,$0000,$0001,$0000,$0000,$0001,$0000,$0001,$0000,$0001,$0001,$0001,$0001,$0001'.
+DivisibleBoo.asm: Ignored:		'.sin 	dw $0000,$0000,$0000,$0000,$0001,$0000,$0000,$0001,$0000,$0001,$0000,$0001,$0001,$0001,$0001,$0001'.
+DivisibleBoo.asm: Ignored:		'.sin 	dw $0000,$0000,$0000,$0000,$0001,$0000,$0000,$0001,$0000,$0001,$0000,$0001,$0001,$0001,$0001,$0001'.
+DivisibleBoo.asm: Ignored:		'.sin 	dw $0000,$0000,$0000,$0000,$0001,$0000,$0000,$0001,$0000,$0001,$0000,$0001,$0001,$0001,$0001,$0001'.
+DivisibleBoo.asm: Ignored:		'dw $0001,$0000,$0001,$0000,$0001,$0000,$0000,$0001,$0000,$0000,$0000,$0000,$0000,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0001,$0000,$0001,$0000,$0001,$0000,$0000,$0001,$0000,$0000,$0000,$0000,$0000,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0001,$0000,$0001,$0000,$0001,$0000,$0000,$0001,$0000,$0000,$0000,$0000,$0000,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0001,$0000,$0001,$0000,$0001,$0000,$0000,$0001,$0000,$0000,$0000,$0000,$0000,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0001,$0000,$0001,$0000,$0001,$0000,$0000,$0001,$0000,$0000,$0000,$0000,$0000,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0001,$0000,$0001,$0000,$0001,$0000,$0000,$0001,$0000,$0000,$0000,$0000,$0000,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0001,$0000,$0001,$0000,$0001,$0000,$0000,$0001,$0000,$0000,$0000,$0000,$0000,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0001,$0000,$0001,$0000,$0001,$0000,$0000,$0001,$0000,$0000,$0000,$0000,$0000,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0001,$0000,$0001,$0000,$0001,$0000,$0000,$0001,$0000,$0000,$0000,$0000,$0000,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0001,$0000,$0001,$0000,$0001,$0000,$0000,$0001,$0000,$0000,$0000,$0000,$0000,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0001,$0000,$0001,$0000,$0001,$0000,$0000,$0001,$0000,$0000,$0000,$0000,$0000,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0001,$0000,$0001,$0000,$0001,$0000,$0000,$0001,$0000,$0000,$0000,$0000,$0000,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0001,$0000,$0001,$0000,$0001,$0000,$0000,$0001,$0000,$0000,$0000,$0000,$0000,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0001,$0000,$0001,$0000,$0001,$0000,$0000,$0001,$0000,$0000,$0000,$0000,$0000,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0001,$0000,$0001,$0000,$0001,$0000,$0000,$0001,$0000,$0000,$0000,$0000,$0000,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0001,$0000,$0001,$0000,$0001,$0000,$0000,$0001,$0000,$0000,$0000,$0000,$0000,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$FFFF,$0000,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$0000,$FFFF,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$FFFF,$0000,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$0000,$FFFF,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$FFFF,$0000,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$0000,$FFFF,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$FFFF,$0000,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$0000,$FFFF,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$FFFF,$0000,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$0000,$FFFF,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$FFFF,$0000,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$0000,$FFFF,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$FFFF,$0000,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$0000,$FFFF,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$FFFF,$0000,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$0000,$FFFF,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$FFFF,$0000,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$0000,$FFFF,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$FFFF,$0000,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$0000,$FFFF,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$FFFF,$0000,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$0000,$FFFF,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$FFFF,$0000,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$0000,$FFFF,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$FFFF,$0000,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$0000,$FFFF,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$FFFF,$0000,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$0000,$FFFF,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$FFFF,$0000,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$0000,$FFFF,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$FFFF,$0000,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$FFFF,$0000,$FFFF,$0000,$FFFF,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$0000,$0000,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$0000,$0000,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$0000,$0000,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$0000,$0000,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$0000,$0000,$0000'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$FFFF,$0000,$0000,$0000,$0000'.
+DivisibleBoo.asm: Processed:	'STA $14C8,y'.
+DivisibleBoo.asm: Unnecessary: 'LDA $322C,x'.
+DivisibleBoo.asm: Processed:	'STA $00E4,y'.
+DivisibleBoo.asm: Processed:	'LDA $14E0,x'.
+DivisibleBoo.asm: Processed:	'STA $14E0,y'.
+DivisibleBoo.asm: Unnecessary: 'LDA $3216,x'.
+DivisibleBoo.asm: Processed:	'STA $00D8,y'.
+DivisibleBoo.asm: Processed:	'LDA $14D4,x'.
+DivisibleBoo.asm: Processed:	'STA $14D4,y'.
+DivisibleBoo.asm: Processed:	'STZ $14C8,x'.
+DivisibleBoo.asm: Ignored:		'AND #$00FF'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002'.
+DivisibleBoo.asm: Ignored:		'AND #$00FF'.
+DivisibleBoo.asm: Ignored:		'LDA #$000C ;load y disp of mario on $04'.
+DivisibleBoo.asm: Ignored:		'LDA #$0004 ;if mario is big the y disp is 4'.
+DivisibleBoo.asm: Ignored:		'LDA #$0000 ;if $04 is negative then change it to 0'.
+DivisibleBoo.asm: Ignored:		'ADC #$0014'.
+DivisibleBoo.asm: Ignored:		'ADC #$0008'.
+DivisibleBoo.asm: Processed:	'LDA $187A'.
+DivisibleBoo.asm: Ignored:		'ADC #$0010 ;if mario is riding yoshi then add 16 to bottom'.
+DivisibleBoo.asm: Unnecessary: 'LDA $322C,x'.
+DivisibleBoo.asm: Processed:	'LDA $14E0,x'.
+DivisibleBoo.asm: Unnecessary: 'LDA $3216,x'.
+DivisibleBoo.asm: Processed:	'LDA $14D4,x'.
+DivisibleBoo.asm: Processed:	'STZ $000E ;if x+xdisp < 0 then x+xdisp = 0'.
+DivisibleBoo.asm: Ignored:		'ADC #$0010'.
+DivisibleBoo.asm: Processed:	'STZ $000E ;if y + ydisp < 0 then y + ydisp = 0'.
+DivisibleBoo.asm: Processed:	'JSR ($000E,x) ;make action of this hitbox'.
+DivisibleBoo.asm: Processed:	'LDA $187A'.
+DivisibleBoo.asm: Processed:	'LDA $187A'.
+DivisibleBoo.asm: Processed:	'LDX $18E2'.
+DivisibleBoo.asm: Processed:	'STA $163D,x'.
+DivisibleBoo.asm: Processed:	'STA $1DFA'.
+DivisibleBoo.asm: Processed:	'STA $1DFC'.
+DivisibleBoo.asm: Processed:	'STZ $187A'.
+DivisibleBoo.asm: Processed:	'STZ $0DC1'.
+DivisibleBoo.asm: Processed:	'LDY $157B,x'.
+DivisibleBoo.asm: Processed:	'STZ $1593,x'.
+DivisibleBoo.asm: Processed:	'STZ $151B,x'.
+DivisibleBoo.asm: Processed:	'STZ $18AE'.
+DivisibleBoo.asm: Processed:	'STA $1497'.
+DivisibleBoo.asm: Processed:	'LDA $1697	; consecutive enemies stomped'.
+DivisibleBoo.asm: Processed:	'ADC $1626,x	; plus number of enemies this sprite has killed (...huh?)'.
+DivisibleBoo.asm: Processed:	'INC $1697	; increment the counter'.
+DivisibleBoo.asm: Processed:	'STA $1DF9	;'.
+DivisibleBoo.asm: Processed:	'LDX $15E9	;'.
+DivisibleBoo.asm: Ignored:		'LDY #$0000'.
+DivisibleBoo.asm: Ignored:		'AND #$00FF'.
+DivisibleBoo.asm: Processed:	'STA $0300,y ;load the tile X position'.
+DivisibleBoo.asm: Processed:	'STA $0301,y ;load the tile Y position'.
+DivisibleBoo.asm: Processed:	'STA $0303,y ;load the tile Propertie'.
+DivisibleBoo.asm: Processed:	'STA $0302,y ;load the tile'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0001,$0002,$0003,$0004,$0005,$0006,$0007,$0008,$0009,$000A,$000B'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0006,$0008,$000A,$000C,$000E,$0012,$0016,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0006,$0008,$000A,$000C,$000E,$0012,$0016,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0006,$0008,$000A,$000C,$000E,$0012,$0016,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0006,$0008,$000A,$000C,$000E,$0012,$0016,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0006,$0008,$000A,$000C,$000E,$0012,$0016,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0006,$0008,$000A,$000C,$000E,$0012,$0016,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0006,$0008,$000A,$000C,$000E,$0012,$0016,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0006,$0008,$000A,$000C,$000E,$0012,$0016,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0006,$0008,$000A,$000C,$000E,$0012,$0016,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0006,$0008,$000A,$000C,$000E,$0012,$0016,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0006,$0008,$000A,$000C,$000E,$0012,$0016,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0006,$0008,$000A,$000C,$000E,$0012,$0016,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0004,$0008,$000A,$000C,$000E,$0010,$0014,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0004,$0008,$000A,$000C,$000E,$0010,$0014,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0004,$0008,$000A,$000C,$000E,$0010,$0014,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0004,$0008,$000A,$000C,$000E,$0010,$0014,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0004,$0008,$000A,$000C,$000E,$0010,$0014,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0004,$0008,$000A,$000C,$000E,$0010,$0014,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0004,$0008,$000A,$000C,$000E,$0010,$0014,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0004,$0008,$000A,$000C,$000E,$0010,$0014,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0004,$0008,$000A,$000C,$000E,$0010,$0014,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0004,$0008,$000A,$000C,$000E,$0010,$0014,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0004,$0008,$000A,$000C,$000E,$0010,$0014,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0000,$0004,$0008,$000A,$000C,$000E,$0010,$0014,$0018,$001A,$001C,$001E'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $0002,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $0004,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $0004,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $0004,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $0004,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $0004,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $0004,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $0004,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $0004,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $000C,$000C'.
+DivisibleBoo.asm: Ignored:		'dw $000C,$000C'.
+DivisibleBoo.asm: Ignored:		'dw $000C,$000C'.
+DivisibleBoo.asm: Ignored:		'dw $000C,$000C'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $000C,$000C'.
+DivisibleBoo.asm: Ignored:		'dw $000C,$000C'.
+DivisibleBoo.asm: Ignored:		'dw $000C,$000C'.
+DivisibleBoo.asm: Ignored:		'dw $000C,$000C'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $000A,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $000A,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $000A,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $000A,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $000A,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $000A,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $000A,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $000A,$0002'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		'dw $FFFF'.
+DivisibleBoo.asm: Ignored:		';       Y = index to sprite OAM ($300)'.
+DivisibleBoo.asm: Processed:	'STZ $186C,x             ; reset sprite offscreen flag, vertical'.
+DivisibleBoo.asm: Processed:	'STZ $15A0,x             ; reset sprite offscreen flag, horizontal'.
+DivisibleBoo.asm: Unnecessary: 'LDA $322C,x               ; \'.
+DivisibleBoo.asm: Processed:	'LDA $14E0,x             ;  |'.
+DivisibleBoo.asm: Processed:	'INC $15A0,x             ; /'.
+DivisibleBoo.asm: Processed:	'LDA $14E0,x             ; \'.
+DivisibleBoo.asm: Unnecessary: 'LDA $322C,x               ;  |'.
+DivisibleBoo.asm: Ignored:		'ADC #$0040            ;  |'.
+DivisibleBoo.asm: Ignored:		'CMP #$0180            ;  |'.
+DivisibleBoo.asm: Processed:	'STA $15C4,x             ; /'.
+DivisibleBoo.asm: Processed:	'LDA $1662,x             ;  |'.
+DivisibleBoo.asm: Unnecessary: 'LDA $3216,x               ; \'.
+DivisibleBoo.asm: Processed:	'LDA $14D4,x             ;  |'.
+DivisibleBoo.asm: Processed:	'LDA $186C,x             ;  | (vert offscreen)'.
+DivisibleBoo.asm: Processed:	'STA $186C,x             ;  |'.
+DivisibleBoo.asm: Processed:	'LDY $15EA,x             ; get offset to sprite OAM'.
+DivisibleBoo.asm: Unnecessary: 'LDA $322C,x               ; \'.
+DivisibleBoo.asm: Unnecessary: 'LDA $3216,x               ; \'.
+DivisibleBoo.asm: Ignored:		'; $B85D - off screen processing code - shared'.
+DivisibleBoo.asm: Unnecessary: 'LDA $3216,x               ; \'.
+DivisibleBoo.asm: Processed:	'LDA $14D4,x             ; | (if adding 0x50 to the sprite y position would make the high byte >= 2)'.
+DivisibleBoo.asm: Processed:	'LDA $167A,x             ; \ if "process offscreen" flag is set, return'.
+DivisibleBoo.asm: Unnecessary: 'CMP $322C,x               ;A'.
+DivisibleBoo.asm: Processed:	'SBC $14E0,x             ;A'.
+DivisibleBoo.asm: Processed:	'LDA $14C8,x             ; \ if sprite status < 8, permanently erase sprite'.
+DivisibleBoo.asm: Processed:	'LDY $161A,x             ;A'.
+DivisibleBoo.asm: Processed:	'STZ $14C8,x             ; erase sprite'.
+DivisibleBoo.asm: Processed:	'LDA $167A,x             ; \ if "process offscreen" flag is set, return'.
+DivisibleBoo.asm: Unnecessary: 'LDA $322C,x               ; \'.
+DivisibleBoo.asm: Processed:	'LDA $14E0,x             ;  |'.
+DivisibleBoo.asm: Unnecessary: 'CMP $3216,x               ;A'.
+DivisibleBoo.asm: Processed:	'LDA $001D             ;A'.
+DivisibleBoo.asm: Processed:	'SBC $14D4,x             ;A'.
+DivisibleBoo.asm: Processed:	'LDA $15A0,x             ; \ if sprite is on screen, accumulator = 0'.
+DivisibleBoo.asm: Processed:	'ORA $186C,x             ; |'.
+DivisibleBoo.asm: Processed:	'LDA $7FAB10,x'.
+DivisibleBoo.asm: Unnecessary: 'JSL $018022'.
+DivisibleBoo.asm: Unnecessary: 'JSL $01801A'.
+DivisibleBoo.asm: Unnecessary: 'JSL $02A9DE'.
+DivisibleBoo.asm: Processed:	'LDA $7FAB9E,x'.
+DivisibleBoo.asm: Processed:	'STA $7FAB9E,x'.
+DivisibleBoo.asm: Unnecessary: 'JSL $07F7D2'.
+DivisibleBoo.asm: Processed:	'STA $7FAB10,x'.
+DivisibleBoo.asm: Unnecessary: 'JSL $00F5B7'.
+DivisibleBoo.asm: Processed:	'JSL $81AA33'.
+DivisibleBoo.asm: Processed:	'JSL $81AB99'.
+DivisibleBoo.asm: Processed:	'LDA $7FAB10,x'.
+DivisibleBoo.asm: Unnecessary: 'LDA $037FFF,x	; star sounds (X is never 0 here; they start at $038000)'.
+DivisibleBoo.asm: Ignored:		'LDA $037FFF,x	; star sounds (X is never 0 here; they start at $038000)'.
+DivisibleBoo.asm: Processed:	'JSL $82ACE5	;'.
+DivisibleBoo.asm: Unnecessary: 'JSL $01B7B3 ;call the oam routine'.
+DivisibleBoo.asm: Ignored:		'; It is adapted from the subroutine at $03B760'.
+DivisibleBoo.asm: Unnecessary: 'STA $418A00,x'.
+DivisibleBoo.asm: 
+DivisibleBoo.asm: -------- Information Log --------
+DivisibleBoo.asm: 
+DivisibleBoo.asm: Dynamic Sprite conversion: SUCCESS!
+DivisibleBoo.asm: Processing define '!FramePointer'.
+DivisibleBoo.asm: 	- Define OK.
+DivisibleBoo.asm: Converted 0000C2 to 0030D8
+DivisibleBoo.asm: Converted 000060 to 003060
+DivisibleBoo.asm: Converted 00006A to 00306A
+DivisibleBoo.asm: Processing define '!88'.
+DivisibleBoo.asm: 	- Define OK.
+DivisibleBoo.asm: Converted 000088 to 003088
+DivisibleBoo.asm: Processing define '!8C'.
+DivisibleBoo.asm: 	- Define OK.
+DivisibleBoo.asm: Converted 00008C to 00308C
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 0000AA to 00309E
+DivisibleBoo.asm: Converted 0000B6 to 0030B6
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000008 to 003008
+DivisibleBoo.asm: Converted 00009D to 00309D
+DivisibleBoo.asm: Converted 0000AA to 00309E
+DivisibleBoo.asm: Converted 0000AA to 00309E
+DivisibleBoo.asm: Converted 0000B6 to 0030B6
+DivisibleBoo.asm: Converted 0000B6 to 0030B6
+DivisibleBoo.asm: Converted 0000B6 to 0030B6
+DivisibleBoo.asm: Converted 0000B6 to 0030B6
+DivisibleBoo.asm: Converted 0000B6 to 0030B6
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 0000AA to 00309E
+DivisibleBoo.asm: Converted 0000E4 to 00322C
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 000094 to 003094
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000076 to 003076
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 000094 to 003094
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000076 to 003076
+DivisibleBoo.asm: Converted 000076 to 003076
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 0000B6 to 0030B6
+DivisibleBoo.asm: Converted 0000AA to 00309E
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 000096 to 003096
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 000096 to 003096
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 0000AA to 00309E
+DivisibleBoo.asm: Converted 0000AA to 00309E
+DivisibleBoo.asm: Converted 0000AA to 00309E
+DivisibleBoo.asm: Converted 0000AA to 00309E
+DivisibleBoo.asm: Converted 0000F8 to 0030F8
+DivisibleBoo.asm: Converted 0000F8 to 0030F8
+DivisibleBoo.asm: Converted 0000AA to 00309E
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 000096 to 003096
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 0000AA to 00309E
+DivisibleBoo.asm: Converted 0000AA to 00309E
+DivisibleBoo.asm: Converted 0000AA to 00309E
+DivisibleBoo.asm: Converted 0000AA to 00309E
+DivisibleBoo.asm: Converted 000008 to 003008
+DivisibleBoo.asm: Converted 000008 to 003008
+DivisibleBoo.asm: Converted 0000AA to 00309E
+DivisibleBoo.asm: Converted 0000E4 to 00322C
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 000094 to 003094
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 0000B6 to 0030B6
+DivisibleBoo.asm: Converted 0000B6 to 0030B6
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 0000B6 to 0030B6
+DivisibleBoo.asm: Converted 0000B6 to 0030B6
+DivisibleBoo.asm: Converted 000008 to 003008
+DivisibleBoo.asm: Converted 000008 to 003008
+DivisibleBoo.asm: Converted 0000B6 to 0030B6
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 000094 to 003094
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 0000B6 to 0030B6
+DivisibleBoo.asm: Converted 0000B6 to 0030B6
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 0000B6 to 0030B6
+DivisibleBoo.asm: Converted 0000B6 to 0030B6
+DivisibleBoo.asm: Converted 0000F8 to 0030F8
+DivisibleBoo.asm: Converted 0000F8 to 0030F8
+DivisibleBoo.asm: Converted 0000B6 to 0030B6
+DivisibleBoo.asm: Converted 0000D8 to 003216
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000003 to 003003
+DivisibleBoo.asm: Converted 000014 to 003014
+DivisibleBoo.asm: Converted 000003 to 003003
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 0000D8 to 003216
+DivisibleBoo.asm: Converted 000003 to 003003
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 0000E4 to 00322C
+DivisibleBoo.asm: Converted 0000D8 to 003216
+DivisibleBoo.asm: Converted 00000C to 00300C
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 0000B6 to 0030B6
+DivisibleBoo.asm: Converted 000010 to 003010
+DivisibleBoo.asm: Converted 0000AA to 00309E
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000005 to 003005
+DivisibleBoo.asm: Converted 000030 to 003030
+DivisibleBoo.asm: Converted 000030 to 003030
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000003 to 003003
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000005 to 003005
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000003 to 003003
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000030 to 003030
+DivisibleBoo.asm: Converted 000008 to 003008
+DivisibleBoo.asm: Converted 00000A to 00300A
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000019 to 003019
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000096 to 003096
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000006 to 003006
+DivisibleBoo.asm: Converted 000006 to 003006
+DivisibleBoo.asm: Converted 000019 to 003019
+DivisibleBoo.asm: Converted 000006 to 003006
+DivisibleBoo.asm: Converted 000006 to 003006
+DivisibleBoo.asm: Converted 000006 to 003006
+DivisibleBoo.asm: Converted 000006 to 003006
+DivisibleBoo.asm: Converted 000006 to 003006
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 0000E4 to 00322C
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 0000D8 to 003216
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000003 to 003003
+DivisibleBoo.asm: Converted 000030 to 003030
+DivisibleBoo.asm: Converted 000008 to 003008
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 00000E to 00300E
+DivisibleBoo.asm: Converted 000094 to 003094
+DivisibleBoo.asm: Converted 00000E to 00300E
+DivisibleBoo.asm: Converted 000094 to 003094
+DivisibleBoo.asm: Converted 00000E to 00300E
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 00000E to 00300E
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 00000E to 00300E
+DivisibleBoo.asm: Converted 000006 to 003006
+DivisibleBoo.asm: Converted 00000E to 00300E
+DivisibleBoo.asm: Converted 00000E to 00300E
+DivisibleBoo.asm: Converted 000030 to 003030
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000030 to 003030
+DivisibleBoo.asm: Converted 00000A to 00300A
+DivisibleBoo.asm: Converted 000030 to 003030
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 0000E0 to 00321E
+DivisibleBoo.asm: Converted 000010 to 003010
+DivisibleBoo.asm: Converted 000003 to 003003
+DivisibleBoo.asm: Converted 000013 to 003013
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 0000C1 to 0030C1
+DivisibleBoo.asm: Converted 0000C0 to 0030C0
+DivisibleBoo.asm: Converted 00007D to 00307D
+DivisibleBoo.asm: Converted 00007B to 00307B
+DivisibleBoo.asm: Converted 0000B5 to 0030A9
+DivisibleBoo.asm: Converted 000030 to 003030
+DivisibleBoo.asm: Converted 00007D to 00307D
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 0000B6 to 0030B6
+DivisibleBoo.asm: Converted 0000AA to 00309E
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 0000E0 to 00321E
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000008 to 003008
+DivisibleBoo.asm: Converted 000008 to 003008
+DivisibleBoo.asm: Converted 000008 to 003008
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000006 to 003006
+DivisibleBoo.asm: Converted 000010 to 003010
+DivisibleBoo.asm: Converted 000010 to 003010
+DivisibleBoo.asm: Converted 000030 to 003030
+DivisibleBoo.asm: Converted 00000D to 00300D
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000064 to 003064
+DivisibleBoo.asm: Converted 00000D to 00300D
+DivisibleBoo.asm: Converted 000010 to 003010
+DivisibleBoo.asm: Converted 00000E to 00300E
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000033 to 003033
+DivisibleBoo.asm: Converted 000033 to 003033
+DivisibleBoo.asm: Converted 000032 to 003032
+DivisibleBoo.asm: Converted 000032 to 003032
+DivisibleBoo.asm: Converted 000032 to 003032
+DivisibleBoo.asm: Converted 000032 to 003032
+DivisibleBoo.asm: Converted 000073 to 003073
+DivisibleBoo.asm: Converted 000073 to 003073
+DivisibleBoo.asm: Converted 000072 to 003072
+DivisibleBoo.asm: Converted 000072 to 003072
+DivisibleBoo.asm: Converted 000072 to 003072
+DivisibleBoo.asm: Converted 000072 to 003072
+DivisibleBoo.asm: Converted 000060 to 003060
+DivisibleBoo.asm: Converted 000062 to 003062
+DivisibleBoo.asm: Converted 000064 to 003064
+DivisibleBoo.asm: Converted 000066 to 003066
+DivisibleBoo.asm: Converted 000088 to 003088
+DivisibleBoo.asm: Converted 00008C to 00308C
+DivisibleBoo.asm: Converted 000060 to 003060
+DivisibleBoo.asm: Converted 000062 to 003062
+DivisibleBoo.asm: Converted 000064 to 003064
+DivisibleBoo.asm: Converted 000066 to 003066
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 00000C to 00300C
+DivisibleBoo.asm: Converted 00001C to 00301C
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 0000E4 to 00322C
+DivisibleBoo.asm: Converted 00001A to 00301A
+DivisibleBoo.asm: Converted 00001B to 00301B
+DivisibleBoo.asm: Converted 0000E4 to 00322C
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 00001A to 00301A
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000020 to 003020
+DivisibleBoo.asm: Converted 0000D8 to 003216
+DivisibleBoo.asm: Converted 00001C to 00301C
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 00001D to 00301D
+DivisibleBoo.asm: Converted 0000E4 to 00322C
+DivisibleBoo.asm: Converted 00001A to 00301A
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 0000D8 to 003216
+DivisibleBoo.asm: Converted 00001C to 00301C
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000040 to 003040
+DivisibleBoo.asm: Converted 0000B0 to 0030A4
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 000030 to 003030
+DivisibleBoo.asm: Converted 0000C0 to 0030C0
+DivisibleBoo.asm: Converted 0000A0 to 003202
+DivisibleBoo.asm: Converted 0000C0 to 0030C0
+DivisibleBoo.asm: Converted 0000A0 to 003202
+DivisibleBoo.asm: Converted 0000F0 to 0030F0
+DivisibleBoo.asm: Converted 000060 to 003060
+DivisibleBoo.asm: Converted 000090 to 003090
+DivisibleBoo.asm: Converted 000030 to 003030
+DivisibleBoo.asm: Converted 0000C0 to 0030C0
+DivisibleBoo.asm: Converted 0000A0 to 003202
+DivisibleBoo.asm: Converted 000080 to 003080
+DivisibleBoo.asm: Converted 0000A0 to 003202
+DivisibleBoo.asm: Converted 000040 to 003040
+DivisibleBoo.asm: Converted 000060 to 003060
+DivisibleBoo.asm: Converted 0000B0 to 0030A4
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000003 to 003003
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000006 to 003006
+DivisibleBoo.asm: Converted 000008 to 003008
+DivisibleBoo.asm: Converted 00000A to 00300A
+DivisibleBoo.asm: Converted 00000C to 00300C
+DivisibleBoo.asm: Converted 00000E to 00300E
+DivisibleBoo.asm: Converted 000003 to 003003
+DivisibleBoo.asm: Converted 000003 to 003003
+DivisibleBoo.asm: Converted 00005B to 00305B
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 0000D8 to 003216
+DivisibleBoo.asm: Converted 000050 to 003050
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000013 to 003013
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000003 to 003003
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 00001A to 00301A
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 0000E4 to 00322C
+DivisibleBoo.asm: Converted 00001B to 00301B
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000080 to 003080
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000008 to 003008
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000013 to 003013
+DivisibleBoo.asm: Converted 0000E4 to 00322C
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000013 to 003013
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 00001C to 00301C
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 0000D8 to 003216
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000080 to 003080
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Processing define '!AnFramePointer'.
+DivisibleBoo.asm: 	- Define OK.
+DivisibleBoo.asm: Converted 001504 to 0074F4
+DivisibleBoo.asm: Processing define '!AnPointer'.
+DivisibleBoo.asm: 	- Define OK.
+DivisibleBoo.asm: Converted 001510 to 00750A
+DivisibleBoo.asm: Processing define '!AnimationTimer'.
+DivisibleBoo.asm: 	- Define OK.
+DivisibleBoo.asm: Converted 001540 to 0032C6
+DivisibleBoo.asm: Processing define '!GlobalFlipper'.
+DivisibleBoo.asm: 	- Define OK.
+DivisibleBoo.asm: Converted 001534 to 0032B0
+DivisibleBoo.asm: Processing define '!LocalFlipper'.
+DivisibleBoo.asm: 	- Define OK.
+DivisibleBoo.asm: Converted 001570 to 00331E
+DivisibleBoo.asm: Processing define '!moveTimer'.
+DivisibleBoo.asm: 	- Define OK.
+DivisibleBoo.asm: Converted 001528 to 00329A
+DivisibleBoo.asm: Processing define '!starting'.
+DivisibleBoo.asm: 	- Define OK.
+DivisibleBoo.asm: Converted 001594 to 003360
+DivisibleBoo.asm: Processing define '!startingTimer'.
+DivisibleBoo.asm: 	- Define OK.
+DivisibleBoo.asm: Converted 00154C to 0032DC
+DivisibleBoo.asm: Converted 0014C8 to 003242
+DivisibleBoo.asm: Converted 00322C to 00322C
+DivisibleBoo.asm: Converted 0014E0 to 00326E
+DivisibleBoo.asm: Converted 000018 to 003018
+DivisibleBoo.asm: Converted 000010 to 003010
+DivisibleBoo.asm: Converted 000030 to 003030
+DivisibleBoo.asm: Converted 00322C to 00322C
+DivisibleBoo.asm: Converted 0014E0 to 00326E
+DivisibleBoo.asm: Converted 000018 to 003018
+DivisibleBoo.asm: Converted 003216 to 003216
+DivisibleBoo.asm: Converted 0014D4 to 003258
+DivisibleBoo.asm: Converted 003216 to 003216
+DivisibleBoo.asm: Converted 0014D4 to 003258
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 0014C8 to 003242
+DivisibleBoo.asm: Converted 00322C to 00322C
+DivisibleBoo.asm: Converted 0000E4 to 00322C
+DivisibleBoo.asm: Converted 0014E0 to 00326E
+DivisibleBoo.asm: Converted 0014E0 to 00326E
+DivisibleBoo.asm: Converted 003216 to 003216
+DivisibleBoo.asm: Converted 0000D8 to 003216
+DivisibleBoo.asm: Converted 0014D4 to 003258
+DivisibleBoo.asm: Converted 0014D4 to 003258
+DivisibleBoo.asm: Converted 0014C8 to 003242
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 00000C to 00300C
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000014 to 003014
+DivisibleBoo.asm: Converted 000008 to 003008
+DivisibleBoo.asm: Converted 00187A to 00787A
+DivisibleBoo.asm: Converted 000010 to 003010
+DivisibleBoo.asm: Converted 00322C to 00322C
+DivisibleBoo.asm: Converted 0014E0 to 00326E
+DivisibleBoo.asm: Converted 003216 to 003216
+DivisibleBoo.asm: Converted 0014D4 to 003258
+DivisibleBoo.asm: Converted 00000E to 00300E
+DivisibleBoo.asm: Converted 000010 to 003010
+DivisibleBoo.asm: Converted 00000E to 00300E
+DivisibleBoo.asm: Converted 00000E to 00300E
+DivisibleBoo.asm: Converted 00187A to 00787A
+DivisibleBoo.asm: Converted 00187A to 00787A
+DivisibleBoo.asm: Converted 0018E2 to 0078E2
+DivisibleBoo.asm: Converted 00163D to 0075AF
+DivisibleBoo.asm: Converted 001DFA to 007DFA
+DivisibleBoo.asm: Converted 001DFC to 007DFC
+DivisibleBoo.asm: Converted 00187A to 00787A
+DivisibleBoo.asm: Converted 000DC1 to 006DC1
+DivisibleBoo.asm: Converted 00157B to 003329
+DivisibleBoo.asm: Converted 001593 to 003355
+DivisibleBoo.asm: Converted 00151B to 007515
+DivisibleBoo.asm: Converted 0018AE to 0078AE
+DivisibleBoo.asm: Converted 001497 to 007497
+DivisibleBoo.asm: Converted 001697 to 007697
+DivisibleBoo.asm: Converted 001626 to 00758E
+DivisibleBoo.asm: Converted 001697 to 007697
+DivisibleBoo.asm: Converted 001DF9 to 007DF9
+DivisibleBoo.asm: Converted 0015E9 to 0075E9
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 0000FF to 0030FF
+DivisibleBoo.asm: Converted 000300 to 006300
+DivisibleBoo.asm: Converted 000301 to 006301
+DivisibleBoo.asm: Converted 000303 to 006303
+DivisibleBoo.asm: Converted 000302 to 006302
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000003 to 003003
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000005 to 003005
+DivisibleBoo.asm: Converted 000006 to 003006
+DivisibleBoo.asm: Converted 000007 to 003007
+DivisibleBoo.asm: Converted 000008 to 003008
+DivisibleBoo.asm: Converted 000009 to 003009
+DivisibleBoo.asm: Converted 00000A to 00300A
+DivisibleBoo.asm: Converted 00000B to 00300B
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000001 to 003001
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000003 to 003003
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000005 to 003005
+DivisibleBoo.asm: Converted 000006 to 003006
+DivisibleBoo.asm: Converted 000007 to 003007
+DivisibleBoo.asm: Converted 000008 to 003008
+DivisibleBoo.asm: Converted 000009 to 003009
+DivisibleBoo.asm: Converted 00000A to 00300A
+DivisibleBoo.asm: Converted 00000B to 00300B
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000006 to 003006
+DivisibleBoo.asm: Converted 000008 to 003008
+DivisibleBoo.asm: Converted 00000A to 00300A
+DivisibleBoo.asm: Converted 00000C to 00300C
+DivisibleBoo.asm: Converted 00000E to 00300E
+DivisibleBoo.asm: Converted 000012 to 003012
+DivisibleBoo.asm: Converted 000016 to 003016
+DivisibleBoo.asm: Converted 000018 to 003018
+DivisibleBoo.asm: Converted 00001A to 00301A
+DivisibleBoo.asm: Converted 00001C to 00301C
+DivisibleBoo.asm: Converted 00001E to 00301E
+DivisibleBoo.asm: Converted 000000 to 003000
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000008 to 003008
+DivisibleBoo.asm: Converted 00000A to 00300A
+DivisibleBoo.asm: Converted 00000C to 00300C
+DivisibleBoo.asm: Converted 00000E to 00300E
+DivisibleBoo.asm: Converted 000010 to 003010
+DivisibleBoo.asm: Converted 000014 to 003014
+DivisibleBoo.asm: Converted 000018 to 003018
+DivisibleBoo.asm: Converted 00001A to 00301A
+DivisibleBoo.asm: Converted 00001C to 00301C
+DivisibleBoo.asm: Converted 00001E to 00301E
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000004 to 003004
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 00000C to 00300C
+DivisibleBoo.asm: Converted 00000C to 00300C
+DivisibleBoo.asm: Converted 00000C to 00300C
+DivisibleBoo.asm: Converted 00000C to 00300C
+DivisibleBoo.asm: Converted 00000C to 00300C
+DivisibleBoo.asm: Converted 00000C to 00300C
+DivisibleBoo.asm: Converted 00000C to 00300C
+DivisibleBoo.asm: Converted 00000C to 00300C
+DivisibleBoo.asm: Converted 00000A to 00300A
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 00000A to 00300A
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 00000A to 00300A
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 00000A to 00300A
+DivisibleBoo.asm: Converted 000002 to 003002
+DivisibleBoo.asm: Converted 000300 to 006300
+DivisibleBoo.asm: Converted 00186C to 007642
+DivisibleBoo.asm: Converted 0015A0 to 003376
+DivisibleBoo.asm: Converted 00322C to 00322C
+DivisibleBoo.asm: Converted 0014E0 to 00326E
+DivisibleBoo.asm: Converted 0015A0 to 003376
+DivisibleBoo.asm: Converted 0014E0 to 00326E
+DivisibleBoo.asm: Converted 00322C to 00322C
+DivisibleBoo.asm: Converted 000040 to 003040
+DivisibleBoo.asm: Converted 000180 to 006180
+DivisibleBoo.asm: Converted 0015C4 to 007536
+DivisibleBoo.asm: Converted 001662 to 0075EA
+DivisibleBoo.asm: Converted 003216 to 003216
+DivisibleBoo.asm: Converted 0014D4 to 003258
+DivisibleBoo.asm: Converted 00186C to 007642
+DivisibleBoo.asm: Converted 00186C to 007642
+DivisibleBoo.asm: Converted 0015EA to 0033A2
+DivisibleBoo.asm: Converted 00322C to 00322C
+DivisibleBoo.asm: Converted 003216 to 003216
+DivisibleBoo.asm: Converted 003216 to 003216
+DivisibleBoo.asm: Converted 0014D4 to 003258
+DivisibleBoo.asm: Converted 00167A to 007616
+DivisibleBoo.asm: Converted 00322C to 00322C
+DivisibleBoo.asm: Converted 0014E0 to 00326E
+DivisibleBoo.asm: Converted 0014C8 to 003242
+DivisibleBoo.asm: Converted 00161A to 007578
+DivisibleBoo.asm: Converted 0014C8 to 003242
+DivisibleBoo.asm: Converted 00167A to 007616
+DivisibleBoo.asm: Converted 00322C to 00322C
+DivisibleBoo.asm: Converted 0014E0 to 00326E
+DivisibleBoo.asm: Converted 003216 to 003216
+DivisibleBoo.asm: Converted 00001D to 00301D
+DivisibleBoo.asm: Converted 0014D4 to 003258
+DivisibleBoo.asm: Converted 0015A0 to 003376
+DivisibleBoo.asm: Converted 00186C to 007642
+DivisibleBoo.asm: Converted 7FAB10 to 400040
+DivisibleBoo.asm: Converted 7FAB9E to 400083
+DivisibleBoo.asm: Converted 7FAB9E to 400083
+DivisibleBoo.asm: Converted 7FAB10 to 400040
+DivisibleBoo.asm: Bank $81 changed to $01.
+DivisibleBoo.asm: Bank $81 changed to $01.
+DivisibleBoo.asm: Converted 7FAB10 to 400040
+DivisibleBoo.asm: Converted 037FFF to 037FFF
+DivisibleBoo.asm: Bank $82 changed to $02.
+Koopa.asm: -------- Critical Log --------
+Koopa.asm: 
+Koopa.asm: -------- Regular Log --------
+Koopa.asm: Processed:	'    STA $1938,y'.
+Koopa.asm: Dynamic Sprite conversion: SUCCESS!
+Koopa.asm: Ignored:		'db $08,$F8'.
+Koopa.asm: Ignored:		'db $08,$F8'.
+Koopa.asm: Ignored:		'db $0C,$F4'.
+Koopa.asm: Ignored:		'db $0C,$F4'.
+Koopa.asm: Ignored:		'db $30,$D0'.
+Koopa.asm: Ignored:		'db $30,$D0'.
+Koopa.asm: Processed:	'!kickYSpeed     =   $E0'.
+Koopa.asm: Processed:	'!jumpSpeed      =   $C0'.
+Koopa.asm: Processed:	'!followTimer    =   $7F'.
+Koopa.asm: Processed:	'!shakeTime      =   $10'.
+Koopa.asm: Ignored:		'db $C8,$CA,$CA,$CC,$86,$4E,$86'.
+Koopa.asm: Ignored:		'db $C8,$CA,$CA,$CC,$86,$4E,$86'.
+Koopa.asm: Ignored:		'db $C8,$CA,$CA,$CC,$86,$4E,$86'.
+Koopa.asm: Ignored:		'db $C8,$CA,$CA,$CC,$86,$4E,$86'.
+Koopa.asm: Ignored:		'db $C8,$CA,$CA,$CC,$86,$4E,$86'.
+Koopa.asm: Ignored:		'db $C8,$CA,$CA,$CC,$86,$4E,$86'.
+Koopa.asm: Ignored:		'db $C8,$CA,$CA,$CC,$86,$4E,$86'.
+Koopa.asm: Ignored:		'db $E0,$E2,$E2,$E4,$E0,$E0,$E6'.
+Koopa.asm: Ignored:		'db $E0,$E2,$E2,$E4,$E0,$E0,$E6'.
+Koopa.asm: Ignored:		'db $E0,$E2,$E2,$E4,$E0,$E0,$E6'.
+Koopa.asm: Ignored:		'db $E0,$E2,$E2,$E4,$E0,$E0,$E6'.
+Koopa.asm: Ignored:		'db $E0,$E2,$E2,$E4,$E0,$E0,$E6'.
+Koopa.asm: Ignored:		'db $E0,$E2,$E2,$E4,$E0,$E0,$E6'.
+Koopa.asm: Ignored:		'db $E0,$E2,$E2,$E4,$E0,$E0,$E6'.
+Koopa.asm: Processed:	'!squishTile     =   $EE'.
+Koopa.asm: Processed:	'!kickSound      =   $03'.
+Koopa.asm: Processed:	'!kickedSound    =   $03'.
+Koopa.asm: Processed:	'!stunTimeA      =   $7F'.
+Koopa.asm: Processed:	'!stunTimeB      =   $20'.
+Koopa.asm: Ignored:		'; Maximum value is $7F.'.
+Koopa.asm: Processed:	'!flipSpeed      =   $E0'.
+Koopa.asm: Processed:	'!kickedPoints   =   $01'.
+Koopa.asm: Ignored:		'CMP #$08'.
+Koopa.asm: Processed:	'LDA $9D                     ;\ Branch if the game is frozen.'.
+Koopa.asm: Ignored:		'CMP #$80                    ;| Check the usage of $163E.'.
+Koopa.asm: Processed:	'LDA $9D                     ;|  If 01-7F, the Koopa is kicking a shell; don't animate it.'.
+Koopa.asm: Ignored:		'ADC #$04                    ;|'.
+Koopa.asm: Processed:	'STZ $B6,X                   ;\'.
+Koopa.asm: Processed:	'STZ $AA,X                   ;/'.
+Koopa.asm: Ignored:		'AND #$20                    ;|'.
+Koopa.asm: Ignored:		'CMP #$80                    ;\ If the stun timer is not exactly 80, branch.'.
+Koopa.asm: Ignored:		'AND #$10                    ;|'.
+Koopa.asm: Processed:	'STA $AA,x                   ;|'.
+Koopa.asm: Ignored:		'CMP #$01                    ;\'.
+Koopa.asm: Ignored:		'CMP #$09                    ;| Jump back and handle basic stationary/stunned fuctions if'.
+Koopa.asm: Processed:	'LDA $E4,x                   ;|  - The state of the sprite being kicked isn't still 09 (stationary/carryable).'.
+Koopa.asm: Ignored:		'ADC #$12                    ;|'.
+Koopa.asm: Ignored:		'CMP #$24                    ;|'.
+Koopa.asm: Ignored:		'LDA #$20                    ;\'.
+Koopa.asm: Processed:	'STA $C2,x                   ;| Disable contact with the sprite, and wait a bit before resuming movement.'.
+Koopa.asm: Ignored:		'LDA #$0A                    ;|'.
+Koopa.asm: Ignored:		'LDA #$08                    ;\ Briefly disable sprite interaction for the kicked sprite.'.
+Koopa.asm: Ignored:		'AND #$10                    ;|'.
+Koopa.asm: Ignored:		'AND #$03                    ;| If the Koopa hits the side of a block, stop.'.
+Koopa.asm: Processed:	'STZ $B6,x                   ;/'.
+Koopa.asm: Processed:	'LDA $86                     ;|'.
+Koopa.asm: Ignored:		'CMP #$01                    ;|'.
+Koopa.asm: Ignored:		'LDA #$02                    ;|'.
+Koopa.asm: Processed:	'STA $00                     ;| Apply friction to the sliding Koopa, with slipperiness factored in.'.
+Koopa.asm: Processed:	'LDA $B6,x                   ;|  Also spawn smoke particles at its position.'.
+Koopa.asm: Ignored:		'CMP #$02                    ;|'.
+Koopa.asm: Processed:	'ADC $00                     ;|'.
+Koopa.asm: Processed:	'ADC $00                     ;|'.
+Koopa.asm: Processed:	'SBC $00                     ;|'.
+Koopa.asm: Processed:	'STA $B6,x                   ;|'.
+Koopa.asm: Ignored:		'LDA #$06                    ;\'.
+Koopa.asm: Ignored:		'LDY.b #!stunTimeA+$80       ;\'.
+Koopa.asm: Ignored:		'AND #$10                    ;|'.
+Koopa.asm: Ignored:		'LDY.b #!stunTimeB+$80       ;| Stun the sprite and return back for basic functionality.'.
+Koopa.asm: Ignored:		'CMP #$0A                    ;| Clear the "catching" flag and branch if the shell has stopped.'.
+Koopa.asm: Ignored:		'AND #$03                    ;|'.
+Koopa.asm: Ignored:		'LDA #$00                    ;|'.
+Koopa.asm: Processed:	'STA $B6,x                   ;/'.
+Koopa.asm: Processed:	'LDA $86                     ;|'.
+Koopa.asm: Ignored:		'CMP.b #$01                  ;|'.
+Koopa.asm: Ignored:		'LDA.b #$02                  ;|'.
+Koopa.asm: Processed:	'STA $00                     ;|'.
+Koopa.asm: Ignored:		'CMP #$02                    ;| Apply friction to the two sprites, with slipperiness factored in.'.
+Koopa.asm: Processed:	'ADC $00                     ;|'.
+Koopa.asm: Processed:	'ADC $00                     ;|'.
+Koopa.asm: Processed:	'SBC $00                     ;|'.
+Koopa.asm: Processed:	'STA $B6,x                   ;/'.
+Koopa.asm: Ignored:		'LDA.b #$00                  ;\'.
+Koopa.asm: Processed:	'STA $B6,x                   ;| Clear both sprites' X speeds.'.
+Koopa.asm: Ignored:		'LDA #$09                    ;\ Make the sprite stationary/carryable.'.
+Koopa.asm: Ignored:		'CMP #$0D                    ;|'.
+Koopa.asm: Ignored:		'CMP #$0F                    ;|'.
+Koopa.asm: Ignored:		'BEQ .setStun                ;| If the sprite is a Goomba/Bob-omb/MechaKoopa, reset their stun timer to #$FF.'.
+Koopa.asm: Ignored:		'CMP #$A2                    ;|'.
+Koopa.asm: Ignored:		'LDA #$FF                    ;|'.
+Koopa.asm: Processed:	'LDA $C2,x                   ;\ Skip if the Koopa is not in the process of kicking/flipping a shell.'.
+Koopa.asm: Processed:	'DEC $C2,x'.
+Koopa.asm: Ignored:		'CMP #$08                    ;\'.
+Koopa.asm: Ignored:		'LDA #$03                    ;|'.
+Koopa.asm: Ignored:		'LDA #$00                    ;|'.
+Koopa.asm: Ignored:		'CMP #$01                    ;| Skip if not about to enter a shell.'.
+Koopa.asm: Ignored:		'CMP #$08                    ;|'.
+Koopa.asm: Ignored:		'CMP #$21                    ;|  - The shell has Y speed.'.
+Koopa.asm: Ignored:		'LDX #$03                    ;|'.
+Koopa.asm: Ignored:		'AND #$80                    ;|'.
+Koopa.asm: Ignored:		'LDX #$00                    ;|'.
+Koopa.asm: Ignored:		'AND #$01                    ;|'.
+Koopa.asm: Processed:	'STA $B6,x                   ;/'.
+Koopa.asm: Ignored:		'AND #$03                    ;|'.
+Koopa.asm: Processed:	'STZ $B6,x                   ;/'.
+Koopa.asm: Ignored:		'AND #$08                    ;| If the sprite is hits a ceiling, clear its Y speed.'.
+Koopa.asm: Processed:	'STZ $AA,x                   ;/'.
+Koopa.asm: Ignored:		'LDA #$00                    ;|'.
+Koopa.asm: Ignored:		'LDY $15B8,x                 ;| If standing on a slope or Layer 2, give the sprite a Y speed of #$18.'.
+Koopa.asm: Ignored:		'LDA #$18                    ;|'.
+Koopa.asm: Processed:	'STA $AA,x                   ;/'.
+Koopa.asm: Ignored:		'AND #$04                    ;|'.
+Koopa.asm: Ignored:		'LDA #$08                    ;|'.
+Koopa.asm: Ignored:		'AND #$08                    ;| Jump over shells if set to do so.'.
+Koopa.asm: Ignored:		'AND #$02                    ;|'.
+Koopa.asm: Ignored:		'LDA.b #$01                  ;|'.
+Koopa.asm: Ignored:		'LDA #$02                    ;|'.
+Koopa.asm: Ignored:		'LDA #$00                    ;| If the sprite's turn timer is non-zero, turn it around.'.
+Koopa.asm: Ignored:		'CPY #$05                    ;| The actual turn occurs on frame 3 of the animation.'.
+Koopa.asm: Processed:	'EOR $13                     ;| Divide detection across four frames. If not the right frame, return.'.
+Koopa.asm: Ignored:		'AND #$03                    ;|'.
+Koopa.asm: Ignored:		'LDY #$09                    ;\'.
+Koopa.asm: Ignored:		'CMP #$0A                    ;| Look for a sprite that's been thrown. Return if none exists.'.
+Koopa.asm: Ignored:		'SBC #$1A                    ;|'.
+Koopa.asm: Processed:	'STA $00                     ;|'.
+Koopa.asm: Ignored:		'SBC #$00                    ;|'.
+Koopa.asm: Processed:	'STA $08                     ;|'.
+Koopa.asm: Ignored:		'LDA.b #$44                  ;|'.
+Koopa.asm: Processed:	'STA $02                     ;|'.
+Koopa.asm: Processed:	'STA $01                     ;|  or isn't on the ground, ignore it.'.
+Koopa.asm: Processed:	'STA $09                     ;|'.
+Koopa.asm: Ignored:		'LDA #$10                    ;|'.
+Koopa.asm: Processed:	'STA $03                     ;|'.
+Koopa.asm: Processed:	'STA $AA,x'.
+Koopa.asm: Ignored:		'LDA #$10'.
+Koopa.asm: Ignored:		'LDA #$E0'.
+Koopa.asm: Processed:	'STA $AA,x'.
+Koopa.asm: Ignored:		'LDA #$02'.
+Koopa.asm: Processed:	'STY $76'.
+Koopa.asm: Processed:	'LDA $13'.
+Koopa.asm: Ignored:		'AND.b #$03'.
+Koopa.asm: Processed:	'ORA $86'.
+Koopa.asm: Ignored:		'LDA.b #$04'.
+Koopa.asm: Processed:	'STA $00'.
+Koopa.asm: Ignored:		'LDA.b #$0A'.
+Koopa.asm: Processed:	'STA $01'.
+Koopa.asm: Ignored:		'LDY.b #$03'.
+Koopa.asm: Ignored:		'LDA.b #$03'.
+Koopa.asm: Processed:	'LDA $E4,X'.
+Koopa.asm: Processed:	'ADC $00'.
+Koopa.asm: Processed:	'LDA $D8,X'.
+Koopa.asm: Processed:	'ADC $01'.
+Koopa.asm: Ignored:		'LDA.b #$13'.
+Koopa.asm: Ignored:		'CMP #$03'.
+Koopa.asm: Ignored:		'AND #$40                    ;|'.
+Koopa.asm: Ignored:		'LDA #$07                    ;|'.
+Koopa.asm: Processed:	'LDA $00                     ;\'.
+Koopa.asm: Processed:	'LDA $01                     ;|'.
+Koopa.asm: Ignored:		'LDA #$00                    ;|'.
+Koopa.asm: Ignored:		'EOR #$40                    ;|'.
+Koopa.asm: Ignored:		'CMP #$03                    ;|'.
+Koopa.asm: Ignored:		'ORA #$80                    ;|'.
+Koopa.asm: Processed:	'ORA $64                     ;|'.
+Koopa.asm: Ignored:		'LDA #$00                    ;\'.
+Koopa.asm: Ignored:		'LDY #$02                    ;| Draw a 16x16.'.
+Koopa.asm: Processed:	'LDA $00                     ;\'.
+Koopa.asm: Ignored:		'ADC #$08                    ;|'.
+Koopa.asm: Processed:	'LDA $01                     ;\'.
+Koopa.asm: Ignored:		'ADC #$08                    ;| Set Y position.'.
+Koopa.asm: Processed:	'LDA $64                     ;\'.
+Koopa.asm: Ignored:		'ORA #$40                    ;|'.
+Koopa.asm: Ignored:		'LDA #$01                    ;\'.
+Koopa.asm: Ignored:		'LDY #$00                    ;| Draw two 8x8s.'.
+Koopa.asm: Ignored:		'LDY.b #$00'.
+Koopa.asm: Processed:	'LDA $D1'.
+Koopa.asm: Processed:	'SBC $E4,X'.
+Koopa.asm: Processed:	'STA $0F'.
+Koopa.asm: Processed:	'LDA $D2'.
+Koopa.asm: Ignored:		'AND #$04'.
+Koopa.asm: Ignored:		'AND #$01'.
+Koopa.asm: Ignored:		'AND.b #$03'.
+Koopa.asm: Ignored:		'LDA.b #$08'.
+Koopa.asm: Processed:	'LDA $B6,X'.
+Koopa.asm: Ignored:		'EOR.b #$FF'.
+Koopa.asm: Processed:	'STA $B6,X'.
+Koopa.asm: Ignored:		'EOR.b #$01'.
+Koopa.asm: Ignored:		'db $0C,$1C'.
+Koopa.asm: Ignored:		'db $0C,$1C'.
+Koopa.asm: Ignored:		'db $01,$02'.
+Koopa.asm: Ignored:		'db $01,$02'.
+Koopa.asm: Ignored:		'db $40,$B0'.
+Koopa.asm: Ignored:		'db $40,$B0'.
+Koopa.asm: Ignored:		'db $01,$FF'.
+Koopa.asm: Ignored:		'db $01,$FF'.
+Koopa.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90,$30,$C0,$A0,$80,$A0,$40,$60,$B0'.
+Koopa.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90,$30,$C0,$A0,$80,$A0,$40,$60,$B0'.
+Koopa.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90,$30,$C0,$A0,$80,$A0,$40,$60,$B0'.
+Koopa.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90,$30,$C0,$A0,$80,$A0,$40,$60,$B0'.
+Koopa.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90,$30,$C0,$A0,$80,$A0,$40,$60,$B0'.
+Koopa.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90,$30,$C0,$A0,$80,$A0,$40,$60,$B0'.
+Koopa.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90,$30,$C0,$A0,$80,$A0,$40,$60,$B0'.
+Koopa.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90,$30,$C0,$A0,$80,$A0,$40,$60,$B0'.
+Koopa.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90,$30,$C0,$A0,$80,$A0,$40,$60,$B0'.
+Koopa.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90,$30,$C0,$A0,$80,$A0,$40,$60,$B0'.
+Koopa.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90,$30,$C0,$A0,$80,$A0,$40,$60,$B0'.
+Koopa.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90,$30,$C0,$A0,$80,$A0,$40,$60,$B0'.
+Koopa.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90,$30,$C0,$A0,$80,$A0,$40,$60,$B0'.
+Koopa.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90,$30,$C0,$A0,$80,$A0,$40,$60,$B0'.
+Koopa.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90,$30,$C0,$A0,$80,$A0,$40,$60,$B0'.
+Koopa.asm: Ignored:		'db $30,$C0,$A0,$C0,$A0,$F0,$60,$90,$30,$C0,$A0,$80,$A0,$40,$60,$B0'.
+Koopa.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$00,$01,$FF'.
+Koopa.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$00,$01,$FF'.
+Koopa.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$00,$01,$FF'.
+Koopa.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$00,$01,$FF'.
+Koopa.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$00,$01,$FF'.
+Koopa.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$00,$01,$FF'.
+Koopa.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$00,$01,$FF'.
+Koopa.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$00,$01,$FF'.
+Koopa.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$00,$01,$FF'.
+Koopa.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$00,$01,$FF'.
+Koopa.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$00,$01,$FF'.
+Koopa.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$00,$01,$FF'.
+Koopa.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$00,$01,$FF'.
+Koopa.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$00,$01,$FF'.
+Koopa.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$00,$01,$FF'.
+Koopa.asm: Ignored:		'db $01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$FF,$01,$00,$01,$FF'.
+Koopa.asm: Processed:	'STZ $03'.
+Koopa.asm: Processed:	'LDA $5B'.
+Koopa.asm: Processed:	'LDA $D8,x'.
+Koopa.asm: Ignored:		'ADC #$50'.
+Koopa.asm: Ignored:		'ADC #$00'.
+Koopa.asm: Ignored:		'CMP #$02'.
+Koopa.asm: Ignored:		'AND #$04'.
+Koopa.asm: Processed:	'LDA $13'.
+Koopa.asm: Ignored:		'AND #$01'.
+Koopa.asm: Processed:	'ORA $03'.
+Koopa.asm: Processed:	'STA $01'.
+Koopa.asm: Processed:	'LDA $1A'.
+Koopa.asm: Processed:	'ROL $00'.
+Koopa.asm: Processed:	'CMP $E4,x'.
+Koopa.asm: Processed:	'LDA $1B'.
+Koopa.asm: Processed:	'LSR $00'.
+Koopa.asm: Processed:	'STA $00'.
+Koopa.asm: Processed:	'LSR $01'.
+Koopa.asm: Ignored:		'EOR #$80'.
+Koopa.asm: Processed:	'STA $00'.
+Koopa.asm: Processed:	'LDA $00'.
+Koopa.asm: Ignored:		'CMP #$08'.
+Koopa.asm: Ignored:		'CPY #$FF'.
+Koopa.asm: Ignored:		'LDA #$00'.
+Koopa.asm: Ignored:		'AND #$04'.
+Koopa.asm: Processed:	'LDA $13'.
+Koopa.asm: Ignored:		'AND #$01'.
+Koopa.asm: Processed:	'STA $01'.
+Koopa.asm: Processed:	'LDA $1C'.
+Koopa.asm: Processed:	'ROL $00'.
+Koopa.asm: Processed:	'CMP $D8,x'.
+Koopa.asm: Processed:	'LDA $1D'.
+Koopa.asm: Processed:	'LSR $00'.
+Koopa.asm: Processed:	'STA $00'.
+Koopa.asm: Processed:	'LDY $02'.
+Koopa.asm: Ignored:		'EOR #$80'.
+Koopa.asm: Processed:	'STA $00'.
+Koopa.asm: Processed:	'LDA $00'.
+Koopa.asm: Processed:	'LDA $E4,x'.
+Koopa.asm: Processed:	'CMP $1A'.
+Koopa.asm: Processed:	'SBC $1B'.
+Koopa.asm: Processed:	'LDA $E4,x'.
+Koopa.asm: Ignored:		'REP #$20'.
+Koopa.asm: Processed:	'SBC $1A'.
+Koopa.asm: Ignored:		'SEP #$20'.
+Koopa.asm: Ignored:		'AND #$01'.
+Koopa.asm: Ignored:		'LDY #$00'.
+Koopa.asm: Ignored:		'AND #$20'.
+Koopa.asm: Processed:	'LDA $D8,x'.
+Koopa.asm: Processed:	'CMP $1C'.
+Koopa.asm: Processed:	'ROL $00'.
+Koopa.asm: Ignored:		'ADC #$00'.
+Koopa.asm: Processed:	'LSR $00'.
+Koopa.asm: Processed:	'SBC $1D'.
+Koopa.asm: Processed:	'LDA $E4,x'.
+Koopa.asm: Processed:	'SBC $1A'.
+Koopa.asm: Processed:	'STA $00'.
+Koopa.asm: Processed:	'LDA $D8,x'.
+Koopa.asm: Processed:	'SBC $1C'.
+Koopa.asm: Processed:	'STA $01'.
+Koopa.asm: Unnecessary: '!kickYSpeed     =   $321E'.
+Koopa.asm: Unnecessary: '!squishTile     =   $3236'.
+Koopa.asm: Processed:	'!kickPort       =   $1DF9'.
+Koopa.asm: Processed:	'!kickedPort     =   $1DF9'.
+Koopa.asm: Ignored:		';;  Just set $163E,x to a value from 81-FF. That address decrements every frame, and when it reaches x80, the Koopa will unstun.'.
+Koopa.asm: Ignored:		';;  Alternatively, set $1528,x to a non-zero value. That'll make the Koopa start sliding, and the stun timer will'.
+Koopa.asm: Unnecessary: '!flipSpeed      =   $321E'.
+Koopa.asm: Processed:	'STA $1570,x         ;/'.
+Koopa.asm: Processed:	'STA $1510,x         ;/'.
+Koopa.asm: Processed:	'LDA $14C8,x'.
+Koopa.asm: Processed:	'STZ $1602,x'.
+Koopa.asm: Processed:	'LDA $163E,x                 ;\'.
+Koopa.asm: Ignored:		'CMP #$80                    ;| Check the usage of $163E.'.
+Koopa.asm: Processed:	'LDA $1602,x                 ;|'.
+Koopa.asm: Processed:	'STA $1602,x                 ;/'.
+Koopa.asm: Processed:	'LDA $1510,x                 ;\'.
+Koopa.asm: Processed:	'ASL $167A,x                 ;\'.
+Koopa.asm: Processed:	'ROR $167A,x                 ;|'.
+Koopa.asm: Processed:	'ASL $167A,x                 ;|'.
+Koopa.asm: Processed:	'LSR $167A,x                 ;/'.
+Koopa.asm: Processed:	'LDA $163E,x                 ;\ Skip if the Koopa is not stunned.'.
+Koopa.asm: Processed:	'LDA $1510,x                 ;\'.
+Koopa.asm: Processed:	'STZ $163E,x                 ;/'.
+Koopa.asm: Processed:	'LDY $160E,x                 ;|'.
+Koopa.asm: Processed:	'LDA $14C8,y                 ;|'.
+Koopa.asm: Unnecessary: 'LDA $322C,x                   ;|  - The state of the sprite being kicked isn't still 09 (stationary/carryable).'.
+Koopa.asm: Processed:	'SBC $00E4,y                 ;|'.
+Koopa.asm: Processed:	'STA $1558,x                 ;/'.
+Koopa.asm: Processed:	'LDY $157C,x                 ;\'.
+Koopa.asm: Processed:	'LDY $160E,x                 ;| Kick the sprite in the direction the Koopa is facing.'.
+Koopa.asm: Processed:	'STA $00B6,y                 ;|'.
+Koopa.asm: Processed:	'STA $14C8,y                 ;/'.
+Koopa.asm: Processed:	'LDA $1540,y                 ;\ Mirror the sprite's stun timer, for no real reason.'.
+Koopa.asm: Processed:	'STA $00C2,y                 ;/'.
+Koopa.asm: Processed:	'STA $1564,y                 ;/'.
+Koopa.asm: Processed:	'LDA $167A,y                 ;\'.
+Koopa.asm: Processed:	'STA $00AA,y                 ;/'.
+Koopa.asm: Processed:	'LDA $1528,x                 ;\ Skip if not sliding after being knocked out of a shell.'.
+Koopa.asm: Processed:	'LDA $1588,X                 ;\'.
+Koopa.asm: Processed:	'STZ $1570,x                 ; Don't animate.'.
+Koopa.asm: Processed:	'STA $1602,x                 ;| Draw sprite.'.
+Koopa.asm: Processed:	'LDA $1510,x                 ;|'.
+Koopa.asm: Processed:	'STA $163E,x                 ;|'.
+Koopa.asm: Processed:	'STZ $1528,x                 ;|'.
+Koopa.asm: Processed:	'LDA.w $1534,X               ;\ Skip if not catching a shell/goomba/etc.'.
+Koopa.asm: Processed:	'LDY $160E,x                 ;\'.
+Koopa.asm: Processed:	'LDA $14C8,y                 ;|'.
+Koopa.asm: Processed:	'STZ $1534,x                 ;|'.
+Koopa.asm: Processed:	'STA $1528,y                 ; Set the sliding flag.'.
+Koopa.asm: Processed:	'LDA $1588,X                 ;\'.
+Koopa.asm: Processed:	'STA $00B6,y                 ;|'.
+Koopa.asm: Processed:	'LDA $00B6,y                 ;|'.
+Koopa.asm: Processed:	'STA $00B6,y                 ;|'.
+Koopa.asm: Processed:	'STZ $1570,X                 ; Don't animate.'.
+Koopa.asm: Processed:	'STA $00B6,y                 ;/'.
+Koopa.asm: Processed:	'STZ $1534,x'.
+Koopa.asm: Processed:	'STA $14C8,y                 ;/'.
+Koopa.asm: Processed:	'LDA $009E,y                 ;\'.
+Koopa.asm: Processed:	'STA $1540,y                 ;/'.
+Koopa.asm: Processed:	'STA $1602,x                 ;/'.
+Koopa.asm: Processed:	'LDA $1558,x                 ;\'.
+Koopa.asm: Processed:	'LDY $1594,x                 ;\'.
+Koopa.asm: Processed:	'LDA $14C8,y                 ;|'.
+Koopa.asm: Processed:	'LDA $00AA,y                 ;|'.
+Koopa.asm: Processed:	'LDA $009E,y                 ;|  - The shell is no longer alive.'.
+Koopa.asm: Processed:	'LDY $1594,x                 ;\'.
+Koopa.asm: Processed:	'STA $1558,y                 ;/'.
+Koopa.asm: Processed:	'LDA $1510,x                 ;\'.
+Koopa.asm: Processed:	'STA $160E,y                 ;/'.
+Koopa.asm: Processed:	'LDY $157C,x                 ;\'.
+Koopa.asm: Processed:	'LDA $1510,x                 ;|'.
+Koopa.asm: Processed:	'EOR $15B8,x                 ;|'.
+Koopa.asm: Processed:	'ADC $15B8,x                 ;|'.
+Koopa.asm: Processed:	'LDY $157C,x                 ;\'.
+Koopa.asm: Processed:	'AND $1588,x                 ;| If the sprite hits the side of a block, stop it.'.
+Koopa.asm: Processed:	'LDA $1588,x                 ;\'.
+Koopa.asm: Processed:	'LDA $1588,x                 ;\'.
+Koopa.asm: Processed:	'LDY $15B8,x                 ;| If standing on a slope or Layer 2, give the sprite a Y speed of #$18.'.
+Koopa.asm: Processed:	'STZ $151C,x                 ; For sprites that stay on ledges'.
+Koopa.asm: Processed:	'LDA $1510,x                 ;\'.
+Koopa.asm: Processed:	'LDA $1570,X                 ;|'.
+Koopa.asm: Processed:	'LDA $157C,x                 ;| Don't turn if not time to or already facing Mario.'.
+Koopa.asm: Processed:	'CMP $157C,x                 ;|'.
+Koopa.asm: Processed:	'STA $15AC,x                 ;/'.
+Koopa.asm: Processed:	'LDA $1510,x                 ;\'.
+Koopa.asm: Processed:	'LDA.w $151C,X               ;|'.
+Koopa.asm: Processed:	'ORA.w $1558,X               ;| If the sprite is set to turn on ledges and is not having a special function run,'.
+Koopa.asm: Processed:	'ORA.w $1528,X               ;|  flip its direction.'.
+Koopa.asm: Processed:	'ORA.w $1534,X               ;|'.
+Koopa.asm: Processed:	'STA.w $151C,X               ;/'.
+Koopa.asm: Processed:	'LDA.w $1528,X               ;\'.
+Koopa.asm: Processed:	'LDA $157C,X'.
+Koopa.asm: Processed:	'LDY $15AC,X                 ;\'.
+Koopa.asm: Processed:	'STA $1602,X                 ;|'.
+Koopa.asm: Processed:	'EOR $157C,x                 ;|'.
+Koopa.asm: Processed:	'STA $157C,x                 ;/'.
+Koopa.asm: Processed:	'STA.w $157C,X'.
+Koopa.asm: Processed:	'LDA $14C8,y                 ;|'.
+Koopa.asm: Processed:	'LDA.w $00E4,y               ;\'.
+Koopa.asm: Processed:	'LDA $14E0,y                 ;|'.
+Koopa.asm: Processed:	'LDA $00D8,y                 ;| If the shell isn't close enough'.
+Koopa.asm: Processed:	'LDA.w $14D4,y               ;|'.
+Koopa.asm: Processed:	'LDA $157C,y                 ;\'.
+Koopa.asm: Processed:	'CMP $157C,x                 ;| If the Koopa and shell are moving in the same direction, don't jump.'.
+Koopa.asm: Processed:	'STZ $163E,x'.
+Koopa.asm: Processed:	'STA $149A'.
+Koopa.asm: Processed:	'STA $14C8,x'.
+Koopa.asm: Processed:	'LDA.w $1588,X'.
+Koopa.asm: Processed:	'LDA.w $17C0,Y'.
+Koopa.asm: Processed:	'STA.w $17C0,Y'.
+Koopa.asm: Unnecessary: 'LDA $322C,X'.
+Koopa.asm: Processed:	'STA.w $17C8,Y'.
+Koopa.asm: Unnecessary: 'LDA $3216,X'.
+Koopa.asm: Processed:	'STA.w $17C4,Y'.
+Koopa.asm: Processed:	'STA.w $17CC,Y'.
+Koopa.asm: Processed:	'LDA $14C8,x'.
+Koopa.asm: Processed:	'LDA $1510,x                 ;\'.
+Koopa.asm: Processed:	'ADC $1602,x                 ;|'.
+Koopa.asm: Processed:	'LDY $15EA,x                 ;|'.
+Koopa.asm: Processed:	'STA $0302,y                 ;/'.
+Koopa.asm: Processed:	'LDX $15E9                   ;'.
+Koopa.asm: Processed:	'STA $0300,y                 ;| Set X/Y position.'.
+Koopa.asm: Processed:	'STA $0301,y                 ;/'.
+Koopa.asm: Processed:	'LDA $157C,x                 ;\'.
+Koopa.asm: Processed:	'ORA $15F6,X                 ;|'.
+Koopa.asm: Processed:	'LDA $14C8,x                 ;|  Set Y if killed.'.
+Koopa.asm: Processed:	'STA $0303,y                 ;/'.
+Koopa.asm: Processed:	'STA $0300,y                 ;|'.
+Koopa.asm: Processed:	'STA $0304,y                 ;/'.
+Koopa.asm: Processed:	'STA $0301,y                 ;|'.
+Koopa.asm: Processed:	'STA $0305,y                 ;/'.
+Koopa.asm: Processed:	'STA $0302,y                 ;| Set tile number.'.
+Koopa.asm: Processed:	'STA $0306,y                 ;/'.
+Koopa.asm: Processed:	'ORA $15F6,x                 ;|'.
+Koopa.asm: Processed:	'STA $0303,y                 ;| Set YXPPCCCT.'.
+Koopa.asm: Processed:	'STA $0307,y                 ;/'.
+Koopa.asm: Unnecessary: 'SBC $322C,X'.
+Koopa.asm: Processed:	'SBC $14E0,X'.
+Koopa.asm: Processed:	'STA $157C,X'.
+Koopa.asm: Processed:	'LDA $1588,X'.
+Koopa.asm: Processed:	'INC $1570,x'.
+Koopa.asm: Processed:	'LDA $1570,x'.
+Koopa.asm: Processed:	'STA $1602,x'.
+Koopa.asm: Processed:	'LDA.w $157C,X'.
+Koopa.asm: Processed:	'AND.w $1588,X'.
+Koopa.asm: Processed:	'LDA.w $15AC,X'.
+Koopa.asm: Processed:	'STA.w $15AC,X'.
+Koopa.asm: Processed:	'LDA.w $157C,X'.
+Koopa.asm: Processed:	'STA.w $157C,X'.
+Koopa.asm: Unnecessary: 'LDA $3216,x'.
+Koopa.asm: Processed:	'LDA $14D4,x'.
+Koopa.asm: Processed:	'LDA $167A,x'.
+Koopa.asm: Unnecessary: 'CMP $322C,x'.
+Koopa.asm: Processed:	'SBC $14E0,x'.
+Koopa.asm: Processed:	'LDA $14C8,x'.
+Koopa.asm: Processed:	'LDY $161A,x'.
+Koopa.asm: Processed:	'STZ $14C8,x'.
+Koopa.asm: Processed:	'LDA $167A,x'.
+Koopa.asm: Unnecessary: 'CMP $3216,x'.
+Koopa.asm: Processed:	'SBC $14D4,x'.
+Koopa.asm: Processed:	'LDA $15A0,x'.
+Koopa.asm: Processed:	'ORA $186C,x'.
+Koopa.asm: Processed:	'STZ $186C,x'.
+Koopa.asm: Processed:	'STZ $15A0,x'.
+Koopa.asm: Unnecessary: 'LDA $322C,x'.
+Koopa.asm: Processed:	'LDA $14E0,x'.
+Koopa.asm: Processed:	'INC $15A0,x'.
+Koopa.asm: Processed:	'LDA $14E0,x'.
+Koopa.asm: Unnecessary: 'LDA $322C,x'.
+Koopa.asm: Ignored:		'ADC.w #$0040'.
+Koopa.asm: Ignored:		'CMP #$0180'.
+Koopa.asm: Processed:	'STA $15C4,x'.
+Koopa.asm: Processed:	'LDA $1662,x'.
+Koopa.asm: Unnecessary: 'LDA $3216,x'.
+Koopa.asm: Processed:	'LDA $14D4,x'.
+Koopa.asm: Processed:	'LDA $186C,x'.
+Koopa.asm: Processed:	'STA $186C,x'.
+Koopa.asm: Processed:	'LDY $15EA,x'.
+Koopa.asm: Unnecessary: 'LDA $322C,x'.
+Koopa.asm: Unnecessary: 'LDA $3216,x'.
+Koopa.asm: Unnecessary: 'JSL $01ACF9         ;\ Set random initial animation timer.'.
+Koopa.asm: Processed:	'LDA $7FAB28,x       ;\ Preserve extra byte 1.'.
+Koopa.asm: Unnecessary: 'JSL $01802A                 ; Update position.'.
+Koopa.asm: Unnecessary: 'JSL $01A7DC                 ;|'.
+Koopa.asm: Unnecessary: 'JSL $01A7DC                 ;|'.
+Koopa.asm: Unnecessary: 'JSL $03B69F                 ;|  - The Koopa and shell aren't touching. anymore.'.
+Koopa.asm: Unnecessary: 'JSL $03B6E5                 ;|'.
+Koopa.asm: Unnecessary: 'JSL $03B72B                 ;|'.
+Koopa.asm: Unnecessary: 'JSL $01802A                 ; Update the sprite's position and apply gravity.'.
+Koopa.asm: Unnecessary: 'JSL $01A7DC                 ;/'.
+Koopa.asm: Unnecessary: 'JSL $018032                 ; Process interaction with other sprites.'.
+Koopa.asm: Unnecessary: 'JSL $03B69F                 ;|'.
+Koopa.asm: Unnecessary: 'JSL $03B72B                 ;|'.
+Koopa.asm: Unnecessary: 'JSL $02ACE5'.
+Koopa.asm: Unnecessary: 'JSL $01B7B3                 ;/'.
+Koopa.asm: Unnecessary: 'JSL $01B7B3                 ;/'.
+Koopa.asm: Unnecessary: 'STA $418A00,x'.
+Koopa.asm: 
+Koopa.asm: -------- Information Log --------
+Koopa.asm: 
+Koopa.asm: Dynamic Sprite conversion: SUCCESS!
+Koopa.asm: Converted 000008 to 003008
+Koopa.asm: Converted 0000F8 to 0030F8
+Koopa.asm: Converted 00000C to 00300C
+Koopa.asm: Converted 0000F4 to 0030F4
+Koopa.asm: Converted 000030 to 003030
+Koopa.asm: Converted 0000D0 to 0030D0
+Koopa.asm: Processing define '!kickYSpeed'.
+Koopa.asm: 	- Define OK.
+Koopa.asm: Converted 0000E0 to 00321E
+Koopa.asm: Processing define '!jumpSpeed'.
+Koopa.asm: 	- Define OK.
+Koopa.asm: Converted 0000C0 to 0030C0
+Koopa.asm: Processing define '!followTimer'.
+Koopa.asm: 	- Define OK.
+Koopa.asm: Converted 00007F to 00307F
+Koopa.asm: Processing define '!shakeTime'.
+Koopa.asm: 	- Define OK.
+Koopa.asm: Converted 000010 to 003010
+Koopa.asm: Converted 0000C8 to 0030DE
+Koopa.asm: Converted 0000CA to 0030E0
+Koopa.asm: Converted 0000CA to 0030E0
+Koopa.asm: Converted 0000CC to 0030E2
+Koopa.asm: Converted 000086 to 003086
+Koopa.asm: Converted 00004E to 00304E
+Koopa.asm: Converted 000086 to 003086
+Koopa.asm: Converted 0000E0 to 00321E
+Koopa.asm: Converted 0000E2 to 003220
+Koopa.asm: Converted 0000E2 to 003220
+Koopa.asm: Converted 0000E4 to 00322C
+Koopa.asm: Converted 0000E0 to 00321E
+Koopa.asm: Converted 0000E0 to 00321E
+Koopa.asm: Converted 0000E6 to 00322E
+Koopa.asm: Processing define '!squishTile'.
+Koopa.asm: 	- Define OK.
+Koopa.asm: Converted 0000EE to 003236
+Koopa.asm: Processing define '!kickSound'.
+Koopa.asm: 	- Define OK.
+Koopa.asm: Converted 000003 to 003003
+Koopa.asm: Processing define '!kickedSound'.
+Koopa.asm: 	- Define OK.
+Koopa.asm: Converted 000003 to 003003
+Koopa.asm: Processing define '!stunTimeA'.
+Koopa.asm: 	- Define OK.
+Koopa.asm: Converted 00007F to 00307F
+Koopa.asm: Processing define '!stunTimeB'.
+Koopa.asm: 	- Define OK.
+Koopa.asm: Converted 000020 to 003020
+Koopa.asm: Converted 00007F to 00307F
+Koopa.asm: Processing define '!flipSpeed'.
+Koopa.asm: 	- Define OK.
+Koopa.asm: Converted 0000E0 to 00321E
+Koopa.asm: Processing define '!kickedPoints'.
+Koopa.asm: 	- Define OK.
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 000008 to 003008
+Koopa.asm: Converted 00009D to 00309D
+Koopa.asm: Converted 000080 to 003080
+Koopa.asm: Converted 00009D to 00309D
+Koopa.asm: Converted 000004 to 003004
+Koopa.asm: Converted 0000B6 to 0030B6
+Koopa.asm: Converted 0000AA to 00309E
+Koopa.asm: Converted 000020 to 003020
+Koopa.asm: Converted 000080 to 003080
+Koopa.asm: Converted 000010 to 003010
+Koopa.asm: Converted 0000AA to 00309E
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 000009 to 003009
+Koopa.asm: Converted 0000E4 to 00322C
+Koopa.asm: Converted 000012 to 003012
+Koopa.asm: Converted 000024 to 003024
+Koopa.asm: Converted 000020 to 003020
+Koopa.asm: Converted 0000C2 to 0030D8
+Koopa.asm: Converted 00000A to 00300A
+Koopa.asm: Converted 000008 to 003008
+Koopa.asm: Converted 000010 to 003010
+Koopa.asm: Converted 000003 to 003003
+Koopa.asm: Converted 0000B6 to 0030B6
+Koopa.asm: Converted 000086 to 003086
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 000002 to 003002
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 0000B6 to 0030B6
+Koopa.asm: Converted 000002 to 003002
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 0000B6 to 0030B6
+Koopa.asm: Converted 000006 to 003006
+Koopa.asm: Converted 000080 to 003080
+Koopa.asm: Converted 000010 to 003010
+Koopa.asm: Converted 000080 to 003080
+Koopa.asm: Converted 00000A to 00300A
+Koopa.asm: Converted 000003 to 003003
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 0000B6 to 0030B6
+Koopa.asm: Converted 000086 to 003086
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 000002 to 003002
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000002 to 003002
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 0000B6 to 0030B6
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 0000B6 to 0030B6
+Koopa.asm: Converted 000009 to 003009
+Koopa.asm: Converted 00000D to 00300D
+Koopa.asm: Converted 00000F to 00300F
+Koopa.asm: Converted 0000FF to 0030FF
+Koopa.asm: Converted 0000A2 to 003204
+Koopa.asm: Converted 0000FF to 0030FF
+Koopa.asm: Converted 0000C2 to 0030D8
+Koopa.asm: Converted 0000C2 to 0030D8
+Koopa.asm: Converted 000008 to 003008
+Koopa.asm: Converted 000003 to 003003
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 000008 to 003008
+Koopa.asm: Converted 000021 to 003021
+Koopa.asm: Converted 000003 to 003003
+Koopa.asm: Converted 000080 to 003080
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 0000B6 to 0030B6
+Koopa.asm: Converted 000003 to 003003
+Koopa.asm: Converted 0000B6 to 0030B6
+Koopa.asm: Converted 000008 to 003008
+Koopa.asm: Converted 0000AA to 00309E
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000018 to 003018
+Koopa.asm: Converted 000018 to 003018
+Koopa.asm: Converted 0000AA to 00309E
+Koopa.asm: Converted 000004 to 003004
+Koopa.asm: Converted 000008 to 003008
+Koopa.asm: Converted 000008 to 003008
+Koopa.asm: Converted 000002 to 003002
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 000002 to 003002
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000005 to 003005
+Koopa.asm: Converted 000013 to 003013
+Koopa.asm: Converted 000003 to 003003
+Koopa.asm: Converted 000009 to 003009
+Koopa.asm: Converted 00000A to 00300A
+Koopa.asm: Converted 00001A to 00301A
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000008 to 003008
+Koopa.asm: Converted 000044 to 003044
+Koopa.asm: Converted 000002 to 003002
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 000009 to 003009
+Koopa.asm: Converted 000010 to 003010
+Koopa.asm: Converted 000003 to 003003
+Koopa.asm: Converted 0000AA to 00309E
+Koopa.asm: Converted 000010 to 003010
+Koopa.asm: Converted 0000E0 to 00321E
+Koopa.asm: Converted 0000AA to 00309E
+Koopa.asm: Converted 000002 to 003002
+Koopa.asm: Converted 000076 to 003076
+Koopa.asm: Converted 000013 to 003013
+Koopa.asm: Converted 000003 to 003003
+Koopa.asm: Converted 000086 to 003086
+Koopa.asm: Converted 000004 to 003004
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 00000A to 00300A
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 000003 to 003003
+Koopa.asm: Converted 000003 to 003003
+Koopa.asm: Converted 0000E4 to 00322C
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 0000D8 to 003216
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 000013 to 003013
+Koopa.asm: Converted 000003 to 003003
+Koopa.asm: Converted 000040 to 003040
+Koopa.asm: Converted 000007 to 003007
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000040 to 003040
+Koopa.asm: Converted 000003 to 003003
+Koopa.asm: Converted 000080 to 003080
+Koopa.asm: Converted 000064 to 003064
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000002 to 003002
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000008 to 003008
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 000008 to 003008
+Koopa.asm: Converted 000064 to 003064
+Koopa.asm: Converted 000040 to 003040
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 0000D1 to 0030D1
+Koopa.asm: Converted 0000E4 to 00322C
+Koopa.asm: Converted 00000F to 00300F
+Koopa.asm: Converted 0000D2 to 0030D2
+Koopa.asm: Converted 000004 to 003004
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 000003 to 003003
+Koopa.asm: Converted 000008 to 003008
+Koopa.asm: Converted 0000B6 to 0030B6
+Koopa.asm: Converted 0000FF to 0030FF
+Koopa.asm: Converted 0000B6 to 0030B6
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 00000C to 00300C
+Koopa.asm: Converted 00001C to 00301C
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 000002 to 003002
+Koopa.asm: Converted 000040 to 003040
+Koopa.asm: Converted 0000B0 to 0030A4
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 0000FF to 0030FF
+Koopa.asm: Converted 000030 to 003030
+Koopa.asm: Converted 0000C0 to 0030C0
+Koopa.asm: Converted 0000A0 to 003202
+Koopa.asm: Converted 0000C0 to 0030C0
+Koopa.asm: Converted 0000A0 to 003202
+Koopa.asm: Converted 0000F0 to 0030F0
+Koopa.asm: Converted 000060 to 003060
+Koopa.asm: Converted 000090 to 003090
+Koopa.asm: Converted 000030 to 003030
+Koopa.asm: Converted 0000C0 to 0030C0
+Koopa.asm: Converted 0000A0 to 003202
+Koopa.asm: Converted 000080 to 003080
+Koopa.asm: Converted 0000A0 to 003202
+Koopa.asm: Converted 000040 to 003040
+Koopa.asm: Converted 000060 to 003060
+Koopa.asm: Converted 0000B0 to 0030A4
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 0000FF to 0030FF
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 0000FF to 0030FF
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 0000FF to 0030FF
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 0000FF to 0030FF
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 0000FF to 0030FF
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 0000FF to 0030FF
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 0000FF to 0030FF
+Koopa.asm: Converted 000003 to 003003
+Koopa.asm: Converted 00005B to 00305B
+Koopa.asm: Converted 0000D8 to 003216
+Koopa.asm: Converted 000050 to 003050
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000002 to 003002
+Koopa.asm: Converted 000004 to 003004
+Koopa.asm: Converted 000013 to 003013
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 000003 to 003003
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 00001A to 00301A
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 0000E4 to 00322C
+Koopa.asm: Converted 00001B to 00301B
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 000080 to 003080
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000008 to 003008
+Koopa.asm: Converted 0000FF to 0030FF
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000004 to 003004
+Koopa.asm: Converted 000013 to 003013
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 00001C to 00301C
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 0000D8 to 003216
+Koopa.asm: Converted 00001D to 00301D
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000002 to 003002
+Koopa.asm: Converted 000080 to 003080
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 0000E4 to 00322C
+Koopa.asm: Converted 00001A to 00301A
+Koopa.asm: Converted 00001B to 00301B
+Koopa.asm: Converted 0000E4 to 00322C
+Koopa.asm: Converted 000020 to 003020
+Koopa.asm: Converted 00001A to 00301A
+Koopa.asm: Converted 000020 to 003020
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000020 to 003020
+Koopa.asm: Converted 0000D8 to 003216
+Koopa.asm: Converted 00001C to 00301C
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 00001D to 00301D
+Koopa.asm: Converted 0000E4 to 00322C
+Koopa.asm: Converted 00001A to 00301A
+Koopa.asm: Converted 000000 to 003000
+Koopa.asm: Converted 0000D8 to 003216
+Koopa.asm: Converted 00001C to 00301C
+Koopa.asm: Converted 000001 to 003001
+Koopa.asm: Processing define '!kickYSpeed'.
+Koopa.asm: 	- Define OK.
+Koopa.asm: Converted 00321E to 00321E
+Koopa.asm: Processing define '!squishTile'.
+Koopa.asm: 	- Define OK.
+Koopa.asm: Converted 003236 to 003236
+Koopa.asm: Processing define '!kickPort'.
+Koopa.asm: 	- Define OK.
+Koopa.asm: Converted 001DF9 to 007DF9
+Koopa.asm: Processing define '!kickedPort'.
+Koopa.asm: 	- Define OK.
+Koopa.asm: Converted 001DF9 to 007DF9
+Koopa.asm: Converted 00163E to 0033FA
+Koopa.asm: Converted 001528 to 00329A
+Koopa.asm: Processing define '!flipSpeed'.
+Koopa.asm: 	- Define OK.
+Koopa.asm: Converted 00321E to 00321E
+Koopa.asm: Converted 001570 to 00331E
+Koopa.asm: Converted 001510 to 00750A
+Koopa.asm: Converted 0014C8 to 003242
+Koopa.asm: Converted 001602 to 0033CE
+Koopa.asm: Converted 00163E to 0033FA
+Koopa.asm: Converted 00163E to 0033FA
+Koopa.asm: Converted 001602 to 0033CE
+Koopa.asm: Converted 001602 to 0033CE
+Koopa.asm: Converted 001510 to 00750A
+Koopa.asm: Converted 00167A to 007616
+Koopa.asm: Converted 00167A to 007616
+Koopa.asm: Converted 00167A to 007616
+Koopa.asm: Converted 00167A to 007616
+Koopa.asm: Converted 00163E to 0033FA
+Koopa.asm: Converted 001510 to 00750A
+Koopa.asm: Converted 00163E to 0033FA
+Koopa.asm: Converted 00160E to 0033E4
+Koopa.asm: Converted 0014C8 to 003242
+Koopa.asm: Converted 00322C to 00322C
+Koopa.asm: Converted 0000E4 to 00322C
+Koopa.asm: Converted 001558 to 0032F2
+Koopa.asm: Converted 00157C to 003334
+Koopa.asm: Converted 00160E to 0033E4
+Koopa.asm: Converted 0000B6 to 0030B6
+Koopa.asm: Converted 0014C8 to 003242
+Koopa.asm: Converted 001540 to 0032C6
+Koopa.asm: Converted 0000C2 to 0030D8
+Koopa.asm: Converted 001564 to 003308
+Koopa.asm: Converted 00167A to 007616
+Koopa.asm: Converted 0000AA to 00309E
+Koopa.asm: Converted 001528 to 00329A
+Koopa.asm: Converted 001588 to 00334A
+Koopa.asm: Converted 001570 to 00331E
+Koopa.asm: Converted 001602 to 0033CE
+Koopa.asm: Converted 001510 to 00750A
+Koopa.asm: Converted 00163E to 0033FA
+Koopa.asm: Converted 001528 to 00329A
+Koopa.asm: Converted 001534 to 0032B0
+Koopa.asm: Converted 00160E to 0033E4
+Koopa.asm: Converted 0014C8 to 003242
+Koopa.asm: Converted 001534 to 0032B0
+Koopa.asm: Converted 001528 to 00329A
+Koopa.asm: Converted 001588 to 00334A
+Koopa.asm: Converted 0000B6 to 0030B6
+Koopa.asm: Converted 0000B6 to 0030B6
+Koopa.asm: Converted 0000B6 to 0030B6
+Koopa.asm: Converted 001570 to 00331E
+Koopa.asm: Converted 0000B6 to 0030B6
+Koopa.asm: Converted 001534 to 0032B0
+Koopa.asm: Converted 0014C8 to 003242
+Koopa.asm: Converted 00009E to 003200
+Koopa.asm: Converted 001540 to 0032C6
+Koopa.asm: Converted 001602 to 0033CE
+Koopa.asm: Converted 001558 to 0032F2
+Koopa.asm: Converted 001594 to 003360
+Koopa.asm: Converted 0014C8 to 003242
+Koopa.asm: Converted 0000AA to 00309E
+Koopa.asm: Converted 00009E to 003200
+Koopa.asm: Converted 001594 to 003360
+Koopa.asm: Converted 001558 to 0032F2
+Koopa.asm: Converted 001510 to 00750A
+Koopa.asm: Converted 00160E to 0033E4
+Koopa.asm: Converted 00157C to 003334
+Koopa.asm: Converted 001510 to 00750A
+Koopa.asm: Converted 0015B8 to 007520
+Koopa.asm: Converted 0015B8 to 007520
+Koopa.asm: Converted 00157C to 003334
+Koopa.asm: Converted 001588 to 00334A
+Koopa.asm: Converted 001588 to 00334A
+Koopa.asm: Converted 001588 to 00334A
+Koopa.asm: Converted 0015B8 to 007520
+Koopa.asm: Converted 00151C to 003284
+Koopa.asm: Converted 001510 to 00750A
+Koopa.asm: Converted 001570 to 00331E
+Koopa.asm: Converted 00157C to 003334
+Koopa.asm: Converted 00157C to 003334
+Koopa.asm: Converted 0015AC to 00338C
+Koopa.asm: Converted 001510 to 00750A
+Koopa.asm: Converted 00151C to 003284
+Koopa.asm: Converted 001558 to 0032F2
+Koopa.asm: Converted 001528 to 00329A
+Koopa.asm: Converted 001534 to 0032B0
+Koopa.asm: Converted 00151C to 003284
+Koopa.asm: Converted 001528 to 00329A
+Koopa.asm: Converted 00157C to 003334
+Koopa.asm: Converted 0015AC to 00338C
+Koopa.asm: Converted 001602 to 0033CE
+Koopa.asm: Converted 00157C to 003334
+Koopa.asm: Converted 00157C to 003334
+Koopa.asm: Converted 00157C to 003334
+Koopa.asm: Converted 0014C8 to 003242
+Koopa.asm: Converted 0000E4 to 00322C
+Koopa.asm: Converted 0014E0 to 00326E
+Koopa.asm: Converted 0000D8 to 003216
+Koopa.asm: Converted 0014D4 to 003258
+Koopa.asm: Converted 00157C to 003334
+Koopa.asm: Converted 00157C to 003334
+Koopa.asm: Converted 00163E to 0033FA
+Koopa.asm: Converted 00149A to 00749A
+Koopa.asm: Converted 0014C8 to 003242
+Koopa.asm: Converted 001588 to 00334A
+Koopa.asm: Converted 0017C0 to 0077C0
+Koopa.asm: Converted 0017C0 to 0077C0
+Koopa.asm: Converted 00322C to 00322C
+Koopa.asm: Converted 0017C8 to 0077C8
+Koopa.asm: Converted 003216 to 003216
+Koopa.asm: Converted 0017C4 to 0077C4
+Koopa.asm: Converted 0017CC to 0077CC
+Koopa.asm: Converted 0014C8 to 003242
+Koopa.asm: Converted 001510 to 00750A
+Koopa.asm: Converted 001602 to 0033CE
+Koopa.asm: Converted 0015EA to 0033A2
+Koopa.asm: Converted 000302 to 006302
+Koopa.asm: Converted 0015E9 to 0075E9
+Koopa.asm: Converted 000300 to 006300
+Koopa.asm: Converted 000301 to 006301
+Koopa.asm: Converted 00157C to 003334
+Koopa.asm: Converted 0015F6 to 0033B8
+Koopa.asm: Converted 0014C8 to 003242
+Koopa.asm: Converted 000303 to 006303
+Koopa.asm: Converted 000300 to 006300
+Koopa.asm: Converted 000304 to 006304
+Koopa.asm: Converted 000301 to 006301
+Koopa.asm: Converted 000305 to 006305
+Koopa.asm: Converted 000302 to 006302
+Koopa.asm: Converted 000306 to 006306
+Koopa.asm: Converted 0015F6 to 0033B8
+Koopa.asm: Converted 000303 to 006303
+Koopa.asm: Converted 000307 to 006307
+Koopa.asm: Converted 00322C to 00322C
+Koopa.asm: Converted 0014E0 to 00326E
+Koopa.asm: Converted 00157C to 003334
+Koopa.asm: Converted 001588 to 00334A
+Koopa.asm: Converted 001570 to 00331E
+Koopa.asm: Converted 001570 to 00331E
+Koopa.asm: Converted 001602 to 0033CE
+Koopa.asm: Converted 00157C to 003334
+Koopa.asm: Converted 001588 to 00334A
+Koopa.asm: Converted 0015AC to 00338C
+Koopa.asm: Converted 0015AC to 00338C
+Koopa.asm: Converted 00157C to 003334
+Koopa.asm: Converted 00157C to 003334
+Koopa.asm: Converted 003216 to 003216
+Koopa.asm: Converted 0014D4 to 003258
+Koopa.asm: Converted 00167A to 007616
+Koopa.asm: Converted 00322C to 00322C
+Koopa.asm: Converted 0014E0 to 00326E
+Koopa.asm: Converted 0014C8 to 003242
+Koopa.asm: Converted 00161A to 007578
+Koopa.asm: Converted 0014C8 to 003242
+Koopa.asm: Converted 00167A to 007616
+Koopa.asm: Converted 003216 to 003216
+Koopa.asm: Converted 0014D4 to 003258
+Koopa.asm: Converted 0015A0 to 003376
+Koopa.asm: Converted 00186C to 007642
+Koopa.asm: Converted 00186C to 007642
+Koopa.asm: Converted 0015A0 to 003376
+Koopa.asm: Converted 00322C to 00322C
+Koopa.asm: Converted 0014E0 to 00326E
+Koopa.asm: Converted 0015A0 to 003376
+Koopa.asm: Converted 0014E0 to 00326E
+Koopa.asm: Converted 00322C to 00322C
+Koopa.asm: Converted 000040 to 003040
+Koopa.asm: Converted 000180 to 006180
+Koopa.asm: Converted 0015C4 to 007536
+Koopa.asm: Converted 001662 to 0075EA
+Koopa.asm: Converted 003216 to 003216
+Koopa.asm: Converted 0014D4 to 003258
+Koopa.asm: Converted 00186C to 007642
+Koopa.asm: Converted 00186C to 007642
+Koopa.asm: Converted 0015EA to 0033A2
+Koopa.asm: Converted 00322C to 00322C
+Koopa.asm: Converted 003216 to 003216
+Koopa.asm: Converted 7FAB28 to 400057

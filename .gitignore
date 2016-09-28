@@ -1,0 +1,6 @@
+*.smc
+*.srm
+*.zst
+*.exe
+HxD.ini
+spr_temp.asm
