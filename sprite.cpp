@@ -427,7 +427,6 @@ void clean_hack(ROM &rom)
 		const char* mdk = "MDK";	//sprite tool added "MDK" after the rats tag to find it's insertions...
 		int number_of_banks = rom.size / 0x8000;
 		for (int i = 0x10; i < number_of_banks; ++i){ 
-			
 			char* bank = (char*)(rom.real_data + i * 0x8000);
 
 			int bank_offset = 8;
@@ -439,14 +438,16 @@ void clean_hack(ROM &rom)
 				for(; offset < 0x8000; offset++) {
 					if(bank[offset] != mdk[j++])
 						j = 0;
-					if(j == strlen(mdk))
-						offset -= strlen(mdk) + 1;		//set pointer to start of found string
+					if(j == strlen(mdk)) {
+						offset -= strlen(mdk) - 1;		//set pointer to start of mdk string
+						break;
+					}
 				}
 								
-				if(offset == 0x8000)
+				if(offset >= 0x8000)
 					break;		
-				bank_offset += 3;
-				if(*((unsigned int*)(bank + offset - 8)) != 0x52415453)	//check for "STAR"
+				bank_offset = offset + strlen(mdk);
+				if(strncmp((bank + offset - 8), "STAR", 4))	//check for "STAR"
 					continue;
 								
 				//delete the amount that the RATS tag is protecting
@@ -457,9 +458,11 @@ void clean_hack(ROM &rom)
 		 
 				if ((size - 8 + inverted) == 0x0FFFF)			// new tag
 					size++;
+					
 				else if ((size - 8 + inverted) != 0x10000){	// (not old tag either =>) bad tag
-					int pc = i * 0x8000 + offset;
 					char answer;
+					int pc = i * 0x8000 + offset - 8 + rom.header_size;
+					printf("size: %04X, inverted: %04X\n", size - 8, inverted);
 					printf("Bad sprite_tool RATS tag detected at $%06X / 0x%05X. Remove anyway (y/n) ",
 						rom.pc_to_snes(pc), pc);
 					scanf("%c",&answer);
@@ -467,8 +470,9 @@ void clean_hack(ROM &rom)
 						continue;
 				}
 				
+				//printf("Clear %04X bytes from $%06X / 0x%05X.\n", size, rom.pc_to_snes(pc), pc);
 				memset(bank + offset - 8, 0, size);
-				bank_offset += (size - 3);
+				bank_offset = offset - 8 + size;
 			}
 		}		
 	}
@@ -672,7 +676,7 @@ int main(int argc, char* argv[]) {
 		if(fgets(ROM_name, FILENAME_MAX, stdin)){
 			int length = strlen(ROM_name)-1;
 			ROM_name[length] = 0;
-			if((ROM_name[0] == '"' && ROM_name[length - 1]) == '"' ||
+			if((ROM_name[0] == '"' && ROM_name[length - 1] == '"') ||
 			   (ROM_name[0] == '\'' && ROM_name[length - 1] == '\'')){
 				ROM_name[length -1] = 0;
 				for(int i = 0; ROM_name[i]; i++){

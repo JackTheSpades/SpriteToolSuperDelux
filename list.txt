@@ -1,9 +1,0 @@
-00 Blue.cfg
-01 Green.cfg
-
-105:B0 Red.cfg
-105:B1 Yellow.cfg
-
-106:B0 DivisibleBoo.cfg
-
-C0 pswitch-regen.cfg

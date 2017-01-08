@@ -34,3 +34,8 @@ macro SubVertPos()
 	%include_once("routines/SubVertPos.asm", SubVertPos, $09)
 	JSL SubVertPos
 endmacro
+!Thwomp_gfx = 0
+macro Thwomp_gfx()
+	%include_once("routines/Thwomp_gfx.asm", Thwomp_gfx, $0C)
+	JSL Thwomp_gfx
+endmacro
