@@ -424,18 +424,19 @@ void clean_hack(ROM &rom)
 	}else{ //check for old sprite_tool code. (this is annoying)
 		
 		//removes all STAR####MDK tags
-		const char mdk = "MDK";	//sprite tool added "MDK" after the rats tag to find it's insertions...
+		const char* mdk = "MDK";	//sprite tool added "MDK" after the rats tag to find it's insertions...
+		int number_of_banks = rom.size / 0x8000;
 		for (int i = 0x10; i < number_of_banks; ++i){ 
 			
-			char* bank = (char*)(rom.real_date + i * 0x8000);
+			char* bank = (char*)(rom.real_data + i * 0x8000);
 
 			int bank_offset = 8;
 			while(1){
 				//look for data inserted on previous uses
 				
 				int offset = bank_offset;
-				int j = 0;
-				for(offset; offset < 0x8000; offset++) {
+				unsigned int j = 0;
+				for(; offset < 0x8000; offset++) {
 					if(bank[offset] != mdk[j++])
 						j = 0;
 					if(j == strlen(mdk))
@@ -447,16 +448,12 @@ void clean_hack(ROM &rom)
 				bank_offset += 3;
 				if(*((unsigned int*)(bank + offset - 8)) != 0x52415453)	//check for "STAR"
 					continue;
-					
-				//0x52415453
-				//if (offset < 8 || current_bank_contents.substr(offset-8, 4) != RATS_TAG_LABEL)
-					//continue;
-			
+								
 				//delete the amount that the RATS tag is protecting
 				int size = ((unsigned char)bank[offset-3] << 8)
-					+ (unsigned char)current_bank_contents[offset-4] + 8;
-				int inverted = ((unsigned char)current_bank_contents[offset-1] << 8)
-					+ (unsigned char)current_bank_contents[offset-2];
+					+ (unsigned char)bank[offset-4] + 8;
+				int inverted = ((unsigned char)bank[offset-1] << 8)
+					+ (unsigned char)bank[offset-2];
 		 
 				if ((size - 8 + inverted) == 0x0FFFF)			// new tag
 					size++;
@@ -464,7 +461,7 @@ void clean_hack(ROM &rom)
 					int pc = i * 0x8000 + offset;
 					char answer;
 					printf("Bad sprite_tool RATS tag detected at $%06X / 0x%05X. Remove anyway (y/n) ",
-					rom.pc_to_snes(pc), pc);
+						rom.pc_to_snes(pc), pc);
 					scanf("%c",&answer);
 					if(answer != 'Y' && answer != 'y')
 						continue;
@@ -675,8 +672,8 @@ int main(int argc, char* argv[]) {
 		if(fgets(ROM_name, FILENAME_MAX, stdin)){
 			int length = strlen(ROM_name)-1;
 			ROM_name[length] = 0;
-			if(ROM_name[0] == '"' && ROM_name[length - 1] == '"' ||
-			   ROM_name[0] == '\'' && ROM_name[length - 1] == '\''){
+			if((ROM_name[0] == '"' && ROM_name[length - 1]) == '"' ||
+			   (ROM_name[0] == '\'' && ROM_name[length - 1] == '\'')){
 				ROM_name[length -1] = 0;
 				for(int i = 0; ROM_name[i]; i++){
 					ROM_name[i] = ROM_name[i+1]; //no buffer overflow there are two null chars.
@@ -688,22 +685,6 @@ int main(int argc, char* argv[]) {
 		rom.open(argv[argc-1]);
 	}
 	
-	
-	//clean up ROM
-	//create shared routine file
-	//read cfg file
-	//parse line -> struct sprite + table
-	//check asm-file for already patched.
-	//(no)
-	//	create sprite asm file
-	//	patch sprite
-	//	init, main, desc -> sprite table	
-	//(yes)
-	//	init, main, desc from old sprite -> new sprite
-	//write bin file for tables.
-	//patch sprite_tool code.
-
-
 	populate_sprite_list(paths, sprite_list, data.full_table, (char *)read_all(paths[LIST], true), debug_flag);
 		
 	clean_hack(rom);
