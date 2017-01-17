@@ -480,7 +480,7 @@ void clean_hack(ROM &rom)
 
 void create_shared_patch(const char *routine_path, ROM &rom)
 {
-	FILE *shared_patch = open("shared.asm", "w");
+	FILE *shared_patch = open("asm/shared.asm", "w");
 	fprintf(shared_patch, 	"macro include_once(target, base, offset)\n"
 				"	if !<base> != 1\n"
 				"		!<base> = 1\n"
