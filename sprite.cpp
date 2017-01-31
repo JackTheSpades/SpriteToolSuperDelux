@@ -99,8 +99,8 @@ int get_pointer(unsigned char *data, int address, int size = 3, int bank = 0x00)
 
 struct pointer {
 	unsigned char lowbyte = RTL_LOW;		//point to RTL
-	unsigned char highbyte = RTL_HIGH;	//if you plan on changing these, make sure to also do so in
-	unsigned char bankbyte = RTL_BANK;	//asm/clean_sprite.asm
+	unsigned char highbyte = RTL_HIGH;	//
+	unsigned char bankbyte = RTL_BANK;	//
 	
 	pointer() = default;
 	pointer(int snes) {
@@ -242,6 +242,13 @@ struct sprite_data {
 	sprite_table* level_table_t4 = full_table + 0x1800;	//sprite B0-BF of level 180-1FF
 };
 
+bool is_Empty_Table(sprite_table* ptr, int size) {
+	for(int i = 0; i < size; i++)
+		if(!ptr[i].init.is_empty() || !ptr[i].init.is_empty())
+			return false;
+	return true;
+}
+
 template <typename T>
 T* from_table(T* table, int level, int number) {
 	if(level > 0x200 || number > 0xFF)
@@ -335,7 +342,11 @@ void patch_sprites(sprite* sprite_list, ROM &rom, bool debug) {
 	}
 }
 
+typedef void (*linehandler)(const char*, sprite*, void*);
+
 void read_cfg_file(sprite* spr, const char* dir, bool debug) {
+
+	linehandler handlers[6];
 
 	int bytes_read = 0;
 	simple_string current_line;

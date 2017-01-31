@@ -129,6 +129,45 @@ org $02A9C9
 org $02A9A6
 	JSL TestSilverCoinBit
 	NOP
+	
+	
+; ---------------------------------------------------
+; dev stuff
+; ---------------------------------------------------
+
+; Starting in version 1.80, Lunar Magic allows sprites to have a user-defined size for the number of bytes
+; they take up in the sprite list for the level. These extra bytes can be set when adding a sprite manually.
+
+; Typically the sizes would be set by a 3rd party utility. To set them yourself, you must create and store a
+; 0x400 byte table containing the sprite sizes somewhere inside the ROM (first 0x100 bytes are for sprites
+; 00-FF that use an extra bit of 0, next 0x100 are for sprites 00-FF that use an extra bit of 1, etc).
+; Place the SNES address for this table at 0x7750C PC. Then put 0x42 at 0x7750F to enable use of the table by Lunar Magic.
+
+;org $0EF30C				;
+;	autoclean dl Size		; 
+;	db $42					; enable LM custom sprite size 
+
+;freedata
+;Size:
+;	fillbyte $03
+;	fill $200
+;	fillbyte $06
+;	fill $200
+
+;org $02A846
+;	JML SprtOffset
+;	NOP						; not necessary but still...
+
+;freecode
+;SprtOffset:
+;	DEY						; move index to sprite data byte 0
+;	LDA [$CE],y				; format: YYYYEEsy, EE = Extra bits
+;	INY #3					; move index to next sprite
+;	AND #$04					; \
+;	BNE +						; | if sprite is custom, it has 3 extra bytes
+;	INY #3					; /
+;+	INX						; restore code
+;	JML $02A82E				; return to loop
 
  
 ; ---------------------------------------------------
