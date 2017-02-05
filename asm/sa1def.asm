@@ -3,14 +3,14 @@
 !CustomBit		= $08
 
 macro debugmsg(msg)
-	!__debug ?= 0
-	if !__debug = 1
-		print "$",pc," <msg>"
+	!__debug ?= 0					; set debug flag to 0 if not set already
+	if !__debug = 1				; if set...
+		print "$",pc," <msg>"	; print the pc address.
 	endif
 endmacro
 
 
-if read1($00FFD5) == $23
+if read1($00FFD5) == $23		; check if the rom is sa-1
 	sa1rom
 	!SA1 = 1
 	!SA_1 = 1
@@ -57,12 +57,18 @@ endmacro
 %define_sprite_table("7FAB28",$7FAB28,$400057)
 %define_sprite_table("7FAB34",$7FAB34,$40006D)
 %define_sprite_table("7FAB9E",$7FAB9E,$400083)
+%define_sprite_table("7FAB40",$7FAB40,$400099)
+%define_sprite_table("7FAB4C",$7FAB4C,$4000AF)
+%define_sprite_table("7FAB58",$7FAB58,$4000C5)
 
 %define_sprite_table("extra_bits",$7FAB10,$400040)
 %define_sprite_table("new_code_flag",$7FAB1C,$400056)
 %define_sprite_table("extra_prop_1",$7FAB28,$400057)
 %define_sprite_table("extra_prop_2",$7FAB34,$40006D)
 %define_sprite_table("new_sprite_num",$7FAB9E,$400083)
+%define_sprite_table("extra_byte_1",$7FAB40,$400099)
+%define_sprite_table("extra_byte_2",$7FAB4C,$4000AF)
+%define_sprite_table("extra_byte_3",$7FAB58,$4000C5)
 
 
 ;normal sprite defines

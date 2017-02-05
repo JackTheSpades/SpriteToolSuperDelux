@@ -1,2 +1,2 @@
-stsd.exe -d clean.smc
+stsd.exe -d -k clean.smc
 @pause

@@ -1,5 +1,5 @@
 
-!__debug = 1
+!__debug = 0
 incsrc "sa1def.asm"		;sa-1 defines
 
 ; ---------------------------------------------------
@@ -10,8 +10,7 @@ incsrc "sa1def.asm"		;sa-1 defines
 org $02FFE2
 	db "STSD"
 	incbin "_versionflag.bin"	;byte 1 is version number 1.xx
-										;byte 2 contains some flags (bit 0 = poison mushroom inserted)
-										;byte 3,4 preserved
+										;byte 2,3,4 reserved
 TableLoc:
 	db table1>>16	;bank bytes only. (for easier access later)
 	db table2>>16	;since they all fill the whole bank, they start at xx8000
@@ -132,7 +131,7 @@ org $02A9A6
 	
 	
 ; ---------------------------------------------------
-; dev stuff
+; dev stuff / LM Hijacks
 ; ---------------------------------------------------
 
 ; Starting in version 1.80, Lunar Magic allows sprites to have a user-defined size for the number of bytes
@@ -144,15 +143,15 @@ org $02A9A6
 ; Place the SNES address for this table at 0x7750C PC. Then put 0x42 at 0x7750F to enable use of the table by Lunar Magic.
 
 ;org $0EF30C				;
-;	autoclean dl Size		; 
+;	autoclean dl Size		; pointer to sprite size table
 ;	db $42					; enable LM custom sprite size 
 
 ;freedata
 ;Size:
-;	fillbyte $03
-;	fill $200
-;	fillbyte $06
-;	fill $200
+;	fillbyte $03			; sprites 00-FF, with EE bits 00,01
+;	fill $200				; set to using 3 bytes each (default)
+;	fillbyte $06			; sprites 00-FF, with EE bits 10,11 (custom bit set)
+;	fill $200				; use 6 bytes each (3 extra bytes)
 
 ;org $02A846
 ;	JML SprtOffset
@@ -163,7 +162,7 @@ org $02A9A6
 ;	DEY						; move index to sprite data byte 0
 ;	LDA [$CE],y				; format: YYYYEEsy, EE = Extra bits
 ;	INY #3					; move index to next sprite
-;	AND #$04					; \
+;	AND #!CustomBit		; \
 ;	BNE +						; | if sprite is custom, it has 3 extra bytes
 ;	INY #3					; /
 ;+	INX						; restore code

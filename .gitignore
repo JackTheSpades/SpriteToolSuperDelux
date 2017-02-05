@@ -4,5 +4,6 @@
 *.exe
 *.bin
 asm/shared.asm
+asm/cleanup.asm
 HxD.ini
 spr_temp.asm
