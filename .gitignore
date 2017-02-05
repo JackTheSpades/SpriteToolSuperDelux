@@ -2,5 +2,7 @@
 *.srm
 *.zst
 *.exe
+*.bin
+asm/shared.asm
 HxD.ini
 spr_temp.asm
