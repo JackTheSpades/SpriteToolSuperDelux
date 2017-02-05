@@ -1,5 +1,5 @@
 
-!__debug = 0
+!__debug = 1
 incsrc "sa1def.asm"		;sa-1 defines
 
 ; ---------------------------------------------------
@@ -63,8 +63,8 @@ org $0182B3
 	db $C2,$85
 ;status routine wrapper
 org $01D43E
-		JSR $8133
-		RTL
+	JSR $8133
+	RTL
 	
 
 ; store extra bits separate from $14D4

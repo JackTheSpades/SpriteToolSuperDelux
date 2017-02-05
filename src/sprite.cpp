@@ -9,7 +9,6 @@
 #include "structs.h"
 #include "file_io.h"
 
-
 #define ROUTINES 0
 #define SPRITES 1
 #define GENERATORS 2
@@ -466,6 +465,7 @@ int main(int argc, char* argv[]) {
 		remove("asm/_PerLevelT2.bin");
 		remove("asm/_PerLevelT3.bin");
 		remove("asm/_PerLevelT4.bin");
+		remove("asm/shared.asm");
 	}
 	
 	rom.close();

@@ -9,6 +9,20 @@ macro debugmsg(msg)
 	endif
 endmacro
 
+;branch extra bit set
+macro BES(label)
+	LDA !extra_bits,x
+	AND #$04
+	BNE <label>
+endmacro
+
+;branch extra bit clear
+macro BEC(label)
+	LDA !extra_bits,x
+	AND #$04
+	BEQ <label>
+endmacro
+
 
 if read1($00FFD5) == $23		; check if the rom is sa-1
 	sa1rom
@@ -36,16 +50,6 @@ macro define_sprite_table(name, addr, addr_sa1)
 	endif
 endmacro
 
-macro BES(label)
-	LDA !extra_bits,x
-	AND #$04
-	BNE <label>
-endmacro
-macro BEC(label)
-	LDA !extra_bits,x
-	AND #$04
-	BEQ <label>
-endmacro
 
 
 ;$9E,x =  ($B4)

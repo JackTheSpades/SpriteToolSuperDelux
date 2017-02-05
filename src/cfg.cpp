@@ -35,10 +35,11 @@ void read_cfg_file(sprite* spr, const char* cfg, const char* dir, FILE* output) 
 		handlers[line](current_line.data, spr, dir);
 		line++;
 		
-	}while(!current_line.length);
-	
+	}while(current_line.length);
+		
 	
 	if(output != nullptr){	
+		fprintf(output, "\n%s:, %d lines parsed:\n",spr->cfg_file,line-1);
 		if(spr->level < 0x200)
 			fprintf(output, "Sprite: %02X, Level: %03X\n", spr->number, spr->level);
 		else
@@ -52,8 +53,9 @@ void read_cfg_file(sprite* spr, const char* cfg, const char* dir, FILE* output) 
 			fprintf(output, "\nExtra: ");
 			for(int i = 0; i < 2; i++)
 				fprintf(output, "%02X, ",spr->table->extra[i]);
-			fprintf(output, "\nASM File: %s\n\n", spr->asm_file);
+			fprintf(output, "\nASM File: %s\n\n", spr->asm_file);			
 		}
+		fprintf(output,"--------------------------------------\n");
 	}
 
 	if(!spr->table->type) {
