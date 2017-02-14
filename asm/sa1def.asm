@@ -23,6 +23,12 @@ macro BEC(label)
 	BEQ <label>
 endmacro
 
+;Check if A is inbetween x and -x
+macro Between(x, label)
+	CLC : ADC <x>
+	CMP <x>*2
+	BCS <label>
+endmacro
 
 if read1($00FFD5) == $23		; check if the rom is sa-1
 	sa1rom
@@ -30,7 +36,10 @@ if read1($00FFD5) == $23		; check if the rom is sa-1
 	!SA_1 = 1
 	!Base1 = $3000
 	!Base2 = $6000
-	!BBank = $000000
+	
+	!BankA = $400000
+	!BankB = $000000
+	
 	!SprSize = $16
 else
 	lorom
@@ -38,7 +47,10 @@ else
 	!SA_1 = 0
 	!Base1 = $0000
 	!Base2 = $0000
-	!BBank = $800000
+	
+	!BankA = $7E0000
+	!BankB = $800000
+	
 	!SprSize = $0C
 endif
 
@@ -47,6 +59,14 @@ macro define_sprite_table(name, addr, addr_sa1)
 		!<name> = <addr>
 	else
 		!<name> = <addr_sa1>
+	endif
+endmacro
+
+macro define_base2_address(name, addr)
+	if !SA1 == 0
+		!<name> = <addr>
+	else
+		!<name> = <addr>|!Base2
 	endif
 endmacro
 
@@ -70,10 +90,22 @@ endmacro
 %define_sprite_table("extra_prop_1",$7FAB28,$400057)
 %define_sprite_table("extra_prop_2",$7FAB34,$40006D)
 %define_sprite_table("new_sprite_num",$7FAB9E,$400083)
-%define_sprite_table("extra_byte_1",$7FAB40,$400099)
-%define_sprite_table("extra_byte_2",$7FAB4C,$4000AF)
-%define_sprite_table("extra_byte_3",$7FAB58,$4000C5)
+; %define_sprite_table("extra_byte_1",$7FAB40,$400099)
+; %define_sprite_table("extra_byte_2",$7FAB4C,$4000AF)
+; %define_sprite_table("extra_byte_3",$7FAB58,$4000C5)
 
+%define_sprite_table("7FAB64",$7FAB64,$4000DB)
+%define_sprite_table(shoot_misc,$7FAB64,$4000DB)
+
+;shooter defines
+%define_base2_address(shoot_num,$1783)		; shooter number -#$BC
+														; also has the extra bit in #$40
+%define_base2_address(shoot_y_low,$178B)
+%define_base2_address(shoot_y_low,$178B)
+%define_base2_address(shoot_y_high,$1793)
+%define_base2_address(shoot_x_low,$179B)
+%define_base2_address(shoot_x_high,$17A3)
+%define_base2_address(shoot_timer,$17AB)
 
 ;normal sprite defines
 %define_sprite_table(sprite_num, $9E, $3200)

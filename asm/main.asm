@@ -8,7 +8,7 @@ incsrc "sa1def.asm"		;sa-1 defines
 ; you also plan to update the tool itself
 ; ---------------------------------------------------
 org $02FFE2
-	db "STSD"
+	db "STSD"						;header!
 	incbin "_versionflag.bin"	;byte 1 is version number 1.xx
 										;byte 2,3,4 reserved
 TableLoc:
@@ -26,11 +26,14 @@ TableLoc:
 	autoclean dl table3
 	autoclean dl table4
 	
+	;3 bytes left over in bank... possible future use?
+	dl $FFFFFF
+	
 ;I think asar warns you for bank crossing anyway, but no harm done.
 warnpc $038000
 
 
-InitSpriteTables = $07F7D2|!BBank
+InitSpriteTables = $07F7D2|!BankB
 
 ; make it so the full level number can be read from $010B
 ; this part will not be removed on cleanup since other
@@ -413,7 +416,7 @@ SubGenLoad:
 	SEC
 	SBC #$CF
 	ORA $18B9|!Base2
-	JML $02A8B8|!BBank
+	JML $02A8B8|!BankB
 
 .NotCustom
 	INY
@@ -421,9 +424,9 @@ SubGenLoad:
 .NotGen		
 	CMP #$E7
 	BCC .Loc2
-	JML $02A86A|!BBank
+	JML $02A86A|!BankB
 .Loc2		
-	JML $02A88C|!BBank
+	JML $02A88C|!BankB
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -457,9 +460,9 @@ SubShootExec:
 	BMI .IsCustom
 	LDY $17AB|!Base2,x
 	BEQ .Loc2
-	JML $02B39A|!BBank
+	JML $02B39A|!BankB
 .Loc2		
-	JML $02B3A4|!BBank
+	JML $02B3A4|!BankB
 
 .IsCustom	
 	LDY $17AB|!Base2,x
@@ -478,7 +481,7 @@ SubShootExec:
 
 	JSR GetMainPtr
 
-	LDA #$02|(!BBank>>16)
+	LDA.b #$02|(!BankB>>16)
 	PHA
 	PEA $B3A6
 	JML [!Base1]
@@ -497,9 +500,9 @@ SubGenExec:
 	PLA
 	LDA $18B9|!Base2
 	BEQ .Loc2
-	JML $02B003|!BBank
+	JML $02B003|!BankB
 .Loc2		
-	JML $02B02A|!BBank
+	JML $02B02A|!BankB
 
 .IsCustom	
 	AND #$3F
@@ -667,7 +670,7 @@ SubHandleStatus:
 .NoEraseOrInit
 	CMP #$08
 	BNE .NoMainRoutine
-	JML $0185C3|!BBank
+	JML $0185C3|!BankB
 .NoMainRoutine
 	PHA
 	LDA !extra_bits,x
@@ -675,14 +678,14 @@ SubHandleStatus:
 	BNE .HandleCustomSprite
 	PLA
 .CallDefault
-	JML $018133|!BBank		;call regular status handler
+	JML $018133|!BankB		;call regular status handler
 
 .HandleCustomSprite
 	LDA !extra_prop_2,x
 	BMI .CallMain
 	PHA
 	LDA $02,s
-	JSL $01D43E|!BBank		;handle sprite based on status
+	JSL $01D43E|!BankB		;handle sprite based on status
 	PLA
 	ASL A
 	BMI .CallMain
@@ -691,7 +694,7 @@ SubHandleStatus:
 	BCS .CallMain2
 	CMP #$03
 	BEQ .CallMain2
-	JML $0185C2|!BBank
+	JML $0185C2|!BankB
 .CallMain2
 	PHA
 .CallMain
@@ -699,7 +702,7 @@ SubHandleStatus:
 	JSR GetMainPtr
 	PLA
 
-	LDY #$01|(!BBank>>16)
+	LDY #$01|(!BankB>>16)
 	PHY
 	PEA $85C1
 	JML [!Base1]
@@ -752,7 +755,7 @@ TestSilverCoinBit:
 		TAX
 	endif
 	
-	LDA $07F659|!BBank,x	;SMW sprite's $190F,x table
+	LDA $07F659|!BankB,x	;SMW sprite's $190F,x table
 	RTL
 
 .Custom
