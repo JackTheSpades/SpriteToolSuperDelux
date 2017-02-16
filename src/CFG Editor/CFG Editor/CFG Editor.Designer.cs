@@ -98,8 +98,8 @@
 			this.groupBox8 = new System.Windows.Forms.GroupBox();
 			this.label5 = new System.Windows.Forms.Label();
 			this.label4 = new System.Windows.Forms.Label();
-			this.txtEx2 = new System.Windows.Forms.TextBox();
-			this.txtEx1 = new System.Windows.Forms.TextBox();
+			this.txt_0002 = new System.Windows.Forms.TextBox();
+			this.txt_0001 = new System.Windows.Forms.TextBox();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tpgDefault = new System.Windows.Forms.TabPage();
 			this.txt_1656 = new System.Windows.Forms.TextBox();
@@ -111,8 +111,8 @@
 			this.label7 = new System.Windows.Forms.Label();
 			this.txtASMFile = new System.Windows.Forms.TextBox();
 			this.tpgAdvanced_Dai = new System.Windows.Forms.TabPage();
-			this.txt_0001 = new System.Windows.Forms.TextBox();
-			this.txt_0002 = new System.Windows.Forms.TextBox();
+			this.txt_ex1 = new System.Windows.Forms.TextBox();
+			this.txt_ex2 = new System.Windows.Forms.TextBox();
 			this.groupBox6 = new System.Windows.Forms.GroupBox();
 			this.rtbDescSet = new System.Windows.Forms.RichTextBox();
 			this.rtbDesc = new System.Windows.Forms.RichTextBox();
@@ -913,8 +913,8 @@
 			// 
 			this.groupBox8.Controls.Add(this.label5);
 			this.groupBox8.Controls.Add(this.label4);
-			this.groupBox8.Controls.Add(this.txtEx2);
-			this.groupBox8.Controls.Add(this.txtEx1);
+			this.groupBox8.Controls.Add(this.txt_0002);
+			this.groupBox8.Controls.Add(this.txt_0001);
 			this.groupBox8.Location = new System.Drawing.Point(282, 332);
 			this.groupBox8.Name = "groupBox8";
 			this.groupBox8.Size = new System.Drawing.Size(150, 38);
@@ -940,27 +940,27 @@
 			this.label4.TabIndex = 14;
 			this.label4.Text = "Byte 1:";
 			// 
-			// txtEx2
+			// txt_0002
 			// 
-			this.txtEx2.Location = new System.Drawing.Point(116, 15);
-			this.txtEx2.MaxLength = 2;
-			this.txtEx2.Name = "txtEx2";
-			this.txtEx2.Size = new System.Drawing.Size(24, 20);
-			this.txtEx2.TabIndex = 13;
-			this.txtEx2.Text = "00";
-			this.txtEx2.TextChanged += new System.EventHandler(this.txtEx2_TextChanged);
-			this.txtEx2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
+			this.txt_0002.Location = new System.Drawing.Point(116, 15);
+			this.txt_0002.MaxLength = 2;
+			this.txt_0002.Name = "txt_0002";
+			this.txt_0002.Size = new System.Drawing.Size(24, 20);
+			this.txt_0002.TabIndex = 13;
+			this.txt_0002.Text = "00";
+			this.txt_0002.TextChanged += new System.EventHandler(this.txt_Hex_TextChanged);
+			this.txt_0002.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
 			// 
-			// txtEx1
+			// txt_0001
 			// 
-			this.txtEx1.Location = new System.Drawing.Point(46, 15);
-			this.txtEx1.MaxLength = 2;
-			this.txtEx1.Name = "txtEx1";
-			this.txtEx1.Size = new System.Drawing.Size(24, 20);
-			this.txtEx1.TabIndex = 12;
-			this.txtEx1.Text = "00";
-			this.txtEx1.TextChanged += new System.EventHandler(this.txtEx1_TextChanged);
-			this.txtEx1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
+			this.txt_0001.Location = new System.Drawing.Point(46, 15);
+			this.txt_0001.MaxLength = 2;
+			this.txt_0001.Name = "txt_0001";
+			this.txt_0001.Size = new System.Drawing.Size(24, 20);
+			this.txt_0001.TabIndex = 12;
+			this.txt_0001.Text = "00";
+			this.txt_0001.TextChanged += new System.EventHandler(this.txt_Hex_TextChanged);
+			this.txt_0001.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
 			// 
 			// tabControl1
 			// 
@@ -1086,8 +1086,8 @@
 			// tpgAdvanced_Dai
 			// 
 			this.tpgAdvanced_Dai.BackColor = System.Drawing.SystemColors.Control;
-			this.tpgAdvanced_Dai.Controls.Add(this.txt_0001);
-			this.tpgAdvanced_Dai.Controls.Add(this.txt_0002);
+			this.tpgAdvanced_Dai.Controls.Add(this.txt_ex1);
+			this.tpgAdvanced_Dai.Controls.Add(this.txt_ex2);
 			this.tpgAdvanced_Dai.Controls.Add(this.groupBox6);
 			this.tpgAdvanced_Dai.Controls.Add(this.grpObj);
 			this.tpgAdvanced_Dai.Controls.Add(this.grpSpr);
@@ -1102,27 +1102,27 @@
 			this.tpgAdvanced_Dai.TabIndex = 1;
 			this.tpgAdvanced_Dai.Text = "Advanced";
 			// 
-			// txt_0001
+			// txt_ex1
 			// 
-			this.txt_0001.Location = new System.Drawing.Point(555, 3);
-			this.txt_0001.MaxLength = 2;
-			this.txt_0001.Name = "txt_0001";
-			this.txt_0001.Size = new System.Drawing.Size(24, 20);
-			this.txt_0001.TabIndex = 19;
-			this.txt_0001.Text = "00";
-			this.txt_0001.TextChanged += new System.EventHandler(this.txt_Hex_TextChanged);
-			this.txt_0001.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
+			this.txt_ex1.Location = new System.Drawing.Point(555, 3);
+			this.txt_ex1.MaxLength = 2;
+			this.txt_ex1.Name = "txt_ex1";
+			this.txt_ex1.Size = new System.Drawing.Size(24, 20);
+			this.txt_ex1.TabIndex = 19;
+			this.txt_ex1.Text = "00";
+			this.txt_ex1.TextChanged += new System.EventHandler(this.txt_Hex_TextChanged);
+			this.txt_ex1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
 			// 
-			// txt_0002
+			// txt_ex2
 			// 
-			this.txt_0002.Location = new System.Drawing.Point(555, 188);
-			this.txt_0002.MaxLength = 2;
-			this.txt_0002.Name = "txt_0002";
-			this.txt_0002.Size = new System.Drawing.Size(24, 20);
-			this.txt_0002.TabIndex = 19;
-			this.txt_0002.Text = "00";
-			this.txt_0002.TextChanged += new System.EventHandler(this.txt_Hex_TextChanged);
-			this.txt_0002.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
+			this.txt_ex2.Location = new System.Drawing.Point(555, 188);
+			this.txt_ex2.MaxLength = 2;
+			this.txt_ex2.Name = "txt_ex2";
+			this.txt_ex2.Size = new System.Drawing.Size(24, 20);
+			this.txt_ex2.TabIndex = 19;
+			this.txt_ex2.Text = "00";
+			this.txt_ex2.TextChanged += new System.EventHandler(this.txt_Hex_TextChanged);
+			this.txt_ex2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
 			// 
 			// groupBox6
 			// 
@@ -1971,8 +1971,8 @@
 		private System.Windows.Forms.MenuStrip menuStrip1;
 		private System.Windows.Forms.GroupBox groupBox8;
 		private System.Windows.Forms.Label label4;
-		private System.Windows.Forms.TextBox txtEx2;
-		private System.Windows.Forms.TextBox txtEx1;
+		private System.Windows.Forms.TextBox txt_0002;
+		private System.Windows.Forms.TextBox txt_0001;
 		private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
 		private System.Windows.Forms.PictureBox pcbPal;
 		private System.Windows.Forms.TabControl tabControl1;
@@ -2013,8 +2013,8 @@
 		private System.Windows.Forms.Label label14;
 		private System.Windows.Forms.Label label13;
 		private System.Windows.Forms.Label label12;
-		private System.Windows.Forms.TextBox txt_0001;
-		private System.Windows.Forms.TextBox txt_0002;
+		private System.Windows.Forms.TextBox txt_ex1;
+		private System.Windows.Forms.TextBox txt_ex2;
 		private System.Windows.Forms.GroupBox grp_0002;
 		private System.Windows.Forms.CheckBox chb_0002_80;
 		private System.Windows.Forms.CheckBox chb_0002_40;

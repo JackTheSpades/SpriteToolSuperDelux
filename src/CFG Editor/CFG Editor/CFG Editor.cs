@@ -274,8 +274,8 @@ namespace CFG
 
 			if(!_triggeredByTXT2)
 			{
-				txtEx1.Text = PropertyBytes[6].ToString("X2");
-				txtEx2.Text = PropertyBytes[7].ToString("X2");
+				txt_0001.Text = PropertyBytes[6].ToString("X2");
+				txt_0002.Text = PropertyBytes[7].ToString("X2");
 			}
 
 			_triggeredByCHB = false;
@@ -285,7 +285,6 @@ namespace CFG
 		{
 			if (_triggeredByCHB)
 				return;
-			_triggeredByTXT = true;
 
 			TextBox tx = (TextBox)sender;
 			var match = System.Text.RegularExpressions.Regex.Match(tx.Name, "txt_(?<CFG>[0-9A-F]{4})");		// fetch which property is targeted from name
@@ -294,8 +293,12 @@ namespace CFG
 			byte bit = Convert.ToByte(text, 16);															// convert value for the property
 			PropertyBytes[dicIndex[prop]] = bit;															// store to array
 
-			GroupBox container = (GroupBox)this.Controls.Find("grp_" + prop.ToString("X4"), true)[0];		// get the groupbox containing the property's conttrols
+			var containers = this.Controls.Find("grp_" + prop.ToString("X4"), true);
+			if(containers.Length == 0)
+				return;
+			GroupBox container = (GroupBox)containers[0];		// get the groupbox containing the property's conttrols
 
+			_triggeredByTXT = true;
 			foreach(Control c in container.Controls)
 			{
 				if (c is Label || c is PictureBox)
@@ -306,7 +309,6 @@ namespace CFG
 				if (c is ComboBox)
 					((ComboBox)c).SelectedIndex = (bit & mask) / ((prop == 0x166E) ? 2 : 1);
 			}
-
 			_triggeredByTXT = false;
 		}
 
@@ -581,6 +583,7 @@ namespace CFG
 			OpenFileDialog ofd = new OpenFileDialog();
 			ofd.Filter = "CFG file|*.cfg";
 			ofd.Title = "Load CFG file";
+			//ofd.InitialDirectory = Directory.GetCurrentDirectory();
 			if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
 				return;
 			try
@@ -639,20 +642,23 @@ namespace CFG
 
 		private void txtEx1_TextChanged(object sender, EventArgs e)
 		{
+			return;
+
 			if (_triggeredByTXT)
 				return;
 			_triggeredByTXT2 = true;
-			txt_0001.Text = txtEx1.Text;
+			txt_ex1.Text = txt_0001.Text;
 			_triggeredByTXT2 = false;
 		}
 
 		private void txtEx2_TextChanged(object sender, EventArgs e)
 		{
+			return;
 
 			if (_triggeredByTXT)
 				return;
 			_triggeredByTXT2 = true;
-			txt_0002.Text = txtEx2.Text;
+			txt_ex2.Text = txt_0002.Text;
 			_triggeredByTXT2 = false;
 		}
 
@@ -660,8 +666,8 @@ namespace CFG
 		{
 			bool b = !((CFG_SpriteType)tsbType.SelectedItem == CFG_SpriteType.Normal);
 			txtASMFile.Enabled = b;
-			txtEx1.Enabled = b;
-			txtEx2.Enabled = b;
+			txt_0001.Enabled = b;
+			txt_0002.Enabled = b;
 		}
 
 	}
