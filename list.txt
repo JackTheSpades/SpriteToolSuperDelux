@@ -1,9 +1,14 @@
-00 Blue.cfg
-01 Green.cfg
+00 bros/hammer_bro.cfg
+01 bros/boomerang_bro.cfg
+02 bros/boomerang.cfg
+03 piranha_sideways.cfg
+04 roto_disc.cfg
+05 thwomps/thwomp_left.cfg
+06 thwomps/thwomp_right.cfg
+07 bros/shell_bro.cfg
+08 bros/bomb_bro.cfg
+10 donut_lift.cfg
 
-105:B0 Red.cfg
-105:B1 Yellow.cfg
-
-106:B0 DivisibleBoo.cfg
-
-C0 pswitch-regen.cfg
+C0 diag_up_bill.cfg
+C1 diag_down_bill.cfg
+C2 vertical_bill.cfg

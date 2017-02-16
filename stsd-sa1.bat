@@ -1,2 +1,2 @@
-stsd.exe -d -l list-sa1.txt sa-1.smc 
+stsd.exe -d -k -l list.txt sa-1.smc 
 @pause
