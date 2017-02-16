@@ -396,7 +396,7 @@ int main(int argc, char* argv[]) {
 	for(int i = 1; i < argc; i++){
 		if(!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help") ){
 			printf("Version 1.%02d\n", VERSION);
-			printf("Usage: STSD <options> <ROM>\nOptions are:\n");
+			printf("Usage: pixi <options> <ROM>\nOptions are:\n");
 			printf("-d\t\tEnable debug output\n");
 			printf("-k\t\tKeep debug files\n");
 			printf("-l <listpath>\tSpecify a custom list file (Default: list.txt)\n");
