@@ -7,3 +7,4 @@ shared.asm
 asm/cleanup.asm
 HxD.ini
 spr_temp.asm
+!asm/Restore/*.bin
