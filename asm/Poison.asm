@@ -11,6 +11,8 @@
 !Pal	= $D			;palette to use (not yxppccct, just plain normal palette row)
 !Sec	= 0			;use second graphics page 0=no,1=yes
 
+assert(!NUM < $C9)
+
 org $01817D+(!NUM*2)	;sprite init pointer
 	dw $858B				;power up init
 org $0185CC+(!NUM*2)	;main pointer

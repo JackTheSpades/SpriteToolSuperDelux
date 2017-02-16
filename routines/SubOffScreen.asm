@@ -8,6 +8,8 @@
 			STA $03
 
 .start:		JSR .is_off             ; \ if sprite is not off screen, return
+
+			PHB : PHK : PLB
 			BEQ .return             ; /
 			LDA $5B                 ; \ goto .vert_level if vertical level
 			AND #$01                ; |
@@ -54,7 +56,8 @@
 			LDA #$00                ;A:FF08 X:0007 Y:0000 D:0000 DB:01 S:01F3 P:envMXdizcHC:1172 VC:059 00 FL:2878
 			STA $1938|!Base2,y             ;A:FF00 X:0007 Y:0000 D:0000 DB:01 S:01F3 P:envMXdiZcHC:1188 VC:059 00 FL:2878
 .kill:		STZ !14C8,x             ; erase sprite
-.return:	RTL                     ; return
+.return:	PLB
+			RTL                     ; return
 
 .vert_level:
 			LDA !167A,x             ; \ if "process offscreen" flag is set, return

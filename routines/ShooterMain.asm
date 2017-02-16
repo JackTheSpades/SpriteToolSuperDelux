@@ -1,3 +1,4 @@
+;THIS ROUTINE SHOULD ONLY BE CALLED BY A SHOOTER!!!
 ;Routine to check if a shooter should fire or not.
 ;Checks if the shooter is offscreen and if the timer has run out and sets it if so.
 ;

@@ -11,14 +11,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 GET_DRAW_INFO:
-    	STZ !186C,x
-    	STZ !15A0,x
-    	LDA !E4,x
-    	CMP $1A
-    	LDA !14E0,x
-    	SBC $1B
-    	BEQ .on_screen_X
-    	INC !15A0,x
+    	STZ !186C,x             ; \ reset horz/vert offscreen flags.
+    	STZ !15A0,x             ; /
+    	LDA !E4,x               ;
+    	CMP $1A                 ;
+    	LDA !14E0,x             ;
+    	SBC $1B                 ;
+    	BEQ .on_screen_X        ;
+    	INC !15A0,x             ;
      
     .on_screen_X
     	LDA !14E0,x
@@ -40,7 +40,7 @@ GET_DRAW_INFO:
     	PHK
     	PLB
     	LDY #$00
-    	LDA !1662,x
+    	LDA !1662,x             ; check tweaker high bit sprite clipping
     	AND #$20
     	BEQ .loop
     	INY

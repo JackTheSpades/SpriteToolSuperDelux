@@ -94,8 +94,8 @@ endmacro
 ; %define_sprite_table("extra_byte_2",$7FAB4C,$4000AF)
 ; %define_sprite_table("extra_byte_3",$7FAB58,$4000C5)
 
-%define_sprite_table("7FAB64",$7FAB64,$4000DB)
-%define_sprite_table(shoot_misc,$7FAB64,$4000DB)
+;%define_sprite_table("7FAB64",$7FAB64,$4000DB)
+;%define_sprite_table(shoot_misc,$7FAB64,$4000DB)
 
 ;shooter defines
 %define_base2_address(shoot_num,$1783)		; shooter number -#$BC

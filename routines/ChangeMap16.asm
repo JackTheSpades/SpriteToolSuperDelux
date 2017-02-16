@@ -1,8 +1,9 @@
-;Usage:
-;REP #$10
-;LDX #!block_number
-;%change_map16()
-;SEP #$10
+;Routine that changes the map16 block at a given position
+;
+;Input:  A   = 16 bit map16 number. (should be in 16 bit mode when entering routine)
+;        $98 = 16 bit Y position
+;        $9A = 16 bit X position
+;
 
 
 ;todo optimize
@@ -10,7 +11,7 @@
 	
 	PHX	
 	REP #$10
-	LDX $03
+	TAX
 	
 	SEP #$20
 	PHB
@@ -36,7 +37,7 @@
 	LDY $0E				; Y = y pos of block
 	LDA $09
 	AND #$01
-	BEQ LeaveXY			; branch if layer horizontal
+	BEQ .LeaveXY			; branch if layer horizontal
 	LDA $9B				; \
 	STA $00				; |
 	LDA $99				; | swap low bytes of x and y position
@@ -45,9 +46,9 @@
 	STA $99				; /
 	LDY $0C				; Y = x pos of block
 	
-LeaveXY:
+.LeaveXY:
 	CPY #$0200
-	BCC NoEnd
+	BCC .NoEnd
 	PLX
 	PLY
 	PLY
@@ -56,7 +57,7 @@ LeaveXY:
 	PLP
 	RTL
 	
-NoEnd:
+.NoEnd:
 	LDA $1933|!Base2	; layer being processed
 	ASL A
 	TAX
@@ -95,29 +96,29 @@ NoEnd:
 	
 	LDA $09
 	AND #$01
-	BEQ SwitchXY		; branch if horizontal
+	BEQ .SwitchXY		; branch if horizontal
 	LDA $99		
 	LSR A
 	LDA $9B
 	AND #$01
-	BRA CurrentXY
-SwitchXY:
+	BRA .CurrentXY
+.SwitchXY:
 	LDA $9B
 	LSR A
 	LDA $99
 	
-CurrentXY:
+.CurrentXY:
 	ROL A
 	ASL A
 	ASL A
 	ORA #$20
 	STA $04
 	CPX #$0000
-	BEQ NoAdd
+	BEQ .NoAdd
 	CLC
 	ADC #$10
 	STA $04
-NoAdd:
+.NoAdd:
 	LDA $98
 	AND #$F0
 	CLC
@@ -139,34 +140,34 @@ NoAdd:
 	REP #$20
 	LDA $09
 	AND #$0001
-	BNE LayerSwitch
+	BNE .LayerSwitch
 	LDA $1A
 	SEC
 	SBC #$0080
 	TAX
 	LDY $1C
 	LDA $1933
-	BEQ CurrentLayer
+	BEQ .CurrentLayer
 	LDX $1E
 	LDA $20
 	SEC
 	SBC #$0080
 	TAY
-	BRA CurrentLayer
-LayerSwitch: 
+	BRA .CurrentLayer
+.LayerSwitch: 
 	LDX $1A
 	LDA $1C
 	SEC
 	SBC #$0080
 	TAY
 	LDA $1933
-	BEQ CurrentLayer
+	BEQ .CurrentLayer
 	LDA $1E
 	SEC
 	SBC #$0080
 	TAX
 	LDY $20
-CurrentLayer:
+.CurrentLayer:
 	STX $08
 	STY $0A
 	LDA $98
