@@ -1,0 +1,226 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{DCCC92C0-DAAD-4A7F-AC97-8AFBCC508D56}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CFG</RootNamespace>
+    <AssemblyName>CFG Editor</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>VioletEgg.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CFG Editor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CFG Editor.Designer.cs">
+      <DependentUpon>CFG Editor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NameExtraProp.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NameExtraProp.Designer.cs">
+      <DependentUpon>NameExtraProp.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="CFG Editor.resx">
+      <DependentUpon>CFG Editor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NameExtraProp.resx">
+      <DependentUpon>NameExtraProp.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <None Include="Resources\sprite.pal" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\SprClipping\01.png" />
+    <EmbeddedResource Include="Resources\SprClipping\02.png" />
+    <EmbeddedResource Include="Resources\SprClipping\03.png" />
+    <EmbeddedResource Include="Resources\SprClipping\04.png" />
+    <EmbeddedResource Include="Resources\SprClipping\05.png" />
+    <EmbeddedResource Include="Resources\SprClipping\06.png" />
+    <EmbeddedResource Include="Resources\SprClipping\07.png" />
+    <EmbeddedResource Include="Resources\SprClipping\08.png" />
+    <EmbeddedResource Include="Resources\SprClipping\09.png" />
+    <EmbeddedResource Include="Resources\SprClipping\0A.png" />
+    <EmbeddedResource Include="Resources\SprClipping\0B.png" />
+    <EmbeddedResource Include="Resources\SprClipping\0C.png" />
+    <EmbeddedResource Include="Resources\SprClipping\0D.png" />
+    <EmbeddedResource Include="Resources\SprClipping\0E.png" />
+    <EmbeddedResource Include="Resources\SprClipping\0F.png" />
+    <EmbeddedResource Include="Resources\SprClipping\10.png" />
+    <EmbeddedResource Include="Resources\SprClipping\11.png" />
+    <EmbeddedResource Include="Resources\SprClipping\12.png" />
+    <EmbeddedResource Include="Resources\SprClipping\13.png" />
+    <EmbeddedResource Include="Resources\SprClipping\14.png" />
+    <EmbeddedResource Include="Resources\SprClipping\15.png" />
+    <EmbeddedResource Include="Resources\SprClipping\16.png" />
+    <EmbeddedResource Include="Resources\SprClipping\17.png" />
+    <EmbeddedResource Include="Resources\SprClipping\18.png" />
+    <EmbeddedResource Include="Resources\SprClipping\19.png" />
+    <EmbeddedResource Include="Resources\SprClipping\1A.png" />
+    <EmbeddedResource Include="Resources\SprClipping\1B.png" />
+    <EmbeddedResource Include="Resources\SprClipping\1C.png" />
+    <EmbeddedResource Include="Resources\SprClipping\1D.png" />
+    <EmbeddedResource Include="Resources\SprClipping\1E.png" />
+    <EmbeddedResource Include="Resources\SprClipping\1F.png" />
+    <EmbeddedResource Include="Resources\SprClipping\20.png" />
+    <EmbeddedResource Include="Resources\SprClipping\21.png" />
+    <EmbeddedResource Include="Resources\SprClipping\22.png" />
+    <EmbeddedResource Include="Resources\SprClipping\23.png" />
+    <EmbeddedResource Include="Resources\SprClipping\24.png" />
+    <EmbeddedResource Include="Resources\SprClipping\25.png" />
+    <EmbeddedResource Include="Resources\SprClipping\26.png" />
+    <EmbeddedResource Include="Resources\SprClipping\27.png" />
+    <EmbeddedResource Include="Resources\SprClipping\28.png" />
+    <EmbeddedResource Include="Resources\SprClipping\29.png" />
+    <EmbeddedResource Include="Resources\SprClipping\2A.png" />
+    <EmbeddedResource Include="Resources\SprClipping\2B.png" />
+    <EmbeddedResource Include="Resources\SprClipping\2C.png" />
+    <EmbeddedResource Include="Resources\SprClipping\2D.png" />
+    <EmbeddedResource Include="Resources\SprClipping\2E.png" />
+    <EmbeddedResource Include="Resources\SprClipping\2F.png" />
+    <EmbeddedResource Include="Resources\SprClipping\30.png" />
+    <EmbeddedResource Include="Resources\SprClipping\31.png" />
+    <EmbeddedResource Include="Resources\SprClipping\32.png" />
+    <EmbeddedResource Include="Resources\SprClipping\33.png" />
+    <EmbeddedResource Include="Resources\SprClipping\34.png" />
+    <EmbeddedResource Include="Resources\SprClipping\35.png" />
+    <EmbeddedResource Include="Resources\SprClipping\36.png" />
+    <EmbeddedResource Include="Resources\SprClipping\37.png" />
+    <EmbeddedResource Include="Resources\SprClipping\38.png" />
+    <EmbeddedResource Include="Resources\SprClipping\39.png" />
+    <EmbeddedResource Include="Resources\SprClipping\3A.png" />
+    <EmbeddedResource Include="Resources\SprClipping\3B.png" />
+    <EmbeddedResource Include="Resources\SprClipping\3C.png" />
+    <EmbeddedResource Include="Resources\SprClipping\3D.png" />
+    <EmbeddedResource Include="Resources\SprClipping\3E.png" />
+    <EmbeddedResource Include="Resources\SprClipping\3F.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ObjClipping\00.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\SprClipping\00.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ObjClipping\01.png" />
+    <EmbeddedResource Include="Resources\ObjClipping\02.png" />
+    <EmbeddedResource Include="Resources\ObjClipping\03.png" />
+    <EmbeddedResource Include="Resources\ObjClipping\04.png" />
+    <EmbeddedResource Include="Resources\ObjClipping\05.png" />
+    <EmbeddedResource Include="Resources\ObjClipping\06.png" />
+    <EmbeddedResource Include="Resources\ObjClipping\07.png" />
+    <EmbeddedResource Include="Resources\ObjClipping\08.png" />
+    <EmbeddedResource Include="Resources\ObjClipping\09.png" />
+    <EmbeddedResource Include="Resources\ObjClipping\0A.png" />
+    <EmbeddedResource Include="Resources\ObjClipping\0B.png" />
+    <EmbeddedResource Include="Resources\ObjClipping\0C.png" />
+    <EmbeddedResource Include="Resources\ObjClipping\0D.png" />
+    <EmbeddedResource Include="Resources\ObjClipping\0E.png" />
+    <EmbeddedResource Include="Resources\ObjClipping\0F.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Cirno.ico" />
+    <Content Include="VioletEgg.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.5">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.5 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
