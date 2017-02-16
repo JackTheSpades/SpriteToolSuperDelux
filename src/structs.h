@@ -75,18 +75,6 @@ struct sprite_table {
 	unsigned char extra[2] = {0};
 };
 
-struct descriptor {
-	const char* description = nullptr;
-	const char* name = nullptr;
-	const char* map16 = nullptr;
-	
-	~descriptor() {
-		if(description) delete[] description;
-		if(name) delete[] name;
-		if(map16) delete[] map16;
-	}
-};
-
 struct sprite {
 	int line = 0;
 	int number = 0;
@@ -95,10 +83,7 @@ struct sprite {
 	
 	char* asm_file = nullptr;
 	char* cfg_file = nullptr;
-	
-	descriptor normal_desc;
-	descriptor extra_desc;
-	
+		
 	~sprite() {
 		if(asm_file)
 			delete[] asm_file;

@@ -84,7 +84,7 @@ void patch_sprites(sprite* sprite_list, ROM &rom, FILE* output) {
 			
 		FILE* sprite_patch = open(TEMP_SPR_FILE,"w");
 		fprintf(sprite_patch, "incsrc \"asm/sa1def.asm\"\n");
-		fprintf(sprite_patch, "incsrc \"asm/shared.asm\"\n");
+		fprintf(sprite_patch, "incsrc \"shared.asm\"\n");
 		fprintf(sprite_patch, "freecode cleaned\n");
 		fprintf(sprite_patch, "\tincsrc \"%s\"", spr->asm_file);
 		fclose(sprite_patch);
@@ -96,18 +96,30 @@ void patch_sprites(sprite* sprite_list, ROM &rom, FILE* output) {
 		int addr = 0xFFFFFF;
 		char buf[5];
 		
+		if(output)
+			fprintf(output, "%s\n", spr->asm_file);
+		if(print_count > 2 && output)
+			fprintf(output, "Prints:\n");
+		
 		for(int i = 0; i < print_count; i++) {
 			sscanf(prints[i], "%4s%x", buf, &addr);			
 			if(!strcmp(buf,"INIT"))
 				set_pointer(&spr->table->init, addr);
 			else if(!strcmp(buf,"MAIN"))
 				set_pointer(&spr->table->main, addr);
+			else if(!strcmp(buf,"VERG")) {
+				if(VERSION < addr) {
+					printf("Version Guard failed on %s.\n", spr->asm_file);
+					exit(-1);
+				}
+			}
+			else if(output)
+				fprintf(output, "\t%s\n", prints[i]);
 		}
 		
 		if(output) {
-			fprintf(output,"%s\n\tINIT: $%06X\n\tMAIN: $%06X"
+			fprintf(output,"\tINIT: $%06X\n\tMAIN: $%06X"
 				"\n__________________________________\n",
-				spr->asm_file,
 				spr->table->init.addr(), spr->table->main.addr());
 		}
 	}
@@ -119,37 +131,44 @@ void clean_hack(ROM &rom){
 		
 		//remove per level sprites
 		for(int bank = 0; bank < 4; bank++) {
+			fprintf(clean_patch, ";Per Level sprites for levels %03X - %03X\n", (bank * 0x80), ((bank+1)*0x80)-1);
 			int level_table_address = (rom.data[rom.snes_to_pc(0x02FFEA + bank)] << 16) + 0x8000;
-			for(int table_offset = 8; table_offset < 0x8000; table_offset += 0x10)	{
-				pointer init_pointer = rom.pointer_snes(level_table_address + table_offset);
-				if(!init_pointer.is_empty()) {
-					fprintf(clean_patch, "autoclean $%06X\n", init_pointer.addr());
+			for(int table_offset = 11; table_offset < 0x8000; table_offset += 0x10)	{
+				pointer main_pointer = rom.pointer_snes(level_table_address + table_offset);
+				if(main_pointer.addr() == 0xFFFFFF) {
+					fprintf(clean_patch, ";Encountered pointer to 0xFFFFFF, assuming there to be no sprites to clean!\n");
+					break;
+				}
+				if(!main_pointer.is_empty()) {
+					fprintf(clean_patch, "autoclean $%06X\n", main_pointer.addr());
 				}				
 			}
 			fprintf(clean_patch, "\n");
 		}
 		
 		//remove global sprites
+		fprintf(clean_patch, ";Global sprites: \n");
 		int global_table_address = rom.pointer_snes(0x02FFEE).addr();
-		for(int table_offset = 8; table_offset < 0xF00; table_offset += 0x10)	{
-			pointer init_pointer = rom.pointer_snes(global_table_address + table_offset);
-			if(!init_pointer.is_empty()) {
-				fprintf(clean_patch, "autoclean $%06X\n", init_pointer.addr());
+		for(int table_offset = 11; table_offset < 0xF00; table_offset += 0x10)	{
+			pointer main_pointer = rom.pointer_snes(global_table_address + table_offset);
+			if(!main_pointer.is_empty()) {
+				fprintf(clean_patch, "autoclean $%06X\n", main_pointer.addr());
 			}				
 		}
 		
-		fprintf(clean_patch, "\n\n");
+		fprintf(clean_patch, "\n\n;Routines:\n");
 						
 		//shared routines
 		for(int i = 0; i < 100; i++){
 			int routine_pointer = rom.pointer_snes(0x03E05C + i * 3).addr();
 			if(routine_pointer != 0xFFFFFF){
-				fprintf(clean_patch, "autoclean $06%X\n", routine_pointer);
-				fprintf(clean_patch, "ORG $%06X\n", 0x03E05C + i * 3);
-				fprintf(clean_patch, "dl $FFFFFF\n");
+				fprintf(clean_patch, "autoclean $%06X\n", routine_pointer);
+				fprintf(clean_patch, "org $%06X\n", 0x03E05C + i * 3);
+				fprintf(clean_patch, "dl $FFFFFF\n\n");
 			}
 		}
 		
+		//everything else is being cleaned by the main patch itself.
 		fclose(clean_patch);
 		patch("asm/cleanup.asm", rom, "asm/cleanup.asm");
 		
@@ -211,19 +230,20 @@ void clean_hack(ROM &rom){
 }
 
 void create_shared_patch(const char *routine_path, ROM &rom) {
-	FILE *shared_patch = open("asm/shared.asm", "w");
+	FILE *shared_patch = open("shared.asm", "w");
 	fprintf(shared_patch, 	"macro include_once(target, base, offset)\n"
 				"	if !<base> != 1\n"
 				"		!<base> = 1\n"
 				"		pushpc\n"
-				"		if read3(<offset>*3+$03E05C) != $FFFFFF\n"
-				"			<base> = read3(<offset>*3+$03E05C)\n"
+				"		if read3(<offset>+$03E05C) != $FFFFFF\n"
+				"			<base> = read3(<offset>+$03E05C)\n"
 				"		else\n"
 				"			freecode cleaned\n"
-				"			<base>:\n"
-				"			incsrc <target>\n"
-				"			ORG <offset>*3+$03E05C\n"
-				"			dl <base>\n"				
+				"				<base>:\n"
+				"				print \"    Routine: <base> inserted at $\",pc\n"
+				"				incsrc <target>\n"
+				"			ORG <offset>+$03E05C\n"
+				"				dl <base>\n"				
 				"		endif\n"
 				"		pullpc\n"
 				"	endif\n"
@@ -318,7 +338,7 @@ bool populate_sprite_list(const char** paths, sprite* sprite_list, sprite_table*
 			ERROR("Error on line %d: Missing space or level seperator.\n");
 		}
 		
-		read_cfg_file(spr, (char *)read_all(spr->cfg_file, true), dir, output);
+		read_cfg_file(spr, (char *)read_all(spr->cfg_file, true), output);
 		
 		
 		
@@ -336,9 +356,11 @@ bool populate_sprite_list(const char** paths, sprite* sprite_list, sprite_table*
 
 
 void write_long_table(sprite_table* ptr, const char* filename) {
-	unsigned char dummy = 0;
+	unsigned char dummy[0x10] = 
+		{ 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF };
+		
 	if(is_empty_table(ptr, 0x800))
-		write_all(&dummy, filename, 1);
+		write_all(dummy, filename, 0x10);
 	else
 		write_all((unsigned char*)ptr, filename, 0x8000);
 }
@@ -373,7 +395,7 @@ int main(int argc, char* argv[]) {
 		
 	for(int i = 1; i < argc; i++){
 		if(!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help") ){
-			printf("Version 1.%2d\n", VERSION);
+			printf("Version 1.%02d\n", VERSION);
 			printf("Usage: STSD <options> <ROM>\nOptions are:\n");
 			printf("-d\t\tEnable debug output\n");
 			printf("-k\t\tKeep debug files\n");
@@ -433,8 +455,8 @@ int main(int argc, char* argv[]) {
 	
 	char version = *((char*)rom.data + rom.snes_to_pc(0x02FFE2 + 4));
 	if(version > VERSION && version != 0xFF) {	
-		printf("The ROM has been patched with a newer version of STSD (1.%2d) already.\n", version);
-		printf("This is version 1.%2d\n", VERSION);
+		printf("The ROM has been patched with a newer version of STSD (1.%02d) already.\n", version);
+		printf("This is version 1.%02d\n", VERSION);
 		printf("Please get a newer version.");
 		exit(-1);
 	}
@@ -465,7 +487,7 @@ int main(int argc, char* argv[]) {
 		remove("asm/_PerLevelT2.bin");
 		remove("asm/_PerLevelT3.bin");
 		remove("asm/_PerLevelT4.bin");
-		remove("asm/shared.asm");
+		remove("shared.asm");
 	}
 	
 	rom.close();
