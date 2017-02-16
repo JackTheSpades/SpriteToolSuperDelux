@@ -2,5 +2,10 @@
 *.srm
 *.zst
 *.exe
+*.bin
+!asm/Restore/*.bin
+shared.asm
+asm/cleanup.asm
 HxD.ini
 spr_temp.asm
+pixi.zip

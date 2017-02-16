@@ -1,0 +1,8 @@
+JSL:
+
+$01B44F	- Solid Block routine (make sprite solid)
+$01801A - The subroutine that updates a sprite's Y position without gravity.
+$018022 - The subroutine that updates a sprite's X position without gravity.
+$01802A - Subroutine that updates a sprite's X/Y position, including gravity and interaction.
+$018032 - Sprite<->sprite interaction subroutine
+$01A83B - Default Sprite<->Mario interaction subroutine

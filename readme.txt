@@ -1,4 +1,4 @@
-Sprite Tool Super Delux (or STSD for short) is an updated version of romi's sprite tool.
+Pixi is an updated version of romi's sprite tool.
 The mayor advantages of this version compared to romi's are:
 
 	* sa-1 check/compability and default labels within the sprites
@@ -41,9 +41,9 @@ The mayor advantages of this version compared to romi's are:
 -- Default Paths/Files
 	The tool assumes a lot of default paths and files. You can change them when calling the tool from
 	the command line interface.
-	This is copy of the output when calling stsd.exe --help
+	This is copy of the output when calling pixi.exe --help
 	
-		Usage: STSD <options> <ROM>
+		Usage: pixi <options> <ROM>
 		Options are:
 		-d              Enable debug output
 		-k              Keep debug files
@@ -55,7 +55,7 @@ The mayor advantages of this version compared to romi's are:
 		
 	Example:
 		
-		stsd.exe -l newlistfile.txt rom.smc
+		pixi.exe -l newlistfile.txt rom.smc
 		
 		
 		

@@ -8,10 +8,9 @@ incsrc "sa1def.asm"		;sa-1 defines
 ; you also plan to update the tool itself
 ; ---------------------------------------------------
 org $02FFE2
-	db "STSD"
+	db "STSD"						;header!
 	incbin "_versionflag.bin"	;byte 1 is version number 1.xx
-										;byte 2 contains some flags (bit 0 = poison mushroom inserted)
-										;byte 3,4 preserved
+										;byte 2,3,4 reserved
 TableLoc:
 	db table1>>16	;bank bytes only. (for easier access later)
 	db table2>>16	;since they all fill the whole bank, they start at xx8000
@@ -27,11 +26,14 @@ TableLoc:
 	autoclean dl table3
 	autoclean dl table4
 	
+	;3 bytes left over in bank... possible future use?
+	dl $FFFFFF
+	
 ;I think asar warns you for bank crossing anyway, but no harm done.
 warnpc $038000
 
 
-InitSpriteTables = $07F7D2|!BBank
+InitSpriteTables = $07F7D2|!BankB
 
 ; make it so the full level number can be read from $010B
 ; this part will not be removed on cleanup since other
@@ -64,8 +66,8 @@ org $0182B3
 	db $C2,$85
 ;status routine wrapper
 org $01D43E
-		JSR $8133
-		RTL
+	JSR $8133
+	RTL
 	
 
 ; store extra bits separate from $14D4
@@ -129,6 +131,45 @@ org $02A9C9
 org $02A9A6
 	JSL TestSilverCoinBit
 	NOP
+	
+	
+; ---------------------------------------------------
+; dev stuff / LM Hijacks
+; ---------------------------------------------------
+
+; Starting in version 1.80, Lunar Magic allows sprites to have a user-defined size for the number of bytes
+; they take up in the sprite list for the level. These extra bytes can be set when adding a sprite manually.
+
+; Typically the sizes would be set by a 3rd party utility. To set them yourself, you must create and store a
+; 0x400 byte table containing the sprite sizes somewhere inside the ROM (first 0x100 bytes are for sprites
+; 00-FF that use an extra bit of 0, next 0x100 are for sprites 00-FF that use an extra bit of 1, etc).
+; Place the SNES address for this table at 0x7750C PC. Then put 0x42 at 0x7750F to enable use of the table by Lunar Magic.
+
+;org $0EF30C				;
+;	autoclean dl Size		; pointer to sprite size table
+;	db $42					; enable LM custom sprite size 
+
+;freedata
+;Size:
+;	fillbyte $03			; sprites 00-FF, with EE bits 00,01
+;	fill $200				; set to using 3 bytes each (default)
+;	fillbyte $06			; sprites 00-FF, with EE bits 10,11 (custom bit set)
+;	fill $200				; use 6 bytes each (3 extra bytes)
+
+;org $02A846
+;	JML SprtOffset
+;	NOP						; not necessary but still...
+
+;freecode
+;SprtOffset:
+;	DEY						; move index to sprite data byte 0
+;	LDA [$CE],y				; format: YYYYEEsy, EE = Extra bits
+;	INY #3					; move index to next sprite
+;	AND #!CustomBit		; \
+;	BNE +						; | if sprite is custom, it has 3 extra bytes
+;	INY #3					; /
+;+	INX						; restore code
+;	JML $02A82E				; return to loop
 
  
 ; ---------------------------------------------------
@@ -375,7 +416,7 @@ SubGenLoad:
 	SEC
 	SBC #$CF
 	ORA $18B9|!Base2
-	JML $02A8B8|!BBank
+	JML $02A8B8|!BankB
 
 .NotCustom
 	INY
@@ -383,9 +424,9 @@ SubGenLoad:
 .NotGen		
 	CMP #$E7
 	BCC .Loc2
-	JML $02A86A|!BBank
+	JML $02A86A|!BankB
 .Loc2		
-	JML $02A88C|!BBank
+	JML $02A88C|!BankB
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -419,9 +460,9 @@ SubShootExec:
 	BMI .IsCustom
 	LDY $17AB|!Base2,x
 	BEQ .Loc2
-	JML $02B39A|!BBank
+	JML $02B39A|!BankB
 .Loc2		
-	JML $02B3A4|!BBank
+	JML $02B3A4|!BankB
 
 .IsCustom	
 	LDY $17AB|!Base2,x
@@ -440,7 +481,7 @@ SubShootExec:
 
 	JSR GetMainPtr
 
-	LDA #$02|(!BBank>>16)
+	LDA.b #$02|(!BankB>>16)
 	PHA
 	PEA $B3A6
 	JML [!Base1]
@@ -459,9 +500,9 @@ SubGenExec:
 	PLA
 	LDA $18B9|!Base2
 	BEQ .Loc2
-	JML $02B003|!BBank
+	JML $02B003|!BankB
 .Loc2		
-	JML $02B02A|!BBank
+	JML $02B02A|!BankB
 
 .IsCustom	
 	AND #$3F
@@ -629,7 +670,7 @@ SubHandleStatus:
 .NoEraseOrInit
 	CMP #$08
 	BNE .NoMainRoutine
-	JML $0185C3|!BBank
+	JML $0185C3|!BankB
 .NoMainRoutine
 	PHA
 	LDA !extra_bits,x
@@ -637,14 +678,14 @@ SubHandleStatus:
 	BNE .HandleCustomSprite
 	PLA
 .CallDefault
-	JML $018133|!BBank		;call regular status handler
+	JML $018133|!BankB		;call regular status handler
 
 .HandleCustomSprite
 	LDA !extra_prop_2,x
 	BMI .CallMain
 	PHA
 	LDA $02,s
-	JSL $01D43E|!BBank		;handle sprite based on status
+	JSL $01D43E|!BankB		;handle sprite based on status
 	PLA
 	ASL A
 	BMI .CallMain
@@ -653,7 +694,7 @@ SubHandleStatus:
 	BCS .CallMain2
 	CMP #$03
 	BEQ .CallMain2
-	JML $0185C2|!BBank
+	JML $0185C2|!BankB
 .CallMain2
 	PHA
 .CallMain
@@ -661,7 +702,7 @@ SubHandleStatus:
 	JSR GetMainPtr
 	PLA
 
-	LDY #$01|(!BBank>>16)
+	LDY #$01|(!BankB>>16)
 	PHY
 	PEA $85C1
 	JML [!Base1]
@@ -714,7 +755,7 @@ TestSilverCoinBit:
 		TAX
 	endif
 	
-	LDA $07F659|!BBank,x	;SMW sprite's $190F,x table
+	LDA $07F659|!BankB,x	;SMW sprite's $190F,x table
 	RTL
 
 .Custom
