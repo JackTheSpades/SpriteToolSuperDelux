@@ -1,53 +1,72 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Boomerang Brother, by mikeyk
-;;
-;; Description: Similar to his role in SMB3, this guy throws boomerangs at Mario. 
-;;
-;; BIG FAT NOTE: This sprite depends on the boomerang sprite.  Make sure you insert the
-;; boomerang as the very next sprite.  (ex. If this is sprite 1B, make the boomerang 1C)
+;; Bro sprite that throws a sprite.
+;; What sprite is determined by the first extra property byte in the CFG editor and the
+;; tables below
 ;;
 ;; Uses first extra bit: NO
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+;Tables indexed by first extra property byte
 
-;Graphical Properties for the tile the bro is holding up before throwing it
-	!Throw_Tile = $4E
-	!Throw_Prop = $83
-	!Throw_XOff = $0A
+;Currently:
+;	0 - Green Shell
+;	1 - Bob Omb
+
+;sprite to spawn
+SpriteToSpawn:		db $04,$0D
+;$14C8 state
+SpawnState:			db $0A,$09
+;$1540
+SpawnTimer:			db $00,$A0
+;Graphical Display Stuff:
+SpawnTile:			db $8A,$CA
+SpawnProp:			db $0A,$03
 
 
-
+	!Throw_XOff = $07
+XThrowSpeed:		db $32,$CE
 
 	!JUMP_TIMER = !163E            ;Decrements itself per frame!!!!
 	!RAM_ThrowTimer = !1504        ;DOESN'T decrement itself!!!!!!!
-
 	
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Routine that spawns the sprite to be thrown
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
 SpawnThrowSprite:
 		LDA !157C,x
 		TAY
-		LDA Throw_Offset,y
-		STA $00
-		LDA #$F2
-		STA $01
-		STZ $02
-		STZ $03
-
-		LDA !new_sprite_num,x   ; \ sprite number is this' number +1
-		INC                     ; /
-		SEC                     ; set spawn to be custom sprite
-		%SpawnSprite()          ; spawn sprite
-		BCS +                   ; return if failed
-				
-		LDA !157C,x             ; \ same direction as bro is facing.
-		STA !157C,y             ; /
-		LDA #$4E                ; \ set timer until change direction
-		STA !1540,y             ; / 
 		
+		LDA Throw_Offset,y      ; \ x offset from generator sprite
+		STA $00                 ; /
+		LDA #$F2                ; \ y offset from generator sprite
+		STA $01                 ; /
+		LDA XThrowSpeed,y     ; \ initial x speed
+		STA $02                 ; /
+		LDA #$F0                ; \ initial y speed
+		STA $03                 ; /
+
+		LDA !extra_bits,x       ; \ put extra bit in carry
+		LSR #3                  ; / if set => spawn custom sprite.
+		
+		LDA !extra_prop_1,x
+		TAY
+		LDA SpriteToSpawn,y
+		
+		%SpawnSprite()
+		BCS +		
+		
+		PHX
+		LDA !extra_prop_1,x
+		TAX		
+		LDA SpawnState,x        ; \ if successful, set state
+		STA !14C8,y             ; /		      
+		LDA SpawnTimer,x        ; \ set explosion timer
+		STA !1540,y             ; / 
+		PLX
 +		RTS
 	
 	
@@ -120,16 +139,17 @@ TIME_IN_POS:        db $48,$10,$48,$10     ;moving up, rest at top, moving down,
 ;indexed by C2
 TIME_TILL_THROW:    db $F7,$62
 
-;STAR:               INC !RAM_ThrowTimer,x
-
+STAR: 
+		INC !RAM_ThrowTimer,x
 Return:
-		RTS                    
+		RTS                  
+		
 START_HB_CODE:
 
 		JSR SUB_GFX             ; draw hammer bro gfx
 		LDA !14C8,x             ; \ if hammer bro status != 8...
-		;CMP #$02                ;  }   ... not (killed with spin jump [4] or STAR[2])
-		;BEQ STAR
+		CMP #$02                ;  }   ... not (killed with spin jump [4] or STAR[2])
+		BEQ STAR
 		CMP #$08
 		BNE Return              ; /    ... RETURN
 		LDA $9D                 ; \ if sprites locked...
@@ -337,6 +357,13 @@ SUB_GFX:
 
 .ShowThrowTile
 		PHX                     ; preserve sprite index
+		
+		LDA !extra_prop_1,x
+		TAX
+		LDA SpawnTile,x
+		STA $03
+		LDA SpawnProp,x
+		STA $04
                     
 		LDA $00                 ; \
 		LDX $02                 ;  | x position + offset (depending on sprite direction)
@@ -347,7 +374,7 @@ SUB_GFX:
 		CLC : ADC #$F2          ; | y position + offset
 		STA $0301|!Base2,y      ; /
 
-		LDA #!Throw_Tile        ; \ store tile
+		LDA $03                 ; \ store tile
 		STA $0302|!Base2,y      ; / 
 
 		TYA                     ; \  get index to sprite property map ($460)...
@@ -357,7 +384,7 @@ SUB_GFX:
 		LDA #$02                ; | store tile size (2 = 16x16, 0 = 8x8)
 		STA $0460|!Base2,x      ; /  
 
-		LDA #!Throw_Prop        ; \  load throw tile properties.
+		LDA $04                 ; \  load throw tile properties.
 		BIT $02                 ;  | depending on sprite direction...
 		BEQ +                   ;  | ... add x-flip bit to properties
 		ORA #$40                ;  |
