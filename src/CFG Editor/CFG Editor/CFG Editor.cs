@@ -164,6 +164,7 @@ namespace CFG
 #else
 			optionsToolStripMenuItem.Visible = false;
 			tabControl1.TabPages.Remove(tpgAdvanced_Dai);
+			tabControl1.TabPages.Remove(tpgAdvanced_Old);
 #endif
 
 		}
