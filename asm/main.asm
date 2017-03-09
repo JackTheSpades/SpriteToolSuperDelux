@@ -66,13 +66,16 @@ org $0182B3
 	db $C2,$85
 ;status routine wrapper
 org $01D43E
-	JSR $8133
+	JSR $8133		;goto exucute pointer for sprite status ($14C8)
 	RTL
 	
 
 ; store extra bits separate from $14D4
 org $02A963
 	JSL SubLoadHack
+	NOP
+org $02A94B
+	JSL SubLoadHack2
 	NOP
 
 ; sprite init call subroutine
@@ -94,9 +97,6 @@ org $018151
 	JSL EraserHack2
 	NOP
 	
-org $02A94B
-	JSL SubLoadHack2
-	NOP
 	
 org $02A866
 	JML SubGenLoad
@@ -664,37 +664,37 @@ SetSpriteTables:
 
 SubHandleStatus:
 	%debugmsg("SubHandleStatus")
-	LDA !14C8,x
-	CMP #$02
-	BCC .CallDefault
-.NoEraseOrInit
-	CMP #$08
-	BNE .NoMainRoutine
-	JML $0185C3|!BankB
+	LDA !14C8,x					; restore code
+	CMP #$02						;
+	BCC .CallDefault			; always default handle status 0 and 1
+.NoEraseOrInit					; any other stuats...
+	CMP #$08						
+	BNE .NoMainRoutine		; if status = 8
+	JML $0185C3|!BankB		; call main routine of sprite
 .NoMainRoutine
 	PHA
 	LDA !extra_bits,x
 	AND #!CustomBit
-	BNE .HandleCustomSprite
+	BNE .HandleCustomSprite	; if custom sprite, handle with care ^^
 	PLA
 .CallDefault
 	JML $018133|!BankB		;call regular status handler
 
 .HandleCustomSprite
 	LDA !extra_prop_2,x
-	BMI .CallMain
+	BMI .CallMain				;check bit 7, if set call main
 	PHA
-	LDA $02,s
-	JSL $01D43E|!BankB		;handle sprite based on status
-	PLA
-	ASL A
-	BMI .CallMain
-	PLA
+	LDA $02,s					;load sprite status
+	JSL $01D43E|!BankB		;execute default status of sprite
+	PLA							;extra_prop_2
+	ASL A							;\ check bit 6
+	BMI .CallMain				;/
+	PLA							;sprite status
 	CMP #$09
 	BCS .CallMain2
 	CMP #$03
 	BEQ .CallMain2
-	JML $0185C2|!BankB
+	JML $0185C2|!BankB		;goto RTL
 .CallMain2
 	PHA
 .CallMain
@@ -702,10 +702,10 @@ SubHandleStatus:
 	JSR GetMainPtr
 	PLA
 
-	LDY #$01|(!BankB>>16)
-	PHY
-	PEA $85C1
-	JML [!Base1]
+	LDY.b #$01|(!BankB>>16)	;\
+	PHY							;| setup stack so that RTL will goto $0185C2
+	PEA $85C1					;/
+	JML [!Base1]				; goto sprite main code.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Keep extra bits around when setting the sprite tables during
