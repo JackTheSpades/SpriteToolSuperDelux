@@ -603,7 +603,7 @@ SetSpriteTables:
 
 	LDA [$00]				;0
 	STA !new_code_flag
-	INC $00					;no need for 16bit check, since table always starts at 0, 1
+	INC $00					;1 no need for 16bit check, since table always starts at $xx:xxx0
 	LDA [$00]
 	STA !9E,x
 	INC $00					;2
@@ -648,11 +648,13 @@ SetSpriteTables:
 	;INC $00					;D
 	;INC $00					;E
 	
+	SEP #$20
 	LDA [$00]
 	STA !extra_prop_1,x
 	INC $00						;F
 	LDA [$00]
 	STA !extra_prop_2,x
+	REP #$20
 
 	PLA : STA $01
 	PLA : STA $00				;init pointer to [$00]
