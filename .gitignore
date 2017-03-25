@@ -5,7 +5,7 @@
 *.bin
 !asm/Restore/*.bin
 shared.asm
-asm/cleanup.asm
+asm/_cleanup.asm
 HxD.ini
 spr_temp.asm
 pixi.zip

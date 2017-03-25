@@ -79,28 +79,37 @@ struct sprite {
 	int line = 0;
 	int number = 0;
 	int level = 0x200;
-	sprite_table* table = nullptr;
+	sprite_table table;
+	
+	int byte_count = 0;
+	int extra_byte_count = 0;
 	
 	char* asm_file = nullptr;
 	char* cfg_file = nullptr;
+	
+	// int map_data_size = 0;
+	// map16* map_data = nullptr;
+	
+	// int name_size = 0;
+	// unsigned char* name[2];
+	
+	// int ssc_size = 0;
+	// unsigned char** ssc;
+	
 		
 	~sprite() {
 		if(asm_file)
 			delete[] asm_file;
 		if(cfg_file)
 			delete[] cfg_file;
+		// if(map_data)
+			// delete[] map_data;
+			
+		// if(name[0])
+			// delete[] name[0];
+		// if(name[1])
+			// delete[] name[1];
 	}
-};
-
-struct sprite_data {	
-	sprite_table full_table[MAX_SPRITE_COUNT];
-	
-	sprite_table* default_table = full_table + 0x2000;		//00-AF = sprite, C0-CF = shooter, D0-FF = gen		
-	
-	sprite_table* level_table_t1 = full_table;				//sprite B0-BF of level 000-07F
-	sprite_table* level_table_t2 = full_table + 0x800;		//sprite B0-BF of level 080-0FF
-	sprite_table* level_table_t3 = full_table + 0x1000;	//sprite B0-BF of level 100-17F
-	sprite_table* level_table_t4 = full_table + 0x1800;	//sprite B0-BF of level 180-1FF
 };
 
 int get_pointer(unsigned char *data, int address, int size = 3, int bank = 0x00);
@@ -156,7 +165,7 @@ struct ROM {
 
 simple_string get_line(const char* text, int offset);
 void set_pointer(pointer* p, int address);
-bool is_empty_table(sprite_table* ptr, int size);
+bool is_empty_table(sprite* spr, int size);
 char* trim(char *text);
 
 #endif

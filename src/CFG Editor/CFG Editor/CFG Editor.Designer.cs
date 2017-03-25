@@ -1081,7 +1081,6 @@
 			this.txtASMFile.Name = "txtASMFile";
 			this.txtASMFile.Size = new System.Drawing.Size(123, 20);
 			this.txtASMFile.TabIndex = 13;
-			this.txtASMFile.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
 			// 
 			// tpgAdvanced_Dai
 			// 

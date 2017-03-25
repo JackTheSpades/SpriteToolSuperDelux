@@ -68,6 +68,7 @@
     <Compile Include="CFG Editor.Designer.cs">
       <DependentUpon>CFG Editor.cs</DependentUpon>
     </Compile>
+    <Compile Include="CFGFile.cs" />
     <Compile Include="NameExtraProp.cs">
       <SubType>Form</SubType>
     </Compile>

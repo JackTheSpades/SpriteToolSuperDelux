@@ -145,32 +145,81 @@ org $02A9A6
 ; 00-FF that use an extra bit of 0, next 0x100 are for sprites 00-FF that use an extra bit of 1, etc).
 ; Place the SNES address for this table at 0x7750C PC. Then put 0x42 at 0x7750F to enable use of the table by Lunar Magic.
 
-;org $0EF30C				;
-;	autoclean dl Size		; pointer to sprite size table
-;	db $42					; enable LM custom sprite size 
+; org $0EF30C					;
+	; autoclean dl Size		; pointer to sprite size table
+	; db $42					; enable LM custom sprite size 
+	
 
-;freedata
-;Size:
-;	fillbyte $03			; sprites 00-FF, with EE bits 00,01
-;	fill $200				; set to using 3 bytes each (default)
-;	fillbyte $06			; sprites 00-FF, with EE bits 10,11 (custom bit set)
-;	fill $200				; use 6 bytes each (3 extra bytes)
+; ;todo, hijacks for 16bit sprite data index.
+; ; org $02A82A
+	; ; JML IndexInit
+; ; org $02A830
+	; ; JML IndexReset
+; ; org $02A84C
+	; ; JML IndexReset2
+	
+	
+; freedata
+; Size:
+	; incbin "DefaultSize.bin"
+	; incbin "CustomSize.bin"
+	
 
-;org $02A846
-;	JML SprtOffset
-;	NOP						; not necessary but still...
+; org $02A846
+	; JML SprtOffset
+	; NOP						; not necessary but still...
 
-;freecode
-;SprtOffset:
-;	DEY						; move index to sprite data byte 0
-;	LDA [$CE],y				; format: YYYYEEsy, EE = Extra bits
-;	INY #3					; move index to next sprite
-;	AND #!CustomBit		; \
-;	BNE +						; | if sprite is custom, it has 3 extra bytes
-;	INY #3					; /
-;+	INX						; restore code
-;	JML $02A82E				; return to loop
+; freecode
+; SprtOffset:
+	; DEY						; move index to sprite data byte 0
+	; LDA [$CE],y				; format: YYYYEEsy, EE = Extra bits
+	; LSR #2
+	; AND #$03					; \ EE bits into A high byte
+	; XBA						; /
+	; INY #2					; \
+	; LDA [$CE],y				; / sprite data byte 2 (sprite number)
+	; DEY #2					; back to start of sprite
+	
+	; ;A = 000000EE NNNNNNNN (index to size table)
+	
+	; PHP
+	; REP #$10
+	; PHX
+	; TAX
+	
+	; TYA						; \
+	; CLC						; | Y += Size table
+	; ADC.l Size,x			; |
+	; TAY						; /
+	
+	; PLX
+	; PLP
 
+	; JML $02A82E			; return to loop
+
+; IndexInit:
+	; REP #$10
+	; LDX #$0000
+	; LDY #$0001
+	; JML SpriteLoop
+	
+; IndexReset:
+	; CMP #$FF
+	; BEQ +
+	; JML $02A834				; return to code as normal
+; .res
+	; SEP #$10					; reset index to 8 bit before...
+	; JML SpriteReturn		; ... going to RTS
+	
+; IndexReset2:
+	; BNE IndexReset_res	; reset + return
+	; LDA [$CE],y				; \ restore code
+	; JML $02A850				; /
+	
+
+	
+	
+	
  
 ; ---------------------------------------------------
 ; 80% original sprite_tool code, credit to roy.	
@@ -178,7 +227,7 @@ org $02A9A6
 ;     individual levels.
 ; --------------------------------------------------- 
 freecode
-	print "Freecode at ",pc
+	print "Freecode at ",pc	
 
 SubLoadHack:
 	%debugmsg("SubLoadHack")
@@ -775,7 +824,7 @@ TestSilverCoinBit:
 .normal
 	ASL #$04
 	TAX
-	LDA TableStart+$07,x
+	LDA.l TableStart+$07,x
 	PLP
 	RTL
 	

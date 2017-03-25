@@ -8,7 +8,12 @@
 07 bros/shell_bro.cfg
 08 bros/bomb_bro.cfg
 10 donut_lift.cfg
+11 cluster spawner/flowerspawn.cfg
 
 C0 diag_up_bill.cfg
 C1 diag_down_bill.cfg
 C2 vertical_bill.cfg
+
+CLUSTER:
+
+00 flowers.asm

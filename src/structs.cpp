@@ -19,10 +19,11 @@ simple_string get_line(const char *text, int offset){
 	return string;
 }
 
-bool is_empty_table(sprite_table* ptr, int size) {
-	for(int i = 0; i < size; i++)
-		if(!ptr[i].init.is_empty() || !ptr[i].init.is_empty())
+bool is_empty_table(sprite* spr, int size) {
+	for(int i = 0; i < size; i++) {
+		if(!spr[i].table.init.is_empty() || !spr[i].table.main.is_empty())
 			return false;
+	}
 	return true;
 }
 
