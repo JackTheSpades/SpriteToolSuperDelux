@@ -84,6 +84,7 @@ struct sprite {
 	int byte_count = 0;
 	int extra_byte_count = 0;
 	
+	const char* directory = nullptr;
 	char* asm_file = nullptr;
 	char* cfg_file = nullptr;
 	
@@ -121,45 +122,14 @@ struct ROM {
 	int size;
 	int header_size;
 	
-	void open(const char *n)
-	{
-		name = new char[strlen(n)+1]();
-		strcpy(name, n);
-		FILE *file = ::open(name, "r+b");	//call global open
-		size = file_size(file);
-		header_size = size & 0x7FFF;
-		size -= header_size;
-		data = read_all(name, false, MAX_ROM_SIZE + header_size);
-		fclose(file);
-		real_data = data + header_size;
-	}
+	void open(const char *n);	
+	void close();
 	
-	void close()
-	{
-		write_all(data, name, size + header_size);
-		delete []data;
-		delete []name;
-	}
+	int pc_to_snes(int address);
+	int snes_to_pc(int address);
 	
-	int pc_to_snes(int address)
-	{
-		address -= header_size;
-		return ((((address << 1) & 0x7F0000) | (address&0x7FFF)) | 0x8000);
-	}
-
-	int snes_to_pc(int address)
-	{
-		return ((address & 0x7F0000) >> 1 | (address & 0x7FFF)) + header_size;
-	}
-	
-	pointer pointer_snes(int address, int size = 3, int bank = 0x00)
-	{
-		return pointer(::get_pointer(data, snes_to_pc(address), size, bank));
-	}
-	pointer pointer_pc(int address, int size = 3, int bank = 0x00)
-	{
-		return pointer(::get_pointer(data, address, size, bank));
-	}
+	pointer pointer_snes(int address, int size = 3, int bank = 0x00);
+	pointer pointer_pc(int address, int size = 3, int bank = 0x00);
 };
 
 

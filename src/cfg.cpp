@@ -17,7 +17,7 @@ void cfg_extra(const char* line, sprite* spr, int& handle);
 // void cfg_map16(const char* line, sprite* spr, int& handle);
 // void cfg_ssc(const char* line, sprite* spr, int& handle);
 
-void read_cfg_file(sprite* spr, const char* cfg, FILE* output) {
+bool read_cfg_file(sprite* spr, const char* cfg, FILE* output) {
 
 	const int handlelimit = 6;
 	linehandler handlers[handlelimit];
@@ -52,7 +52,7 @@ void read_cfg_file(sprite* spr, const char* cfg, FILE* output) {
 		handlers[line](current_line.data, spr, line);
 		
 		if(line < 0)
-			return;
+			return false;
 		
 	}while(current_line.length && line < handlelimit);
 		
@@ -82,6 +82,8 @@ void read_cfg_file(sprite* spr, const char* cfg, FILE* output) {
 		set_pointer(&spr->table.init, (INIT_PTR + 2 * spr->number));
 		set_pointer(&spr->table.main, (MAIN_PTR + 2 * spr->number));
 	}
+   
+   return true;
 }
 
 void cfg_type(const char* line, sprite* spr, int& handle) { sscanf(line, "%x", &spr->table.type); handle++; }
@@ -121,9 +123,14 @@ void cfg_extra(const char* line, sprite* spr, int& handle){
 	handle++;
 	
 	sscanf(line, "%d%c%d", &num, &c, &num_ex);
-	if(c != ':');
+   
+	if(c != ':') {
+      spr->byte_count = 0;
+      spr->extra_byte_count = 0;
 		return;
+   }
 	
+   
 	if(num > 4 || num_ex > 4) {
 		handle = -1;
 		return;
