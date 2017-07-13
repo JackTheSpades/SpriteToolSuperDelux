@@ -9,3 +9,5 @@ asm/_cleanup.asm
 HxD.ini
 spr_temp.asm
 pixi.zip
+LM/*
+overworld/*

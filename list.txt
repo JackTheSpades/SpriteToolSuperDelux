@@ -9,6 +9,7 @@
 08 bros/bomb_bro.cfg
 10 donut_lift.cfg
 11 cluster spawner/flowerspawn.cfg
+12 extra_byte_printer.cfg
 
 C0 diag_up_bill.cfg
 C1 diag_down_bill.cfg
