@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,23 +14,31 @@ namespace CFG
 	public class CFGFile : INotifyPropertyChanged
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
-			//{0x167A, 3},
-			//{0x1686, 4},
-			//{0x190F, 5},
-			//{0x0001, 6},
-			//{0x0002, 7},
 
-		private string _AsmFile;
-		/// <summary>
-		/// The ASM file to use along with this CFG file.
-		/// </summary>
+        #region Properties
+
+        private string _AsmFile;
 		public string AsmFile
 		{
 			get { return _AsmFile; }
 			set { SetPropertyValue(ref _AsmFile, value); }
-		}
+        }
 
-		private byte _Addr1656;
+        private byte _ActLike;
+        public byte ActLike
+        {
+            get { return _ActLike; }
+            set { SetPropertyValue(ref _ActLike, value); }
+        }
+        private byte _Type;
+        public byte Type
+        {
+            get { return _Type; }
+            set { SetPropertyValue(ref _Type, value); }
+        }
+
+
+        private byte _Addr1656;
 		public byte Addr1656
 		{
 			get { return _Addr1656; }
@@ -85,13 +94,139 @@ namespace CFG
 			set { SetPropertyValue(ref _ExProp2, value); }
 		}
 
+		private byte _byteCount;
+		public byte ByteCount
+		{
+			get { return _byteCount; }
+			set { SetPropertyValue(ref _byteCount, value); }
+		}
+		private byte _exbyteCount;
+		public byte ExByteCount
+		{
+			get { return _exbyteCount; }
+			set { SetPropertyValue(ref _exbyteCount, value); }
+		}
 
+        #endregion
+        
+        public const byte Version = 0;
+        public byte[] ToByteArray()
+        {
+            List<byte> bytes = new List<byte>()
+            {
+                (byte)'C', (byte)'F', (byte)'G', (byte)'B',
+                Version,
+                Type,
+                ActLike,
+                Addr1656, Addr1662, Addr166E, Addr167A, Addr1686, Addr190F
+            };
 
+            if(Type != 0)
+            {
+                bytes.Add(ExProp1);
+                bytes.Add(ExProp2);
 
+                bytes.AddRange(Encoding.ASCII.GetBytes(AsmFile));
+                bytes.Add(0);
+            }
 
+            return bytes.ToArray();
+        }
 
+        public void FromByteArray(byte[] array)
+        {
+            if (array[0] != 'C' || array[1] != 'F' || array[2] != 'G' || array[3] != 'B')
+                throw new ArgumentException("Magic number is not matching", nameof(array));
+            if(array[4] > Version)
+                throw new ArgumentException("Version of file is higher than tool version", nameof(array));
 
+            Type = array[5];
+            ActLike = array[6];
 
+            Addr1656 = array[7];
+            Addr1662 = array[8];
+            Addr166E = array[9];
+            Addr167A = array[10];
+            Addr1686 = array[11];
+            Addr190F = array[12];
+
+            if(Type != 0)
+            {
+                ExProp1 = array[13];
+                ExProp2 = array[14];
+
+                int endIndex = Array.IndexOf(array, 0, 15);
+                AsmFile = Encoding.ASCII.GetString(array, 15, endIndex - 15);
+            }
+        }
+
+        public void FromLines(string text)
+        {
+            string[] lines = text.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+            Type = BytesFromStringLine(lines[0])[0];
+            ActLike = BytesFromStringLine(lines[1])[0];
+
+            byte[] tweaker = BytesFromStringLine(lines[2]);
+            Addr1656 = tweaker[0];
+            Addr1662 = tweaker[1];
+            Addr166E = tweaker[2];
+            Addr167A = tweaker[3];
+            Addr1686 = tweaker[4];
+            Addr190F = tweaker[5];
+            
+            TrySet(lines, 3, str =>
+            {
+                byte[] extraporp = BytesFromStringLine(str);
+                ExProp1 = extraporp[0];
+                ExProp2 = extraporp[1];
+            }, () => { ExProp1 = ExProp2 = 0; });
+            TrySet(lines, 4, str => AsmFile = str, () => AsmFile = "");
+            TrySet(lines, 5, str =>
+            {
+                byte[] count = BytesFromStringLine(lines[5], ':');
+                ByteCount = count[0];
+                ExByteCount = count[1];
+            }, () => { ByteCount = ExByteCount = 0; });
+        }
+
+        private byte[] BytesFromStringLine(string line, char split = ' ')
+        {
+            string[] vals = line.Split(split);
+            return vals.Select(str => Convert.ToByte(str, 16)).ToArray();
+        }
+        private void TrySet(string[] lines, int index, Action<string> ifAction, Action elseAction)
+        {
+            try
+            {
+                if (index < lines.Length)
+                    ifAction?.Invoke(lines[index]);
+                else
+                    elseAction?.Invoke();
+            }
+            catch
+            {
+                elseAction?.Invoke();
+            }
+        }
+
+        public string ToLines()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(string.Format("{0:X2}", Type));
+            sb.AppendLine(string.Format("{0:X2}", ActLike));
+            sb.AppendLine(string.Format("{0:X2} {1:X2} {2:X2} {3:X2} {4:X2} {5:X2}",
+                Addr1656, Addr1662, Addr166E, Addr167A, Addr1686, Addr190F));
+
+            if (Type == 0)
+                return sb.ToString();
+
+            sb.AppendLine(string.Format("{0:X2} {1:X2}", ExProp1, ExProp2));
+            sb.AppendLine(AsmFile);
+            sb.AppendLine(string.Format("{0:X2}:{1:X2}", ByteCount, ExByteCount));
+            return sb.ToString();
+        }
+        
 		protected void SetPropertyValue<T>(ref T priv, T val, [CallerMemberName] string caller = "")
 		{
 			bool pn = ReferenceEquals(priv, null);
@@ -102,9 +237,8 @@ namespace CFG
 			if ((pn && !vn) || !priv.Equals(val))
 			{
 				priv = val;
-				if (PropertyChanged != null)
-					PropertyChanged(this, new PropertyChangedEventArgs(caller));
-			}
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(caller));
+            }
 		}
 
 	}
@@ -114,6 +248,55 @@ namespace CFG
 
 	public static class ControlExtension
 	{
+		public static Binding BitsBind<TCon, TObj, TOProp>(
+			this TCon control,
+			TObj obj,
+			Expression<Func<TCon, int>> controlProperty,
+			Expression<Func<TObj, TOProp>> objectProperty,
+			int bitsToGet = 1,
+			int lsb = 0
+			)
+			where TCon : IBindableComponent
+		{
+
+			//TOProp is expected to be a number type, like byte, int, long, etz.
+
+			Func<TOProp, int> castToControl = prop =>
+			{
+				ulong val = Convert.ToUInt64(prop);
+				
+				ulong and = (1ul << bitsToGet) - 1;
+				return (int)((val & (and << lsb)) >> lsb);
+			};
+
+			Binding binding = control.Bind(obj, controlProperty, objectProperty, castToControl, null);
+
+			binding.Parse += (o, e) =>
+			{
+				Binding b = (Binding)o;
+
+				Type tObj = b.DataSource.GetType();
+				string member = b.BindingMemberInfo.BindingMember;
+				PropertyInfo pi = tObj.GetProperty(member);
+				if (pi == null)
+					return;
+				ulong val = Convert.ToUInt64(pi.GetValue(b.DataSource));
+
+
+				for (int i = 0; i < bitsToGet && i < 8; i++)
+					val = val.SetBit(lsb + i, (((int)e.Value) & (0x01 << i)) != 0);
+
+				e.Value = val;
+			};
+			return binding;
+		}
+
+		private static ulong SetBit(this ulong b, int bit, bool set)
+		{
+			if (set)
+				return (b | (1ul << bit));
+			return (b & ((1ul << bit) ^ ulong.MaxValue));
+		}
 
 		public static Binding BitBind<TCon, TObj, TOProp>(
 			this TCon control,
@@ -132,13 +315,28 @@ namespace CFG
 					ulong val = Convert.ToUInt64(prop);
 					return (val & (1ul << bit)) != 0;
 				};
+			
+			Binding binding = control.Bind(obj, controlProperty, objectProperty, castToControl, null);
 
-			Func<bool, TOProp> castToSource = cont =>
+			binding.Parse += (o, e) =>
 				{
-					return default(TOProp);
-				};
+					Binding b = (Binding)o;
 
-			return control.Bind(obj, controlProperty, objectProperty, castToControl, castToSource);
+					Type tObj = b.DataSource.GetType();
+					string member = b.BindingMemberInfo.BindingMember;
+					PropertyInfo pi = tObj.GetProperty(member);
+					if (pi == null)
+						return;
+
+					ulong val = Convert.ToUInt64(pi.GetValue(b.DataSource));
+
+					if ((bool)e.Value)
+						val |= (1ul << bit);
+					else
+						val &= ((1ul << bit) ^ ulong.MaxValue);
+					e.Value = val;
+				};
+			return binding;
 		}
 
 

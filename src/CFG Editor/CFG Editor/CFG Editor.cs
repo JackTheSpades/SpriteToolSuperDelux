@@ -24,6 +24,12 @@ namespace CFG
 		GeneratorShooter = 3,
 	}
 
+    public enum FileType
+    {
+        CfgFile,
+        RomFile,
+    }
+
 	public partial class CFG_Editor : Form
 	{
 		private string filename = "";
@@ -33,14 +39,34 @@ namespace CFG
 			set
 			{
 				filename = value;
-				if (value != "")
-					this.Text = "CFG Editor - " + Path.GetFileNameWithoutExtension(value);
-				else
-					this.Text = "CFG Editor";
+                if (value != "")
+                    this.Text = "CFG Editor - " + Path.GetFileNameWithoutExtension(value) + (Unsaved ? "*" : "");
+                else
+                    this.Text = "CFG Editor";
 			}
 		}
-		
-		Color sprClipBG = Color.FromArgb(115, 189, 255);
+
+        private bool unsaved = false;
+        public bool Unsaved
+        {
+            get { return unsaved; }
+            set
+            {
+                unsaved = value;
+                Filename = Filename;    //update filename using setter method
+            }
+        }
+
+        public readonly CFGFile Data;
+
+        const int rom_1656 = 0x07F26C;
+        const int rom_1662 = rom_1656 + 201 * 1;
+        const int rom_166E = rom_1656 + 201 * 2;
+        const int rom_167A = rom_1656 + 201 * 3;
+        const int rom_1686 = rom_1656 + 201 * 4;
+        const int rom_190F = rom_1656 + 201 * 5;
+
+        Color sprClipBG = Color.FromArgb(115, 189, 255);
 		Color sprClipMain = Color.FromArgb(33, 148, 255);
 		Color sprClipDots = Color.FromArgb(189, 0, 0);
 		
@@ -50,10 +76,23 @@ namespace CFG
 
 		public byte[] PropertyBytes = new byte[10];						// first 6 are as below, then ExByte1 and 2, Act Like, ExCount
 		public byte[] ExSprClip = new byte[4] { 0, 0, 0x10, 0x10 };		// Custom Sprite Clipping values (x,y,width,height) from Daiyousei
+        
+        /// <summary>
+        /// The sprite palette to be used. Not the one from the CFG file but the one displayed when pal E or F are selected.
+        /// </summary>
+		public int SpritePalette = 0;
 
-		int offset = 0;
+        BindingList<CFG_SpriteType> types_list = new BindingList<CFG_SpriteType>();
+        BindingList<string> sprites_list = new BindingList<string>();
 
-		Dictionary<int, int> dicIndex = new Dictionary<int, int>()
+        /// <summary>
+        /// List of all controlls that will be disabled when the Type is 0 or when in Rom editing mdoe.
+        /// </summary>
+        List<Control> disabled_controlls;
+
+        FileType FileType;
+
+        Dictionary<int, int> dicIndex = new Dictionary<int, int>()
 		{
 			{0x1656, 0},
 			{0x1662, 1},
@@ -65,7 +104,12 @@ namespace CFG
 			{0x0002, 7},
 		};
 
-
+        /// <summary>
+        /// Creats a new image based on the passed on with the given size, but the same ratio.
+        /// </summary>
+        /// <param name="size">The new desired size</param>
+        /// <param name="img">The base image</param>
+        /// <returns></returns>
 		public Image ResizeImg(Size size, Image img)
 		{
 			float width, height;
@@ -94,15 +138,51 @@ namespace CFG
 			}
 			return bm;
 		}
+        
 
 
 		public CFG_Editor(string[] args)
 		{
-			InitializeComponent();
+            InitializeComponent();
 
-			//add types to the comboboxes.
-			foreach (CFG_SpriteType type in Enum.GetValues(typeof(CFG_SpriteType)))
-				tsbType.Items.Add(type);
+            disabled_controlls = new List<Control>()
+            {
+                grpAsmActLike,
+                grpExtraByteCount,
+                grpExtraPropByte,
+            };
+
+            Data = new CFGFile();
+            Data.PropertyChanged += (_, __) => Unsaved = true;
+
+            cmb_1656_0F.BitsBind(Data, c => c.SelectedIndex, f => f.Addr1656, 4, 0).DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+			cmb_1662_3F.BitsBind(Data, c => c.SelectedIndex, f => f.Addr1662, 6, 0).DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+			cmb_166E_0E.BitsBind(Data, c => c.SelectedIndex, f => f.Addr166E, 3, 1).DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+
+			SetupBinding(Data, f => f.Addr1656, "1656", 0);
+			SetupBinding(Data, f => f.Addr1662, "1662", 0);
+			SetupBinding(Data, f => f.Addr166E, "166E", 0);
+			SetupBinding(Data, f => f.Addr167A, "167A", 0);
+			SetupBinding(Data, f => f.Addr1686, "1686", 0);
+			SetupBinding(Data, f => f.Addr190F, "190F", 0);
+
+			txt_0001.Bind(Data, c => c.Text, f => f.ExProp1, f => f.ToString("X2"), c => Convert.ToByte(c, 16));
+			txt_0002.Bind(Data, c => c.Text, f => f.ExProp2, f => f.ToString("X2"), c => Convert.ToByte(c, 16));
+            nudNormal.Bind(Data, c => c.Value, f => f.ByteCount, null, c => (byte)c);
+            nudExtra.Bind(Data, c => c.Value, f => f.ExByteCount, null, c => (byte)c);
+            txtASMFile.Bind(Data, c => c.Text, f => f.AsmFile);
+            txtActLike.Bind(Data, c => c.Text, f => f.ActLike);
+
+
+            //add types to the comboboxes.
+            foreach (CFG_SpriteType type in Enum.GetValues(typeof(CFG_SpriteType)))
+                types_list.Add(type);
+            string[] sprite_list_lines = Properties.Resources.SpriteList.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < 201; i++)
+                sprites_list.Add(sprite_list_lines[i]);
+
+
+            cmbType.DataSource = types_list;
 
 			//fetch clipping images from resources and add them to the comboboxes.
 			for (int i = 0; i < objClip.Length; i++)
@@ -137,36 +217,71 @@ namespace CFG
 			}
 			
 			//get all CheckBox controlls and add event
-			var chb = tpgDefault.Controls.Cast<Control>().SelectMany(g => g.Controls.Cast<Control>()).Where(c => c is CheckBox);
-			chb = chb.Concat(tpgAdvanced_Dai.Controls.Cast<Control>().SelectMany(g => g.Controls.Cast<Control>()).Where(c => c is CheckBox));
-			foreach (CheckBox c in chb)
-				c.CheckedChanged += CheckedChanged;
+			//var chb = tpgDefault.Controls.Cast<Control>().SelectMany(g => g.Controls.Cast<Control>()).Where(c => c is CheckBox);
+			//chb = chb.Concat(tpgAdvanced_Dai.Controls.Cast<Control>().SelectMany(g => g.Controls.Cast<Control>()).Where(c => c is CheckBox));
+			//foreach (CheckBox c in chb)
+			//	c.CheckedChanged += CheckedChanged;
 
 			if (args.Length == 0)
 				cmb_1656_0F.SelectedIndex = cmb_1662_3F.SelectedIndex = cmb_166E_0E.SelectedIndex = 0;
 			else if (File.Exists(args[0]))
 			{
-				try { ReadCFGFile(args[0]); }
+				try { LoadFile(args[0]); }
 				catch (Exception ex)
 				{
 					Filename = "";
-					tsbType.SelectedItem = 0;
+                    cmbType.SelectedItem = 0;
 					MessageBox.Show("An error occured while trying to read the CFG file\n" + ex.Message, "Unexpected Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 			}
 			else
 				MessageBox.Show("File: \"" + args[0] + "\" doesn't exist", "File not found", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+#if DEBUG
+            testToolStripMenuItem.Visible = true;
+#endif
+
+
 
 #if DAIYOUSEI
 			tabControl1.TabPages.Remove(tpgAdvanced_Old);
 			tsbType.Visible = false;
 #else
-			optionsToolStripMenuItem.Visible = false;
+            optionsToolStripMenuItem.Visible = false;
 			tabControl1.TabPages.Remove(tpgAdvanced_Dai);
 			tabControl1.TabPages.Remove(tpgAdvanced_Old);
 #endif
 
+		}
+
+
+        private void testToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            cmbType.DataSource = sprites_list;
+        }
+
+        /// <summary>
+        /// Method that sets up the binding for the CFGFile's byte property to the corresponding TextBoxes and CheckBoxes.
+        /// This makes use of the fact that all TextBoxes are named txt_xxxx and all CheckBoxes are named chb_xxxx_bb.
+        /// With xxxx being the address they represent and bb being the bit (in hex) that the checkbox controlls.
+        /// </summary>
+        /// <param name="file">The CFGFile object that is the DataSource</param>
+        /// <param name="expr">The expression that selects the Property to bind to from the CFGFile</param>
+        /// <param name="addr">The string representation of the address, used for searching through the controlls</param>
+        /// <param name="start_bit">For the CheckBoxes, this indicates where to start</param>
+		void SetupBinding(CFGFile file, System.Linq.Expressions.Expression<Func<CFGFile, byte>> expr, string addr, int start_bit = 0)
+		{
+			TextBox txt = (TextBox)Controls.Find("txt_" + addr, true).FirstOrDefault();
+			if (txt == null)
+				return;
+			txt.Bind(file, c => c.Text, expr, f => f.ToString("X2"), c => Convert.ToByte(c, 16));
+			for(int i = start_bit; i < 8; i++)
+			{
+				CheckBox ch = (CheckBox)Controls.Find("chb_" + addr + "_" + (1 << i).ToString("X2"), true).FirstOrDefault();
+				if (ch == null)
+					continue;
+				ch.BitBind(file, c => c.Checked, expr, i).DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+			}
 		}
 
 
@@ -182,6 +297,49 @@ namespace CFG
 			e.KeyChar = Char.ToUpper(e.KeyChar);
 		}
 
+        private void cmbType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (FileType == FileType.CfgFile)
+                Data.Type = (byte)cmbType.SelectedIndex;
+            else if (FileType == FileType.RomFile)
+            {
+
+            }
+        }
+
+        public void LoadFile(string path)
+        {
+            if (!File.Exists(path))
+                return;
+
+            string ext = Path.GetExtension(path);
+
+            switch(ext.ToLower())
+            {
+                case ".cfg":
+                    Data.FromLines(File.ReadAllText(path));
+                    FileType = FileType.CfgFile;
+                    break;
+                case ".smc":
+                    break;
+                case ".sfc":
+                    break;
+            }
+
+
+            if (FileType == FileType.CfgFile)
+            {
+                cmbType.DataSource = types_list;
+                cmbType.SelectedIndex = Data.Type;
+            }
+            else if (FileType == FileType.RomFile)
+            {
+                cmbType.DataSource = sprites_list;
+                cmbType.SelectedIndex = 0;
+            }
+
+        }
+
 		bool _triggeredByTXT = false;
 		bool _triggeredByCHB = false;
 		bool _triggeredByTXT2 = false;
@@ -195,6 +353,8 @@ namespace CFG
 		{
 			lblObjBroke.Visible = ((ComboBox)sender).SelectedIndex >= 0x0F;
 			pcbObjClipping.Image = objClip[((ComboBox)sender).SelectedIndex];
+
+            return;
 
 			//if this event was called because we edited the textbox content, return now.
 			if (_triggeredByTXT)
@@ -212,6 +372,8 @@ namespace CFG
 			lblSprBroke.Visible = ((ComboBox)sender).SelectedIndex >= 0x3C;
 			pcbSprClipping.Image = sprClip[((ComboBox)sender).SelectedIndex];
 
+            return;
+
 			if (_triggeredByTXT)
 				return;
 			_triggeredByCHB = true;
@@ -225,9 +387,9 @@ namespace CFG
 		{
 			int index = ((ComboBox)sender).SelectedIndex;
 			if(index > 5)
-				index += offset * 2;
+				index += SpritePalette * 2;
 			pcbPal.Image = sprPal[index];
-
+            return;
 
 			if (_triggeredByTXT)
 				return;
@@ -250,6 +412,8 @@ namespace CFG
 		/// <param name="e">EventArgs (useless)</param>
 		private void CheckedChanged(object sender, EventArgs e)
 		{
+			return;
+
 			//if this event was only triggered because we edited the textbox (causing the checkboxes to adjust), return now
 			if (_triggeredByTXT)
 				return;
@@ -283,6 +447,7 @@ namespace CFG
 
 		private void txt_Hex_TextChanged(object sender, EventArgs e)
 		{
+			return;
 			if (_triggeredByCHB)
 				return;
 
@@ -312,7 +477,6 @@ namespace CFG
 			_triggeredByTXT = false;
 		}
 
-		
 		private void customSprClipping_Changed(object sender, EventArgs e)
 		{
 			int x = (int)nudSprX.Value;
@@ -460,7 +624,7 @@ namespace CFG
 			else 
 #endif
 			{
-				var old = Regex.Match(content, "(?<TYPE>[0-9a-fA-F]{1,2})\n(?<ACT>[0-9a-fA-F]{1,2})\n(?<PROP1>[0-9a-fA-F]{1,2}) (?<PROP2>[0-9a-fA-F]{1,2}) (?<PROP3>[0-9a-fA-F]{1,2}) (?<PROP4>[0-9a-fA-F]{1,2}) (?<PROP5>[0-9a-fA-F]{1,2}) (?<PROP6>[0-9a-fA-F]{1,2})\n((?<PROP7>[0-9a-fA-F]{1,2}) (?<PROP8>[0-9a-fA-F]{1,2})\n(?<ASM>.*))?");
+				var old = Regex.Match(content, "(?<TYPE>[0-9a-fA-F]{1,2})\n(?<ACT>[0-9a-fA-F]{1,2})\n(?<PROP1>[0-9a-fA-F]{1,2}) (?<PROP2>[0-9a-fA-F]{1,2}) (?<PROP3>[0-9a-fA-F]{1,2}) (?<PROP4>[0-9a-fA-F]{1,2}) (?<PROP5>[0-9a-fA-F]{1,2}) (?<PROP6>[0-9a-fA-F]{1,2})(\n(?<PROP7>[0-9a-fA-F]{1,2}) (?<PROP8>[0-9a-fA-F]{1,2})\n(?<ASM>.*))?");
 				for(int i = 0; i<8;i++)
 				{
 					if (!old.Groups["PROP" + (i + 1)].Success)
@@ -470,9 +634,10 @@ namespace CFG
 					TextBox tx = (TextBox)(this.Controls.Find("txt_" + addr.ToString("X4"), true)[0]);
 					tx.Text = PropertyBytes[i].ToString("X2");
 				}
-				txtASMFile.Text = old.Groups["ASM"].Value;
+				if(old.Groups["ASM"].Success)
+					txtASMFile.Text = old.Groups["ASM"].Value;
 				PropertyBytes[8] = Convert.ToByte(old.Groups["ACT"].Value, 16);
-				tsbType.SelectedItem = (CFG_SpriteType)Convert.ToByte(old.Groups["TYPE"].Value, 16);
+				//tsbType.SelectedItem = (CFG_SpriteType)Convert.ToByte(old.Groups["TYPE"].Value, 16);
 				txtActLike.Text = PropertyBytes[8].ToString("X2");
 			}
 		}
@@ -518,7 +683,7 @@ namespace CFG
 					sb.AppendLine(EXTPROPDEF.PadRight(padding) + b + (1 << i).ToString("X2") + ":" + ch.Text);
 				}
 #else
-			var type = (CFG_SpriteType)tsbType.SelectedItem;
+            var type = CFG_SpriteType.Normal;// (CFG_SpriteType)tsbType.SelectedItem;
 
 			sb.AppendLine(((int)type).ToString("X2"));
 			sb.AppendLine(txtActLike.Text);
@@ -527,6 +692,11 @@ namespace CFG
 			{
 				sb.AppendLine(ByteToHex(PropertyBytes, 6, 2));
 				sb.AppendLine(txtASMFile.Text);
+
+
+
+
+
 				sb.AppendLine("2");
 			}
 
@@ -581,14 +751,17 @@ namespace CFG
 		private void loadToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			OpenFileDialog ofd = new OpenFileDialog();
-			ofd.Filter = "CFG file|*.cfg";
+			ofd.Filter = "CFG file|*.cfg|CFG Binary File|*.cfgb";
 			ofd.Title = "Load CFG file";
-			//ofd.InitialDirectory = Directory.GetCurrentDirectory();
 			if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
 				return;
 			try
 			{
 				ReadCFGFile(ofd.FileName);
+
+                Unsaved = false;
+                Filename = ofd.FileName;
+                Data.FromLines(File.ReadAllText(Filename));
 			}
 			catch (Exception ex)
 			{
@@ -601,23 +774,38 @@ namespace CFG
 		{
 			SaveFileDialog sfd = new SaveFileDialog();
 			sfd.Title = "Save CFG File";
-			sfd.Filter = "CFG File|*.cfg";
+			sfd.Filter = "CFG File|*.cfg|CFG Binary File|*.cfgb";
 			sfd.FileName = Filename;
 			if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
 				return;
 			WriteCFGFile(sfd.FileName);
 			Filename = sfd.FileName;
+            Unsaved = false;
 		}
 
 		private void saveToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			if (Filename == "")
-				saveAsToolStripMenuItem_Click(sender, e);
-			else
-				WriteCFGFile(Filename);
+            if (Filename == "")
+                saveAsToolStripMenuItem_Click(sender, e);
+            else
+            {
+                WriteCFGFile(Filename);
+                Unsaved = false;
+            }
 		}
 		#endregion
-		
+		#region Other Menu Item Events
+
+		private void tsbType_SelectedIndexChanged(object sender, EventArgs e)
+		{
+            bool b = true; //!((CFG_SpriteType)tsbType.SelectedItem == CFG_SpriteType.Normal);
+			txtASMFile.Enabled = b;
+			txt_0001.Enabled = b;
+			txt_0002.Enabled = b;
+		}
+
+		#endregion
+
 		private void chbSprClip_CheckedChanged(object sender, EventArgs e)
 		{
 			grpSpr.Enabled = chbSprClip.Checked;
@@ -636,6 +824,7 @@ namespace CFG
 
 		private void txtActLike_TextChanged(object sender, EventArgs e)
 		{
+            return;
 			string text = txtActLike.Text == "" ? "0" : txtActLike.Text;
 			PropertyBytes[8] = Convert.ToByte(text, 16);
 		}
@@ -662,13 +851,5 @@ namespace CFG
 			_triggeredByTXT2 = false;
 		}
 
-		private void tsbType_SelectedIndexChanged(object sender, EventArgs e)
-		{
-			bool b = !((CFG_SpriteType)tsbType.SelectedItem == CFG_SpriteType.Normal);
-			txtASMFile.Enabled = b;
-			txt_0001.Enabled = b;
-			txt_0002.Enabled = b;
-		}
-
-	}
+    }
 }

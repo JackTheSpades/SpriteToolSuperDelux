@@ -197,6 +197,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Cirno.ico" />
+    <None Include="Resources\SpriteList.txt" />
     <Content Include="VioletEgg.ico" />
   </ItemGroup>
   <ItemGroup>
