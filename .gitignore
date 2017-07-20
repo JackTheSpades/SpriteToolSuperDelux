@@ -3,6 +3,7 @@
 *.zst
 *.exe
 *.bin
+*/tweak/*
 !asm/Restore/*.bin
 shared.asm
 asm/_cleanup.asm

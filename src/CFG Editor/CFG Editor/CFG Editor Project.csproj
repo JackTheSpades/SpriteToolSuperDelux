@@ -11,6 +11,7 @@
     <AssemblyName>CFG Editor</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -22,8 +23,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <ApplicationVersion>1.1.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -62,6 +62,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attribute and Extension.cs" />
     <Compile Include="CFG Editor.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -69,19 +70,10 @@
       <DependentUpon>CFG Editor.cs</DependentUpon>
     </Compile>
     <Compile Include="CFGFile.cs" />
-    <Compile Include="NameExtraProp.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="NameExtraProp.Designer.cs">
-      <DependentUpon>NameExtraProp.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="CFG Editor.resx">
       <DependentUpon>CFG Editor.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="NameExtraProp.resx">
-      <DependentUpon>NameExtraProp.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -196,7 +188,6 @@
     <EmbeddedResource Include="Resources\ObjClipping\0F.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Cirno.ico" />
     <None Include="Resources\SpriteList.txt" />
     <Content Include="VioletEgg.ico" />
   </ItemGroup>
