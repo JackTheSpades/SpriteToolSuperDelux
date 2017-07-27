@@ -34,13 +34,14 @@ STA $1E02,y                     ;  |
 SEC                             ;  | Check Y position relative to screen border Y position.
 SBC $1C                         ;  | If equal to #$F0...
 CMP #$F0                        ;  |
-BNE ReturnAndSuch               ;  |
+BNE +               ;  |
 LDA #$01                        ;  | Appear.
 STA $1E2A,y                     ; /
 
-ReturnAndSuch:
++
 RTS
 
+print "MAIN ",pc
 Main:				;The code always starts at this label in all sprites.
 LDA $1E2A,y                     ; \ If meant to appear, skip sprite intro code.
 BEQ IncrementByOne              ; /
@@ -95,12 +96,11 @@ STA $0420,x
 PLX
 LDA $18BF
 ORA $1493
-BEQ ReturnToTheChocolateWhatever            	; Change BEQ to BRA if you don't want it to disappear at generator 2, sprite D2.
+BEQ +            	; Change BEQ to BRA if you don't want it to disappear at generator 2, sprite D2.
 LDA $0201,x
 CMP #$F0                                    	; As soon as the sprite is off-screen...
-BCC ReturnToTheChocolateWhatever
+BCC +
 LDA #$00					; Kill it.
 STA $1892,y					;
 
-ReturnToTheChocolateWhatever:
-RTS
++  RTS

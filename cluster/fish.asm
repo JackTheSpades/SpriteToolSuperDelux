@@ -23,9 +23,10 @@ FishProperties:
 db !FishProp1,!FishProp2,!FishProp3,!FishProp4,!FishProp1,!FishProp2,!FishProp3,!FishProp4,!FishProp1,!FishProp2,!FishProp3,!FishProp4,!FishProp1,!FishProp2,!FishProp3,!FishProp4,!FishProp1,!FishProp2,!FishProp3,!FishProp4 ; Properties table, per sprite. YXPPCCCT.
 
 
+print "MAIN ",pc
 Main:				;The code always starts at this label in all sprites.
 LDA #$01
-STA $1E2A,y
+STA $1E2A|!Base2,y
 
 LDA $9D				; \ Don't move if sprites are supposed to be frozen.
 BNE ImmobileFish		; /
@@ -33,42 +34,41 @@ BNE ImmobileFish		; /
 LDA $14
 AND #$01
 BEQ +
-LDA $1E16,y
+LDA $1E16|!Base2,y
 CLC
 ADC #!FishSpeed
-STA $1E16,y
+STA $1E16|!Base2,y
 +
 
 ImmobileFish:                   ; OAM routine starts here.
 LDX.w OAMStuffFish,y 		; Get OAM index.
-LDA $1E02,y			; \ Copy Y position relative to screen Y to OAM Y.
+LDA $1E02|!Base2,y			; \ Copy Y position relative to screen Y to OAM Y.
 SEC                             ;  |
 SBC $1C				;  |
-STA $0201,x			; /
-LDA $1E16,y			; \ Copy X position relative to screen X to OAM X.
+STA $0201|!Base2,x			; /
+LDA $1E16|!Base2,y			; \ Copy X position relative to screen X to OAM X.
 SEC				;  |
 SBC $1A				;  |
-STA $0200,x			; /
+STA $0200|!Base2,x			; /
 LDA #!FishTile			; \ Tile
-STA $0202,x                     ; /
+STA $0202|!Base2,x                     ; /
 LDA FishProperties,y
-STA $0203,x
+STA $0203|!Base2,x
 PHX
 TXA
 LSR
 LSR
 TAX
 LDA #!FishSize
-STA $0420,x
+STA $0420|!Base2,x
 PLX
-LDA $18BF
-ORA $1493
-BEQ ReturnToTheChocolateFishWhatever            ; Change BEQ to BRA if you don't want it to disappear at generator 2, sprite D2.
-LDA $0201,x
+LDA $18BF|!Base2
+ORA $1493|!Base2
+BEQ +            ; Change BEQ to BRA if you don't want it to disappear at generator 2, sprite D2.
+LDA $0201|!Base2,x
 CMP #$F0                                    	; As soon as the sprite is off-screen...
-BCC ReturnToTheChocolateFishWhatever
+BCC +
 LDA #$00					; Kill it.
-STA $1892,y					;
+STA $1892|!Base2,y					;
 
-ReturnToTheChocolateFishWhatever:
-RTL
++  RTL

@@ -1,7 +1,8 @@
-
+; From Ladida's cluster sprite package. Slightly modified.
+;
+; Cluster sprite number is set in the CFG file as extra property byte 1.
 
 !SpikeCount       = $09   ; Amount of sprites to fall down, -1. Values outside of 00-13 are not recommended.
-!ClusterSpriteNum = $09   ; Cluster sprite number + 9 (so 9 means you inserted the cluster sprite as number 0)
 
 print "INIT ",pc
 
@@ -12,7 +13,9 @@ print "INIT ",pc
 
 	LDY #!SpikeCount
 -
-	LDA #!ClusterSpriteNum ; \ set cluster sprite number
+	LDA !extra_prop_1,x    ; \ set cluster sprite number
+	CLC                    ; |
+	ADC #!ClusterOffset    ; | add offset due to original cluster sprites.
 	STA !cluster_num,y     ; /
 
 	LDA InitXY,y           ; \ Initial X and Y position of each sprite.

@@ -71,6 +71,8 @@ macro define_base2_address(name, addr)
 endmacro
 
 
+!ClusterOffset  = $09
+!ExtendedOffset = $13
 
 ;$9E,x =  ($B4)
 
@@ -115,29 +117,41 @@ endmacro
 %define_base2_address(cluster_x_low,$1E16)
 %define_base2_address(cluster_x_high,$1E3E)
 
+;extended defines
+%define_base2_address(extended_num,$170B)
+%define_base2_address(extended_y_low,$1715)
+%define_base2_address(extended_y_high,$1729)
+%define_base2_address(extended_x_low,$171F)
+%define_base2_address(extended_x_high,$1733)
+%define_base2_address(extended_x_speed,$173D)
+%define_base2_address(extended_y_speed,$1747)
+%define_base2_address(extended_table,$1765)
+%define_base2_address(extended_timer,$176F)
+%define_base2_address(extended_behind,$1779)
+
 
 ;overworld defines
-%define_sprite_table(ow_num,     $0DE5, $3200)
-%define_sprite_table(ow_x_pos,     $9E, $3230)
-%define_sprite_table(ow_y_pos,     $9E, $3260)
-%define_sprite_table(ow_z_pos,     $9E, $3290)
-%define_sprite_table(ow_x_speed, $0E95, $32C0)
-%define_sprite_table(ow_y_speed, $0EA5, $32F0)
-%define_sprite_table(ow_z_speed, $0EB5, $3320)
+; %define_sprite_table(ow_num,     $0DE5, $3200)
+; %define_sprite_table(ow_x_pos,     $9E, $3230)
+; %define_sprite_table(ow_y_pos,     $9E, $3260)
+; %define_sprite_table(ow_z_pos,     $9E, $3290)
+; %define_sprite_table(ow_x_speed, $0E95, $32C0)
+; %define_sprite_table(ow_y_speed, $0EA5, $32F0)
+; %define_sprite_table(ow_z_speed, $0EB5, $3320)
 
-%define_sprite_table(ow_misc1,   $0DF5, $3350)
-%define_sprite_table(ow_misc2,   $0E05, $3380)
-%define_sprite_table(ow_misc3,     $9E, $33B0)
-%define_sprite_table(ow_misc4,     $9E, $33E0)
-%define_sprite_table(ow_misc5,     $9E, $3410)
-%define_sprite_table(ow_timer1,  $0E15, $3440)
-%define_sprite_table(ow_timer2,  $0E25, $3470)
-%define_sprite_table(ow_timer3,    $9E, $34A0)
-%define_sprite_table(ow_extra,     $9E, $34D0)
+; %define_sprite_table(ow_misc1,   $0DF5, $3350)
+; %define_sprite_table(ow_misc2,   $0E05, $3380)
+; %define_sprite_table(ow_misc3,     $9E, $33B0)
+; %define_sprite_table(ow_misc4,     $9E, $33E0)
+; %define_sprite_table(ow_misc5,     $9E, $3410)
+; %define_sprite_table(ow_timer1,  $0E15, $3440)
+; %define_sprite_table(ow_timer2,  $0E25, $3470)
+; %define_sprite_table(ow_timer3,    $9E, $34A0)
+; %define_sprite_table(ow_extra,     $9E, $34D0)
 
-%define_sprite_table(ow_x_speed_acc, $9E, $3500)
-%define_sprite_table(ow_y_speed_acc, $9E, $3500)
-%define_sprite_table(ow_z_speed_acc, $9E, $3500)
+; %define_sprite_table(ow_x_speed_acc, $9E, $3500)
+; %define_sprite_table(ow_y_speed_acc, $9E, $3500)
+; %define_sprite_table(ow_z_speed_acc, $9E, $3500)
 
 
 
