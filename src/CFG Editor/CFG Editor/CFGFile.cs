@@ -108,7 +108,9 @@ namespace CFG
 		}
 
         #endregion
-        
+
+        #region Not Used ATM
+
         public const byte Version = 0;
         public byte[] ToByteArray()
         {
@@ -159,6 +161,8 @@ namespace CFG
             }
         }
 
+        #endregion
+
         const int rom_1656 = 0x3F46C - 0x200;
         const int rom_1662 = rom_1656 + 201 * 1;
         const int rom_166E = rom_1656 + 201 * 2;
@@ -199,6 +203,7 @@ namespace CFG
 
         public void FromLines(string text)
         {
+            Clear();
             string[] lines = text.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
             Type = BytesFromStringLine(lines[0])[0];
@@ -270,13 +275,19 @@ namespace CFG
             return sb.ToString().TrimEnd('\r', '\n');
         }
 
+        /// <summary>
+        /// Clears all properties and resets them to their default value.
+        /// </summary>
         public void Clear()
         {
+            //loops over all properties within this class and sets them to their default value.
             var props = GetType().GetProperties();
             foreach(var prop in props)
             {
+                //set value types to their default.
                 if (prop.PropertyType.IsValueType)
                     prop.SetValue(this, Activator.CreateInstance(prop.PropertyType));
+                //set strings to empty (not null)
                 else if(prop.PropertyType.Equals(typeof(string)))
                     prop.SetValue(this, "");
             }

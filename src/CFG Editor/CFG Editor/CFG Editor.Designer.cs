@@ -34,26 +34,9 @@
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.testToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tpgAdvanced = new System.Windows.Forms.TabPage();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.richTextBox3 = new System.Windows.Forms.RichTextBox();
-            this.label22 = new System.Windows.Forms.Label();
-            this.label24 = new System.Windows.Forms.Label();
-            this.label25 = new System.Windows.Forms.Label();
-            this.richTextBox4 = new System.Windows.Forms.RichTextBox();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
-            this.label23 = new System.Windows.Forms.Label();
-            this.label20 = new System.Windows.Forms.Label();
-            this.label21 = new System.Windows.Forms.Label();
-            this.richTextBox2 = new System.Windows.Forms.RichTextBox();
             this.tpgDefault = new System.Windows.Forms.TabPage();
             this.grpExtraByteCount = new System.Windows.Forms.GroupBox();
             this.nudExtra = new System.Windows.Forms.NumericUpDown();
@@ -132,11 +115,8 @@
             this.chb_190F_02 = new System.Windows.Forms.CheckBox();
             this.chb_190F_01 = new System.Windows.Forms.CheckBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.grpActLike = new System.Windows.Forms.GroupBox();
             this.menuStrip1.SuspendLayout();
-            this.tpgAdvanced.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            this.groupBox5.SuspendLayout();
-            this.groupBox3.SuspendLayout();
             this.tpgDefault.SuspendLayout();
             this.grpExtraByteCount.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudExtra)).BeginInit();
@@ -155,6 +135,7 @@
             this.grp_1686.SuspendLayout();
             this.grp_190F.SuspendLayout();
             this.tabControl1.SuspendLayout();
+            this.grpActLike.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -174,7 +155,6 @@
             this.newToolStripMenuItem,
             this.toolStripSeparator1,
             this.loadToolStripMenuItem,
-            this.toolStripMenuItem1,
             this.saveToolStripMenuItem,
             this.saveAsToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
@@ -185,36 +165,28 @@
             // 
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
             this.newToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.newToolStripMenuItem.Text = "New";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(196, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(183, 6);
             // 
             // loadToolStripMenuItem
             // 
             this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
             this.loadToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.loadToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.loadToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.loadToolStripMenuItem.Text = "Open File";
             this.loadToolStripMenuItem.Click += new System.EventHandler(this.loadToolStripMenuItem_Click);
-            // 
-            // toolStripMenuItem1
-            // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Alt) 
-            | System.Windows.Forms.Keys.O)));
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(199, 22);
-            this.toolStripMenuItem1.Text = "Open ROM";
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
             this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
@@ -223,7 +195,7 @@
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
             this.saveAsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Alt) 
             | System.Windows.Forms.Keys.S)));
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.saveAsToolStripMenuItem.Text = "Save As...";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
@@ -235,164 +207,10 @@
             this.testToolStripMenuItem.Visible = false;
             this.testToolStripMenuItem.Click += new System.EventHandler(this.testToolStripMenuItem_Click);
             // 
-            // tpgAdvanced
-            // 
-            this.tpgAdvanced.BackColor = System.Drawing.SystemColors.Control;
-            this.tpgAdvanced.Controls.Add(this.groupBox1);
-            this.tpgAdvanced.Location = new System.Drawing.Point(4, 22);
-            this.tpgAdvanced.Name = "tpgAdvanced";
-            this.tpgAdvanced.Size = new System.Drawing.Size(677, 424);
-            this.tpgAdvanced.TabIndex = 2;
-            this.tpgAdvanced.Text = "Advanced";
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.groupBox5);
-            this.groupBox1.Controls.Add(this.groupBox3);
-            this.groupBox1.Location = new System.Drawing.Point(6, 6);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(663, 223);
-            this.groupBox1.TabIndex = 14;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "LM Display Info";
-            // 
-            // groupBox5
-            // 
-            this.groupBox5.Controls.Add(this.textBox1);
-            this.groupBox5.Controls.Add(this.richTextBox3);
-            this.groupBox5.Controls.Add(this.label22);
-            this.groupBox5.Controls.Add(this.label24);
-            this.groupBox5.Controls.Add(this.label25);
-            this.groupBox5.Controls.Add(this.richTextBox4);
-            this.groupBox5.Location = new System.Drawing.Point(332, 19);
-            this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(325, 195);
-            this.groupBox5.TabIndex = 7;
-            this.groupBox5.TabStop = false;
-            this.groupBox5.Text = "Extra Bit Set";
-            // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(50, 13);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(269, 20);
-            this.textBox1.TabIndex = 0;
-            // 
-            // richTextBox3
-            // 
-            this.richTextBox3.Location = new System.Drawing.Point(9, 121);
-            this.richTextBox3.Name = "richTextBox3";
-            this.richTextBox3.Size = new System.Drawing.Size(310, 65);
-            this.richTextBox3.TabIndex = 5;
-            this.richTextBox3.Text = "";
-            this.richTextBox3.WordWrap = false;
-            // 
-            // label22
-            // 
-            this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(6, 16);
-            this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(38, 13);
-            this.label22.TabIndex = 1;
-            this.label22.Text = "Name:";
-            // 
-            // label24
-            // 
-            this.label24.AutoSize = true;
-            this.label24.Location = new System.Drawing.Point(6, 105);
-            this.label24.Name = "label24";
-            this.label24.Size = new System.Drawing.Size(43, 13);
-            this.label24.TabIndex = 4;
-            this.label24.Text = "Map16:";
-            // 
-            // label25
-            // 
-            this.label25.AutoSize = true;
-            this.label25.Location = new System.Drawing.Point(6, 40);
-            this.label25.Name = "label25";
-            this.label25.Size = new System.Drawing.Size(63, 13);
-            this.label25.TabIndex = 1;
-            this.label25.Text = "Description:";
-            // 
-            // richTextBox4
-            // 
-            this.richTextBox4.Location = new System.Drawing.Point(9, 56);
-            this.richTextBox4.Name = "richTextBox4";
-            this.richTextBox4.Size = new System.Drawing.Size(310, 46);
-            this.richTextBox4.TabIndex = 2;
-            this.richTextBox4.Text = "";
-            this.richTextBox4.WordWrap = false;
-            // 
-            // groupBox3
-            // 
-            this.groupBox3.Controls.Add(this.textBox2);
-            this.groupBox3.Controls.Add(this.richTextBox1);
-            this.groupBox3.Controls.Add(this.label23);
-            this.groupBox3.Controls.Add(this.label20);
-            this.groupBox3.Controls.Add(this.label21);
-            this.groupBox3.Controls.Add(this.richTextBox2);
-            this.groupBox3.Location = new System.Drawing.Point(6, 19);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(320, 195);
-            this.groupBox3.TabIndex = 6;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Extra Bit Clear";
-            // 
-            // textBox2
-            // 
-            this.textBox2.Location = new System.Drawing.Point(50, 13);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(264, 20);
-            this.textBox2.TabIndex = 0;
-            // 
-            // richTextBox1
-            // 
-            this.richTextBox1.Location = new System.Drawing.Point(9, 121);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(305, 65);
-            this.richTextBox1.TabIndex = 5;
-            this.richTextBox1.Text = "";
-            this.richTextBox1.WordWrap = false;
-            // 
-            // label23
-            // 
-            this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(6, 16);
-            this.label23.Name = "label23";
-            this.label23.Size = new System.Drawing.Size(38, 13);
-            this.label23.TabIndex = 1;
-            this.label23.Text = "Name:";
-            // 
-            // label20
-            // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(6, 105);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(43, 13);
-            this.label20.TabIndex = 4;
-            this.label20.Text = "Map16:";
-            // 
-            // label21
-            // 
-            this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(6, 40);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(63, 13);
-            this.label21.TabIndex = 1;
-            this.label21.Text = "Description:";
-            // 
-            // richTextBox2
-            // 
-            this.richTextBox2.Location = new System.Drawing.Point(9, 56);
-            this.richTextBox2.Name = "richTextBox2";
-            this.richTextBox2.Size = new System.Drawing.Size(305, 46);
-            this.richTextBox2.TabIndex = 2;
-            this.richTextBox2.Text = "";
-            this.richTextBox2.WordWrap = false;
-            // 
             // tpgDefault
             // 
             this.tpgDefault.BackColor = System.Drawing.SystemColors.Control;
+            this.tpgDefault.Controls.Add(this.grpActLike);
             this.tpgDefault.Controls.Add(this.grpExtraByteCount);
             this.tpgDefault.Controls.Add(this.grpType);
             this.tpgDefault.Controls.Add(this.txt_1656);
@@ -413,7 +231,7 @@
             this.tpgDefault.Location = new System.Drawing.Point(4, 22);
             this.tpgDefault.Name = "tpgDefault";
             this.tpgDefault.Padding = new System.Windows.Forms.Padding(3);
-            this.tpgDefault.Size = new System.Drawing.Size(677, 424);
+            this.tpgDefault.Size = new System.Drawing.Size(677, 422);
             this.tpgDefault.TabIndex = 0;
             this.tpgDefault.Text = "Default";
             // 
@@ -640,20 +458,18 @@
             // 
             // grpAsmActLike
             // 
-            this.grpAsmActLike.Controls.Add(this.txtActLike);
-            this.grpAsmActLike.Controls.Add(this.label15);
             this.grpAsmActLike.Controls.Add(this.label7);
             this.grpAsmActLike.Controls.Add(this.txtASMFile);
             this.grpAsmActLike.Location = new System.Drawing.Point(6, 376);
             this.grpAsmActLike.Name = "grpAsmActLike";
-            this.grpAsmActLike.Size = new System.Drawing.Size(426, 38);
+            this.grpAsmActLike.Size = new System.Drawing.Size(329, 38);
             this.grpAsmActLike.TabIndex = 15;
             this.grpAsmActLike.TabStop = false;
             this.grpAsmActLike.Text = "File Pointer:";
             // 
             // txtActLike
             // 
-            this.txtActLike.Location = new System.Drawing.Point(396, 12);
+            this.txtActLike.Location = new System.Drawing.Point(56, 13);
             this.txtActLike.MaxLength = 2;
             this.txtActLike.Name = "txtActLike";
             this.txtActLike.Size = new System.Drawing.Size(24, 20);
@@ -664,7 +480,7 @@
             // label15
             // 
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(346, 15);
+            this.label15.Location = new System.Drawing.Point(6, 16);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(49, 13);
             this.label15.TabIndex = 14;
@@ -684,7 +500,7 @@
             this.txtASMFile.Location = new System.Drawing.Point(64, 13);
             this.txtASMFile.MaxLength = 100;
             this.txtASMFile.Name = "txtASMFile";
-            this.txtASMFile.Size = new System.Drawing.Size(276, 20);
+            this.txtASMFile.Size = new System.Drawing.Size(258, 20);
             this.txtASMFile.TabIndex = 13;
             // 
             // grpExtraPropByte
@@ -1230,19 +1046,28 @@
             // tabControl1
             // 
             this.tabControl1.Controls.Add(this.tpgDefault);
-            this.tabControl1.Controls.Add(this.tpgAdvanced);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 24);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(685, 450);
+            this.tabControl1.Size = new System.Drawing.Size(685, 448);
             this.tabControl1.TabIndex = 16;
+            // 
+            // grpActLike
+            // 
+            this.grpActLike.Controls.Add(this.txtActLike);
+            this.grpActLike.Controls.Add(this.label15);
+            this.grpActLike.Location = new System.Drawing.Point(341, 376);
+            this.grpActLike.Name = "grpActLike";
+            this.grpActLike.Size = new System.Drawing.Size(91, 38);
+            this.grpActLike.TabIndex = 21;
+            this.grpActLike.TabStop = false;
             // 
             // CFG_Editor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(685, 474);
+            this.ClientSize = new System.Drawing.Size(685, 472);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.menuStrip1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -1253,12 +1078,6 @@
             this.Text = "CFG Editor";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.tpgAdvanced.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox5.ResumeLayout(false);
-            this.groupBox5.PerformLayout();
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
             this.tpgDefault.ResumeLayout(false);
             this.tpgDefault.PerformLayout();
             this.grpExtraByteCount.ResumeLayout(false);
@@ -1287,6 +1106,8 @@
             this.grp_190F.ResumeLayout(false);
             this.grp_190F.PerformLayout();
             this.tabControl1.ResumeLayout(false);
+            this.grpActLike.ResumeLayout(false);
+            this.grpActLike.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1300,24 +1121,7 @@
 		private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem testToolStripMenuItem;
-        private System.Windows.Forms.TabPage tpgAdvanced;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.GroupBox groupBox5;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.RichTextBox richTextBox3;
-        private System.Windows.Forms.Label label22;
-        private System.Windows.Forms.Label label24;
-        private System.Windows.Forms.Label label25;
-        private System.Windows.Forms.RichTextBox richTextBox4;
-        private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.RichTextBox richTextBox1;
-        private System.Windows.Forms.Label label23;
-        private System.Windows.Forms.Label label20;
-        private System.Windows.Forms.Label label21;
-        private System.Windows.Forms.RichTextBox richTextBox2;
         private System.Windows.Forms.TabPage tpgDefault;
         private System.Windows.Forms.GroupBox grpExtraByteCount;
         private System.Windows.Forms.NumericUpDown nudExtra;
@@ -1396,6 +1200,7 @@
         private System.Windows.Forms.CheckBox chb_190F_02;
         private System.Windows.Forms.CheckBox chb_190F_01;
         private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.GroupBox grpActLike;
     }
 }
 

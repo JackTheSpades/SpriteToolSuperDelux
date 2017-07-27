@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CFG
@@ -208,6 +206,15 @@ namespace CFG
                 parent = getName((MemberExpression)mem.Expression) + ".";
             }
             return parent + mem.Member.Name;
+        }
+
+        public static string GetName(this Enum en)
+        {
+            var memInfo = en.GetType().GetMember(en.ToString())[0];
+            var attr = memInfo.GetCustomAttribute<DescriptionAttribute>();
+            if (attr != null)
+                return attr.Description;
+            return en.ToString();
         }
     }
 }

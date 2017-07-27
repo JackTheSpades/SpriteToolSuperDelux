@@ -1,18 +1,9 @@
-﻿#if !DAIYOUSEI
-#define PIXI
-#endif
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CFG
@@ -21,6 +12,7 @@ namespace CFG
 	{
 		Normal = 0,
 		Custom = 1,
+        [Description("Generator/Shooter")]
 		GeneratorShooter = 3,
 	}
 
@@ -32,7 +24,9 @@ namespace CFG
 
 	public partial class CFG_Editor : Form
 	{
-		private string filename = "";
+        #region Properteis
+
+        private string filename = "";
 		public string Filename 
 		{
 			get { return filename; }
@@ -76,6 +70,8 @@ namespace CFG
         /// </summary>
 		public int SpritePalette = 0;
 
+        #endregion
+
         BindingList<ComboBoxItem> types_list = new BindingList<ComboBoxItem>();
         BindingList<ComboBoxItem> sprites_list = new BindingList<ComboBoxItem>();
 
@@ -86,42 +82,7 @@ namespace CFG
 
         FileType FileType;
         byte[] RomData = null;
-
-        /// <summary>
-        /// Creats a new image based on the passed on with the given size, but the same ratio.
-        /// </summary>
-        /// <param name="size">The new desired size</param>
-        /// <param name="img">The base image</param>
-        /// <returns></returns>
-		public Image ResizeImg(Size size, Image img)
-		{
-			float width, height;
-			float x, y;
-
-			if(img.Width < img.Height)
-			{
-				height = size.Height;
-				width = (height / img.Height) * img.Width;
-				y = 0;
-				x = (size.Width / 2) - (width / 2);
-			}
-			else
-			{
-				width = size.Width;
-				height = (width / img.Width) * img.Height;
-				x = 0;
-				y = (size.Height / 2) - (height / 2);
-			}
-
-			Bitmap bm = new Bitmap(size.Width, size.Height);
-			using (Graphics g = Graphics.FromImage(bm))
-			{
-				g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-				g.DrawImage(img, new RectangleF(x, y, width, height));
-			}
-			return bm;
-		}
-        
+               
 
 		public CFG_Editor(string[] args)
 		{
@@ -132,7 +93,6 @@ namespace CFG
                 grpAsmActLike,
                 grpExtraByteCount,
                 grpExtraPropByte,
-                tpgAdvanced,
             };
 
             Data = new CFGFile();
@@ -148,7 +108,7 @@ namespace CFG
 			SetupBinding(Data, f => f.Addr167A, "167A", 0);
 			SetupBinding(Data, f => f.Addr1686, "1686", 0);
 			SetupBinding(Data, f => f.Addr190F, "190F", 0);
-
+            
 			txt_0001.Bind(Data, c => c.Text, f => f.ExProp1, f => f.ToString("X2"), c => StringToByte(c));
 			txt_0002.Bind(Data, c => c.Text, f => f.ExProp2, f => f.ToString("X2"), c => StringToByte(c));
             nudNormal.Bind(Data, c => c.Value, f => f.ByteCount, null, c => (byte)c);
@@ -159,7 +119,7 @@ namespace CFG
 
             //add types to the comboboxes.
             foreach (CFG_SpriteType type in Enum.GetValues(typeof(CFG_SpriteType)))
-                types_list.Add(new ComboBoxItem(type.ToString(), (int)type));
+                types_list.Add(new ComboBoxItem(type.GetName(), (int)type));
             string[] sprite_list_lines = Properties.Resources.SpriteList.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < 201; i++)
                 sprites_list.Add(new ComboBoxItem(sprite_list_lines[i], i));
@@ -223,17 +183,71 @@ namespace CFG
 
 		}
 
-
+        /// <summary>
+        /// Testbutton on the menu. Only available in debug mode.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void testToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            cmbType.DataSource = sprites_list;
         }
 
+        #region Helper Methods
+
+        /// <summary>
+        /// Helper method for data binding. Converts a hex-string to byte. An empty string will be parsed as 0.
+        /// </summary>
+        /// <param name="str">The string containing two digits to be parsed</param>
+        /// <returns></returns>
         private byte StringToByte(string str)
         {
-            if (string.IsNullOrWhiteSpace(str))
+            try
+            {
+                if (str.Length > 2)
+                    str = str.Substring(0, 2);
+                if (string.IsNullOrWhiteSpace(str))
+                    return 0;
+                return Convert.ToByte(str, 16);
+            }
+            catch
+            {
                 return 0;
-            return Convert.ToByte(str, 16);
+            }
+        }
+        
+        /// <summary>
+        /// Creats a new image based on the passed on with the given size, but the same ratio.
+        /// </summary>
+        /// <param name="size">The new desired size</param>
+        /// <param name="img">The base image</param>
+        /// <returns></returns>
+        private Image ResizeImg(Size size, Image img)
+        {
+            float width, height;
+            float x, y;
+
+            if (img.Width < img.Height)
+            {
+                height = size.Height;
+                width = (height / img.Height) * img.Width;
+                y = 0;
+                x = (size.Width / 2) - (width / 2);
+            }
+            else
+            {
+                width = size.Width;
+                height = (width / img.Width) * img.Height;
+                x = 0;
+                y = (size.Height / 2) - (height / 2);
+            }
+
+            Bitmap bm = new Bitmap(size.Width, size.Height);
+            using (Graphics g = Graphics.FromImage(bm))
+            {
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                g.DrawImage(img, new RectangleF(x, y, width, height));
+            }
+            return bm;
         }
 
         /// <summary>
@@ -273,33 +287,8 @@ namespace CFG
 			}
 		}
 
-
-		/// <summary>
-		/// Only allow hex values (and backspace) to be inputed into the textboxes
-		/// </summary>
-		/// <param name="sender">The textbox in question</param>
-		/// <param name="e">Event args</param>
-		private void txt_Hex_KeyPress(object sender, KeyPressEventArgs e)
-		{
-			if (e.KeyChar != '\b' && !Uri.IsHexDigit(e.KeyChar))
-				e.Handled = true;
-			e.KeyChar = Char.ToUpper(e.KeyChar);
-		}
+        #endregion
         
-        private void cmbType_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (FileType == FileType.CfgFile)
-            {
-                Data.Type = (byte)((ComboBoxItem)cmbType.SelectedValue).Value;
-                disabled_controlls.SetControllsEnabled(Data.Type != 0);
-            }
-            else if (FileType == FileType.RomFile)
-            {
-                Data.FromRomBytes(RomData, cmbType.SelectedIndex);
-            }
-        }
-
-
         public void LoadFile(string path)
         {
             if (!File.Exists(path))
@@ -325,18 +314,19 @@ namespace CFG
                 cmbType.DataSource = types_list;
                 cmbType.SelectedIndex = Data.Type;
                 disabled_controlls.SetControllsEnabled(Data.Type != 0);
-                txtActLike.Enabled = true;
+                grpActLike.Enabled = true;
+                saveAsToolStripMenuItem.Enabled = true;
             }
             else if (FileType == FileType.RomFile)
             {
+                RomData = File.ReadAllBytes(path);
+
                 cmbType.DataSource = sprites_list;
                 cmbType.SelectedIndex = 0;
 
-                RomData = File.ReadAllBytes(path);
-                Data.FromRomBytes(RomData, 0);
-
                 disabled_controlls.SetControllsEnabled(false);
-                txtActLike.Enabled = false;
+                grpActLike.Enabled = false;
+                saveAsToolStripMenuItem.Enabled = false;
             }
 
             Unsaved = false;
@@ -345,6 +335,12 @@ namespace CFG
         
         public void SaveFile(string path)
         {
+            //update binding in case the current control is a textbox,
+            //because these only write once they lose foucus, which might not have happened yet.
+            var bindings = this.ActiveControl?.DataBindings;
+            if (bindings != null && bindings.Count != 0)
+                bindings[0].WriteValue();
+
             string ext = Path.GetExtension(path);
             switch (ext.ToLower())
             {
@@ -353,6 +349,8 @@ namespace CFG
                     break;
                 case ".smc":
                 case ".sfc":
+                    Data.ToRomBytes(RomData, cmbType.SelectedIndex);
+                    File.WriteAllBytes(path, RomData);
                     break;
                 default:
                     MessageBox.Show($"Uknown file extension {ext}", "Couldn't save file", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -363,11 +361,7 @@ namespace CFG
             Filename = path;
         }
 
-		#region Handle ComboBoxes
-		/*
-		 * The ComboBoxes that need a bit of special treatment.
-		*/
-
+		#region Events
 		private void cmb_1656_0F_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			lblObjBroke.Visible = ((ComboBox)sender).SelectedIndex >= 0x0F;
@@ -385,26 +379,54 @@ namespace CFG
 				index += SpritePalette * 2;
 			pcbPal.Image = sprPal[index];
 		}
-		#endregion
-                     
-		#region "File" Menu Item Events
-		private void newToolStripMenuItem_Click(object sender, EventArgs e)
+
+        /// <summary>
+        /// Only allow hex values (and backspace) to be inputed into the textboxes
+        /// </summary>
+        /// <param name="sender">The textbox in question</param>
+        /// <param name="e">Event args</param>
+        private void txt_Hex_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (Unsaved &&
-                (MessageBox.Show("All unsaved changes will be lost. Proceed?", "Warning",
-                MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) ==
-                System.Windows.Forms.DialogResult.Cancel))
+            if (e.KeyChar != '\b' && !Uri.IsHexDigit(e.KeyChar))
+                e.Handled = true;
+            e.KeyChar = Char.ToUpper(e.KeyChar);
+        }
+
+        private void cmbType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (FileType == FileType.CfgFile)
+            {
+                Data.Type = (byte)((ComboBoxItem)cmbType.SelectedValue).Value;
+                disabled_controlls.SetControllsEnabled(Data.Type != 0);
+            }
+            else if (FileType == FileType.RomFile)
+            {
+                Data.FromRomBytes(RomData, cmbType.SelectedIndex);
+            }
+        }
+        #endregion
+
+        #region "File" Menu Item Events
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!UnsavedWarning())
                 return;
 
             Data.Clear();
-			this.Filename = "";
+
+            FileType = FileType.CfgFile;
+            cmbType.DataSource = types_list;
+            cmbType.SelectedIndex = 0;
+            grpActLike.Enabled = true;
+            saveAsToolStripMenuItem.Enabled = true;
+            this.Filename = "";
             this.Unsaved = true;
 		}
 
 		private void loadToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			OpenFileDialog ofd = new OpenFileDialog();
-			ofd.Filter = "CFG file|*.cfg|CFG Binary File|*.cfgb";
+			ofd.Filter = "CFG file|*.cfg|ROM file|*.smc;*.sfc";
 			ofd.Title = "Load CFG file";
 			if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
 				return;
@@ -416,21 +438,31 @@ namespace CFG
 			{
                 Data.Clear();
 				Filename = "";
-				MessageBox.Show("An error occured while trying to read the CFG file\n" + ex.Message, "Unexpected Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show("An error occured while trying to read the CFG data\n" + ex.Message, "Unexpected Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 
 		private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			SaveFileDialog sfd = new SaveFileDialog();
+            if (FileType == FileType.RomFile)
+            {
+                MessageBox.Show("You can't save a ROM under a different filename. Sorry about that.", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            SaveFileDialog sfd = new SaveFileDialog();
 			sfd.Title = "Save CFG File";
-			sfd.Filter = "CFG File|*.cfg|CFG Binary File|*.cfgb";
+            sfd.Filter = "CFG File|*.cfg";
 			sfd.FileName = Filename;
 			if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
 				return;
-			SaveFile(sfd.FileName);
-			Filename = sfd.FileName;
-            Unsaved = false;
+
+            try { SaveFile(sfd.FileName); }
+            catch(Exception ex)
+            {
+                MessageBox.Show("An error occured while trying to write the CFG data\n" + ex.Message, "Unexpected Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 		}
 
 		private void saveToolStripMenuItem_Click(object sender, EventArgs e)
@@ -439,8 +471,11 @@ namespace CFG
                 saveAsToolStripMenuItem_Click(sender, e);
             else
             {
-                SaveFile(Filename);
-                Unsaved = false;
+                try { SaveFile(Filename); }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("An error occured while trying to write the CFG data\n" + ex.Message, "Unexpected Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
 		}
 		#endregion
