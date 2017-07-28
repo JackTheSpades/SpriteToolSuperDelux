@@ -6,6 +6,8 @@
 ;
 ;Output: $00 = 8 bit X speed of projectile
 ;        $02 = 8 bit Y speed of projectile
+
+.aiming
 		
 		PHX
 		PHY
@@ -16,13 +18,13 @@
 		LDX #$00
 		REP #$20
 		LDA $00
-		BPL .pos_dx
+		BPL ..pos_dx
 		EOR #$FFFF
 		INC
 		INX
 		INX
 		STA $00
-.pos_dx
+..pos_dx
 		SEP #$20
 		STA $4202
 		STA $4203
@@ -34,12 +36,13 @@
 		LDA $4216
 		STA $04
 		LDA $02
-		BPL .pos_dy
+		BPL ..pos_dy
 		EOR #$FFFF
 		INC
 		INX
 		STA $02
-	.pos_dy	SEP #$20
+..pos_dy
+		SEP #$20
 		STA $4202
 		STA $4203
 		STX $0E
@@ -49,20 +52,21 @@
 		CLC
 		ADC $4216
 		LDY #$0000
-		BCC .loop
+		BCC ..loop
 		INY
 		ROR
 		LSR
-	.loop	CMP #$0100
+..loop
+		CMP #$0100
 		BCC +
 		INY
 		LSR
 		LSR
-		BRA .loop
+		BRA ..loop
 	+	CLC
 		ASL
 		TAX
-		LDA recip_sqrt_lookup,x
+		LDA ..recip_sqrt_lookup,x
 	-	DEY
 		BMI +
 		LSR
@@ -128,7 +132,7 @@
 		RTL
 		
 	
-recip_sqrt_lookup:
+..recip_sqrt_lookup:
 		dw $0000,$FFFF,$B505,$93CD,$8000,$727D,$6883,$60C2
 		dw $5A82,$5555,$50F4,$4D30,$49E7,$4700,$446B,$4219
 		dw $4000,$3E17,$3C57,$3ABB,$393E,$37DD,$3694,$3561

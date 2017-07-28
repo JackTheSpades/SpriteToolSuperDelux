@@ -235,7 +235,7 @@ SUB_HAMMER_THROW:
 						  LDA #!Y_SPEED
 						  STA $03
 						  
-						  LDA #$04					; extended sprite = hammer
+						  LDA #$04  					; extended sprite = hammer
 						  %SpawnExtended()
 						  RTS
 

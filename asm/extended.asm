@@ -12,21 +12,23 @@ org $029B1B
 freecode
 Main:
 .sub
-
-	CMP #$13              ;
+	LDY $9D               ; \
+	BNE +                 ; | restore code
+	LDY !extended_timer,x ; |
+   BEQ +                 ; |
+   DEC !extended_timer,x ; /
++
+	CMP #!ExtendedOffset  ; check if number higher than #$13
 	BCC .NotCustom        ;
 
-	SEC : SBC #$13        ; 13 is the first custom one
+	SEC
+   SBC #!ExtendedOffset  ; 13 is the first custom one
 	AND #$7F              ;	
 	%CallSprite(Ptr)      ;
 	JML $029B15           ; JML back to an RTS
 	
 .NotCustom
-	LDY $9D               ; \
-	BNE +                 ; | restore code
-	LDY $176F|!Base2,x    ; /
-	JML $029B22           ; check if timer is to be decreases.
-+	JML $029B27           ; execute vanilla code.
+	JML $029B27           ; execute vanilla code.
 
 ;tool generated pointer table
 Ptr:

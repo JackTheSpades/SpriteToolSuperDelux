@@ -7,61 +7,67 @@
 
 ;; LX5's note: needs a block of FreeRAM in order to animate (!extra_extended)
 
-Boomerang:
-	JSR .subgfx
-	LDA $9D
-	BNE .ret
-	JSR SpriteSpdNoGravity
+!extra_extended = $000000
 
-	JSR Hit_Mario
+print "MAIN ",pc
+Boomerang:
+	JSR Graphics
+	LDA $9D
+	BNE Return
+   
+	%SpeedNoGrav()
+	%ExtendedHurt()
 
 	lda !extra_extended,x
 	inc
 	sta !extra_extended,x
-	LDA $176F|!addr,x	; if timer isn't zero, branch.
+	LDA $176F|!Base2,x	; if timer isn't zero, branch.
 	BNE .nodecre
 
-	LDA $1765|!addr,x
+	LDA $1765|!Base2,x
 	TAY
-	LDA $1747|!addr,x	; accelerate sprite based on "direction."
+	LDA $1747|!Base2,x	; accelerate sprite based on "direction."
 	CMP .xmax,y
 	BEQ .nodecre
-	LDA $1747|!addr,x
+	LDA $1747|!Base2,x
 	CLC
 	ADC .xinc,y
-	STA $1747|!addr,x
+	STA $1747|!Base2,x
 .nodecre
 	LDA $14		; run every other frame.
 	LSR
 	BCS .ret
-	LDA $1779|!addr,x
+	LDA $1779|!Base2,x
 	CMP #$01
 	BCS ++
-	LDA $1779|!addr,x	; increment/decrement y speed based on stuff.
+	LDA $1779|!Base2,x	; increment/decrement y speed based on stuff.
 	AND #$01
 	TAY
-	LDA $173D|!addr,x
+	LDA $173D|!Base2,x
 	CMP .ymax,y
 	BNE +
-	INC $1779|!addr,x
-+	LDA $173D|!addr,x
+	INC $1779|!Base2,x
++	LDA $173D|!Base2,x
 	CLC
 	ADC .yinc,y
-	STA $173D|!addr,x
+	STA $173D|!Base2,x
 	RTS
-++	LDA $173D|!addr,x
+++	LDA $173D|!Base2,x
 	BEQ .ret
-	DEC $173D|!addr,x	; decrement timer used by the x speed.
-.ret	RTS
+	DEC $173D|!Base2,x	; decrement timer used by the x speed.
+Return:
+	RTL
+   
 .xinc	db $01,$FF
 .xmax	db $20,$E0
 .yinc	db $01,$FF
 .ymax	db $12,$EE
 
-.subgfx
-	JSR ExtGetDrawInfo2
+Graphics:
+   %ExtendedGetDrawInfo()
+sublabel:
 
-	LDA $1747|!addr,x
+	LDA $1747|!Base2,x
 	STA $03
 
 	LDA !extra_extended,x	; get frame based on $0E05,x
@@ -71,13 +77,13 @@ Boomerang:
 	TAX
 
 	LDA $01
-	STA $0200|!addr,y
+	STA $0200|!Base2,y
 
 	LDA $02
-	STA $0201|!addr,y
+	STA $0201|!Base2,y
 
 	LDA .tilemap,x
-	STA $0202|!addr,y
+	STA $0202|!Base2,y
 
 	LDA #$09	; palette
 	PHY
@@ -88,14 +94,14 @@ Boomerang:
 +	ORA .prop,y	; set properties.
 	ORA $64
 	PLY
-	STA $0203|!addr,y
+	STA $0203|!Base2,y
 
 
 	TYA
 	LSR : LSR
 	TAX
 	LDA #$02
-	STA $0420|!addr,x
+	STA $0420|!Base2,x
 	PLX
 	RTS
 .prop	db $40,$40,$80,$80
