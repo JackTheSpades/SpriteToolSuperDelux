@@ -3,9 +3,17 @@
 *.zst
 *.exe
 *.bin
+*/tweak/*
+!asm/DefaultSize.bin
 !asm/Restore/*.bin
+!Graphics for Included Sprites/*.bin
 shared.asm
-asm/cleanup.asm
+asm/_cleanup.asm
 HxD.ini
 spr_temp.asm
 pixi.zip
+LM/*
+overworld/**
+**/sysLMRestore/**
+asm/uninstall.asm
+asm/overworld.asm
