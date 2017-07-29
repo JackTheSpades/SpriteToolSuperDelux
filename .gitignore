@@ -15,3 +15,5 @@ pixi.zip
 LM/*
 overworld/**
 **/sysLMRestore/**
+asm/uninstall.asm
+asm/overworld.asm
