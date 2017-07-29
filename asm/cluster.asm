@@ -2,72 +2,56 @@
 ;original cluster sprite tool code by Alcaro
 ;slight modification and sa-1 compability by JackTheSpades
 
-org $80A686
-	JML NotQuiteMain
+incsrc "sa1def.asm"
+incsrc "pointer_caller.asm"
 
-org $82F815
-	JML Main
+org $00A686
+	autoclean JML NotQuiteMain
+	autoclean dl Ptr      ; org $0x00A68A, default dl $9C1498
 
-;-----------;
-; Custom Rt ;
-;-----------;
+org $02F815
+	autoclean JML Main
 
-;TOOL LINE: freespace
-db "STAR"
-dw $8000-8-1
-dw $8000-8-1^$FFFF;we want to reserve an entire bank so we know we can use that area later
+
+freecode
+NotQuiteMain:
+	STZ $149A|!Base2      ; \ Hijack restore code.
+	STZ $1498|!Base2      ; | 
+	STZ $1495|!Base2      ; /
+	REP #$20
+	LDX #$9E              ; \ Set $1E02-$1EA1 to zero on level load.
+.loop                    ; |
+	STZ $1E02|!Base2,x    ; |
+	DEX                   ; |
+	DEX                   ; |
+	BNE .loop             ; /
+	SEP #$20
+	JML $00A68F|!BankB    ; Return.
+
 
 Main:
-LDA $0100             ; \ If in mosaic routine, don't run sprite.
-CMP #$13              ;  |
-BEQ Return            ; /
-LDA $1892,x           ; \ Check if $1892,x is 00 (free slot). If so, return.
-BEQ Return            ; /
-CMP #$09              ; \ Check if >=09.
-BCS Custom            ; / If so, run custom cluster sprite routine.
-PEA $F81C             ; \ Go to old pointer.
-JML $82F821           ; /
+	LDA $0100|!Base2      ; \ If in mosaic routine, don't run sprite.
+	CMP #$13              ;  |
+	BEQ .return           ; /
+	LDA $1892|!Base2,x    ; \ Check if $1892,x is 00 (free slot). If so, return.
+	BEQ .return           ; /
+	CMP #$09              ; \ Check if >=09.
+	BCS .custom           ; / If so, run custom cluster sprite routine.
+	PEA $F81C             ; \ Go to old pointer.
+	JML $02F821|!BankB    ; /
 
-NotQuiteMain:
-STZ $149A             ; Hijack code.
-STZ $1498             ;
-REP #$20
-LDX #$9E              ; \ Set $1E02-$1EA1 to zero on level load.
 
-Looplooploop:
-STZ $1E02,x           ;  |
-DEX                   ;  |
-DEX                   ;  |
-BNE Looplooploop      ; /
-SEP #$20
-JML $80A68C           ; Return.
+.custom:
+	;PHB : PHK : PLB       ; magic bank wrapper
+	SEC                   ; \ Subtract 9. (Also allows you to use slots up to $88 instead of $7F in this version.)
+	SBC #$09              ; / (Not that you'll ever use all of them though)
+	AND #$7F
 
-Custom:
-PHB                   ; \ Wrapper.
-PHK                   ;  |
-PLB                   ; /
-SEC                   ; \ Subtract 9. (Also allows you to use slots up to $88 instead of $7F in this version.)
-SBC #$09              ; / (Not that you'll ever use all of them though)
-PHX                   ; \ Preserve X and Y.
-PHY                   ; /
-TXY                   ; 
-ASL A		      ; Jump jump jump.
-TAX                   ;
-JSR (Ptr,x)           ;
-PLY                   ; Pull everything back and return.
-PLX
-PLB
+	%CallSprite(Ptr)
 
-Return:
-JML $82F81D
+.return:
+	JML $02F81D|!BankB
 
-;--------------------------;
-; Pointers. Do not adjust. ;
-;--------------------------;
-
+freedata
 Ptr:
-;TOOL LINE: pointers
-
-;TOOL LINE: codes
-
-;TOOL LINE: warnpc
+	incbin "_ClusterPtr.bin"

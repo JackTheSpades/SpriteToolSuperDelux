@@ -5,6 +5,7 @@ ReadMe Contents:
 - The List File
 -- Normal Sprites
 -- Per-Level Sprites
+-- Other sprite types (cluster/extended)
 
 - Sprite Insertion
 -- Opening pixi.exe
@@ -16,11 +17,13 @@ ReadMe Contents:
 -- SA-1 Detection and Default Labels
 -- CFG Files and the new CFG Editor
 -- Shared Routines
+-- Header Files
 
 - Common Errors
 -- JMP (label,x) or JSR (label,x)
 -- JMP $xxxxxx
 -- Faulty Math or Wrong Register size (inserts fine but crashes in-game)
+-- incsrc/incbin file not found
 
 
 
@@ -30,7 +33,7 @@ ReadMe Contents:
 - The List File
 -- Normal Sprites
 	To let the tool know which sprites you want to insert in which sprite slots, you have to open the file
-	called "list.txt". In it, you define the sprites you want to insert into your ROM and the sprite
+	called "list.txt" or create a new one. In it, you define the sprites you want to insert into your ROM and the sprite
 	number you want to give them. The format is as follows:
 	
     id SPACE cfg_file
@@ -64,7 +67,29 @@ ReadMe Contents:
 		105:B0 Red.cfg
 		105:B1 Yellow.cfg
 		106:B0 Boo.cfg
-		
+
+-- Other sprite types
+	PIXI also has the ability to insert other types of sprites, such as cluster or extended sprites.
+	To insert these other types, you just have to change the list type within your list file. This is simply done by a
+	type of headline with the all caps type followed by a colon. Valid headlines are: "SPRITE:" (default), "EXTENDED:",
+	"CLUSTER:", all without quotes. You probably won't need the SPRITE: header, since it's the default but it's there
+	anyway.
+	After that header, you can proceed to place sprites just like before, except they are taken from their respective
+	directories. An example:
+
+		00 Blue.cfg
+		01 Green.cfg
+
+		CLUSTER:
+		00 flower.asm
+		01 fish.asm
+
+		EXTENDED:
+		00 hammer.asm
+
+	Note that cluster and extended sprites use the .asm extension, while normal sprites have .cfg.
+	Also keep in mind that shooters and generators are part of the SPRITE: group and are seperated by their slot.
+
 	
 - Sprite Insertion
 -- Opening pixi.exe
@@ -85,11 +110,15 @@ ReadMe Contents:
 		Options are:
 		-d              Enable debug output
 		-k              Keep debug files
-		-l <listpath>   Specify a custom list file (Default: list.txt)
-		-p <sprites>    Specify a custom sprites directory (Default sprites/)
-		-o <shooters>   Specify a custom shooters directory (Default shooters/)
-		-g <generators> Specify a custom generators directory (Default generators/)
-		-s <sharedpath> Specify a shared routine directory (Default routines/)
+		-l  <listpath>  Specify a custom list file (Default: list.txt)
+		
+		-sp <sprites>   Specify a custom sprites directory (Default sprites/)
+		-sh <shooters>  Specify a custom shooters directory (Default shooters/)
+		-g  <generators>        Specify a custom generators directory (Default generators/)
+		-e  <extended>  Specify a custom extended sprites directory (Default extended/)
+		-c  <cluster>   Specify a custom cluster sprites directory (Default cluster/)
+
+		-r  <sharedpath>        Specify a shared routine directory (Default routines/)
 		
 	Example:
 		
@@ -145,19 +174,24 @@ If you are used to using Romi's SpriteTool, here is a quick rundown of everythin
 
 
 -- Shared Routines
-  If you have used GPS before, the shared routines in PIXI work exactly like the ones there.
-  If you haven't, it's easily explained: instead of placing the same globally used routines such as GET_DRAW_INFO
-  and SUB_OFFSCREEN into every single sprite, thus eating up space unnecessarily, there are now macros to access
-  them from any sprite without inserting the code again and again.
-  
-  Check out the routines/ folder for all shared routines included. To use them, call a macro with their file name
-  in place of where you would usually JSR to them, like this:
-  
-  %GetDrawInfo()
-   -or-
-  %Aiming()
-		
-		
+	If you have used GPS before, the shared routines in PIXI work exactly like the ones there.
+	If you haven't, it's easily explained: instead of placing the same globally used routines such as GET_DRAW_INFO
+	and SUB_OFFSCREEN into every single sprite, thus eating up space unnecessarily, there are now macros to access
+	them from any sprite without inserting the code again and again.
+	
+	Check out the routines/ folder for all shared routines included. To use them, call a macro with their file name
+	in place of where you would usually JSR to them, like this:
+	
+	%GetDrawInfo()
+	 -or-
+	%Aiming()
+
+
+-- Header Files
+	Each sprite directory has a "_header.asm" file within it. This file will be included only with sprites of their
+	respective type. Unlike sa1def.asm which is included with every sprite.
+	You can use it to implement defines or macros that have different behavior with different sprite types without having
+	to name them all differently.		
 		
 		
 - Common Errors
@@ -166,27 +200,38 @@ The vast majority of the time, xkas code will work just fine with Asar, the asse
 If you do get errors trying to use a sprite that worked fine in the xkas-based SpriteTool, here are some common sources:
 
 -- JMP (label,x) or JSR (label,x)
-  Asar does not want to guess at the size of these instructions. You will have to append ".w" to the JMP/JSR instruction,
-  to let Asar know that the pointers are 2 bytes in size (or a "word", hence the "w"). This would look like this corrected:
+	Asar does not want to guess at the size of these instructions. You will have to append ".w" to the JMP/JSR instruction,
+	to let Asar know that the pointers are 2 bytes in size (or a "word", hence the "w"). This would look like this corrected:
   
-  JMP.w (label,x) or JSR.w (label,x)
+	JMP.w (label,x) or JSR.w (label,x)
   
 
 -- JMP $xxxxxx
-  xkas accepted the JMP $xxxxxx instruction, despite it technically not existing. JMP is intended to jump to addresses in
-  the same bank as the instruction, but $xxxxxx (note the 6 bytes) points at an absolute place in the ROM. To fix this,
-  change it to use the absolute JML command instead, like this:
+	xkas accepted the JMP $xxxxxx instruction, despite it technically not existing. JMP is intended to jump to addresses in
+	the same bank as the instruction, but $xxxxxx (note the 6 bytes) points at an absolute place in the ROM. To fix this,
+	change it to use the absolute JML command instead, like this:
   
-  JML $xxxxxx
+	JML $xxxxxx
   
 
 -- Faulty Math or Wrong Register size (inserts fine but crashes in-game)
-  xkas and Asar handle assembler math a little differently. If your sprite assembles fine but ends up crashing, this will
-  often be the fault of them disagreeing on how to read a bit of math. Asar tries to go the logical route while xkas does
-  its own thing.
-  If this happens to you, search for occurences of assembler math (such as LDA #$08+05^$FF or LDA #!define<<(!otherdefine*8))
-  and specify the register size as before. Usually this means appending ".b" to the instruction (for example
-  LDA.b #!define<<(!otherdefine*8)), but in other cases it might also be ".w" or ".l". Sometimes the math arguments
-  themselves have to be rewritten too, which might be a little harder.
+	xkas and Asar handle assembler math a little differently. If your sprite assembles fine but ends up crashing, this will
+	often be the fault of them disagreeing on how to read a bit of math. Asar tries to go the logical route while xkas does
+	its own thing.
+	If this happens to you, search for occurences of assembler math (such as LDA #$08+05^$FF or LDA #!define<<(!otherdefine*8))
+	and specify the register size as before. Usually this means appending ".b" to the instruction (for example
+	LDA.b #!define<<(!otherdefine*8)), but in other cases it might also be ".w" or ".l". Sometimes the math arguments
+	themselves have to be rewritten too, which might be a little harder.
   
-  If you can't figure it out yourself due to lack of ASM knowledge, feel free to ask on the SMWCentral forums.
+	If you can't figure it out yourself due to lack of ASM knowledge, feel free to ask on the SMWCentral forums.
+
+-- incsrc/incbin file not found
+	Romi's sprite_tool handled the insertion of sprites slightly differently than PIXI. That is, it created a copy of the sprite in the main
+	directory of the exe and then patched it, whereas PIXI just creates temp file which references the original sprite.
+	As a result, old sprites that use the incsrc or incbin command had to take the full path to the sprite into accound but PIXI doesn't.
+	Example:
+
+	Romi:
+		incbin "sprites/data.bin"
+	PIXI:
+		incbin "data.bin"

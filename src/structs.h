@@ -79,28 +79,38 @@ struct sprite {
 	int line = 0;
 	int number = 0;
 	int level = 0x200;
-	sprite_table* table = nullptr;
+	sprite_table table;
 	
+	int byte_count = 0;
+	int extra_byte_count = 0;
+	
+	const char* directory = nullptr;
 	char* asm_file = nullptr;
 	char* cfg_file = nullptr;
+	
+	// int map_data_size = 0;
+	// map16* map_data = nullptr;
+	
+	// int name_size = 0;
+	// unsigned char* name[2];
+	
+	// int ssc_size = 0;
+	// unsigned char** ssc;
+	
 		
 	~sprite() {
 		if(asm_file)
 			delete[] asm_file;
 		if(cfg_file)
 			delete[] cfg_file;
+		// if(map_data)
+			// delete[] map_data;
+			
+		// if(name[0])
+			// delete[] name[0];
+		// if(name[1])
+			// delete[] name[1];
 	}
-};
-
-struct sprite_data {	
-	sprite_table full_table[MAX_SPRITE_COUNT];
-	
-	sprite_table* default_table = full_table + 0x2000;		//00-AF = sprite, C0-CF = shooter, D0-FF = gen		
-	
-	sprite_table* level_table_t1 = full_table;				//sprite B0-BF of level 000-07F
-	sprite_table* level_table_t2 = full_table + 0x800;		//sprite B0-BF of level 080-0FF
-	sprite_table* level_table_t3 = full_table + 0x1000;	//sprite B0-BF of level 100-17F
-	sprite_table* level_table_t4 = full_table + 0x1800;	//sprite B0-BF of level 180-1FF
 };
 
 int get_pointer(unsigned char *data, int address, int size = 3, int bank = 0x00);
@@ -112,51 +122,20 @@ struct ROM {
 	int size;
 	int header_size;
 	
-	void open(const char *n)
-	{
-		name = new char[strlen(n)+1]();
-		strcpy(name, n);
-		FILE *file = ::open(name, "r+b");	//call global open
-		size = file_size(file);
-		header_size = size & 0x7FFF;
-		size -= header_size;
-		data = read_all(name, false, MAX_ROM_SIZE + header_size);
-		fclose(file);
-		real_data = data + header_size;
-	}
+	void open(const char *n);	
+	void close();
 	
-	void close()
-	{
-		write_all(data, name, size + header_size);
-		delete []data;
-		delete []name;
-	}
+	int pc_to_snes(int address);
+	int snes_to_pc(int address);
 	
-	int pc_to_snes(int address)
-	{
-		address -= header_size;
-		return ((((address << 1) & 0x7F0000) | (address&0x7FFF)) | 0x8000);
-	}
-
-	int snes_to_pc(int address)
-	{
-		return ((address & 0x7F0000) >> 1 | (address & 0x7FFF)) + header_size;
-	}
-	
-	pointer pointer_snes(int address, int size = 3, int bank = 0x00)
-	{
-		return pointer(::get_pointer(data, snes_to_pc(address), size, bank));
-	}
-	pointer pointer_pc(int address, int size = 3, int bank = 0x00)
-	{
-		return pointer(::get_pointer(data, address, size, bank));
-	}
+	pointer pointer_snes(int address, int size = 3, int bank = 0x00);
+	pointer pointer_pc(int address, int size = 3, int bank = 0x00);
 };
 
 
 simple_string get_line(const char* text, int offset);
 void set_pointer(pointer* p, int address);
-bool is_empty_table(sprite_table* ptr, int size);
+bool is_empty_table(sprite* spr, int size);
 char* trim(char *text);
 
 #endif

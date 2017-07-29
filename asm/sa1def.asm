@@ -71,11 +71,13 @@ macro define_base2_address(name, addr)
 endmacro
 
 
+!ClusterOffset  = $09
+!ExtendedOffset = $13
 
 ;$9E,x =  ($B4)
 
 
-;sprite tool defines
+;sprite tool / pixi defines
 %define_sprite_table("7FAB10",$7FAB10,$400040)
 %define_sprite_table("7FAB1C",$7FAB1C,$400056)
 %define_sprite_table("7FAB28",$7FAB28,$400057)
@@ -90,22 +92,69 @@ endmacro
 %define_sprite_table("extra_prop_1",$7FAB28,$400057)
 %define_sprite_table("extra_prop_2",$7FAB34,$40006D)
 %define_sprite_table("new_sprite_num",$7FAB9E,$400083)
-; %define_sprite_table("extra_byte_1",$7FAB40,$400099)
-; %define_sprite_table("extra_byte_2",$7FAB4C,$4000AF)
-; %define_sprite_table("extra_byte_3",$7FAB58,$4000C5)
+%define_sprite_table("extra_byte_1",$7FAB40,$400099)
+%define_sprite_table("extra_byte_2",$7FAB4C,$4000AF)
+%define_sprite_table("extra_byte_3",$7FAB58,$4000C5)
+%define_sprite_table("extra_byte_4",$7FAB64,$4000D8)
 
 ;%define_sprite_table("7FAB64",$7FAB64,$4000DB)
 ;%define_sprite_table(shoot_misc,$7FAB64,$4000DB)
 
 ;shooter defines
-%define_base2_address(shoot_num,$1783)		; shooter number -#$BC
-														; also has the extra bit in #$40
+%define_base2_address(shoot_num,$1783)		; shooter number -#$BC, also has the extra bit in #$40
 %define_base2_address(shoot_y_low,$178B)
 %define_base2_address(shoot_y_low,$178B)
 %define_base2_address(shoot_y_high,$1793)
 %define_base2_address(shoot_x_low,$179B)
 %define_base2_address(shoot_x_high,$17A3)
 %define_base2_address(shoot_timer,$17AB)
+
+
+;cluster defines
+%define_base2_address(cluster_num,$1892)
+%define_base2_address(cluster_y_low,$1E02)
+%define_base2_address(cluster_y_high,$1E2A)
+%define_base2_address(cluster_x_low,$1E16)
+%define_base2_address(cluster_x_high,$1E3E)
+
+;extended defines
+%define_base2_address(extended_num,$170B)
+%define_base2_address(extended_y_low,$1715)
+%define_base2_address(extended_y_high,$1729)
+%define_base2_address(extended_x_low,$171F)
+%define_base2_address(extended_x_high,$1733)
+%define_base2_address(extended_x_speed,$173D)
+%define_base2_address(extended_y_speed,$1747)
+%define_base2_address(extended_table,$1765)
+%define_base2_address(extended_timer,$176F)
+%define_base2_address(extended_behind,$1779)
+
+
+;overworld defines
+; %define_sprite_table(ow_num,     $0DE5, $3200)
+; %define_sprite_table(ow_x_pos,     $9E, $3230)
+; %define_sprite_table(ow_y_pos,     $9E, $3260)
+; %define_sprite_table(ow_z_pos,     $9E, $3290)
+; %define_sprite_table(ow_x_speed, $0E95, $32C0)
+; %define_sprite_table(ow_y_speed, $0EA5, $32F0)
+; %define_sprite_table(ow_z_speed, $0EB5, $3320)
+
+; %define_sprite_table(ow_misc1,   $0DF5, $3350)
+; %define_sprite_table(ow_misc2,   $0E05, $3380)
+; %define_sprite_table(ow_misc3,     $9E, $33B0)
+; %define_sprite_table(ow_misc4,     $9E, $33E0)
+; %define_sprite_table(ow_misc5,     $9E, $3410)
+; %define_sprite_table(ow_timer1,  $0E15, $3440)
+; %define_sprite_table(ow_timer2,  $0E25, $3470)
+; %define_sprite_table(ow_timer3,    $9E, $34A0)
+; %define_sprite_table(ow_extra,     $9E, $34D0)
+
+; %define_sprite_table(ow_x_speed_acc, $9E, $3500)
+; %define_sprite_table(ow_y_speed_acc, $9E, $3500)
+; %define_sprite_table(ow_z_speed_acc, $9E, $3500)
+
+
+
 
 ;normal sprite defines
 %define_sprite_table(sprite_num, $9E, $3200)
@@ -154,6 +203,7 @@ endmacro
 %define_sprite_table(sprite_tweaker_1686, $1686, $762C)
 %define_sprite_table(sprite_off_screen_vert, $186C, $7642)
 %define_sprite_table(sprite_misc_187b, $187B, $3410)
+%define_sprite_table(sprite_load_table, $1938, $418A00)
 %define_sprite_table(sprite_tweaker_190f, $190F, $7658)
 %define_sprite_table(sprite_misc_1fd6, $1FD6, $766E)
 %define_sprite_table(sprite_cape_disable_time, $1FE2, $7FD6)
@@ -205,5 +255,6 @@ endmacro
 %define_sprite_table("186C", $186C, $7642)
 %define_sprite_table("187B", $187B, $3410)
 %define_sprite_table("190F", $190F, $7658)
+%define_sprite_table("1938", $1938, $418A00)
 %define_sprite_table("1FD6", $1FD6, $766E)
 %define_sprite_table("1FE2", $1FE2, $7FD6)

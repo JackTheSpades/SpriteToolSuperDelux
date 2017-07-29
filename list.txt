@@ -9,6 +9,22 @@
 08 bros/bomb_bro.cfg
 10 donut_lift.cfg
 
+11 cluster spawner/fishspawn.cfg
+12 cluster spawner/flowerspawn.cfg
+13 cluster spawner/rainspawn.cfg
+14 cluster spawner/sandstormspawn.cfg
+
 C0 diag_up_bill.cfg
 C1 diag_down_bill.cfg
 C2 vertical_bill.cfg
+
+CLUSTER:
+
+00 fish.asm
+01 flowers.asm
+02 rain.asm
+03 sandstorm.asm
+
+EXTENDED:
+
+00 hammer.asm

@@ -256,6 +256,7 @@ SUB_GFX:
 		%GetDrawInfo()          ; after: Y = index to sprite tile map ($300)
 									   ;      $00 = sprite x position relative to screen boarder 
 									   ;      $01 = sprite y position relative to screen boarder  
+sublabel:
 		LDA !1602,x             ; \
 		ASL #2                  ;  | $03 = index to frame start (frame to show * 2 tile per frame)
 		STA $03                 ; /

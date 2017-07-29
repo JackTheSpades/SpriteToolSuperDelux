@@ -1,0 +1,245 @@
+00 Green Koopa, no shell
+01 Red Koopa, no shell
+02 Blue Koopa, no shell
+03 Yellow Koopa, no shell
+04 Green Koopa
+05 Red Koopa
+06 Blue Koopa
+07 Yellow Koopa
+08 Green Koopa, flying left
+09 Green bouncing Koopa (Y&1)
+0A Red vertical flying Koopa
+0B Red horizontal flying Koopa
+0C Yellow Koopa with wings
+0D Bob-omb
+0E Keyhole
+0F Goomba
+10 Bouncing Goomba with wings
+11 Buzzy Beetle
+12 Unused
+13 Spiny
+14 Spiny falling
+15 Fish, horizontal
+16 Fish, vertical
+17 Fish, created from generator
+18 Surface jumping fish
+19 Display text from level Message Box #1
+1A Classic Pirhana Plant (use ExGFX)
+1B Bouncing football in place
+1C Bullet Bill
+1D Hopping flame
+1E Lakitu Normal/Fish (X&1)
+1F Magikoopa
+20 Magikoopa's magic, stationary
+21 Moving coin
+22 Green vertical net Koopa, below/above (X&1)
+23 Red fast vertical net Koopa, below/above (X&1)
+24 Green horizontal net Koopa, below/above (X&1)
+25 Red fast horizontal net Koopa, below/above (X&1)
+26 Thwomp
+27 Thwimp
+28 Big Boo
+29 Koopa Kid (place at X=12, Y=0 to 6)
+2A Upside down Piranha Plant
+2B Sumo Brother's fire lightning
+2C Yoshi egg Red/Blue/Yellow/Blue (X&3)
+2D Baby green Yoshi
+2E Spike Top
+2F Portable spring board
+30 Dry Bones, throws bones
+31 Bony Beetle
+32 Dry Bones, stay on ledge
+33 Fireball, vertical
+34 Boss fireball, stationary
+35 Green Yoshi
+36 Unused (crash!)
+37 Boo
+38 Eerie
+39 Eerie, wave motion
+3A Urchin, fixed vertical/horizontal (X&1)
+3B Urchin, wall detect v/h (X&1)
+3C Urchin, wall follow clockwise/counter (X&1)
+3D Rip Van Fish
+3E POW, blue/silver (X&1)
+3F Para-Goomba
+40 Para-Bomb
+41 Dolphin, horizontal
+42 Dolphin2, horizontal
+43 Dolphin, vertical
+44 Torpedo Ted
+45 Directional coins, no time limit
+46 Diggin' Chuck
+47 Swimming/Jumping fish, doesn't need water
+48 Diggin' Chuck's rock
+49 Growing/shrinking pipe end
+4A Goal Point Question Sphere
+4B Pipe dwelling Lakitu
+4C Exploding Block, fish/goomba/Koopa/Koopa with shell (X&3)
+4D Ground dwelling Monty Mole, follow/hop (X&1)
+4E Ledge dwelling Monty Mole, follow/hop (X&1)
+4F Jumping Pirhana Plant
+50 Jumping Pirhana Plant, spit fire
+51 Ninji
+52 Moving ledge hole in ghost house
+53 Throw block sprite
+54 Climbing net door, use with object 0x4A-E
+55 Checkerboard platform, horizontal
+56 Flying rock platform, horizontal
+57 Checkerboard platform, vertical
+58 Flying rock platform, vertical
+59 Turn block bridge, horizontal and vertical
+5A Turn block bridge, horizontal
+5B Brown platform floating in water
+5C Checkerboard platform that falls
+5D Orange platform floating in water
+5E Orange platform, goes on forever
+5F Brown platform on a chain
+60 Flat green switch palace switch
+61 Floating skulls
+62 Brown platform, line-guided
+63 Checker/brown platform, line-guided (X&1)
+64 Rope mechanism, line-guided (X&1)
+65 Chainsaw, line-guided, right/left (X&1)
+66 Upside down chainsaw, line-guided, null/left (X&1)
+67 Grinder, line-guided, right/left (X&1)
+68 Fuzz Ball, line-guided, right/left (X&1)
+69 Unused
+6A Coin game cloud
+6B Spring board, left wall
+6C Spring board, right wall
+6D Invisible solid block
+6E Dino Rhino
+6F Dino Torch
+70 Pokey
+71 Super Koopa, red cape, swoop
+72 Super Koopa, yellow cape, swoop
+73 Super Koopa, feather/yellow cape (X&1)
+74 Mushroom
+75 Flower
+76 Star
+77 Feather
+78 1-UP
+79 Growing Vine
+7A Firework, makes Mario temporarily invisible
+7B Standard Goal Point
+7C Princess Peach
+7D Balloon
+7E Flying Red coin, worth 5 coins
+7F Flying Yellow 1-UP
+80 Key
+81 Changing item from a translucent block
+82 Bonus game sprite
+83 Left flying question block, coin/flower/feather/1-UP (X&3)
+84 Flying question block, coin/flower/feather/1-UP (X&3)
+85 Unused (Pretty sure)
+86 Wiggler
+87 Lakitu's cloud, no time limit
+88 Unused (Winged cage sprite)
+89 Layer 3 smash (set FG/BG=1, use low tides)
+8A Bird from Yoshi's house, max of 4
+8B Puff of smoke from Yoshi's house
+8C Fireplace smoke/exit from side screen (X&1)
+8D Ghost house exit sign and door
+8E Invisible "Warp Hole" blocks
+8F Scale platforms, long/short between (X&1)
+90 Large green gas bubble
+91 Chargin' Chuck
+92 Splitin' Chuck
+93 Bouncin' Chuck
+94 Whistlin' Chuck, fish/Koopa (X&1)
+95 Clapin' Chuck
+96 Unused (Chargin' Chuck clone)
+97 Puntin' Chuck
+98 Pitchin' Chuck
+99 Volcano Lotus
+9A Sumo Brother
+9B Hammer Brother (requires sprite 9C)
+9C Flying blocks for Hammer Brother
+9D Bubble with Goomba/bomb/fish/mushroom (X&3)
+9E Ball and Chain, clockwise/counter (X&1)
+9F Banzai Bill
+A0 Activates Bowser scene
+A1 Bowser's bowling ball
+A2 MechaKoopa
+A3 Grey platform on chain, clockwise/counter (X&1)
+A4 Floating Spike ball, slow/fast (X&1)
+A5 Fuzzball/Sparky, ground-guided, left/right (X&1)
+A6 HotHead, ground-guided, left/right (X&1)
+A7 Iggy's ball
+A8 Blargg
+A9 Reznor
+AA Fishbone
+AB Rex
+AC Wooden Spike, moving down and up
+AD Wooden Spike, moving up/down first (X&1)
+AE Fishin' Boo
+AF Boo Block
+B0 Reflecting stream of Boo Buddies
+B1 Creating/Eating block (X&1)
+B2 Falling Spike
+B3 Bowser statue fireball
+B4 Grinder, non-line-guided
+B5 Sinking fireball used in boss battles
+B6 Reflecting fireball
+B7 Carrot Top lift, upper right
+B8 Carrot Top lift, upper left
+B9 Info Box, message 1/2 (X&1)
+BA Timed lift, 4 sec/1 sec (X&1)
+BB Grey moving castle block, horizontal
+BC Bowser statue, normal/fire/leap (X&3)
+BD Sliding Koopa without a shell
+BE Swooper Bat, hang/fly/fly/fly (X&3)
+BF Mega Mole
+C0 Grey platform on lava, sinks
+C1 Flying grey turnblocks, first up/down (X&1)
+C2 Blurp fish
+C3 A Porcu-Puffer fish
+C4 Grey platform that falls
+C5 Big Boo Boss
+C6 Dark room with spot light ("disco ball")
+C7 Invisible mushroom
+C8 Light switch block for dark room
+C9 Bullet Bill shooter
+CA Torpedo Launcher
+CB Eerie, generator
+CC Para-Goomba, generator
+CD Para-Bomb, generator
+CE Para-Bomb and Para-Goomba, generator
+CF Dolphin, left, generator
+D0 Dolphin, right, generator
+D1 Jumping fish, generator
+D2 Turn off generator 2 (sprite E5)
+D3 Super Koopa, generator
+D4 Bubble with Goomba and Bob-omb, generator
+D5 Bullet Bill, generator
+D6 Bullet Bill surrounded, generator
+D7 Bullet Bill diagonal, generator
+D8 Bowser statue fire breath, generator
+D9 Turn off standard generators
+DA Green Koopa shell
+DB Red Koopa shell
+DC Blue Koopa shell
+DD Yellow Koopa shell
+DE Group of 5 eeries, wave motion
+DF Green shell, won't use Special World color
+E0 3 platforms on chains, clockwise/counter (X&1)
+E1 Ghost ceiling
+E2 Boo Buddies, counter-clockwise
+E3 Boo Buddies, clockwise
+E4 Swooper death bat ceiling
+E5 Reappearing ghosts, generator 2
+E6 Candle flames in background
+E7 ...
+E8 Auto-Scroll 1 (set layer2+FG scroll to none)
+E9 Layer 2 Smash 1
+EA Layer 2 Scroll 1 (set BG init pos=0 if Y=0)
+EB ...
+EC ...
+ED Layer 2 Falls (set layer2 scroll to none)
+EF Layer 2 Scroll S (set layer2 H-scroll to none)
+F0 ...
+F1 ...
+F2 Layer 2 On/Off Switch controlled
+F3 Auto-Scroll level (Y position controls speed)
+F4 Fast BG scroll (use sprite C1 to activate)
+F5 Layer 2 sink when touched, short range
