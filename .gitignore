@@ -4,11 +4,14 @@
 *.exe
 *.bin
 */tweak/*
+!asm/DefaultSize.bin
 !asm/Restore/*.bin
+!Graphics for Included Sprites/*.bin
 shared.asm
 asm/_cleanup.asm
 HxD.ini
 spr_temp.asm
 pixi.zip
 LM/*
-overworld/*
+overworld/**
+**/sysLMRestore/**
