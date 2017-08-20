@@ -79,4 +79,4 @@ Main:                              ;The code always starts at this label in all 
    LDA #$00                        ; Kill it.
    STA $1892|!Base2,y;
 
-+  RTS
++  RTL

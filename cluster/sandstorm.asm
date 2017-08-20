@@ -103,4 +103,4 @@ BCC +
 LDA #$00					; Kill it.
 STA $1892,y					;
 
-+  RTS
++  RTL
