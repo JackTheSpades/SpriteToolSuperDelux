@@ -146,7 +146,7 @@
 	SBC #$0080
 	TAX
 	LDY $1C
-	LDA $1933
+	LDA $1933|!Base2
 	BEQ .CurrentLayer
 	LDX $1E
 	LDA $20
@@ -160,7 +160,7 @@
 	SEC
 	SBC #$0080
 	TAY
-	LDA $1933
+	LDA $1933|!Base2
 	BEQ .CurrentLayer
 	LDA $1E
 	SEC
