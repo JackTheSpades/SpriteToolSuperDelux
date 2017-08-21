@@ -161,8 +161,6 @@ Size:
 org $02A846
 	JML SprtOffset
 	NOP						; not necessary but still...
-
-freecode
  
 ; ---------------------------------------------------
 ; 80% original sprite_tool code, credit to roy.	

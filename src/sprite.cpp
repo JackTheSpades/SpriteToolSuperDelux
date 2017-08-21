@@ -18,6 +18,7 @@
 #define CLUSTER 6
 #define OVERWORLD 7
 
+#define DEBUGMSG
 
 #define TEMP_SPR_FILE "spr_temp.asm"
 #define SPRITE_COUNT 0x80	//count for other sprites like cluster, ow, extended
@@ -31,6 +32,12 @@ void double_click_exit()
 	getc(stdin); //Pause before exit
 }
 
+template <typename ...A>
+void debug_print(const char* msg, A... args) {
+   #ifdef DEBUGMSG
+      printf(msg, args...);
+   #endif      
+}
 
 
 template <typename T>
@@ -51,15 +58,18 @@ T* from_table(T* table, int level, int number) {
 	return nullptr;
 }
 
-bool patch(const char *patch_name, ROM &rom, const char *debug_name) {
+bool patch(const char* patch_name, ROM &rom, const char *debug_name) {
+   debug_print("Try patch: %-20s ", patch_name);
 	if(!asar_patch(patch_name, (char *)rom.real_data, MAX_ROM_SIZE, &rom.size)){
+      debug_print("Failure. Try fetch errors:\n");
 		int error_count;
 		const errordata *errors = asar_geterrors(&error_count);
 		printf("An error has been detected:\n");
 		for(int i = 0; i < error_count; i++)
 			printf("%s\n", errors[i].fullerrdata);
-			exit(-1);
+      exit(-1);
 	}
+   debug_print("Success\n");
 	return true;
 }
 

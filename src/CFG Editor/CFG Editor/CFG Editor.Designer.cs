@@ -28,6 +28,11 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+            this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CFG_Editor));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -36,8 +41,15 @@
             this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadCustomM16ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadCustomGFX33ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.testToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tpgDefault = new System.Windows.Forms.TabPage();
+            this.grpActLike = new System.Windows.Forms.GroupBox();
+            this.txtActLike = new System.Windows.Forms.TextBox();
+            this.label15 = new System.Windows.Forms.Label();
             this.grpExtraByteCount = new System.Windows.Forms.GroupBox();
             this.nudExtra = new System.Windows.Forms.NumericUpDown();
             this.nudNormal = new System.Windows.Forms.NumericUpDown();
@@ -60,8 +72,6 @@
             this.chb_1656_20 = new System.Windows.Forms.CheckBox();
             this.chb_1656_10 = new System.Windows.Forms.CheckBox();
             this.grpAsmActLike = new System.Windows.Forms.GroupBox();
-            this.txtActLike = new System.Windows.Forms.TextBox();
-            this.label15 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.txtASMFile = new System.Windows.Forms.TextBox();
             this.grpExtraPropByte = new System.Windows.Forms.GroupBox();
@@ -115,9 +125,64 @@
             this.chb_190F_02 = new System.Windows.Forms.CheckBox();
             this.chb_190F_01 = new System.Windows.Forms.CheckBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.grpActLike = new System.Windows.Forms.GroupBox();
+            this.tpgLm = new System.Windows.Forms.TabPage();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.extraBitDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.xDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.yDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.displaySpriteBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.cmbTilesets = new System.Windows.Forms.ComboBox();
+            this.pnlEdit = new System.Windows.Forms.Panel();
+            this.btnX = new System.Windows.Forms.Button();
+            this.btnY = new System.Windows.Forms.Button();
+            this.txtTopLeft = new System.Windows.Forms.TextBox();
+            this.txtTopRight = new System.Windows.Forms.TextBox();
+            this.cmbPalette = new System.Windows.Forms.ComboBox();
+            this.txtBottomLeft = new System.Windows.Forms.TextBox();
+            this.txtBottomRight = new System.Windows.Forms.TextBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.dsSP4 = new CFG.Map16.FileSelector();
+            this.dsSP3 = new CFG.Map16.FileSelector();
+            this.dsSP2 = new CFG.Map16.FileSelector();
+            this.dsSP1 = new CFG.Map16.FileSelector();
+            this.map16Editor1 = new CFG.Map16Editor();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.nudY = new System.Windows.Forms.NumericUpDown();
+            this.nudX = new System.Windows.Forms.NumericUpDown();
+            this.spriteEditor1 = new CFG.Map16.SpriteEditor();
+            this.rtbDesc = new System.Windows.Forms.RichTextBox();
+            this.cmbGrid = new System.Windows.Forms.ComboBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.chbExtraBit = new System.Windows.Forms.CheckBox();
+            this.chbUseText = new System.Windows.Forms.CheckBox();
+            this.tpgList = new System.Windows.Forms.TabPage();
+            this.dataGridView2 = new System.Windows.Forms.DataGridView();
+            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.extraBitDataGridViewCheckBoxColumn1 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.extraPropertyByte1DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.extraPropertyByte2DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.extraPropertyByte3DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.extraPropertyByte4DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.collectionSpriteBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.lblName = new System.Windows.Forms.Label();
+            this.chbListExtraBit = new System.Windows.Forms.CheckBox();
+            this.txtName = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.txtExProp1 = new System.Windows.Forms.TextBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.txtExProp2 = new System.Windows.Forms.TextBox();
+            this.txtExProp4 = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.txtExProp3 = new System.Windows.Forms.TextBox();
             this.menuStrip1.SuspendLayout();
             this.tpgDefault.SuspendLayout();
+            this.grpActLike.SuspendLayout();
             this.grpExtraByteCount.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudExtra)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudNormal)).BeginInit();
@@ -135,13 +200,27 @@
             this.grp_1686.SuspendLayout();
             this.grp_190F.SuspendLayout();
             this.tabControl1.SuspendLayout();
-            this.grpActLike.SuspendLayout();
+            this.tpgLm.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.displaySpriteBindingSource)).BeginInit();
+            this.groupBox3.SuspendLayout();
+            this.pnlEdit.SuspendLayout();
+            this.groupBox2.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudY)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudX)).BeginInit();
+            this.tpgList.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.collectionSpriteBindingSource)).BeginInit();
+            this.groupBox5.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
+            this.optionsToolStripMenuItem,
             this.testToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -199,6 +278,35 @@
             this.saveAsToolStripMenuItem.Text = "Save As...";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
+            // optionsToolStripMenuItem
+            // 
+            this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.loadCustomM16ToolStripMenuItem,
+            this.loadCustomGFX33ToolStripMenuItem,
+            this.toolStripMenuItem1});
+            this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
+            this.optionsToolStripMenuItem.Text = "Display";
+            // 
+            // loadCustomM16ToolStripMenuItem
+            // 
+            this.loadCustomM16ToolStripMenuItem.Name = "loadCustomM16ToolStripMenuItem";
+            this.loadCustomM16ToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.loadCustomM16ToolStripMenuItem.Text = "Load Custom m16";
+            // 
+            // loadCustomGFX33ToolStripMenuItem
+            // 
+            this.loadCustomGFX33ToolStripMenuItem.Name = "loadCustomGFX33ToolStripMenuItem";
+            this.loadCustomGFX33ToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.loadCustomGFX33ToolStripMenuItem.Text = "Load Custom GFX33";
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(181, 22);
+            this.toolStripMenuItem1.Text = "Palette";
+            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
+            // 
             // testToolStripMenuItem
             // 
             this.testToolStripMenuItem.Name = "testToolStripMenuItem";
@@ -234,6 +342,35 @@
             this.tpgDefault.Size = new System.Drawing.Size(677, 422);
             this.tpgDefault.TabIndex = 0;
             this.tpgDefault.Text = "Default";
+            // 
+            // grpActLike
+            // 
+            this.grpActLike.Controls.Add(this.txtActLike);
+            this.grpActLike.Controls.Add(this.label15);
+            this.grpActLike.Location = new System.Drawing.Point(341, 376);
+            this.grpActLike.Name = "grpActLike";
+            this.grpActLike.Size = new System.Drawing.Size(91, 38);
+            this.grpActLike.TabIndex = 21;
+            this.grpActLike.TabStop = false;
+            // 
+            // txtActLike
+            // 
+            this.txtActLike.Location = new System.Drawing.Point(56, 13);
+            this.txtActLike.MaxLength = 2;
+            this.txtActLike.Name = "txtActLike";
+            this.txtActLike.Size = new System.Drawing.Size(24, 20);
+            this.txtActLike.TabIndex = 12;
+            this.txtActLike.Text = "00";
+            this.txtActLike.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(6, 16);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(49, 13);
+            this.label15.TabIndex = 14;
+            this.label15.Text = "Act Like:";
             // 
             // grpExtraByteCount
             // 
@@ -466,25 +603,6 @@
             this.grpAsmActLike.TabIndex = 15;
             this.grpAsmActLike.TabStop = false;
             this.grpAsmActLike.Text = "File Pointer:";
-            // 
-            // txtActLike
-            // 
-            this.txtActLike.Location = new System.Drawing.Point(56, 13);
-            this.txtActLike.MaxLength = 2;
-            this.txtActLike.Name = "txtActLike";
-            this.txtActLike.Size = new System.Drawing.Size(24, 20);
-            this.txtActLike.TabIndex = 12;
-            this.txtActLike.Text = "00";
-            this.txtActLike.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
-            // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(6, 16);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(49, 13);
-            this.label15.TabIndex = 14;
-            this.label15.Text = "Act Like:";
             // 
             // label7
             // 
@@ -1046,6 +1164,8 @@
             // tabControl1
             // 
             this.tabControl1.Controls.Add(this.tpgDefault);
+            this.tabControl1.Controls.Add(this.tpgLm);
+            this.tabControl1.Controls.Add(this.tpgList);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 24);
             this.tabControl1.Name = "tabControl1";
@@ -1053,15 +1173,550 @@
             this.tabControl1.Size = new System.Drawing.Size(685, 448);
             this.tabControl1.TabIndex = 16;
             // 
-            // grpActLike
+            // tpgLm
             // 
-            this.grpActLike.Controls.Add(this.txtActLike);
-            this.grpActLike.Controls.Add(this.label15);
-            this.grpActLike.Location = new System.Drawing.Point(341, 376);
-            this.grpActLike.Name = "grpActLike";
-            this.grpActLike.Size = new System.Drawing.Size(91, 38);
-            this.grpActLike.TabIndex = 21;
-            this.grpActLike.TabStop = false;
+            this.tpgLm.BackColor = System.Drawing.SystemColors.Control;
+            this.tpgLm.Controls.Add(this.dataGridView1);
+            this.tpgLm.Controls.Add(this.groupBox3);
+            this.tpgLm.Controls.Add(this.groupBox1);
+            this.tpgLm.Location = new System.Drawing.Point(4, 22);
+            this.tpgLm.Name = "tpgLm";
+            this.tpgLm.Size = new System.Drawing.Size(677, 422);
+            this.tpgLm.TabIndex = 1;
+            this.tpgLm.Text = "Lunar Magic";
+            // 
+            // dataGridView1
+            // 
+            this.dataGridView1.AutoGenerateColumns = false;
+            this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.extraBitDataGridViewCheckBoxColumn,
+            this.xDataGridViewTextBoxColumn,
+            this.yDataGridViewTextBoxColumn});
+            this.dataGridView1.DataSource = this.displaySpriteBindingSource;
+            this.dataGridView1.Location = new System.Drawing.Point(203, 298);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dataGridView1.Size = new System.Drawing.Size(465, 116);
+            this.dataGridView1.TabIndex = 8;
+            // 
+            // extraBitDataGridViewCheckBoxColumn
+            // 
+            this.extraBitDataGridViewCheckBoxColumn.DataPropertyName = "ExtraBit";
+            this.extraBitDataGridViewCheckBoxColumn.HeaderText = "ExtraBit";
+            this.extraBitDataGridViewCheckBoxColumn.Name = "extraBitDataGridViewCheckBoxColumn";
+            // 
+            // xDataGridViewTextBoxColumn
+            // 
+            this.xDataGridViewTextBoxColumn.DataPropertyName = "X";
+            this.xDataGridViewTextBoxColumn.HeaderText = "X";
+            this.xDataGridViewTextBoxColumn.Name = "xDataGridViewTextBoxColumn";
+            // 
+            // yDataGridViewTextBoxColumn
+            // 
+            this.yDataGridViewTextBoxColumn.DataPropertyName = "Y";
+            this.yDataGridViewTextBoxColumn.HeaderText = "Y";
+            this.yDataGridViewTextBoxColumn.Name = "yDataGridViewTextBoxColumn";
+            // 
+            // displaySpriteBindingSource
+            // 
+            this.displaySpriteBindingSource.DataSource = typeof(CFG.Map16.DisplaySprite);
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.cmbTilesets);
+            this.groupBox3.Controls.Add(this.pnlEdit);
+            this.groupBox3.Controls.Add(this.groupBox2);
+            this.groupBox3.Controls.Add(this.map16Editor1);
+            this.groupBox3.Location = new System.Drawing.Point(203, 3);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(465, 289);
+            this.groupBox3.TabIndex = 17;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Map16";
+            // 
+            // cmbTilesets
+            // 
+            this.cmbTilesets.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbTilesets.FormattingEnabled = true;
+            this.cmbTilesets.Location = new System.Drawing.Point(290, 125);
+            this.cmbTilesets.Name = "cmbTilesets";
+            this.cmbTilesets.Size = new System.Drawing.Size(169, 21);
+            this.cmbTilesets.TabIndex = 16;
+            // 
+            // pnlEdit
+            // 
+            this.pnlEdit.Controls.Add(this.btnX);
+            this.pnlEdit.Controls.Add(this.btnY);
+            this.pnlEdit.Controls.Add(this.txtTopLeft);
+            this.pnlEdit.Controls.Add(this.txtTopRight);
+            this.pnlEdit.Controls.Add(this.cmbPalette);
+            this.pnlEdit.Controls.Add(this.txtBottomLeft);
+            this.pnlEdit.Controls.Add(this.txtBottomRight);
+            this.pnlEdit.Enabled = false;
+            this.pnlEdit.Location = new System.Drawing.Point(290, 19);
+            this.pnlEdit.Name = "pnlEdit";
+            this.pnlEdit.Size = new System.Drawing.Size(166, 58);
+            this.pnlEdit.TabIndex = 15;
+            // 
+            // btnX
+            // 
+            this.btnX.Location = new System.Drawing.Point(3, 3);
+            this.btnX.Name = "btnX";
+            this.btnX.Size = new System.Drawing.Size(44, 23);
+            this.btnX.TabIndex = 10;
+            this.btnX.Text = "Flip X";
+            this.btnX.UseVisualStyleBackColor = true;
+            this.btnX.Click += new System.EventHandler(this.btnX_Click);
+            // 
+            // btnY
+            // 
+            this.btnY.Location = new System.Drawing.Point(53, 3);
+            this.btnY.Name = "btnY";
+            this.btnY.Size = new System.Drawing.Size(44, 23);
+            this.btnY.TabIndex = 10;
+            this.btnY.Text = "Flip Y";
+            this.btnY.UseVisualStyleBackColor = true;
+            // 
+            // txtTopLeft
+            // 
+            this.txtTopLeft.Location = new System.Drawing.Point(103, 6);
+            this.txtTopLeft.MaxLength = 3;
+            this.txtTopLeft.Name = "txtTopLeft";
+            this.txtTopLeft.Size = new System.Drawing.Size(26, 20);
+            this.txtTopLeft.TabIndex = 8;
+            this.txtTopLeft.Text = "FFF";
+            // 
+            // txtTopRight
+            // 
+            this.txtTopRight.Location = new System.Drawing.Point(135, 6);
+            this.txtTopRight.MaxLength = 3;
+            this.txtTopRight.Name = "txtTopRight";
+            this.txtTopRight.Size = new System.Drawing.Size(26, 20);
+            this.txtTopRight.TabIndex = 8;
+            this.txtTopRight.Text = "FFF";
+            // 
+            // cmbPalette
+            // 
+            this.cmbPalette.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbPalette.FormattingEnabled = true;
+            this.cmbPalette.Items.AddRange(new object[] {
+            "Palette 0",
+            "Palette 1",
+            "Palette 2",
+            "Palette 3",
+            "Palette 4",
+            "Palette 5",
+            "Palette 6",
+            "Palette 7",
+            "Palette -"});
+            this.cmbPalette.Location = new System.Drawing.Point(3, 32);
+            this.cmbPalette.Name = "cmbPalette";
+            this.cmbPalette.Size = new System.Drawing.Size(94, 21);
+            this.cmbPalette.TabIndex = 9;
+            // 
+            // txtBottomLeft
+            // 
+            this.txtBottomLeft.Location = new System.Drawing.Point(103, 32);
+            this.txtBottomLeft.MaxLength = 3;
+            this.txtBottomLeft.Name = "txtBottomLeft";
+            this.txtBottomLeft.Size = new System.Drawing.Size(26, 20);
+            this.txtBottomLeft.TabIndex = 8;
+            this.txtBottomLeft.Text = "FFF";
+            // 
+            // txtBottomRight
+            // 
+            this.txtBottomRight.Location = new System.Drawing.Point(135, 32);
+            this.txtBottomRight.MaxLength = 3;
+            this.txtBottomRight.Name = "txtBottomRight";
+            this.txtBottomRight.Size = new System.Drawing.Size(26, 20);
+            this.txtBottomRight.TabIndex = 8;
+            this.txtBottomRight.Text = "FFF";
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.tableLayoutPanel1);
+            this.groupBox2.Location = new System.Drawing.Point(290, 156);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(169, 119);
+            this.groupBox2.TabIndex = 14;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Graphics";
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 1;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Controls.Add(this.dsSP4, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.dsSP3, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.dsSP2, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.dsSP1, 0, 0);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 16);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 4;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(163, 100);
+            this.tableLayoutPanel1.TabIndex = 0;
+            // 
+            // dsSP4
+            // 
+            this.dsSP4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dsSP4.Location = new System.Drawing.Point(3, 78);
+            this.dsSP4.Name = "dsSP4";
+            this.dsSP4.Size = new System.Drawing.Size(157, 19);
+            this.dsSP4.TabIndex = 3;
+            // 
+            // dsSP3
+            // 
+            this.dsSP3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dsSP3.Location = new System.Drawing.Point(3, 53);
+            this.dsSP3.Name = "dsSP3";
+            this.dsSP3.Size = new System.Drawing.Size(157, 19);
+            this.dsSP3.TabIndex = 2;
+            // 
+            // dsSP2
+            // 
+            this.dsSP2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dsSP2.Location = new System.Drawing.Point(3, 28);
+            this.dsSP2.Name = "dsSP2";
+            this.dsSP2.Size = new System.Drawing.Size(157, 19);
+            this.dsSP2.TabIndex = 1;
+            // 
+            // dsSP1
+            // 
+            this.dsSP1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dsSP1.Location = new System.Drawing.Point(3, 3);
+            this.dsSP1.Name = "dsSP1";
+            this.dsSP1.Size = new System.Drawing.Size(157, 19);
+            this.dsSP1.TabIndex = 0;
+            this.dsSP1.FileLoaded += new System.EventHandler(this.ds_FileLoaded);
+            // 
+            // map16Editor1
+            // 
+            this.map16Editor1.Location = new System.Drawing.Point(6, 19);
+            this.map16Editor1.Name = "map16Editor1";
+            this.map16Editor1.PrintPage = true;
+            this.map16Editor1.Size = new System.Drawing.Size(278, 256);
+            this.map16Editor1.TabIndex = 0;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.nudY);
+            this.groupBox1.Controls.Add(this.nudX);
+            this.groupBox1.Controls.Add(this.spriteEditor1);
+            this.groupBox1.Controls.Add(this.rtbDesc);
+            this.groupBox1.Controls.Add(this.cmbGrid);
+            this.groupBox1.Controls.Add(this.label9);
+            this.groupBox1.Controls.Add(this.label6);
+            this.groupBox1.Controls.Add(this.label8);
+            this.groupBox1.Controls.Add(this.chbExtraBit);
+            this.groupBox1.Controls.Add(this.chbUseText);
+            this.groupBox1.Location = new System.Drawing.Point(8, 3);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(189, 411);
+            this.groupBox1.TabIndex = 7;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Lunar Magic Display";
+            // 
+            // nudY
+            // 
+            this.nudY.Location = new System.Drawing.Point(78, 226);
+            this.nudY.Maximum = new decimal(new int[] {
+            15,
+            0,
+            0,
+            0});
+            this.nudY.Name = "nudY";
+            this.nudY.Size = new System.Drawing.Size(35, 20);
+            this.nudY.TabIndex = 7;
+            // 
+            // nudX
+            // 
+            this.nudX.Location = new System.Drawing.Point(21, 226);
+            this.nudX.Maximum = new decimal(new int[] {
+            15,
+            0,
+            0,
+            0});
+            this.nudX.Name = "nudX";
+            this.nudX.Size = new System.Drawing.Size(35, 20);
+            this.nudX.TabIndex = 7;
+            // 
+            // spriteEditor1
+            // 
+            this.spriteEditor1.Location = new System.Drawing.Point(6, 19);
+            this.spriteEditor1.Name = "spriteEditor1";
+            this.spriteEditor1.Size = new System.Drawing.Size(176, 176);
+            this.spriteEditor1.TabIndex = 1;
+            // 
+            // rtbDesc
+            // 
+            this.rtbDesc.Location = new System.Drawing.Point(6, 265);
+            this.rtbDesc.Name = "rtbDesc";
+            this.rtbDesc.Size = new System.Drawing.Size(176, 140);
+            this.rtbDesc.TabIndex = 6;
+            this.rtbDesc.Text = "";
+            // 
+            // cmbGrid
+            // 
+            this.cmbGrid.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbGrid.FormattingEnabled = true;
+            this.cmbGrid.Location = new System.Drawing.Point(109, 201);
+            this.cmbGrid.Name = "cmbGrid";
+            this.cmbGrid.Size = new System.Drawing.Size(73, 21);
+            this.cmbGrid.TabIndex = 2;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(61, 228);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(17, 13);
+            this.label9.TabIndex = 5;
+            this.label9.Text = "Y:";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(1, 249);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(63, 13);
+            this.label6.TabIndex = 5;
+            this.label6.Text = "Description:";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(4, 228);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(17, 13);
+            this.label8.TabIndex = 5;
+            this.label8.Text = "X:";
+            // 
+            // chbExtraBit
+            // 
+            this.chbExtraBit.AutoSize = true;
+            this.chbExtraBit.Location = new System.Drawing.Point(118, 227);
+            this.chbExtraBit.Name = "chbExtraBit";
+            this.chbExtraBit.Size = new System.Drawing.Size(65, 17);
+            this.chbExtraBit.TabIndex = 3;
+            this.chbExtraBit.Text = "Extra Bit";
+            this.chbExtraBit.UseVisualStyleBackColor = true;
+            // 
+            // chbUseText
+            // 
+            this.chbUseText.AutoSize = true;
+            this.chbUseText.Location = new System.Drawing.Point(6, 203);
+            this.chbUseText.Name = "chbUseText";
+            this.chbUseText.Size = new System.Drawing.Size(69, 17);
+            this.chbUseText.TabIndex = 3;
+            this.chbUseText.Text = "Use Text";
+            this.chbUseText.UseVisualStyleBackColor = true;
+            // 
+            // tpgList
+            // 
+            this.tpgList.BackColor = System.Drawing.SystemColors.Control;
+            this.tpgList.Controls.Add(this.dataGridView2);
+            this.tpgList.Controls.Add(this.groupBox5);
+            this.tpgList.Location = new System.Drawing.Point(4, 22);
+            this.tpgList.Name = "tpgList";
+            this.tpgList.Size = new System.Drawing.Size(677, 422);
+            this.tpgList.TabIndex = 2;
+            this.tpgList.Text = "Custom List";
+            // 
+            // dataGridView2
+            // 
+            this.dataGridView2.AutoGenerateColumns = false;
+            this.dataGridView2.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dataGridView2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView2.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.dataGridViewTextBoxColumn1,
+            this.extraBitDataGridViewCheckBoxColumn1,
+            this.extraPropertyByte1DataGridViewTextBoxColumn,
+            this.extraPropertyByte2DataGridViewTextBoxColumn,
+            this.extraPropertyByte3DataGridViewTextBoxColumn,
+            this.extraPropertyByte4DataGridViewTextBoxColumn});
+            this.dataGridView2.DataSource = this.collectionSpriteBindingSource;
+            this.dataGridView2.Location = new System.Drawing.Point(8, 54);
+            this.dataGridView2.Name = "dataGridView2";
+            this.dataGridView2.Size = new System.Drawing.Size(661, 232);
+            this.dataGridView2.TabIndex = 10;
+            // 
+            // dataGridViewTextBoxColumn1
+            // 
+            this.dataGridViewTextBoxColumn1.DataPropertyName = "Name";
+            this.dataGridViewTextBoxColumn1.HeaderText = "Name";
+            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            // 
+            // extraBitDataGridViewCheckBoxColumn1
+            // 
+            this.extraBitDataGridViewCheckBoxColumn1.DataPropertyName = "ExtraBit";
+            this.extraBitDataGridViewCheckBoxColumn1.FillWeight = 50F;
+            this.extraBitDataGridViewCheckBoxColumn1.HeaderText = "Extra Bit";
+            this.extraBitDataGridViewCheckBoxColumn1.Name = "extraBitDataGridViewCheckBoxColumn1";
+            // 
+            // extraPropertyByte1DataGridViewTextBoxColumn
+            // 
+            this.extraPropertyByte1DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte1";
+            dataGridViewCellStyle1.Format = "X2";
+            this.extraPropertyByte1DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle1;
+            this.extraPropertyByte1DataGridViewTextBoxColumn.FillWeight = 50F;
+            this.extraPropertyByte1DataGridViewTextBoxColumn.HeaderText = "Extra 1";
+            this.extraPropertyByte1DataGridViewTextBoxColumn.Name = "extraPropertyByte1DataGridViewTextBoxColumn";
+            // 
+            // extraPropertyByte2DataGridViewTextBoxColumn
+            // 
+            this.extraPropertyByte2DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte2";
+            dataGridViewCellStyle2.Format = "X2";
+            this.extraPropertyByte2DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle2;
+            this.extraPropertyByte2DataGridViewTextBoxColumn.FillWeight = 50F;
+            this.extraPropertyByte2DataGridViewTextBoxColumn.HeaderText = "Extra 2";
+            this.extraPropertyByte2DataGridViewTextBoxColumn.Name = "extraPropertyByte2DataGridViewTextBoxColumn";
+            // 
+            // extraPropertyByte3DataGridViewTextBoxColumn
+            // 
+            this.extraPropertyByte3DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte3";
+            dataGridViewCellStyle3.Format = "X2";
+            this.extraPropertyByte3DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle3;
+            this.extraPropertyByte3DataGridViewTextBoxColumn.FillWeight = 50F;
+            this.extraPropertyByte3DataGridViewTextBoxColumn.HeaderText = "Extra 3";
+            this.extraPropertyByte3DataGridViewTextBoxColumn.Name = "extraPropertyByte3DataGridViewTextBoxColumn";
+            // 
+            // extraPropertyByte4DataGridViewTextBoxColumn
+            // 
+            this.extraPropertyByte4DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte4";
+            dataGridViewCellStyle4.Format = "X2";
+            this.extraPropertyByte4DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle4;
+            this.extraPropertyByte4DataGridViewTextBoxColumn.FillWeight = 50F;
+            this.extraPropertyByte4DataGridViewTextBoxColumn.HeaderText = "Extra 4";
+            this.extraPropertyByte4DataGridViewTextBoxColumn.Name = "extraPropertyByte4DataGridViewTextBoxColumn";
+            // 
+            // collectionSpriteBindingSource
+            // 
+            this.collectionSpriteBindingSource.DataSource = typeof(CFG.CollectionSprite);
+            // 
+            // groupBox5
+            // 
+            this.groupBox5.Controls.Add(this.lblName);
+            this.groupBox5.Controls.Add(this.chbListExtraBit);
+            this.groupBox5.Controls.Add(this.txtName);
+            this.groupBox5.Controls.Add(this.label13);
+            this.groupBox5.Controls.Add(this.txtExProp1);
+            this.groupBox5.Controls.Add(this.label12);
+            this.groupBox5.Controls.Add(this.txtExProp2);
+            this.groupBox5.Controls.Add(this.txtExProp4);
+            this.groupBox5.Controls.Add(this.label10);
+            this.groupBox5.Controls.Add(this.label11);
+            this.groupBox5.Controls.Add(this.txtExProp3);
+            this.groupBox5.Location = new System.Drawing.Point(8, 3);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(661, 45);
+            this.groupBox5.TabIndex = 9;
+            this.groupBox5.TabStop = false;
+            this.groupBox5.Text = "Collection";
+            // 
+            // lblName
+            // 
+            this.lblName.AutoSize = true;
+            this.lblName.Location = new System.Drawing.Point(6, 16);
+            this.lblName.Name = "lblName";
+            this.lblName.Size = new System.Drawing.Size(38, 13);
+            this.lblName.TabIndex = 7;
+            this.lblName.Text = "Name:";
+            // 
+            // chbListExtraBit
+            // 
+            this.chbListExtraBit.AutoSize = true;
+            this.chbListExtraBit.Location = new System.Drawing.Point(231, 15);
+            this.chbListExtraBit.Name = "chbListExtraBit";
+            this.chbListExtraBit.Size = new System.Drawing.Size(65, 17);
+            this.chbListExtraBit.TabIndex = 8;
+            this.chbListExtraBit.Text = "Extra Bit";
+            this.chbListExtraBit.UseVisualStyleBackColor = true;
+            // 
+            // txtName
+            // 
+            this.txtName.Location = new System.Drawing.Point(50, 13);
+            this.txtName.Name = "txtName";
+            this.txtName.Size = new System.Drawing.Size(175, 20);
+            this.txtName.TabIndex = 6;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(575, 16);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(55, 13);
+            this.label13.TabIndex = 7;
+            this.label13.Text = "Ex Byte 4:";
+            // 
+            // txtExProp1
+            // 
+            this.txtExProp1.Location = new System.Drawing.Point(358, 13);
+            this.txtExProp1.MaxLength = 2;
+            this.txtExProp1.Name = "txtExProp1";
+            this.txtExProp1.Size = new System.Drawing.Size(24, 20);
+            this.txtExProp1.TabIndex = 6;
+            this.txtExProp1.Text = "FF";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(484, 16);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(55, 13);
+            this.label12.TabIndex = 7;
+            this.label12.Text = "Ex Byte 3:";
+            // 
+            // txtExProp2
+            // 
+            this.txtExProp2.Location = new System.Drawing.Point(448, 13);
+            this.txtExProp2.MaxLength = 2;
+            this.txtExProp2.Name = "txtExProp2";
+            this.txtExProp2.Size = new System.Drawing.Size(24, 20);
+            this.txtExProp2.TabIndex = 6;
+            this.txtExProp2.Text = "FF";
+            // 
+            // txtExProp4
+            // 
+            this.txtExProp4.Location = new System.Drawing.Point(631, 13);
+            this.txtExProp4.MaxLength = 2;
+            this.txtExProp4.Name = "txtExProp4";
+            this.txtExProp4.Size = new System.Drawing.Size(24, 20);
+            this.txtExProp4.TabIndex = 6;
+            this.txtExProp4.Text = "FF";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(302, 16);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(55, 13);
+            this.label10.TabIndex = 7;
+            this.label10.Text = "Ex Byte 1:";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(393, 16);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(55, 13);
+            this.label11.TabIndex = 7;
+            this.label11.Text = "Ex Byte 2:";
+            // 
+            // txtExProp3
+            // 
+            this.txtExProp3.Location = new System.Drawing.Point(540, 13);
+            this.txtExProp3.MaxLength = 2;
+            this.txtExProp3.Name = "txtExProp3";
+            this.txtExProp3.Size = new System.Drawing.Size(24, 20);
+            this.txtExProp3.TabIndex = 6;
+            this.txtExProp3.Text = "FF";
             // 
             // CFG_Editor
             // 
@@ -1080,6 +1735,8 @@
             this.menuStrip1.PerformLayout();
             this.tpgDefault.ResumeLayout(false);
             this.tpgDefault.PerformLayout();
+            this.grpActLike.ResumeLayout(false);
+            this.grpActLike.PerformLayout();
             this.grpExtraByteCount.ResumeLayout(false);
             this.grpExtraByteCount.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudExtra)).EndInit();
@@ -1106,8 +1763,23 @@
             this.grp_190F.ResumeLayout(false);
             this.grp_190F.PerformLayout();
             this.tabControl1.ResumeLayout(false);
-            this.grpActLike.ResumeLayout(false);
-            this.grpActLike.PerformLayout();
+            this.tpgLm.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.displaySpriteBindingSource)).EndInit();
+            this.groupBox3.ResumeLayout(false);
+            this.pnlEdit.ResumeLayout(false);
+            this.pnlEdit.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudX)).EndInit();
+            this.tpgList.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.collectionSpriteBindingSource)).EndInit();
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1201,6 +1873,66 @@
         private System.Windows.Forms.CheckBox chb_190F_01;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.GroupBox grpActLike;
+        private System.Windows.Forms.TabPage tpgLm;
+        private Map16Editor map16Editor1;
+        private Map16.SpriteEditor spriteEditor1;
+        private System.Windows.Forms.ComboBox cmbGrid;
+        private System.Windows.Forms.CheckBox chbUseText;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.RichTextBox rtbDesc;
+        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn nameDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn extraBitDataGridViewCheckBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn xDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn yDataGridViewTextBoxColumn;
+        private System.Windows.Forms.BindingSource displaySpriteBindingSource;
+        private System.Windows.Forms.NumericUpDown nudX;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.CheckBox chbExtraBit;
+        private System.Windows.Forms.NumericUpDown nudY;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private Map16.FileSelector dsSP4;
+        private Map16.FileSelector dsSP3;
+        private Map16.FileSelector dsSP2;
+        private Map16.FileSelector dsSP1;
+        private System.Windows.Forms.Panel pnlEdit;
+        private System.Windows.Forms.Button btnX;
+        private System.Windows.Forms.Button btnY;
+        private System.Windows.Forms.TextBox txtTopLeft;
+        private System.Windows.Forms.TextBox txtTopRight;
+        private System.Windows.Forms.ComboBox cmbPalette;
+        private System.Windows.Forms.TextBox txtBottomLeft;
+        private System.Windows.Forms.TextBox txtBottomRight;
+        private System.Windows.Forms.ComboBox cmbTilesets;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.TabPage tpgList;
+        private System.Windows.Forms.Label lblName;
+        private System.Windows.Forms.TextBox txtName;
+        private System.Windows.Forms.CheckBox chbListExtraBit;
+        private System.Windows.Forms.GroupBox groupBox5;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.TextBox txtExProp1;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.TextBox txtExProp2;
+        private System.Windows.Forms.TextBox txtExProp4;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox txtExProp3;
+        private System.Windows.Forms.DataGridView dataGridView2;
+        private System.Windows.Forms.BindingSource collectionSpriteBindingSource;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn extraBitDataGridViewCheckBoxColumn1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte1DataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte2DataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte3DataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte4DataGridViewTextBoxColumn;
+        private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem loadCustomM16ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem loadCustomGFX33ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
     }
 }
 

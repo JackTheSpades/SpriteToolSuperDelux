@@ -1,18 +1,116 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 
 namespace CFG
 {
     public static class ControlExtension
     {
+
+        public static bool GetBit(this byte b, int bit)
+        {
+            return (b & (1 << bit)) != 0;
+        }
+        public static byte SetBit(this byte b, int bit, bool set)
+        {
+            if (set)
+                return (byte)(b | (1 << bit));
+            return (byte)(b & ((1 << bit) ^ 0xFF));
+        }
+
+        /// <summary>
+        /// Sets a number of bits based on an integer value
+        /// </summary>
+        /// <param name="b">The byte who's bits are to be set</param>
+        /// <param name="value">The value the bits should be set to</param>
+        /// <param name="bitsToSet">How many bits should be set based on the value</param>
+        /// <param name="lsb">Which is the least bit to be affected.</param>
+        /// <returns></returns>
+        public static byte SetBits(this byte b, int value, int bitsToSet, int lsb)
+        {
+            byte b2 = b;
+            for (int i = 0; i < bitsToSet && i < 8; i++)
+                b2 = b2.SetBit(lsb + i, (value & (0x01 << i)) != 0);
+            return b2;
+        }
+
+        /// <summary>
+        /// Gets a number of bits from a byte as an integer
+        /// </summary>
+        /// <param name="b">The byte who's bits should be interpreted</param>
+        /// <param name="bitsToGet">How many bits should be get</param>
+        /// <param name="lsb">Which is the first bit of the 8 to be fetched.</param>
+        /// <returns></returns>
+        public static int GetBits(this byte b, int bitsToGet, int lsb)
+        {
+            int and = (1 << bitsToGet) - 1;
+            return (b & (and << lsb)) >> lsb;
+        }
+
+
+
+
+        public static void ForEach<T>(this IEnumerable<T> list, Action<T> action)
+        {
+            foreach (T t in list)
+                action(t);
+        }
+        public static void ForEach<T>(this IEnumerable<T> list, Action<T, int> action)
+        {
+            int i = 0;
+            foreach (T t in list)
+                action(t, i++);
+        }
+        public static TRet GetAll<T, TRet>(this IEnumerable<T> list, Func<T, TRet> get, TRet fallback, IEqualityComparer<TRet> comp = null)
+        {
+            if (comp == null)
+                comp = EqualityComparer<TRet>.Default;
+
+            bool first = true;
+            TRet prev = default(TRet);
+            foreach(T t in list)
+            {
+                TRet ret = get(t);
+                if(!first && comp.Equals(ret, prev))
+                {
+                    return fallback;
+                }
+                prev = ret;
+                first = false;
+            }
+            return prev;
+        }
+
         public static void SetControllsEnabled(this IEnumerable<Control> controlls, bool enabled)
         {
             foreach (var control in controlls)
                 control.Enabled = enabled;
+        }
+
+        
+        /// <summary>
+        /// Sets the background image of a control to a gradient.
+        /// </summary>
+        /// <param name="control">The PictureBox which's background image should be set</param>
+        /// <param name="end">The bottom color of the gradient</param>
+        /// <param name="start">The top color of the gradient</param>
+        public static void SetBackgroundGradient(this Control control, Color end, Color start)
+        {
+            Bitmap bm = new Bitmap(control.Width, control.Height);
+            using (Graphics g = Graphics.FromImage(bm))
+            {
+                Rectangle rec = new Rectangle(0, 0, bm.Width, bm.Height);
+                using (LinearGradientBrush lgd = new LinearGradientBrush(rec, start, end, 90))
+                    g.FillRectangle(lgd, rec);
+            }
+            control.BackgroundImage = bm;
         }
 
         public static Binding BitsBind<TCon, TObj, TOProp>(

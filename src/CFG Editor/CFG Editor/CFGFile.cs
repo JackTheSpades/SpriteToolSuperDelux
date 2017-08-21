@@ -107,6 +107,15 @@ namespace CFG
 			set { SetPropertyValue(ref _exbyteCount, value); }
 		}
 
+        public BindingList<CollectionSprite> CollectionEntries { get; set; } = new BindingList<CollectionSprite>();
+        public BindingList<Map16.DisplaySprite> DisplayEntries { get; set; } = new BindingList<Map16.DisplaySprite>();
+        private byte[] _CustomMap16Data = new byte[0];
+        public byte[] CustomMap16Data
+        {
+            get { return _CustomMap16Data; }
+            set { SetPropertyValue(ref _CustomMap16Data, value); }
+        }
+
         #endregion
 
         #region Not Used ATM
@@ -230,6 +239,19 @@ namespace CFG
                 ByteCount = Math.Min(count[0], (byte)4);
                 ExByteCount = Math.Min(count[1], (byte)4);
             }, () => { ByteCount = ExByteCount = 0; });
+
+            int linecount = 0;
+            TrySet(lines, 6, str => linecount = Convert.ToInt32(linecount), () => linecount = 0);
+            for(int i = 0; i < linecount; i++)
+            {
+                bool brk = false;
+                TrySet(lines, 7 + i, str => CollectionEntries.Add(new CollectionSprite(str)), () => brk = true);
+                if (brk) break;
+            }
+
+            if (CollectionEntries.Count == 0)
+                CollectionEntries.Add(new CollectionSprite() { Name = System.IO.Path.GetFileNameWithoutExtension(AsmFile) });
+
         }
 
         /// <summary>
@@ -272,6 +294,11 @@ namespace CFG
             sb.AppendLine(string.Format("{0:X2} {1:X2}", ExProp1, ExProp2));
             sb.AppendLine(AsmFile);
             sb.AppendLine(string.Format("{0:X2}:{1:X2}", ByteCount, ExByteCount));
+
+            sb.AppendLine(CollectionEntries.Count.ToString());
+            foreach (var col in CollectionEntries)
+                sb.AppendLine(col.ToString());
+
             return sb.ToString().TrimEnd('\r', '\n');
         }
 
@@ -291,6 +318,9 @@ namespace CFG
                 else if(prop.PropertyType.Equals(typeof(string)))
                     prop.SetValue(this, "");
             }
+
+            CollectionEntries.Clear();
+            CustomMap16Data = new byte[0];
         }
         
 		protected void SetPropertyValue<T>(ref T priv, T val, [CallerMemberName] string caller = "")

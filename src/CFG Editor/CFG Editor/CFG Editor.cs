@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CFG.Map16;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -20,6 +21,20 @@ namespace CFG
     {
         CfgFile,
         RomFile,
+    }
+
+    public enum GridSize
+    {
+        [Description("1x1")]
+        Size1x1 = 1,
+        [Description("2x2")]
+        Size2x2 = 2,
+        [Description("4x4")]
+        Size4x4 = 4,
+        [Description("8x8")]
+        Size8x8 = 8,
+        [Description("16x16")]
+        Size16x16 = 16,
     }
 
 	public partial class CFG_Editor : Form
@@ -75,6 +90,10 @@ namespace CFG
         BindingList<ComboBoxItem> types_list = new BindingList<ComboBoxItem>();
         BindingList<ComboBoxItem> sprites_list = new BindingList<ComboBoxItem>();
 
+        public DisplaySprite SelectedSprite { get; set; }
+        Map16Resources resources = new Map16.Map16Resources();
+        public IMap16Object SelectedMap16Object { get; set; } = new Map16Empty(16);
+
         /// <summary>
         /// List of all controlls that will be disabled when the Type is 0 or when in Rom editing mdoe.
         /// </summary>
@@ -87,6 +106,8 @@ namespace CFG
 		public CFG_Editor(string[] args)
 		{
             InitializeComponent();
+
+            #region Default Tab
 
             disabled_controlls = new List<Control>()
             {
@@ -158,7 +179,120 @@ namespace CFG
 				sprPal[i] = b;
 			}
 
-			if (args.Length == 0)
+            #endregion
+            
+            List<byte> gfx = new List<byte>();
+            gfx.AddRange(Enumerable.Repeat<byte>(0, 0x4000));
+            gfx.AddRange(GetGfxArray(0x33, 0x3000));
+            gfx.AddRange(Enumerable.Repeat<byte>(0, 0x800));
+
+            resources.Graphics = new Map16.SnesGraphics(gfx.ToArray());
+
+
+            cmbTilesets.Items.AddRange(new[]
+            {
+                new SpriteTileset(0x13, 0x02, "Forest"),
+                new SpriteTileset(0x12, 0x03, "Castle"),
+                new SpriteTileset(0x13, 0x05, "Mushroom"),
+                new SpriteTileset(0x13, 0x04, "Underground"),
+                new SpriteTileset(0x13, 0x06, "Water"),
+                new SpriteTileset(0x13, 0x09, "Pokey"),
+                new SpriteTileset(0x06, 0x11, "Ghost House"),
+                new SpriteTileset(0x13, 0x20, "Banzai Bill"),
+                new SpriteTileset(0x1C, 0x1D, "Overworld") { Sp1 = 0x10, Sp2 = 0x0F },
+            });
+            cmbTilesets.SelectedIndexChanged += (_, __) =>
+            {
+                var tileset = (SpriteTileset)cmbTilesets.SelectedItem;
+                SetDataSelectorGfx(dsSP1, tileset.Sp1);
+                SetDataSelectorGfx(dsSP2, tileset.Sp2);
+                SetDataSelectorGfx(dsSP3, tileset.Sp3);
+                SetDataSelectorGfx(dsSP4, tileset.Sp4);
+            };
+            dsSP1.Tag = 0x0000;
+            dsSP2.Tag = 0x1000;
+            dsSP3.Tag = 0x2000;
+            dsSP4.Tag = 0x3000;
+            cmbTilesets.SelectedIndex = 0;
+
+
+
+
+
+
+            SelectedSprite = new DisplaySprite();
+            SelectedSprite.Description = "A green bouncing parakoopa. It will jump high (7 tiles up) or low (2 tiles up) depending on its Y position. It's currently set to jump low.";
+            SelectedSprite.Tiles = new BindingList<Tile>()
+            {
+                new Tile(0, -16, 0x10),
+                new Tile(0, 0, 0x140),
+                new Tile(2, -14, 8),
+            };
+
+
+
+            foreach (GridSize gridSize in Enum.GetValues(typeof(GridSize)).Cast<GridSize>().Reverse())
+                cmbGrid.Items.Add(new ComboBoxItem(gridSize.GetName(), (int)gridSize));
+            cmbGrid.SelectedIndex = 0;
+            cmbGrid.SelectedIndexChanged += (_, __) => spriteEditor1.GridSize = ((ComboBoxItem)cmbGrid.SelectedItem).Value;
+
+            displaySpriteBindingSource.DataSource = Data;
+            displaySpriteBindingSource.DataMember = nameof(CFGFile.DisplayEntries);
+
+            rtbDesc.DataBindings.Add(nameof(RichTextBox.Text), displaySpriteBindingSource, $"{nameof(BindingSource.Current)}.{nameof(DisplaySprite.Description)}");
+            nudX.DataBindings.Add(nameof(NumericUpDown.Value), displaySpriteBindingSource, $"{nameof(BindingSource.Current)}.{nameof(DisplaySprite.X)}");
+            nudY.DataBindings.Add(nameof(NumericUpDown.Value), displaySpriteBindingSource, $"{nameof(BindingSource.Current)}.{nameof(DisplaySprite.Y)}");
+            chbExtraBit.DataBindings.Add(nameof(CheckBox.Checked), displaySpriteBindingSource, $"{nameof(BindingSource.Current)}.{nameof(DisplaySprite.ExtraBit)}");
+            chbUseText.DataBindings.Add(nameof(CheckBox.Checked), displaySpriteBindingSource, $"{nameof(BindingSource.Current)}.{nameof(DisplaySprite.UseText)}");
+
+
+
+            byte[] paldata = CFG.Properties.Resources.sprite;
+            Color[][] palette = new Color[8][];
+            for (int row = 0; row < 8; row++)
+            {
+                palette[row] = new Color[16];
+                palette[row][0] = Color.Transparent;
+                for (int col = 1; col < 8; col++)
+                {
+                    palette[row][col] = Color.FromArgb(
+                        paldata[row * 8 * 3 + col * 3 + 0],
+                        paldata[row * 8 * 3 + col * 3 + 1],
+                        paldata[row * 8 * 3 + col * 3 + 2]
+                        );
+                }
+                for (int col = 8; col < 16; col++)
+                    palette[row][col] = Color.Black;
+            }
+
+            resources.Palette = palette;
+
+            byte[] map16data = new byte[0x2000];
+            Array.Copy(CFG.Properties.Resources.m16Page1_3, map16data, 0x1800);
+
+            map16Editor1.Initialize(map16data, resources);
+            txtTopLeft.Bind(map16Editor1, c => c.Text, e => e.SelectedObject.TopLeft, i => i.ToString("X2"), StringToInt);
+            txtTopRight.Bind(map16Editor1, c => c.Text, e => e.SelectedObject.TopRight, i => i.ToString("X2"), StringToInt);
+            txtBottomLeft.Bind(map16Editor1, c => c.Text, e => e.SelectedObject.BottomLeft, i => i.ToString("X2"), StringToInt);
+            txtBottomRight.Bind(map16Editor1, c => c.Text, e => e.SelectedObject.BottomRight, i => i.ToString("X2"), StringToInt);
+            cmbPalette.Bind(map16Editor1, c => c.SelectedIndex, e => e.SelectedObject.Palette);
+            btnX.Click += (_, __) => map16Editor1.SelectedObject.FlipX();
+            btnY.Click += (_, __) => map16Editor1.SelectedObject.FlipY();
+
+            map16Editor1.SelectionChanged += (_, e) => pnlEdit.Enabled = e.Tile >= 0x300;
+            Data.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(Data.CustomMap16Data))
+                    map16Editor1.Map.ChangeData(Data.CustomMap16Data, 0x300);
+            };
+
+            spriteEditor1.Map16Editor = map16Editor1;
+            spriteEditor1.Sprite = SelectedSprite;
+
+            collectionSpriteBindingSource.DataSource = Data;
+            collectionSpriteBindingSource.DataMember = nameof(Data.CollectionEntries);
+
+            if (args.Length == 0)
 				cmb_1656_0F.SelectedIndex = cmb_1662_3F.SelectedIndex = cmb_166E_0E.SelectedIndex = 0;
 			else if (File.Exists(args[0]))
 			{
@@ -214,7 +348,25 @@ namespace CFG
                 return 0;
             }
         }
-        
+        /// <summary>
+        /// Helper method for data binding. Converts a hex-string to int. An empty string will be parsed as 0.
+        /// </summary>
+        /// <param name="str">The string containing two digits to be parsed</param>
+        /// <returns></returns>
+        private int StringToInt(string str)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(str))
+                    return 0;
+                return Convert.ToInt32(str, 16);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
         /// <summary>
         /// Creats a new image based on the passed on with the given size, but the same ratio.
         /// </summary>
@@ -286,6 +438,32 @@ namespace CFG
 				ch.BitBind(file, c => c.Checked, expr, i).DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
 			}
 		}
+
+        private void SetDataSelectorGfx(FileSelector ds, int id)
+        {
+            string display = $"GFX{id.ToString("X2")}";
+
+            if (ds.TextDisplay == display)
+                return;
+
+            ds.TextDisplay = display;
+            ds.DataLoadHandler = () => GetGfxArray(id);
+            ds_FileLoaded(ds, null);
+        }
+
+        private byte[] GetGfxArray(int id, int size = 0x1000)
+        {
+            byte[] ret = new byte[size];
+            try
+            {
+                using (Stream str = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("CFG.Resources.Graphics.GFX" + id.ToString("X2") + ".bin"))
+                {
+                    str.Read(ret, 0, ret.Length);
+                }
+            }
+            catch { }
+            return ret;
+        }
 
         #endregion
         
@@ -478,9 +656,30 @@ namespace CFG
                 }
             }
 		}
-		#endregion
+        #endregion
+
+        private void ds_FileLoaded(object sender, EventArgs e)
+        {
+            var fs = ((FileSelector)sender);
+
+            int offset = (int)fs.Tag;
+            resources.Graphics.ChangeData(fs.Data, offset);
+        }
+
+        private void btnX_Click(object sender, EventArgs e)
+        {
+            map16Editor1.SelectedObject.FlipX();
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            var im = Image.FromStream(null, false, false);
+
+            var p = new Editors.PaletteEditorForm(resources);
+            p.ShowDialog();
+        }
     }
-    
+
     public class ComboBoxItem
     {
         public string Name { get; set; }
@@ -491,5 +690,39 @@ namespace CFG
             Value = value;
         }
         public override string ToString() => Name;
+
+        public override int GetHashCode() => Value;
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;
+            ComboBoxItem item = obj as ComboBoxItem;
+            if (ReferenceEquals(item, null))
+                return false;
+            return this.Value == item.Value;
+        }
+
+        public static ComboBoxItem Reference(int value) => new ComboBoxItem("", value);
+    }
+
+    public class SpriteTileset
+    {
+        public string Name { get; set; }
+        public int Sp1 { get; set; } = 0;
+        public int Sp2 { get; set; } = 1;
+        public int Sp3 { get; set; }
+        public int Sp4 { get; set; }
+
+        public SpriteTileset(int sp3, int sp4, string name)
+        {
+            Sp3 = sp3;
+            Sp4 = sp4;
+            Name = name;
+        }
+
+        public override string ToString()
+        {
+            return $"{Sp1.ToString("X2")} {Sp2.ToString("X2")} {Sp3.ToString("X2")} {Sp4.ToString("X2")} ({Name})";
+        }
     }
 }
