@@ -6,42 +6,36 @@
 ;
 ;Output: $09 = Y displacement (16 bit)
 
-	PHX
-if !SA1 == 1
-	LDA #$00
-	STA $2250
-endif
-	LDA $05 : LSR
-	LDX $04
-	LDA.l .sincostable,x
+	phx
+	lda $05 : lsr
+	ldx $04
+	lda.l .sincostable,x
 if !SA1 == 0
-	STA $211B
-	STZ $211B
+	sta $211B
+	stz $211B
+	lda $06
+	sta $211C
+	rep #$20
+	lda $2135
 else
-	STA $2251
-	STZ $2252
+	stz $2250
+	sta $2251
+	stz $2252
+	lda $06
+	sta $2253
+	stz $2254
+	nop 
+	bra $00
+	rep #$20
+	lda $2307
 endif
-	LDA $06
-if !SA1 == 0
-	STA $211C
-	LDA $2135
-else
-	STA $2253
-	STZ $2254
-	NOP
-	LDA $2307
-endif
-	BCC +
-	EOR #$FF : INC A
-+
-	STA $09
-	LDX #$00
-	BIT $09
-	BPL +
-	DEX
-+	STX $0A	
-	PLX	
-	RTL
+	bcc +
+	eor #$FFFF : inc
++	
+	sta $09
+	sep #$20
+	plx
+	rtl
 
 
 .sincostable:
