@@ -180,13 +180,37 @@ namespace CFG
 			}
 
             #endregion
-            
+
+            #region map16 resources
+
             List<byte> gfx = new List<byte>();
             gfx.AddRange(Enumerable.Repeat<byte>(0, 0x4000));
             gfx.AddRange(GetGfxArray(0x33, 0x3000));
             gfx.AddRange(Enumerable.Repeat<byte>(0, 0x800));
 
             resources.Graphics = new Map16.SnesGraphics(gfx.ToArray());
+
+            byte[] paldata = CFG.Properties.Resources.sprite;
+            Color[][] palette = new Color[8][];
+            for (int row = 0; row < 8; row++)
+            {
+                palette[row] = new Color[16];
+                palette[row][0] = Color.Transparent;
+                for (int col = 1; col < 8; col++)
+                {
+                    palette[row][col] = Color.FromArgb(
+                        paldata[row * 8 * 3 + col * 3 + 0],
+                        paldata[row * 8 * 3 + col * 3 + 1],
+                        paldata[row * 8 * 3 + col * 3 + 2]
+                        );
+                }
+                for (int col = 8; col < 16; col++)
+                    palette[row][col] = Color.Black;
+            }
+
+            resources.Palette = palette;
+
+            #endregion
 
 
             cmbTilesets.Items.AddRange(new[]
@@ -216,6 +240,10 @@ namespace CFG
             cmbTilesets.SelectedIndex = 0;
 
 
+            foreach (GridSize gridSize in Enum.GetValues(typeof(GridSize)).Cast<GridSize>().Reverse())
+                cmbGrid.Items.Add(new ComboBoxItem(gridSize.GetName(), (int)gridSize));
+            cmbGrid.SelectedIndex = 0;
+            cmbGrid.SelectedIndexChanged += (_, __) => spriteEditor1.GridSize = ((ComboBoxItem)cmbGrid.SelectedItem).Value;
 
 
 
@@ -231,10 +259,6 @@ namespace CFG
 
 
 
-            foreach (GridSize gridSize in Enum.GetValues(typeof(GridSize)).Cast<GridSize>().Reverse())
-                cmbGrid.Items.Add(new ComboBoxItem(gridSize.GetName(), (int)gridSize));
-            cmbGrid.SelectedIndex = 0;
-            cmbGrid.SelectedIndexChanged += (_, __) => spriteEditor1.GridSize = ((ComboBoxItem)cmbGrid.SelectedItem).Value;
 
             displaySpriteBindingSource.DataSource = Data;
             displaySpriteBindingSource.DataMember = nameof(CFGFile.DisplayEntries);
@@ -247,25 +271,6 @@ namespace CFG
 
 
 
-            byte[] paldata = CFG.Properties.Resources.sprite;
-            Color[][] palette = new Color[8][];
-            for (int row = 0; row < 8; row++)
-            {
-                palette[row] = new Color[16];
-                palette[row][0] = Color.Transparent;
-                for (int col = 1; col < 8; col++)
-                {
-                    palette[row][col] = Color.FromArgb(
-                        paldata[row * 8 * 3 + col * 3 + 0],
-                        paldata[row * 8 * 3 + col * 3 + 1],
-                        paldata[row * 8 * 3 + col * 3 + 2]
-                        );
-                }
-                for (int col = 8; col < 16; col++)
-                    palette[row][col] = Color.Black;
-            }
-
-            resources.Palette = palette;
 
             byte[] map16data = new byte[0x2000];
             Array.Copy(CFG.Properties.Resources.m16Page1_3, map16data, 0x1800);
@@ -290,7 +295,7 @@ namespace CFG
             spriteEditor1.Sprite = SelectedSprite;
 
             collectionSpriteBindingSource.DataSource = Data;
-            collectionSpriteBindingSource.DataMember = nameof(Data.CollectionEntries);
+            collectionSpriteBindingSource.DataMember = nameof(CFGFile.CollectionEntries);
 
             if (args.Length == 0)
 				cmb_1656_0F.SelectedIndex = cmb_1662_3F.SelectedIndex = cmb_166E_0E.SelectedIndex = 0;
