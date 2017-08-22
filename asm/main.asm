@@ -62,6 +62,11 @@ org $01C089
 	NOP
 	NOP
 	STA !187B,x
+
+; RPG Hacker: Fixes a soft-lock related to shooters by replacing a
+; a JSR with a JMP (solution proposed by MarioFanGamer)
+org $02A8D8
+	JMP $AB78
 	
 ;hammer bro init pointer to null
 org $0182B3
