@@ -1,11 +1,21 @@
 import os
 import zipfile
+import re
 
-def zipdir(path, ziph):
+def isExcludeFile(path, excludes):
+    if excludes is None:
+        return False
+    for item in excludes:
+        if re.search(item, path):
+           return True
+    return False
+
+def zipdir(path, ziph, excludes=None):
    # ziph is zipfile handle
    for root, dirs, files in os.walk(path):
       for file in files:
-         ziph.write(os.path.join(root, file))
+         if False == isExcludeFile(os.path.join(root, file), excludes):
+            ziph.write(os.path.join(root, file))
 
 def asm(path):
    return os.path.join('asm', path);
@@ -15,9 +25,19 @@ if os.path.exists('src.zip'):
 if os.path.exists('pixi.zip'):
    os.remove('pixi.zip')
    
-   
+# *** This is the file list that excludes from src.zip 
+src_excludes = [
+        r"src/CFG Editor/.vs/.*",
+        r"src/CFG Editor/.*/bin/.*",
+        r"src/CFG Editor/.*/obj/.*",
+        r".*\.gitignore\Z",
+        r".*\.smc\Z",
+        r".*\.suo\Z",
+        r".*\.user\Z"
+        ]
+
 with zipfile.ZipFile('src.zip', 'w') as srczip:
-   zipdir('src', srczip)
+   zipdir('src', srczip, src_excludes)
    srczip.write('make.bat')
    srczip.write('make_debug.bat')
 print("src.zip created")
