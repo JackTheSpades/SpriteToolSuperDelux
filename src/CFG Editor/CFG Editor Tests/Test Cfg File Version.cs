@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using CFG;
+using CFG.Map16;
 
 namespace CFG_Editor_Tests
 {
@@ -40,6 +41,19 @@ namespace CFG_Editor_Tests
         {
             Assert.AreEqual<byte>(0x00, data.ByteCount, nameof(CFGFile.ByteCount));
             Assert.AreEqual<byte>(0x00, data.ExByteCount, nameof(CFGFile.ExByteCount));
+        }
+
+        /// <summary>
+        /// Asserts that fields that were added in Version 1.1 or later remained clear on older loadings.
+        /// Custom map16 data ought to be empty, Display sprites only contain default sprite and the collection is empty.
+        /// </summary>
+        /// <param name="data"></param>
+        public void AssertVersion_1_2(CFGFile data)
+        {
+            Assert.AreEqual(0, data.CustomMap16Data.Length, nameof(CFGFile.CustomMap16Data));
+            Assert.AreEqual(1, data.DisplayEntries.Count, nameof(CFGFile.CustomMap16Data));
+
+            Assert.AreEqual(DisplaySprite.Default, data.DisplayEntries[0], "Default Display Sprite");
         }
     }
 }

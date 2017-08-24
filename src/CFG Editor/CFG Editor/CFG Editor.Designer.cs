@@ -126,7 +126,10 @@
             this.chb_190F_01 = new System.Windows.Forms.CheckBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tpgLm = new System.Windows.Forms.TabPage();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.btnDisplayDelete = new System.Windows.Forms.Button();
+            this.btnDisplayClone = new System.Windows.Forms.Button();
+            this.btnDisplayNew = new System.Windows.Forms.Button();
+            this.dgvDisplay = new System.Windows.Forms.DataGridView();
             this.extraBitDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.xDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.yDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -160,7 +163,7 @@
             this.chbExtraBit = new System.Windows.Forms.CheckBox();
             this.chbUseText = new System.Windows.Forms.CheckBox();
             this.tpgList = new System.Windows.Forms.TabPage();
-            this.dataGridView2 = new System.Windows.Forms.DataGridView();
+            this.dgvList = new System.Windows.Forms.DataGridView();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.extraBitDataGridViewCheckBoxColumn1 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.extraPropertyByte1DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -171,15 +174,15 @@
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.lblName = new System.Windows.Forms.Label();
             this.chbListExtraBit = new System.Windows.Forms.CheckBox();
-            this.txtName = new System.Windows.Forms.TextBox();
+            this.txtListName = new System.Windows.Forms.TextBox();
             this.label13 = new System.Windows.Forms.Label();
-            this.txtExProp1 = new System.Windows.Forms.TextBox();
+            this.txtListExProp1 = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
-            this.txtExProp2 = new System.Windows.Forms.TextBox();
-            this.txtExProp4 = new System.Windows.Forms.TextBox();
+            this.txtListExProp2 = new System.Windows.Forms.TextBox();
+            this.txtListExProp4 = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
-            this.txtExProp3 = new System.Windows.Forms.TextBox();
+            this.txtListExProp3 = new System.Windows.Forms.TextBox();
             this.menuStrip1.SuspendLayout();
             this.tpgDefault.SuspendLayout();
             this.grpActLike.SuspendLayout();
@@ -201,7 +204,7 @@
             this.grp_190F.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tpgLm.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvDisplay)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.displaySpriteBindingSource)).BeginInit();
             this.groupBox3.SuspendLayout();
             this.pnlEdit.SuspendLayout();
@@ -211,7 +214,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudX)).BeginInit();
             this.tpgList.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvList)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.collectionSpriteBindingSource)).BeginInit();
             this.groupBox5.SuspendLayout();
             this.SuspendLayout();
@@ -1176,7 +1179,10 @@
             // tpgLm
             // 
             this.tpgLm.BackColor = System.Drawing.SystemColors.Control;
-            this.tpgLm.Controls.Add(this.dataGridView1);
+            this.tpgLm.Controls.Add(this.btnDisplayDelete);
+            this.tpgLm.Controls.Add(this.btnDisplayClone);
+            this.tpgLm.Controls.Add(this.btnDisplayNew);
+            this.tpgLm.Controls.Add(this.dgvDisplay);
             this.tpgLm.Controls.Add(this.groupBox3);
             this.tpgLm.Controls.Add(this.groupBox1);
             this.tpgLm.Location = new System.Drawing.Point(4, 22);
@@ -1185,21 +1191,55 @@
             this.tpgLm.TabIndex = 1;
             this.tpgLm.Text = "Lunar Magic";
             // 
-            // dataGridView1
+            // btnDisplayDelete
             // 
-            this.dataGridView1.AutoGenerateColumns = false;
-            this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.btnDisplayDelete.Enabled = false;
+            this.btnDisplayDelete.Location = new System.Drawing.Point(596, 356);
+            this.btnDisplayDelete.Name = "btnDisplayDelete";
+            this.btnDisplayDelete.Size = new System.Drawing.Size(72, 23);
+            this.btnDisplayDelete.TabIndex = 18;
+            this.btnDisplayDelete.Text = "Remove";
+            this.btnDisplayDelete.UseVisualStyleBackColor = true;
+            // 
+            // btnDisplayClone
+            // 
+            this.btnDisplayClone.Location = new System.Drawing.Point(596, 327);
+            this.btnDisplayClone.Name = "btnDisplayClone";
+            this.btnDisplayClone.Size = new System.Drawing.Size(72, 23);
+            this.btnDisplayClone.TabIndex = 18;
+            this.btnDisplayClone.Text = "Clone";
+            this.btnDisplayClone.UseVisualStyleBackColor = true;
+            // 
+            // btnDisplayNew
+            // 
+            this.btnDisplayNew.Location = new System.Drawing.Point(596, 298);
+            this.btnDisplayNew.Name = "btnDisplayNew";
+            this.btnDisplayNew.Size = new System.Drawing.Size(72, 23);
+            this.btnDisplayNew.TabIndex = 18;
+            this.btnDisplayNew.Text = "New";
+            this.btnDisplayNew.UseVisualStyleBackColor = true;
+            // 
+            // dgvDisplay
+            // 
+            this.dgvDisplay.AllowUserToAddRows = false;
+            this.dgvDisplay.AllowUserToDeleteRows = false;
+            this.dgvDisplay.AllowUserToResizeRows = false;
+            this.dgvDisplay.AutoGenerateColumns = false;
+            this.dgvDisplay.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvDisplay.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvDisplay.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.extraBitDataGridViewCheckBoxColumn,
             this.xDataGridViewTextBoxColumn,
             this.yDataGridViewTextBoxColumn});
-            this.dataGridView1.DataSource = this.displaySpriteBindingSource;
-            this.dataGridView1.Location = new System.Drawing.Point(203, 298);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView1.Size = new System.Drawing.Size(465, 116);
-            this.dataGridView1.TabIndex = 8;
+            this.dgvDisplay.DataSource = this.displaySpriteBindingSource;
+            this.dgvDisplay.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
+            this.dgvDisplay.Location = new System.Drawing.Point(203, 298);
+            this.dgvDisplay.MultiSelect = false;
+            this.dgvDisplay.Name = "dgvDisplay";
+            this.dgvDisplay.RowHeadersVisible = false;
+            this.dgvDisplay.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvDisplay.Size = new System.Drawing.Size(387, 116);
+            this.dgvDisplay.TabIndex = 8;
             // 
             // extraBitDataGridViewCheckBoxColumn
             // 
@@ -1268,7 +1308,6 @@
             this.btnX.TabIndex = 10;
             this.btnX.Text = "Flip X";
             this.btnX.UseVisualStyleBackColor = true;
-            this.btnX.Click += new System.EventHandler(this.btnX_Click);
             // 
             // btnY
             // 
@@ -1521,7 +1560,7 @@
             // tpgList
             // 
             this.tpgList.BackColor = System.Drawing.SystemColors.Control;
-            this.tpgList.Controls.Add(this.dataGridView2);
+            this.tpgList.Controls.Add(this.dgvList);
             this.tpgList.Controls.Add(this.groupBox5);
             this.tpgList.Location = new System.Drawing.Point(4, 22);
             this.tpgList.Name = "tpgList";
@@ -1529,23 +1568,23 @@
             this.tpgList.TabIndex = 2;
             this.tpgList.Text = "Custom List";
             // 
-            // dataGridView2
+            // dgvList
             // 
-            this.dataGridView2.AutoGenerateColumns = false;
-            this.dataGridView2.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dataGridView2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView2.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.dgvList.AutoGenerateColumns = false;
+            this.dgvList.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvList.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.dataGridViewTextBoxColumn1,
             this.extraBitDataGridViewCheckBoxColumn1,
             this.extraPropertyByte1DataGridViewTextBoxColumn,
             this.extraPropertyByte2DataGridViewTextBoxColumn,
             this.extraPropertyByte3DataGridViewTextBoxColumn,
             this.extraPropertyByte4DataGridViewTextBoxColumn});
-            this.dataGridView2.DataSource = this.collectionSpriteBindingSource;
-            this.dataGridView2.Location = new System.Drawing.Point(8, 54);
-            this.dataGridView2.Name = "dataGridView2";
-            this.dataGridView2.Size = new System.Drawing.Size(661, 232);
-            this.dataGridView2.TabIndex = 10;
+            this.dgvList.DataSource = this.collectionSpriteBindingSource;
+            this.dgvList.Location = new System.Drawing.Point(8, 54);
+            this.dgvList.Name = "dgvList";
+            this.dgvList.Size = new System.Drawing.Size(661, 232);
+            this.dgvList.TabIndex = 10;
             // 
             // dataGridViewTextBoxColumn1
             // 
@@ -1604,21 +1643,21 @@
             // 
             this.groupBox5.Controls.Add(this.lblName);
             this.groupBox5.Controls.Add(this.chbListExtraBit);
-            this.groupBox5.Controls.Add(this.txtName);
+            this.groupBox5.Controls.Add(this.txtListName);
             this.groupBox5.Controls.Add(this.label13);
-            this.groupBox5.Controls.Add(this.txtExProp1);
+            this.groupBox5.Controls.Add(this.txtListExProp1);
             this.groupBox5.Controls.Add(this.label12);
-            this.groupBox5.Controls.Add(this.txtExProp2);
-            this.groupBox5.Controls.Add(this.txtExProp4);
+            this.groupBox5.Controls.Add(this.txtListExProp2);
+            this.groupBox5.Controls.Add(this.txtListExProp4);
             this.groupBox5.Controls.Add(this.label10);
             this.groupBox5.Controls.Add(this.label11);
-            this.groupBox5.Controls.Add(this.txtExProp3);
+            this.groupBox5.Controls.Add(this.txtListExProp3);
             this.groupBox5.Location = new System.Drawing.Point(8, 3);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Size = new System.Drawing.Size(661, 45);
             this.groupBox5.TabIndex = 9;
             this.groupBox5.TabStop = false;
-            this.groupBox5.Text = "Collection";
+            this.groupBox5.Text = "Entry";
             // 
             // lblName
             // 
@@ -1639,12 +1678,12 @@
             this.chbListExtraBit.Text = "Extra Bit";
             this.chbListExtraBit.UseVisualStyleBackColor = true;
             // 
-            // txtName
+            // txtListName
             // 
-            this.txtName.Location = new System.Drawing.Point(50, 13);
-            this.txtName.Name = "txtName";
-            this.txtName.Size = new System.Drawing.Size(175, 20);
-            this.txtName.TabIndex = 6;
+            this.txtListName.Location = new System.Drawing.Point(50, 13);
+            this.txtListName.Name = "txtListName";
+            this.txtListName.Size = new System.Drawing.Size(175, 20);
+            this.txtListName.TabIndex = 6;
             // 
             // label13
             // 
@@ -1655,14 +1694,15 @@
             this.label13.TabIndex = 7;
             this.label13.Text = "Ex Byte 4:";
             // 
-            // txtExProp1
+            // txtListExProp1
             // 
-            this.txtExProp1.Location = new System.Drawing.Point(358, 13);
-            this.txtExProp1.MaxLength = 2;
-            this.txtExProp1.Name = "txtExProp1";
-            this.txtExProp1.Size = new System.Drawing.Size(24, 20);
-            this.txtExProp1.TabIndex = 6;
-            this.txtExProp1.Text = "FF";
+            this.txtListExProp1.Location = new System.Drawing.Point(358, 13);
+            this.txtListExProp1.MaxLength = 2;
+            this.txtListExProp1.Name = "txtListExProp1";
+            this.txtListExProp1.Size = new System.Drawing.Size(24, 20);
+            this.txtListExProp1.TabIndex = 6;
+            this.txtListExProp1.Text = "FF";
+            this.txtListExProp1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
             // 
             // label12
             // 
@@ -1673,23 +1713,25 @@
             this.label12.TabIndex = 7;
             this.label12.Text = "Ex Byte 3:";
             // 
-            // txtExProp2
+            // txtListExProp2
             // 
-            this.txtExProp2.Location = new System.Drawing.Point(448, 13);
-            this.txtExProp2.MaxLength = 2;
-            this.txtExProp2.Name = "txtExProp2";
-            this.txtExProp2.Size = new System.Drawing.Size(24, 20);
-            this.txtExProp2.TabIndex = 6;
-            this.txtExProp2.Text = "FF";
+            this.txtListExProp2.Location = new System.Drawing.Point(448, 13);
+            this.txtListExProp2.MaxLength = 2;
+            this.txtListExProp2.Name = "txtListExProp2";
+            this.txtListExProp2.Size = new System.Drawing.Size(24, 20);
+            this.txtListExProp2.TabIndex = 6;
+            this.txtListExProp2.Text = "FF";
+            this.txtListExProp2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
             // 
-            // txtExProp4
+            // txtListExProp4
             // 
-            this.txtExProp4.Location = new System.Drawing.Point(631, 13);
-            this.txtExProp4.MaxLength = 2;
-            this.txtExProp4.Name = "txtExProp4";
-            this.txtExProp4.Size = new System.Drawing.Size(24, 20);
-            this.txtExProp4.TabIndex = 6;
-            this.txtExProp4.Text = "FF";
+            this.txtListExProp4.Location = new System.Drawing.Point(631, 13);
+            this.txtListExProp4.MaxLength = 2;
+            this.txtListExProp4.Name = "txtListExProp4";
+            this.txtListExProp4.Size = new System.Drawing.Size(24, 20);
+            this.txtListExProp4.TabIndex = 6;
+            this.txtListExProp4.Text = "FF";
+            this.txtListExProp4.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
             // 
             // label10
             // 
@@ -1709,14 +1751,15 @@
             this.label11.TabIndex = 7;
             this.label11.Text = "Ex Byte 2:";
             // 
-            // txtExProp3
+            // txtListExProp3
             // 
-            this.txtExProp3.Location = new System.Drawing.Point(540, 13);
-            this.txtExProp3.MaxLength = 2;
-            this.txtExProp3.Name = "txtExProp3";
-            this.txtExProp3.Size = new System.Drawing.Size(24, 20);
-            this.txtExProp3.TabIndex = 6;
-            this.txtExProp3.Text = "FF";
+            this.txtListExProp3.Location = new System.Drawing.Point(540, 13);
+            this.txtListExProp3.MaxLength = 2;
+            this.txtListExProp3.Name = "txtListExProp3";
+            this.txtListExProp3.Size = new System.Drawing.Size(24, 20);
+            this.txtListExProp3.TabIndex = 6;
+            this.txtListExProp3.Text = "FF";
+            this.txtListExProp3.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
             // 
             // CFG_Editor
             // 
@@ -1764,7 +1807,7 @@
             this.grp_190F.PerformLayout();
             this.tabControl1.ResumeLayout(false);
             this.tpgLm.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvDisplay)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.displaySpriteBindingSource)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.pnlEdit.ResumeLayout(false);
@@ -1776,7 +1819,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudX)).EndInit();
             this.tpgList.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvList)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.collectionSpriteBindingSource)).EndInit();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
@@ -1880,7 +1923,7 @@
         private System.Windows.Forms.CheckBox chbUseText;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.RichTextBox rtbDesc;
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridView dgvDisplay;
         private System.Windows.Forms.DataGridViewTextBoxColumn nameDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewCheckBoxColumn extraBitDataGridViewCheckBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn xDataGridViewTextBoxColumn;
@@ -1910,18 +1953,18 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.TabPage tpgList;
         private System.Windows.Forms.Label lblName;
-        private System.Windows.Forms.TextBox txtName;
+        private System.Windows.Forms.TextBox txtListName;
         private System.Windows.Forms.CheckBox chbListExtraBit;
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.TextBox txtExProp1;
+        private System.Windows.Forms.TextBox txtListExProp1;
         private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.TextBox txtExProp2;
-        private System.Windows.Forms.TextBox txtExProp4;
+        private System.Windows.Forms.TextBox txtListExProp2;
+        private System.Windows.Forms.TextBox txtListExProp4;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.TextBox txtExProp3;
-        private System.Windows.Forms.DataGridView dataGridView2;
+        private System.Windows.Forms.TextBox txtListExProp3;
+        private System.Windows.Forms.DataGridView dgvList;
         private System.Windows.Forms.BindingSource collectionSpriteBindingSource;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
         private System.Windows.Forms.DataGridViewCheckBoxColumn extraBitDataGridViewCheckBoxColumn1;
@@ -1933,6 +1976,9 @@
         private System.Windows.Forms.ToolStripMenuItem loadCustomM16ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadCustomGFX33ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.Button btnDisplayNew;
+        private System.Windows.Forms.Button btnDisplayDelete;
+        private System.Windows.Forms.Button btnDisplayClone;
     }
 }
 

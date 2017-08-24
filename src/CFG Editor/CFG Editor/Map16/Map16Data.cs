@@ -10,9 +10,6 @@ using System.Runtime.CompilerServices;
 
 namespace CFG.Map16
 {
-	[Flags]
-	public enum GFXSet { SP1 = 1, SP2 = 2, SP3 = 4, SP4 = 8, AN1_1 = 16, AN2_2 = 32, AN3_3 = 64 }
-
     public class Map16Resources
     {
         public SnesGraphics Graphics { get; set; }

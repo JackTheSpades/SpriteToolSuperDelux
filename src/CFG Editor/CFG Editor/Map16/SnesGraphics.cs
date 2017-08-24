@@ -23,9 +23,13 @@ namespace CFG.Map16
         event TileChangedEventHandler TileChanged;
     }
 
+    /// <summary>
+    /// Class is a 4BPP representation of SNES Graphics given raw byte data.
+    /// Is is only used for displaying purpose, no editing or otherwise manipulation of the underlying data.
+    /// </summary>
     public class SnesGraphics : INotifyTileChanged
     {
-        public byte[] Data { get; set; }
+        public readonly byte[] Data;
 
         public SnesGraphics(byte[] data)
         {
@@ -53,31 +57,34 @@ namespace CFG.Map16
         }
 
         /// <summary>
-        /// 
+        /// Returns an image representation of the selected tile with the given size.
         /// </summary>
-        /// <param name="tile"></param>
+        /// <param name="tile">The 8x8 tile number to be displayed</param>
         /// <param name="size">The size in 8x8 tiles</param>
         /// <param name="colors">The colors row used for the tiles</param>
-        /// <param name="format"></param>
         /// <param name="loopY"></param>
         /// <param name="loopX"></param>
         /// <returns></returns>
         public virtual Image GetImage(int tile, Size size, IEnumerable<Color> colors, int loopY = 0x100, int loopX = 0x10)
         {
+            //create new bitmap and marshal the thing to a byte array... because Bitmap.GetPixel/SetPixel are insanely slow.
+            //byte array is simple 4 byte per pixel with BGRA format.
             Bitmap bm = new Bitmap(size.Width * 8, size.Height * 8);
             var bmdata = bm.LockBits(new Rectangle(0, 0, bm.Width, bm.Height), System.Drawing.Imaging.ImageLockMode.ReadWrite, bm.PixelFormat);
             byte[] content = new byte[bmdata.Stride * bmdata.Height];
             System.Runtime.InteropServices.Marshal.Copy(bmdata.Scan0, content, 0, content.Length);
 
+
             for (int y = 0; y < bm.Height; y++)
                 for (int x = 0; x < bm.Width; x++)
                 {
-                    int targetTile = tile + ((x / 8) % loopX) + (((y / 8) * 16) % loopY);
+                    //devide by 8 because we want the 8x8 tile.
+                    int targetTile = tile + ((x / 8) % loopX) + (((y / 8) * loopX) % loopY);
 
-                    int byteOffset = (x + y * bm.Width) * 4;            //4 byte per pixel
+                    //4 byte per pixel
+                    int byteOffset = (x + y * bm.Width) * 4;            
                     int pal = 0;
-
-                    //if(byteOffset < GFXPuffer.Length)
+                    
                     pal = GetPixel8x8(targetTile, x, y);        //x and y are being modolod in the method
 
                     Color c = Color.Transparent;
@@ -90,8 +97,10 @@ namespace CFG.Map16
                     content[byteOffset + 3] = c.A;
                 }
 
+            //get byte array back into bitmap
             System.Runtime.InteropServices.Marshal.Copy(content, 0, bmdata.Scan0, content.Length);
             bm.UnlockBits(bmdata);
+
             return bm;
         }
 
@@ -103,27 +112,27 @@ namespace CFG.Map16
         /// <param name="x">The x position within the tile to be read. Will automatically be modoloed by 8</param>
         /// <param name="y">The y position within the tile to be read. Will automatically be modoloed by 8</param>
         /// <returns></returns>
-        private int GetPixel8x8(int tile, int x, int y)
+        public virtual int GetPixel8x8(int tile, int x, int y)
         {
-            try
-            {
-                int xT = x % 8;
-                int yT = y % 8;
+            //modolo to stay in bounds
+            int xT = x % 8;
+            int yT = y % 8;
 
-                int pal = 0;
-                int offset = tile * 32;
+            int pal = 0;
+            int offset = tile * 32; //32 byte per 4bpp tile.
 
-                for (int i = 0, j = 0; i < 2; i++, j += 2)
-                {
-                    pal += Data[offset + i * 16 + 0 + yT * 2].GetBit(7 - xT) ? 1 << j : 0;
-                    pal += Data[offset + i * 16 + 1 + yT * 2].GetBit(7 - xT) ? 2 << j : 0;
-                }
-                return pal;
-            }
-            catch (IndexOutOfRangeException)
+            //actual logic (pretty nonsensical).
+            // pixel[x,y] is determinated by bit x (from the left) of byte (0,1,16,17)+y
+            // these bits then form a 4 bit value representing the pixel as an integer between 0-15
+            for (int i = 0, j = 0; i < 2; i++, j += 2)
             {
-                return 0;
+                int index = offset + i * 16 + yT * 2;
+                if (index >= Data.Length)
+                    return 0;
+                pal += Data[index + 0].GetBit(7 - xT) ? 1 << j : 0;
+                pal += Data[index + 1].GetBit(7 - xT) ? 2 << j : 0;
             }
+            return pal;
         }
     }
 }

@@ -320,8 +320,12 @@ namespace CFG
             }
 
             CollectionEntries.Clear();
+            DisplayEntries.Clear();
+            DisplayEntries.Add(Map16.DisplaySprite.Default);
             CustomMap16Data = new byte[0];
         }
+
+
         
 		protected void SetPropertyValue<T>(ref T priv, T val, [CallerMemberName] string caller = "")
 		{

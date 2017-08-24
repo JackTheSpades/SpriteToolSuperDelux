@@ -36,6 +36,7 @@
             // 
             // pcbDisplay
             // 
+            this.pcbDisplay.BackColor = System.Drawing.Color.Black;
             this.pcbDisplay.Location = new System.Drawing.Point(12, 12);
             this.pcbDisplay.Name = "pcbDisplay";
             this.pcbDisplay.Size = new System.Drawing.Size(256, 128);

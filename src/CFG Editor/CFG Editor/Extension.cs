@@ -7,13 +7,64 @@ using System.Drawing.Drawing2D;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace CFG
 {
-    public static class ControlExtension
+    public class UserException : Exception
     {
+        public MessageBoxButtons Buttons { get; set; } = MessageBoxButtons.OK;
+        public MessageBoxIcon Icon { get; set; } = MessageBoxIcon.Error;
+        public string Caption { get; set; } = "Error";
 
+        public UserException() { }
+        public UserException(string message) : base(message) { }
+        public UserException(string message, Exception innerException) : base(message, innerException) { }
+        protected UserException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+
+        public UserException(string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon) : base(message)
+        {
+            Caption = caption;
+            Buttons = buttons;
+            Icon = icon;
+        }
+        public UserException(string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, Exception innerException) : base(message, innerException)
+        {
+            Caption = caption;
+            Buttons = buttons;
+            Icon = icon;
+        }
+
+
+        public DialogResult Show() => MessageBox.Show(Message, Caption, Buttons, Icon);
+    }
+
+    public static class Extensions
+    {
+        /// <summary>
+        /// Detects if an enumeration contains duplicate entries
+        /// </summary>
+        /// <typeparam name="T">The type of the list</typeparam>
+        /// <param name="elements">The enumertion to check</param>
+        /// <param name="comparer">The (optional) comparer to be used in the detection</param>
+        /// <returns><c>True</c> if there are no duplicate entries</returns>
+        public static bool IsDistinct<T>(this IEnumerable<T> elements, IEqualityComparer<T> comparer = null)
+        {
+            var set = new HashSet<T>(comparer ?? EqualityComparer<T>.Default);
+            foreach(T t in elements)
+                if (!set.Add(t))
+                    return false;
+            return true;
+        }
+
+        /// <summary>
+        /// Gets the bit of a byte, start counting from the right side with 0.
+        /// </summary>
+        /// <param name="b">The byte to read from.</param>
+        /// <param name="bit">The digit the bit is at. Starts from the right with 0</param>
+        /// <returns><c>True</c> if the bit is set.</returns>
         public static bool GetBit(this byte b, int bit)
         {
             return (b & (1 << bit)) != 0;
@@ -28,11 +79,11 @@ namespace CFG
         /// <summary>
         /// Sets a number of bits based on an integer value
         /// </summary>
-        /// <param name="b">The byte who's bits are to be set</param>
+        /// <param name="b">The byte used as a reference to set the bits</param>
         /// <param name="value">The value the bits should be set to</param>
         /// <param name="bitsToSet">How many bits should be set based on the value</param>
         /// <param name="lsb">Which is the least bit to be affected.</param>
-        /// <returns></returns>
+        /// <returns>A new byte with the bits set.</returns>
         public static byte SetBits(this byte b, int value, int bitsToSet, int lsb)
         {
             byte b2 = b;
@@ -55,13 +106,23 @@ namespace CFG
         }
 
 
-
-
+        /// <summary>
+        /// Itterates over each entry and executes and action with the item.
+        /// </summary>
+        /// <typeparam name="T">The type of the enumeration</typeparam>
+        /// <param name="list">The list to iterate</param>
+        /// <param name="action">The action to be execute with each entry passed</param>
         public static void ForEach<T>(this IEnumerable<T> list, Action<T> action)
         {
             foreach (T t in list)
                 action(t);
         }
+        /// <summary>
+        /// Itterates over each entry and executes and action with the item and the index of said item.
+        /// </summary>
+        /// <typeparam name="T">The type of the enumeration</typeparam>
+        /// <param name="list">The list to iterate</param>
+        /// <param name="action">The action to be execute with each entry and index passed.</param>
         public static void ForEach<T>(this IEnumerable<T> list, Action<T, int> action)
         {
             int i = 0;
@@ -87,14 +148,7 @@ namespace CFG
             }
             return prev;
         }
-
-        public static void SetControllsEnabled(this IEnumerable<Control> controlls, bool enabled)
-        {
-            foreach (var control in controlls)
-                control.Enabled = enabled;
-        }
-
-        
+                
         /// <summary>
         /// Sets the background image of a control to a gradient.
         /// </summary>
@@ -233,13 +287,43 @@ namespace CFG
         {
             string controlProp = "";
             if (controlProperty.Body as MemberExpression != null)
-                controlProp = getName((MemberExpression)controlProperty.Body);
+                controlProp = GetName((MemberExpression)controlProperty.Body);
 
             string objectProp = "";
             if (objectProperty.Body as MemberExpression != null)
-                objectProp = getName((MemberExpression)objectProperty.Body);
+                objectProp = GetName((MemberExpression)objectProperty.Body);
 
             Binding bind = new Binding(controlProp, list, objectProp);
+
+            if (castToControl != null)
+                bind.Format += (_, e) => e.Value = castToControl(e.Value);
+            if (castToSource != null)
+                bind.Parse += (_, e) => e.Value = castToSource(e.Value);
+
+            control.DataBindings.Add(bind);
+            return bind;
+        }
+
+        public static Binding BindBindingSource<TCon, TCProp, TObj, TOProp>
+            (
+            this TCon control,
+            BindingSource source,
+            Expression<Func<TCon, TCProp>> controlProperty,
+            Expression<Func<TObj, TOProp>> objectProperty,
+            Func<object, TCProp> castToControl = null,
+            Func<object, TOProp> castToSource = null
+            )
+            where TCon : Control
+        {
+            string controlProp = "";
+            if (controlProperty.Body as MemberExpression != null)
+                controlProp = GetName((MemberExpression)controlProperty.Body);
+
+            string objectProp = "";
+            if (objectProperty.Body as MemberExpression != null)
+                objectProp = GetName((MemberExpression)objectProperty.Body);
+
+            Binding bind = new Binding(controlProp, source, objectProp);
 
             if (castToControl != null)
                 bind.Format += (_, e) => e.Value = castToControl(e.Value);
@@ -277,11 +361,11 @@ namespace CFG
         {
             string controlProp = "";
             if (controlProperty.Body as MemberExpression != null)
-                controlProp = getName((MemberExpression)controlProperty.Body);
+                controlProp = GetName((MemberExpression)controlProperty.Body);
 
             string objectProp = "";
             if (objectProperty.Body as MemberExpression != null)
-                objectProp = getName((MemberExpression)objectProperty.Body);
+                objectProp = GetName((MemberExpression)objectProperty.Body);
 
             Binding bind = new Binding(controlProp, obj, objectProp);
 
@@ -296,23 +380,34 @@ namespace CFG
         }
 
 
-        private static string getName(MemberExpression mem)
+        public static string GetName(this MemberExpression mem)
         {
             string parent = "";
             if (mem.Expression as MemberExpression != null)
             {
-                parent = getName((MemberExpression)mem.Expression) + ".";
+                parent = GetName((MemberExpression)mem.Expression) + ".";
             }
             return parent + mem.Member.Name;
         }
 
-        public static string GetName(this Enum en)
+        public static string GetName(this Enum en) => en.GetName<DisplayNameAttribute>(a => a.Name);
+        public static string GetName<TAttr>(this Enum en, Func<TAttr, string> getName) where TAttr : Attribute
         {
             var memInfo = en.GetType().GetMember(en.ToString())[0];
-            var attr = memInfo.GetCustomAttribute<DescriptionAttribute>();
+            var attr = memInfo.GetCustomAttribute<TAttr>();
             if (attr != null)
-                return attr.Description;
+                return getName(attr);
             return en.ToString();
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+    public class DisplayNameAttribute : Attribute
+    {
+        public string Name { get; set; }
+        public DisplayNameAttribute(string name)
+        {
+            Name = name;
         }
     }
 }

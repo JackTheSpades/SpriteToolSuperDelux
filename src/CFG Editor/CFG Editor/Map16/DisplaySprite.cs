@@ -14,7 +14,14 @@ namespace CFG.Map16
 	[DebuggerDisplay("X={X},Y={Y},Ex={ExtraBit}")]
 	public class DisplaySprite : ICloneable, INotifyPropertyChanged
 	{
-        public static readonly DisplaySprite Empty = new DisplaySprite();
+        public static DisplaySprite Default => new DisplaySprite()
+        {
+            Description = "Undefined Sprite",
+            Tiles = new BindingList<Tile>()
+            {
+                new Tile(0, 0, 0),
+            }
+        };
         
         private string _Description = "";
 		public string Description
@@ -63,67 +70,6 @@ namespace CFG.Map16
             get { return _UseText; }
             set { SetPropertyValue(ref _UseText, value); }
         }
-
-        public class CompareFull : IEqualityComparer<DisplaySprite>
-		{
-			public bool Equals(DisplaySprite x, DisplaySprite y)
-			{
-				if (Object.ReferenceEquals(x, y))
-					return true;
-				if (Object.ReferenceEquals(x, null))
-					return false;
-				if (Object.ReferenceEquals(y, null))
-					return false;
-
-				return x.X == y.X && x.Y == y.Y && x.CustomBit == y.CustomBit && x.ExtraBit == y.ExtraBit;
-			}
-
-			public int GetHashCode(DisplaySprite obj)
-			{
-				return (obj.X << 8) + (obj.Y << 12) + (obj.ExtraBit ? 0x100 : 0) + (obj.CustomBit ? 0x200 : 0);
-			}
-		}
-
-		public class CompareExceptXY : IEqualityComparer<DisplaySprite>
-		{
-			public bool Equals(DisplaySprite x, DisplaySprite y)
-			{
-				if (Object.ReferenceEquals(x, y))
-					return true;
-				if (Object.ReferenceEquals(x, null))
-					return false;
-				if (Object.ReferenceEquals(y, null))
-					return false;
-
-				return x.CustomBit == y.CustomBit && x.ExtraBit == y.ExtraBit;
-			}
-
-			public int GetHashCode(DisplaySprite obj)
-			{
-				return (obj.ExtraBit ? 0x100 : 0) + (obj.CustomBit ? 0x200 : 0);
-			}
-		}
-
-		public class CompareExceptBits : IEqualityComparer<DisplaySprite>
-		{
-			public bool Equals(DisplaySprite x, DisplaySprite y)
-			{
-				if (Object.ReferenceEquals(x, y))
-					return true;
-				if (Object.ReferenceEquals(x, null))
-					return false;
-				if (Object.ReferenceEquals(y, null))
-					return false;
-
-				return x.X == y.X && x.Y == y.Y;
-			}
-
-			public int GetHashCode(DisplaySprite obj)
-			{
-				return (obj.X << 8) + (obj.Y << 12);
-			}
-		}
-        
         public event PropertyChangedEventHandler PropertyChanged;
 
         #region Object Overrides
@@ -144,7 +90,9 @@ namespace CFG.Map16
 			if (object.ReferenceEquals(sp, null))
 				return false;
 
-			return sp.CustomBit == CustomBit && sp.ExtraBit == ExtraBit;
+            return sp.CustomBit == CustomBit && sp.ExtraBit == ExtraBit
+                && sp.Description == Description && sp.DisplayText == DisplayText && sp.UseText == UseText
+                && sp.Tiles.SequenceEqual(Tiles);
 		}
 		public override int GetHashCode()
 		{
@@ -189,9 +137,13 @@ namespace CFG.Map16
 			s.CustomBit = this.CustomBit;
 			s.Description = this.Description;
 			s.ExtraBit = this.ExtraBit;
-			s.Tiles = new BindingList<Tile>(this.Tiles);
+			s.Tiles = new BindingList<Tile>();
+            foreach (Tile t in Tiles)
+                s.Tiles.Add((Tile)t.Clone());
 			s.X = this.X;
 			s.Y = this.Y;
+            s.DisplayText = this.DisplayText;
+            s.UseText = this.UseText;
 			return s;
 		}
 
@@ -209,8 +161,21 @@ namespace CFG.Map16
             }
         }
     }
-	
-	[DebuggerDisplay("{ToString()}")]
+
+    public class DisplaySpriteUniqueComparer : IEqualityComparer<DisplaySprite>
+    {
+        public bool Equals(DisplaySprite x, DisplaySprite y)
+        {
+            return x.X == y.X && x.Y == y.Y && x.ExtraBit == y.ExtraBit;
+        }
+
+        public int GetHashCode(DisplaySprite obj)
+        {
+            return obj.X ^ obj.Y * (obj.ExtraBit ? -1 : 1);
+        }
+    }
+
+    [DebuggerDisplay("{ToString()}")]
 	public class Tile : ICloneable
 	{
 		public int XOffset { get; set; }
@@ -253,32 +218,38 @@ namespace CFG.Map16
 			return XOffset + "," + YOffset + "," + Map16Number.ToString("X");
 		}
 
-		public bool ParseString(string str)
+        const string regex = "(?<X>-?\\d+),(?<Y>-?\\d+),(?<M>[0-9a-fA-F]+)";
+
+        public static Tile GetTile(string str)
 		{
-			var match = Regex.Match(str, "(?<X>-?\\d+),(?<Y>-?\\d+),(?<M>[0-9a-fA-F]+)");
-			if (!match.Success)
-				return false;
-			XOffset = Convert.ToInt32(match.Groups["X"].Value);
-			YOffset = Convert.ToInt32(match.Groups["Y"].Value);
-			Map16Number = Convert.ToInt32(match.Groups["M"].Value, 16);
-			return true;
+			var match = Regex.Match(str, regex);
+            if (!match.Success)
+                return null;
+
+			int XOffset = Convert.ToInt32(match.Groups["X"].Value);
+			int YOffset = Convert.ToInt32(match.Groups["Y"].Value);
+			int Map16Number = Convert.ToInt32(match.Groups["M"].Value, 16);
+            return new Tile(XOffset, YOffset, Map16Number);
 		}
+
+        public static IEnumerable<Tile> GetTiles(string str)
+        {
+            var matches = Regex.Matches(str, "\\s" + regex);
+            if (matches.Count == 0)
+                yield break;
+
+            foreach (var match in matches.Cast<Match>())
+            {
+                int XOffset = Convert.ToInt32(match.Groups["X"].Value);
+                int YOffset = Convert.ToInt32(match.Groups["Y"].Value);
+                int Map16Number = Convert.ToInt32(match.Groups["M"].Value, 16);
+                yield return new Tile(XOffset, YOffset, Map16Number);
+            }
+        }
 
 		public virtual object Clone()
 		{
 			return new Tile(XOffset, YOffset, Map16Number);
 		}
     }
-
-	public static class Ext
-	{
-		public static bool IsNullOrEmpty<T>(this IEnumerable<T> col)
-		{
-			if ((object)col == null)
-				return true;
-			if (col.Count() == 0)
-				return true;
-			return false;
-		}
-	}
 }

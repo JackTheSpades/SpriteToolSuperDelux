@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Windows.Forms;
 
 namespace CFG
@@ -13,7 +14,7 @@ namespace CFG
 	{
 		Normal = 0,
 		Custom = 1,
-        [Description("Generator/Shooter")]
+        [DisplayName("Generator/Shooter")]
 		GeneratorShooter = 3,
 	}
 
@@ -25,15 +26,15 @@ namespace CFG
 
     public enum GridSize
     {
-        [Description("1x1")]
+        [DisplayName("1x1")]
         Size1x1 = 1,
-        [Description("2x2")]
+        [DisplayName("2x2")]
         Size2x2 = 2,
-        [Description("4x4")]
+        [DisplayName("4x4")]
         Size4x4 = 4,
-        [Description("8x8")]
+        [DisplayName("8x8")]
         Size8x8 = 8,
-        [Description("16x16")]
+        [DisplayName("16x16")]
         Size16x16 = 16,
     }
 
@@ -89,10 +90,8 @@ namespace CFG
 
         BindingList<ComboBoxItem> types_list = new BindingList<ComboBoxItem>();
         BindingList<ComboBoxItem> sprites_list = new BindingList<ComboBoxItem>();
-
-        public DisplaySprite SelectedSprite { get; set; }
+        
         Map16Resources resources = new Map16.Map16Resources();
-        public IMap16Object SelectedMap16Object { get; set; } = new Map16Empty(16);
 
         /// <summary>
         /// List of all controlls that will be disabled when the Type is 0 or when in Rom editing mdoe.
@@ -210,8 +209,12 @@ namespace CFG
 
             resources.Palette = palette;
 
+            byte[] map16data = new byte[0x2000];
+            Array.Copy(CFG.Properties.Resources.m16Page1_3, map16data, 0x1800);
+
             #endregion
 
+            #region Lunar Magic Tab
 
             cmbTilesets.Items.AddRange(new[]
             {
@@ -239,43 +242,48 @@ namespace CFG
             dsSP4.Tag = 0x3000;
             cmbTilesets.SelectedIndex = 0;
 
-
+            //Grid size combobox data + events
             foreach (GridSize gridSize in Enum.GetValues(typeof(GridSize)).Cast<GridSize>().Reverse())
                 cmbGrid.Items.Add(new ComboBoxItem(gridSize.GetName(), (int)gridSize));
             cmbGrid.SelectedIndex = 0;
             cmbGrid.SelectedIndexChanged += (_, __) => spriteEditor1.GridSize = ((ComboBoxItem)cmbGrid.SelectedItem).Value;
+            
+            //------------------------------------------------------------------------------------------------------
+
+            //create binding source for later databinding.
+            displaySpriteBindingSource.DataSource = Data;
+            displaySpriteBindingSource.DataMember = nameof(CFGFile.DisplayEntries);
+            
+            //create databindings between display list and controls.
+            BindToSourceDisplay(rtbDesc, displaySpriteBindingSource, ctrl => ctrl.Text, ds => ds.Description);
+            BindToSourceDisplay(nudX, displaySpriteBindingSource, ctrl => ctrl.Value, ds => ds.X);
+            BindToSourceDisplay(nudY, displaySpriteBindingSource, ctrl => ctrl.Value, ds => ds.Y);
+            BindToSourceDisplay(chbExtraBit, displaySpriteBindingSource, ctrl => ctrl.Checked, ds => ds.ExtraBit);
+            BindToSourceDisplay(chbUseText, displaySpriteBindingSource, ctrl => ctrl.Checked, ds => ds.UseText);
+            displaySpriteBindingSource.CurrentChanged += (_, __) => spriteEditor1.Sprite = (DisplaySprite)displaySpriteBindingSource.Current;
+
+            //events to control the button/view behaviour for new/clone/delete
+            btnDisplayNew.Click += (_, __) => displaySpriteBindingSource.AddNew();
+            btnDisplayDelete.Click += (_, __) => displaySpriteBindingSource.RemoveCurrent();
+            btnDisplayClone.Click += (_, __) => displaySpriteBindingSource.Add(((DisplaySprite)displaySpriteBindingSource.Current).Clone());
+
+            dgvDisplay.RowsAdded += (_, __) => dgvDisplay.AllowUserToDeleteRows = dgvDisplay.Rows.Count > 1;
+            dgvDisplay.RowsRemoved += (_, __) => dgvDisplay.AllowUserToDeleteRows = dgvDisplay.Rows.Count != 1;
+
+            dgvDisplay.AllowUserToDeleteRowsChanged += (_, __) => btnDisplayDelete.Enabled = dgvDisplay.AllowUserToDeleteRows;
 
 
 
-
-            SelectedSprite = new DisplaySprite();
-            SelectedSprite.Description = "A green bouncing parakoopa. It will jump high (7 tiles up) or low (2 tiles up) depending on its Y position. It's currently set to jump low.";
-            SelectedSprite.Tiles = new BindingList<Tile>()
+            map16Editor1.Initialize(map16data, resources);
+            map16Editor1.SelectionChanged += (_, e) => pnlEdit.Enabled = e.Tile >= 0x300;
+            Data.PropertyChanged += (_, e) =>
             {
-                new Tile(0, -16, 0x10),
-                new Tile(0, 0, 0x140),
-                new Tile(2, -14, 8),
+                if (e.PropertyName == nameof(Data.CustomMap16Data))
+                    map16Editor1.Map.ChangeData(Data.CustomMap16Data, 0x300);
             };
 
 
-
-
-            displaySpriteBindingSource.DataSource = Data;
-            displaySpriteBindingSource.DataMember = nameof(CFGFile.DisplayEntries);
-
-            rtbDesc.DataBindings.Add(nameof(RichTextBox.Text), displaySpriteBindingSource, $"{nameof(BindingSource.Current)}.{nameof(DisplaySprite.Description)}");
-            nudX.DataBindings.Add(nameof(NumericUpDown.Value), displaySpriteBindingSource, $"{nameof(BindingSource.Current)}.{nameof(DisplaySprite.X)}");
-            nudY.DataBindings.Add(nameof(NumericUpDown.Value), displaySpriteBindingSource, $"{nameof(BindingSource.Current)}.{nameof(DisplaySprite.Y)}");
-            chbExtraBit.DataBindings.Add(nameof(CheckBox.Checked), displaySpriteBindingSource, $"{nameof(BindingSource.Current)}.{nameof(DisplaySprite.ExtraBit)}");
-            chbUseText.DataBindings.Add(nameof(CheckBox.Checked), displaySpriteBindingSource, $"{nameof(BindingSource.Current)}.{nameof(DisplaySprite.UseText)}");
-
-
-
-
-            byte[] map16data = new byte[0x2000];
-            Array.Copy(CFG.Properties.Resources.m16Page1_3, map16data, 0x1800);
-
-            map16Editor1.Initialize(map16data, resources);
+            //create databindings between map16 and controls.
             txtTopLeft.Bind(map16Editor1, c => c.Text, e => e.SelectedObject.TopLeft, i => i.ToString("X2"), StringToInt);
             txtTopRight.Bind(map16Editor1, c => c.Text, e => e.SelectedObject.TopRight, i => i.ToString("X2"), StringToInt);
             txtBottomLeft.Bind(map16Editor1, c => c.Text, e => e.SelectedObject.BottomLeft, i => i.ToString("X2"), StringToInt);
@@ -284,44 +292,65 @@ namespace CFG
             btnX.Click += (_, __) => map16Editor1.SelectedObject.FlipX();
             btnY.Click += (_, __) => map16Editor1.SelectedObject.FlipY();
 
-            map16Editor1.SelectionChanged += (_, e) => pnlEdit.Enabled = e.Tile >= 0x300;
-            Data.PropertyChanged += (_, e) =>
-            {
-                if (e.PropertyName == nameof(Data.CustomMap16Data))
-                    map16Editor1.Map.ChangeData(Data.CustomMap16Data, 0x300);
-            };
 
+            //link sprite editor and map16 editor
             spriteEditor1.Map16Editor = map16Editor1;
-            spriteEditor1.Sprite = SelectedSprite;
 
+
+            #endregion
+
+            #region Custom List Tab
+
+            //create binding source for later databinding.
             collectionSpriteBindingSource.DataSource = Data;
             collectionSpriteBindingSource.DataMember = nameof(CFGFile.CollectionEntries);
 
+            //bind controlls to current selection in list
+            BindToSourceCollection(txtListName, collectionSpriteBindingSource, ctrl => ctrl.Text, cs => cs.Name);
+            BindToSourceCollection(chbListExtraBit, collectionSpriteBindingSource, ctrl => ctrl.Checked, cs => cs.ExtraBit);
+            Binding[] expropbind = new Binding[]
+            {
+                txtListExProp1.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte1)),
+                txtListExProp2.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte2)),
+                txtListExProp3.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte3)),
+                txtListExProp4.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte4)),
+            };
+            expropbind.ForEach(b =>
+            {
+                b.Format += (_, e) => e.Value = ((byte)e.Value).ToString("X2");
+                b.Parse += (_, e) => e.Value = StringToByte((string)e.Value);
+            });
+
+            #endregion
+
+
             if (args.Length == 0)
-				cmb_1656_0F.SelectedIndex = cmb_1662_3F.SelectedIndex = cmb_166E_0E.SelectedIndex = 0;
-			else if (File.Exists(args[0]))
-			{
-				try
+            {
+                cmb_1656_0F.SelectedIndex = cmb_1662_3F.SelectedIndex = cmb_166E_0E.SelectedIndex = 0;
+                Data.Clear();
+            }
+            else
+            {
+                try
                 {
                     LoadFile(args[0]);
                 }
-				catch (Exception ex)
-				{
+                catch (Exception ex)
+                {
                     Data.Clear();
-					Filename = "";
-                    cmbType.SelectedItem = 0;
-					MessageBox.Show("An error occured while trying to read the file.\n" + ex.Message, "Unexpected Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				}
-			}
-			else
-				MessageBox.Show("File: \"" + args[0] + "\" doesn't exist", "File not found", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Filename = "";
+                    Unsaved = false;
+                    cmb_1656_0F.SelectedIndex = cmb_1662_3F.SelectedIndex = cmb_166E_0E.SelectedIndex = 0;
+                    MessageBox.Show("An error occured while trying to read the file.\n\n" + ex.Message, "Unexpected Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
 
 #if DEBUG
             testToolStripMenuItem.Visible = true;
 #endif
 
 		}
-
+        
         /// <summary>
         /// Testbutton on the menu. Only available in debug mode.
         /// </summary>
@@ -332,6 +361,29 @@ namespace CFG
         }
 
         #region Helper Methods
+
+        private Binding BindToSourceCollection<TCon, TProp>(TCon control, BindingSource source, Expression<Func<TCon, TProp>> controlMember, Expression<Func<CollectionSprite, TProp>> objectMember)
+            where TCon : Control
+            => BindToSource(control, source, controlMember, objectMember);
+        private Binding BindToSourceDisplay<TCon, TProp>(TCon control, BindingSource source, Expression<Func<TCon, TProp>> controlMember, Expression<Func<DisplaySprite, TProp>> objectMember)
+            where TCon : Control
+            => BindToSource(control, source, controlMember, objectMember);
+
+        private Binding BindToSource<TCon, TObj, TProp>(TCon control, BindingSource source, Expression<Func<TCon, TProp>> controlMember, Expression<Func<TObj, TProp>> objectMember)
+            where TCon : Control
+        {
+            string ctrlMem = ((MemberExpression)controlMember.Body).GetName();
+
+            string objMem = "";
+            if (objectMember.Body is UnaryExpression)
+            {
+                var op = ((UnaryExpression)objectMember.Body).Operand;
+                objMem = ((MemberExpression)op).GetName();
+            }
+            else
+                objMem = ((MemberExpression)objectMember.Body).GetName();
+            return control.DataBindings.Add(ctrlMem, source, objMem);
+        }
 
         /// <summary>
         /// Helper method for data binding. Converts a hex-string to byte. An empty string will be parsed as 0.
@@ -461,13 +513,20 @@ namespace CFG
             byte[] ret = new byte[size];
             try
             {
-                using (Stream str = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("CFG.Resources.Graphics.GFX" + id.ToString("X2") + ".bin"))
+                using (Stream str = this.GetType().Assembly.GetManifestResourceStream("CFG.Resources.Graphics.GFX" + id.ToString("X2") + ".bin"))
                 {
                     str.Read(ret, 0, ret.Length);
                 }
             }
             catch { }
             return ret;
+        }
+
+        private DialogResult ShowException(Exception ex, bool rethrow = false )
+        {
+            if (ex is UserException)
+                return ((UserException)ex).Show();
+            return MessageBox.Show(ex.Message, "Unexpected Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         #endregion
@@ -496,7 +555,7 @@ namespace CFG
                 Data.FromLines(File.ReadAllText(path));
                 cmbType.DataSource = types_list;
                 cmbType.SelectedIndex = Data.Type;
-                disabled_controlls.SetControllsEnabled(Data.Type != 0);
+                disabled_controlls.ForEach(c => c.Enabled = Data.Type != 0);
                 grpActLike.Enabled = true;
                 saveAsToolStripMenuItem.Enabled = true;
             }
@@ -507,7 +566,7 @@ namespace CFG
                 cmbType.DataSource = sprites_list;
                 cmbType.SelectedIndex = 0;
 
-                disabled_controlls.SetControllsEnabled(false);
+                disabled_controlls.ForEach(c => c.Enabled = false);
                 grpActLike.Enabled = false;
                 saveAsToolStripMenuItem.Enabled = false;
             }
@@ -524,6 +583,9 @@ namespace CFG
             if (bindings != null && bindings.Count != 0)
                 bindings[0].WriteValue();
 
+            if (!Data.DisplayEntries.IsDistinct(new DisplaySpriteUniqueComparer()))
+                throw new UserException("The combination of X, Y and ExtraBit settings must be unique for all entries in the Lunar Magic display sprites.");
+
             string ext = Path.GetExtension(path);
             switch (ext.ToLower())
             {
@@ -536,8 +598,7 @@ namespace CFG
                     File.WriteAllBytes(path, RomData);
                     break;
                 default:
-                    MessageBox.Show($"Uknown file extension {ext}", "Couldn't save file", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    return;
+                    throw new FormatException($"Uknown file extension {ext}");
             }
 
             Unsaved = false;
@@ -580,7 +641,7 @@ namespace CFG
             if (FileType == FileType.CfgFile)
             {
                 Data.Type = (byte)((ComboBoxItem)cmbType.SelectedValue).Value;
-                disabled_controlls.SetControllsEnabled(Data.Type != 0);
+                disabled_controlls.ForEach(c => c.Enabled = Data.Type != 0);
             }
             else if (FileType == FileType.RomFile)
             {
@@ -641,10 +702,13 @@ namespace CFG
 			if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
 				return;
 
-            try { SaveFile(sfd.FileName); }
+            try
+            {
+                SaveFile(sfd.FileName);
+            }
             catch(Exception ex)
             {
-                MessageBox.Show("An error occured while trying to write the CFG data\n" + ex.Message, "Unexpected Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowException(ex);
             }
 		}
 
@@ -654,10 +718,13 @@ namespace CFG
                 saveAsToolStripMenuItem_Click(sender, e);
             else
             {
-                try { SaveFile(Filename); }
+                try
+                {
+                    SaveFile(Filename);
+                }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("An error occured while trying to write the CFG data\n" + ex.Message, "Unexpected Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ShowException(ex);
                 }
             }
 		}
@@ -671,22 +738,21 @@ namespace CFG
             resources.Graphics.ChangeData(fs.Data, offset);
         }
 
-        private void btnX_Click(object sender, EventArgs e)
-        {
-            map16Editor1.SelectedObject.FlipX();
-        }
-
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            var im = Image.FromStream(null, false, false);
-
             var p = new Editors.PaletteEditorForm(resources);
             p.ShowDialog();
         }
     }
 
+    /// <summary>
+    /// Wrapper class for items with custom display text to be used within a Combobox.
+    /// </summary>
     public class ComboBoxItem
     {
+        /// <summary>
+        /// String representation of the entry
+        /// </summary>
         public string Name { get; set; }
         public int Value { get; set; }
         public ComboBoxItem(string name, int value)
@@ -706,8 +772,6 @@ namespace CFG
                 return false;
             return this.Value == item.Value;
         }
-
-        public static ComboBoxItem Reference(int value) => new ComboBoxItem("", value);
     }
 
     public class SpriteTileset
