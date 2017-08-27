@@ -85,3 +85,33 @@ char* trim(char *text) {
 	}
 	return text; 
 }
+
+sprite::~sprite() {
+   if(asm_file)
+      delete[] asm_file;
+   if(cfg_file)
+      delete[] cfg_file;
+   if(map_data)
+      delete[] map_data;
+   if(displays)
+      delete[] displays;
+   if(collections)
+      delete[] collections;
+}
+
+tile::~tile() {
+   if(text)
+      delete[] text;
+}
+
+display::~display() {
+   if(description)
+      delete[] description;
+   if(tiles)
+      delete[] tiles;
+}
+
+collection::~collection() {
+   if(name)
+      delete[] name;
+}

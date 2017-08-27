@@ -183,6 +183,8 @@
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.txtListExProp3 = new System.Windows.Forms.TextBox();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.menuStrip1.SuspendLayout();
             this.tpgDefault.SuspendLayout();
             this.grpActLike.SuspendLayout();
@@ -217,6 +219,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvList)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.collectionSpriteBindingSource)).BeginInit();
             this.groupBox5.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -1265,8 +1268,8 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.panel1);
             this.groupBox3.Controls.Add(this.cmbTilesets);
-            this.groupBox3.Controls.Add(this.pnlEdit);
             this.groupBox3.Controls.Add(this.groupBox2);
             this.groupBox3.Controls.Add(this.map16Editor1);
             this.groupBox3.Location = new System.Drawing.Point(203, 3);
@@ -1295,7 +1298,7 @@
             this.pnlEdit.Controls.Add(this.txtBottomLeft);
             this.pnlEdit.Controls.Add(this.txtBottomRight);
             this.pnlEdit.Enabled = false;
-            this.pnlEdit.Location = new System.Drawing.Point(290, 19);
+            this.pnlEdit.Location = new System.Drawing.Point(4, 30);
             this.pnlEdit.Name = "pnlEdit";
             this.pnlEdit.Size = new System.Drawing.Size(166, 58);
             this.pnlEdit.TabIndex = 15;
@@ -1409,6 +1412,7 @@
             this.dsSP4.Name = "dsSP4";
             this.dsSP4.Size = new System.Drawing.Size(157, 19);
             this.dsSP4.TabIndex = 3;
+            this.dsSP4.FileLoaded += new System.EventHandler(this.ds_FileLoaded);
             // 
             // dsSP3
             // 
@@ -1417,6 +1421,7 @@
             this.dsSP3.Name = "dsSP3";
             this.dsSP3.Size = new System.Drawing.Size(157, 19);
             this.dsSP3.TabIndex = 2;
+            this.dsSP3.FileLoaded += new System.EventHandler(this.ds_FileLoaded);
             // 
             // dsSP2
             // 
@@ -1425,6 +1430,7 @@
             this.dsSP2.Name = "dsSP2";
             this.dsSP2.Size = new System.Drawing.Size(157, 19);
             this.dsSP2.TabIndex = 1;
+            this.dsSP2.FileLoaded += new System.EventHandler(this.ds_FileLoaded);
             // 
             // dsSP1
             // 
@@ -1761,6 +1767,23 @@
             this.txtListExProp3.Text = "FF";
             this.txtListExProp3.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
             // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.toolStrip1);
+            this.panel1.Controls.Add(this.pnlEdit);
+            this.panel1.Location = new System.Drawing.Point(286, 16);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(172, 91);
+            this.panel1.TabIndex = 17;
+            // 
+            // toolStrip1
+            // 
+            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Size = new System.Drawing.Size(172, 25);
+            this.toolStrip1.TabIndex = 16;
+            this.toolStrip1.Text = "toolStrip1";
+            // 
             // CFG_Editor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1823,6 +1846,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.collectionSpriteBindingSource)).EndInit();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1979,6 +2004,8 @@
         private System.Windows.Forms.Button btnDisplayNew;
         private System.Windows.Forms.Button btnDisplayDelete;
         private System.Windows.Forms.Button btnDisplayClone;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.ToolStrip toolStrip1;
     }
 }
 

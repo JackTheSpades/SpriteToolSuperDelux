@@ -59,6 +59,52 @@ struct pointer {
 	}
 };
 
+
+struct tile {
+   int x_offset = 0;
+   int y_offset = 0;
+   int tile_number = 0;
+   char* text = nullptr;
+
+   ~tile();
+   
+};
+
+struct display {
+   char* description = nullptr;
+   int tile_count = 0;
+   tile* tiles = nullptr;
+   bool extra_bit = false;
+   int x = 0;
+   int y = 0;
+   
+   ~display();
+};
+
+struct collection {
+   const char* name = nullptr;
+   bool extra_bit = false;
+   unsigned char prop1 = 0;
+   unsigned char prop2 = 0;
+   unsigned char prop3 = 0;
+   unsigned char prop4 = 0;
+   
+   ~collection();
+};
+
+struct map8x8 {
+	char tile = 0;
+	char prop = 0;
+};
+
+struct map16 {
+	map8x8 top_left;
+	map8x8 bottom_left;
+	map8x8 top_right;
+	map8x8 bottom_right;
+};
+
+
 // 00: type {0=tweak,1=custom,3=generator/shooter}
 // 01: "acts like"
 // 02-07: tweaker bytes
@@ -73,6 +119,7 @@ struct sprite_table {
 	pointer init;
 	pointer main;
 	unsigned char extra[2] = {0};
+   
 };
 
 struct sprite {
@@ -88,29 +135,16 @@ struct sprite {
 	char* asm_file = nullptr;
 	char* cfg_file = nullptr;
 	
-	// int map_data_size = 0;
-	// map16* map_data = nullptr;
+	int map_block_count = 0;
+	map16* map_data = nullptr;
 	
-	// int name_size = 0;
-	// unsigned char* name[2];
-	
-	// int ssc_size = 0;
-	// unsigned char** ssc;
-	
+   int display_count = 0;
+   display* displays = nullptr;
+   
+   int collection_count = 0;
+   collection* collections = nullptr;
 		
-	~sprite() {
-		if(asm_file)
-			delete[] asm_file;
-		if(cfg_file)
-			delete[] cfg_file;
-		// if(map_data)
-			// delete[] map_data;
-			
-		// if(name[0])
-			// delete[] name[0];
-		// if(name[1])
-			// delete[] name[1];
-	}
+	~sprite();
 };
 
 int get_pointer(unsigned char *data, int address, int size = 3, int bank = 0x00);

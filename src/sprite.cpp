@@ -6,8 +6,10 @@
 
 #include "asar/asardll.h"
 #include "cfg.h"
+#include "json.h"
 #include "structs.h"
 #include "file_io.h"
+#include "map16.h"
 
 #define ROUTINES 0
 #define SPRITES 1
@@ -117,9 +119,6 @@ void patch_sprite(sprite* spr, ROM &rom, FILE* output) {
 			spr->table.init.addr(), spr->table.main.addr());
 	}	
 }
-
-
-
 
 void patch_sprites(sprite* sprite_list, int size, ROM &rom, FILE* output) {
 
@@ -443,11 +442,18 @@ bool populate_sprite_list(const char** paths, sprite** sprite_lists, const char 
 				fprintf(output, "%s\n\n--------------------------------------\n", file_name);
 		}
 		else {
-		   if(!dot || (strcmp(dot, ".cfg") && strcmp(dot, ".CFG")))
-			   ERROR("Error on line %d: Not a cfg file.");
 			spr->cfg_file = file_name;
-			if(!read_cfg_file(spr, (char *)read_all(spr->cfg_file, true), output))
-            ERROR("Error on line %d: Cannot parse CFG file.");
+         if(!dot) {
+			   ERROR("Error on line %d: No file extension.");
+         } else if(!strcmp(dot, ".cfg") || !strcmp(dot, ".CFG")) {
+            if(!read_cfg_file(spr, output))
+               ERROR("Error on line %d: Cannot parse CFG file.");
+         } else if(!strcmp(dot, ".json")) {
+            if(!read_json_file(spr, output))
+               ERROR("Error on line %d: Cannot parse JSON file.");
+         } else
+            ERROR("Error on line %d: Unknown filetype");
+         
 		}		
 	}while(current_line.length);
 	
@@ -477,6 +483,14 @@ void write_long_table(sprite* spr, const char* filename, int size = 0x800) {
 	}
 }
 
+FILE* open_subfile(ROM &rom, const char* ext, const char* mode) {
+   char* name = new char[strlen(rom.name) + 1];
+   char* dot = strrchr(name, '.');
+   strcpy(dot + 1, ext);
+   FILE* r = open(name, mode);   
+   delete[] name;
+   return r;
+}
 
 int main(int argc, char* argv[]) {
 					
@@ -655,9 +669,17 @@ int main(int argc, char* argv[]) {
 	
 		
 	//extra byte size file
+   //plus data for .ssc, .mwt, .mw2 files
 	unsigned char extra_bytes[0x200];
+   
+   FILE* s16 = open_subfile(rom, "s16", "wb");
+   FILE* ssc = open_subfile(rom, "ssc", "w");
+   FILE* mwt = open_subfile(rom, "mwt", "w");
+   FILE* mw2 = open_subfile(rom, "mw2", "wb");
+   
+   map16 map[MAP16_SIZE];
+   
 	for(int i = 0; i < 0x100; i++) {
-	
 		sprite* spr = from_table<sprite>(sprite_list, 0x200, i);	
 		
 		if(!spr) {
@@ -668,6 +690,43 @@ int main(int argc, char* argv[]) {
 			if(spr->asm_file) {
 				extra_bytes[i] = 3 + spr->byte_count;
 				extra_bytes[i + 0x100] = 3 + spr->extra_byte_count;
+            
+            //----- s16 / map16 -------------------------------------------------
+            
+            int map16_tile = find_free_map(map, spr->map_block_count);
+            if(map16_tile == -1)
+               error("No more space left in s16 (sprite map16 block data). Wtf dude?");
+            memcpy(map + map16_tile, spr->map_data, spr->map_block_count * sizeof(map16));
+            
+            //----- ssc / display -----------------------------------------------
+            for(int j = 0; j < spr->display_count; j++) {
+               display* d = spr->displays + j;
+            
+               int ref = d->y * 0x1000 +
+                  d->x * 0x100 + 
+                  0x20 +
+                  (d->extra_bit ? 0x10 : 0);
+               
+               if(d->description)
+                  fprintf(ssc, "%2X %4X %s\n", i, ref, d->description);
+                  
+               fprintf(ssc, "%2X %4X", i, ref + 2);
+               for(int k = 0; k < d->tile_count; k++) {
+                  tile* t = d->tiles + k;
+                  if(t->text) {
+                     fprintf(ssc, " 0,0,*%s*\n", t->text);
+                     break;
+                  } else {
+                     int tile_num = t->tile_number;
+                     if(tile_num >= 0x300)
+                        tile_num += 0x100 + map16_tile;
+                     fprintf(ssc, " %d,%d,%x", t->x_offset, t->y_offset, tile_num);
+                  }
+               }               
+            }
+            
+            //----- mwt,mw2 / collection ------------------------------------------
+            
 			} else  {
 				extra_bytes[i] = 3;
 				extra_bytes[i + 0x100] = 3;
@@ -675,6 +734,8 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	write_all(extra_bytes, "asm/_CustomSize.bin", 0x200);
+   fwrite(map, sizeof(map16), sizeof(map), s16);
+   fclose(s16); fclose(ssc); fclose(mwt); fclose(mw2);
 	
 	//apply the actual patches
 	patch("asm/main.asm", rom, "asm/main.asm");

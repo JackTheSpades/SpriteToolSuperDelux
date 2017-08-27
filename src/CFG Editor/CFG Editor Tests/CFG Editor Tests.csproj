@@ -63,6 +63,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Test DisplaySprite.cs" />
     <Compile Include="Test SnesGraphics.cs" />
+    <Compile Include="Test Enum Extension.cs" />
+    <Compile Include="Test CollectionSprite.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CFG Editor\CFG Editor Project.csproj">

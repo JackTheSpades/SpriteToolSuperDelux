@@ -324,6 +324,11 @@ namespace CFG.Map16
                 b.AddRange(m.Data);
             return b.ToArray();
         }
+        
+        public bool IsEmpty()
+        {
+            return TopLeft == 0 && BottomLeft == 0 && TopRight == 0 && BottomRight == 0 && Palette == 0;
+        }
 
 		public override bool Equals(object obj)
 		{
@@ -509,11 +514,29 @@ namespace CFG.Map16
             SelectedObject = Map[0];
         }
 
+        /// <summary>
+        /// Gets all 16x16 blocks beyond block 0x300 until we reach an empty one.
+        /// </summary>
+        /// <returns></returns>
+        public byte[] GetNotEmptyData()
+        {
+            List<byte> data = new List<byte>();
+            int index = 0x300;
+            while (!Map[index].IsEmpty())
+                data.AddRange(Map[index++].GetData());
+            return data.ToArray();
+        }
+
         public void ChangeData(byte[] data, int block_start)
         {
+            //subarray because of stupid internal logic regarding the offset in the byte array
+            //being used to calculate the tile number.
+            var subData = new byte[block_start * 8 + data.Length];
+            Array.Copy(data, 0, subData, block_start * 8, data.Length);
+
             for (int i = 0; i < data.Length; i += 8)
             {
-                var sub = new Map16Tile16x16(data, i)
+                var sub = new Map16Tile16x16(subData, block_start * 8 + i)
                 {
                     Resources = Resources,
                 };

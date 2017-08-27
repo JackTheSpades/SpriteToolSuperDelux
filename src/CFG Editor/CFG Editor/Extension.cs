@@ -43,6 +43,22 @@ namespace CFG
 
     public static class Extensions
     {
+        public static bool[] ToBoolArray(this byte b)
+        {
+            bool[] arr = new bool[8];
+            for(int i = 0; i < 8; i++)
+                arr[i] = b.GetBit(i);
+            return arr;
+        }
+
+        public static byte ToByte(this bool[] arr)
+        {
+            byte b = 0;
+            for (int i = 0; i < 8; i++)
+                b = b.SetBit(i, arr[i]);
+            return b;
+        }
+        
         /// <summary>
         /// Detects if an enumeration contains duplicate entries
         /// </summary>
@@ -294,36 +310,6 @@ namespace CFG
                 objectProp = GetName((MemberExpression)objectProperty.Body);
 
             Binding bind = new Binding(controlProp, list, objectProp);
-
-            if (castToControl != null)
-                bind.Format += (_, e) => e.Value = castToControl(e.Value);
-            if (castToSource != null)
-                bind.Parse += (_, e) => e.Value = castToSource(e.Value);
-
-            control.DataBindings.Add(bind);
-            return bind;
-        }
-
-        public static Binding BindBindingSource<TCon, TCProp, TObj, TOProp>
-            (
-            this TCon control,
-            BindingSource source,
-            Expression<Func<TCon, TCProp>> controlProperty,
-            Expression<Func<TObj, TOProp>> objectProperty,
-            Func<object, TCProp> castToControl = null,
-            Func<object, TOProp> castToSource = null
-            )
-            where TCon : Control
-        {
-            string controlProp = "";
-            if (controlProperty.Body as MemberExpression != null)
-                controlProp = GetName((MemberExpression)controlProperty.Body);
-
-            string objectProp = "";
-            if (objectProperty.Body as MemberExpression != null)
-                objectProp = GetName((MemberExpression)objectProperty.Body);
-
-            Binding bind = new Binding(controlProp, source, objectProp);
 
             if (castToControl != null)
                 bind.Format += (_, e) => e.Value = castToControl(e.Value);

@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 
 namespace CFG.Map16
 {
-	[DebuggerDisplay("X={X},Y={Y},Ex={ExtraBit}")]
+	[DebuggerDisplay("X={X},Y={Y},Ex={ExtraBit} Tiles: {Tiles.Count}")]
 	public class DisplaySprite : ICloneable, INotifyPropertyChanged
 	{
         public static DisplaySprite Default => new DisplaySprite()
@@ -37,13 +37,14 @@ namespace CFG.Map16
             set { SetPropertyValue(ref _ExtraBit, value); }
         }
         private bool _CustomBit = true;
+        [Newtonsoft.Json.JsonIgnore]
         public bool CustomBit
         {
             get { return _CustomBit; }
             set { SetPropertyValue(ref _CustomBit, value); }
         }
 
-        public BindingList<Tile> Tiles { get; set; } = new BindingList<Tile>();
+        public BindingList<Tile> Tiles { get; set; }
 
         private int _X = 0;
 		public int X
@@ -71,6 +72,21 @@ namespace CFG.Map16
             set { SetPropertyValue(ref _UseText, value); }
         }
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public DisplaySprite()
+        {
+            Tiles = new BindingList<Tile>();
+        }
+
+        public static void FillData(DisplaySprite sprite, string tilesLine)
+        {
+            sprite.Y = Convert.ToInt32(tilesLine.Substring(0, 1), 16);
+            sprite.X = Convert.ToInt32(tilesLine.Substring(1, 1), 16);
+            sprite.ExtraBit = tilesLine[2] == '3';
+            
+            foreach (Tile t in Tile.GetTiles(tilesLine))
+                sprite.Tiles.Add(t);
+        }
 
         #region Object Overrides
 
@@ -126,10 +142,6 @@ namespace CFG.Map16
 				return Y.ToString("X") + X.ToString("X") + (2 + (ExtraBit ? 0x10 : 0) + (CustomBit ? 0x20 : 0)).ToString("X2") + " 0,0,*" + DisplayText + "*";
 			return Y.ToString("X") + X.ToString("X") + (2 + (ExtraBit ? 0x10 : 0) + (CustomBit ? 0x20 : 0)).ToString("X2") + " " + String.Join(" ", Tiles);
 		}
-		public string GetDescLine()
-		{
-			return Y.ToString("X") + X.ToString("X") + ((ExtraBit ? 0x10 : 0) + (CustomBit ? 0x20 : 0)).ToString("X2") + " " + Description;
-		}
 
 		public object Clone()
 		{
@@ -178,10 +190,15 @@ namespace CFG.Map16
     [DebuggerDisplay("{ToString()}")]
 	public class Tile : ICloneable
 	{
-		public int XOffset { get; set; }
-		public int YOffset { get; set; }
-		public int Map16Number { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("X offset")]
+        public int XOffset { get; set; }
+        [Newtonsoft.Json.JsonProperty("Y offset")]
+        public int YOffset { get; set; }
+        [Newtonsoft.Json.JsonProperty("map16 tile")]
+        public int Map16Number { get; set; }
+
+        [Newtonsoft.Json.JsonIgnore]
         public bool Selected { get; set; }
 
         public Tile()

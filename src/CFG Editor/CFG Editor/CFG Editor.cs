@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace CFG
@@ -73,7 +74,7 @@ namespace CFG
             }
         }
 
-        public readonly CFGFile Data;
+        public readonly CfgFile Data;
 
         		
 		public Image[] objClip = new Image[0x10];
@@ -103,7 +104,7 @@ namespace CFG
                
 
 		public CFG_Editor(string[] args)
-		{
+        {
             InitializeComponent();
 
             #region Default Tab
@@ -115,7 +116,7 @@ namespace CFG
                 grpExtraPropByte,
             };
 
-            Data = new CFGFile();
+            Data = new CfgFile();
             Data.PropertyChanged += (_, __) => Unsaved = true;
 
             cmb_1656_0F.BitsBind(Data, c => c.SelectedIndex, f => f.Addr1656, 4, 0).DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
@@ -252,7 +253,7 @@ namespace CFG
 
             //create binding source for later databinding.
             displaySpriteBindingSource.DataSource = Data;
-            displaySpriteBindingSource.DataMember = nameof(CFGFile.DisplayEntries);
+            displaySpriteBindingSource.DataMember = nameof(CfgFile.DisplayEntries);
             
             //create databindings between display list and controls.
             BindToSourceDisplay(rtbDesc, displaySpriteBindingSource, ctrl => ctrl.Text, ds => ds.Description);
@@ -276,11 +277,6 @@ namespace CFG
 
             map16Editor1.Initialize(map16data, resources);
             map16Editor1.SelectionChanged += (_, e) => pnlEdit.Enabled = e.Tile >= 0x300;
-            Data.PropertyChanged += (_, e) =>
-            {
-                if (e.PropertyName == nameof(Data.CustomMap16Data))
-                    map16Editor1.Map.ChangeData(Data.CustomMap16Data, 0x300);
-            };
 
 
             //create databindings between map16 and controls.
@@ -303,7 +299,7 @@ namespace CFG
 
             //create binding source for later databinding.
             collectionSpriteBindingSource.DataSource = Data;
-            collectionSpriteBindingSource.DataMember = nameof(CFGFile.CollectionEntries);
+            collectionSpriteBindingSource.DataMember = nameof(CfgFile.CollectionEntries);
 
             //bind controlls to current selection in list
             BindToSourceCollection(txtListName, collectionSpriteBindingSource, ctrl => ctrl.Text, cs => cs.Name);
@@ -344,7 +340,6 @@ namespace CFG
                     MessageBox.Show("An error occured while trying to read the file.\n\n" + ex.Message, "Unexpected Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-
 #if DEBUG
             testToolStripMenuItem.Visible = true;
 #endif
@@ -481,7 +476,7 @@ namespace CFG
         /// <param name="expr">The expression that selects the Property to bind to from the CFGFile</param>
         /// <param name="addr">The string representation of the address, used for searching through the controlls</param>
         /// <param name="start_bit">For the CheckBoxes, this indicates where to start</param>
-		private void SetupBinding(CFGFile file, System.Linq.Expressions.Expression<Func<CFGFile, byte>> expr, string addr, int start_bit = 0)
+		private void SetupBinding(CfgFile file, System.Linq.Expressions.Expression<Func<CfgFile, byte>> expr, string addr, int start_bit = 0)
 		{
 			TextBox txt = (TextBox)Controls.Find("txt_" + addr, true).FirstOrDefault();
 			if (txt == null)
@@ -573,6 +568,7 @@ namespace CFG
 
             Unsaved = false;
             Filename = path;
+            map16Editor1.Map.ChangeData(Data.CustomMap16Data, 0x300);
         }
         
         public void SaveFile(string path)
@@ -586,11 +582,16 @@ namespace CFG
             if (!Data.DisplayEntries.IsDistinct(new DisplaySpriteUniqueComparer()))
                 throw new UserException("The combination of X, Y and ExtraBit settings must be unique for all entries in the Lunar Magic display sprites.");
 
+            Data.CustomMap16Data = map16Editor1.Map.GetNotEmptyData();
+
             string ext = Path.GetExtension(path);
             switch (ext.ToLower())
             {
                 case ".cfg":
                     File.WriteAllText(path, Data.ToLines());
+                    break;
+                case ".json":
+                    File.WriteAllText(path, Data.ToJson());
                     break;
                 case ".smc":
                 case ".sfc":
@@ -697,8 +698,8 @@ namespace CFG
 
             SaveFileDialog sfd = new SaveFileDialog();
 			sfd.Title = "Save CFG File";
-            sfd.Filter = "CFG File|*.cfg";
-			sfd.FileName = Filename;
+            sfd.Filter = "Json CFG File|*.json|CFG File|*.cfg";
+			sfd.FileName = Path.ChangeExtension(Filename, ".json");
 			if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
 				return;
 

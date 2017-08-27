@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace CFG
 {
-	public class CFGFile : INotifyPropertyChanged
+	public class CfgFile : INotifyPropertyChanged
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -81,7 +81,7 @@ namespace CFG
 		}
 
 
-		private byte _ExProp1;
+        private byte _ExProp1;
 		public byte ExProp1
 		{
 			get { return _ExProp1; }
@@ -109,69 +109,9 @@ namespace CFG
 
         public BindingList<CollectionSprite> CollectionEntries { get; set; } = new BindingList<CollectionSprite>();
         public BindingList<Map16.DisplaySprite> DisplayEntries { get; set; } = new BindingList<Map16.DisplaySprite>();
-        private byte[] _CustomMap16Data = new byte[0];
-        public byte[] CustomMap16Data
-        {
-            get { return _CustomMap16Data; }
-            set { SetPropertyValue(ref _CustomMap16Data, value); }
-        }
-
+        public byte[] CustomMap16Data { get; set; } = new byte[0];
         #endregion
-
-        #region Not Used ATM
-
-        public const byte Version = 0;
-        public byte[] ToByteArray()
-        {
-            List<byte> bytes = new List<byte>()
-            {
-                (byte)'C', (byte)'F', (byte)'G', (byte)'B',
-                Version,
-                Type,
-                ActLike,
-                Addr1656, Addr1662, Addr166E, Addr167A, Addr1686, Addr190F
-            };
-
-            if(Type != 0)
-            {
-                bytes.Add(ExProp1);
-                bytes.Add(ExProp2);
-
-                bytes.AddRange(Encoding.ASCII.GetBytes(AsmFile));
-                bytes.Add(0);
-            }
-
-            return bytes.ToArray();
-        }
-        public void FromByteArray(byte[] array)
-        {
-            if (array[0] != 'C' || array[1] != 'F' || array[2] != 'G' || array[3] != 'B')
-                throw new ArgumentException("Magic number is not matching", nameof(array));
-            if(array[4] > Version)
-                throw new ArgumentException("Version of file is higher than tool version", nameof(array));
-
-            Type = array[5];
-            ActLike = array[6];
-
-            Addr1656 = array[7];
-            Addr1662 = array[8];
-            Addr166E = array[9];
-            Addr167A = array[10];
-            Addr1686 = array[11];
-            Addr190F = array[12];
-
-            if(Type != 0)
-            {
-                ExProp1 = array[13];
-                ExProp2 = array[14];
-
-                int endIndex = Array.IndexOf(array, 0, 15);
-                AsmFile = Encoding.ASCII.GetString(array, 15, endIndex - 15);
-            }
-        }
-
-        #endregion
-
+        
         const int rom_1656 = 0x3F46C - 0x200;
         const int rom_1662 = rom_1656 + 201 * 1;
         const int rom_166E = rom_1656 + 201 * 2;
@@ -213,12 +153,17 @@ namespace CFG
         public void FromLines(string text)
         {
             Clear();
+
+            int currentLine = 0;
+
             string[] lines = text.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-            Type = BytesFromStringLine(lines[0])[0];
-            ActLike = BytesFromStringLine(lines[1])[0];
+            //line 1,2 (type, actlike)
+            Type = BytesFromStringLine(lines[currentLine++])[0];
+            ActLike = BytesFromStringLine(lines[currentLine++])[0];
 
-            byte[] tweaker = BytesFromStringLine(lines[2]);
+            //line 3 (tweak)
+            byte[] tweaker = BytesFromStringLine(lines[currentLine++]);
             Addr1656 = tweaker[0];
             Addr1662 = tweaker[1];
             Addr166E = tweaker[2];
@@ -226,32 +171,64 @@ namespace CFG
             Addr1686 = tweaker[4];
             Addr190F = tweaker[5];
             
-            TrySet(lines, 3, str =>
+            //line 4 (ex prop)
+            TrySet(lines, currentLine++, str =>
             {
                 byte[] extraporp = BytesFromStringLine(str);
                 ExProp1 = extraporp[0];
                 ExProp2 = extraporp[1];
             }, () => { ExProp1 = ExProp2 = 0; });
-            TrySet(lines, 4, str => AsmFile = str, () => AsmFile = "");
-            TrySet(lines, 5, str =>
+
+            //line 5 (asm)
+            TrySet(lines, currentLine++, str => AsmFile = str, () => AsmFile = "");
+            //line 6 (extra byte count)
+            TrySet(lines, currentLine++, str =>
             {
                 byte[] count = BytesFromStringLine(lines[5], ':');
                 ByteCount = Math.Min(count[0], (byte)4);
                 ExByteCount = Math.Min(count[1], (byte)4);
             }, () => { ByteCount = ExByteCount = 0; });
 
-            int linecount = 0;
-            TrySet(lines, 6, str => linecount = Convert.ToInt32(linecount), () => linecount = 0);
-            for(int i = 0; i < linecount; i++)
+            //line 7 (map16)
+            TrySet(lines, currentLine++, str => CustomMap16Data = BytesFromStringLine(str), () => CustomMap16Data = new byte[0]);
+
+            //line 8 (display cound)
+            int displayCount = 0;
+            TrySet(lines, currentLine++, str => displayCount = Convert.ToInt32(str), () => displayCount = 0);
+
+            //line 9+ (display info)
+            Map16.DisplaySprite ds = null;
+            bool brk = false;
+            for (int i = 0; i < displayCount && !brk; i++)
             {
-                bool brk = false;
-                TrySet(lines, 7 + i, str => CollectionEntries.Add(new CollectionSprite(str)), () => brk = true);
+                ds = new Map16.DisplaySprite();
+                TrySet(lines, currentLine++, str =>
+                {
+                    Map16.DisplaySprite.FillData(ds, str);
+                }, () => brk = true);
+                TrySet(lines, currentLine++, str =>
+                {
+                    ds.Description = str;
+                }, () => brk = true);
+
                 if (brk) break;
+                DisplayEntries.Add(ds);
             }
 
+            //line 10+ (collection count)
+            int collectionCount = 0;
+            TrySet(lines, currentLine++, str => collectionCount = Convert.ToInt32(str), () => collectionCount = 0);
+
+            //line 11+ (collection info)
+            brk = false;
+            for (int i = 0; i < collectionCount && !brk; i++)
+                TrySet(lines, currentLine++, str => CollectionEntries.Add(new CollectionSprite(str)), () => brk = true);
+
+
+            if (DisplayEntries.Count == 0)
+                DisplayEntries.Add(Map16.DisplaySprite.Default);
             if (CollectionEntries.Count == 0)
                 CollectionEntries.Add(new CollectionSprite() { Name = System.IO.Path.GetFileNameWithoutExtension(AsmFile) });
-
         }
 
         /// <summary>
@@ -293,13 +270,44 @@ namespace CFG
 
             sb.AppendLine(string.Format("{0:X2} {1:X2}", ExProp1, ExProp2));
             sb.AppendLine(AsmFile);
+
+            //v1.1
             sb.AppendLine(string.Format("{0:X2}:{1:X2}", ByteCount, ExByteCount));
+
+            //v1.2
+            sb.AppendLine(string.Join(" ", CustomMap16Data.Select(b => b.ToString("X2"))));
+
+            sb.AppendLine(DisplayEntries.Count.ToString());
+            foreach (var dis in DisplayEntries)
+            {
+                sb.AppendLine(dis.GetTileLine());
+                sb.AppendLine(dis.Description);
+            }
 
             sb.AppendLine(CollectionEntries.Count.ToString());
             foreach (var col in CollectionEntries)
                 sb.AppendLine(col.ToString());
 
+
             return sb.ToString().TrimEnd('\r', '\n');
+        }
+
+        /// <summary>
+        /// Read the data from a json string.
+        /// </summary>
+        /// <param name="json">The json string</param>
+        public void FromJson(string json)
+        {
+            var cfgJson = Newtonsoft.Json.JsonConvert.DeserializeObject<CFG.Json.JsonCfgFile>(json);
+            cfgJson.FillData(this);
+        }
+        /// <summary>
+        /// Converts the data into an indented json string
+        /// </summary>
+        /// <returns></returns>
+        public string ToJson()
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(new Json.JsonCfgFile(this), Newtonsoft.Json.Formatting.Indented);
         }
 
         /// <summary>
@@ -321,24 +329,25 @@ namespace CFG
 
             CollectionEntries.Clear();
             DisplayEntries.Clear();
-            DisplayEntries.Add(Map16.DisplaySprite.Default);
             CustomMap16Data = new byte[0];
         }
 
 
         
-		protected void SetPropertyValue<T>(ref T priv, T val, [CallerMemberName] string caller = "")
+		protected bool SetPropertyValue<T>(ref T priv, T val, [CallerMemberName] string caller = "")
 		{
 			bool pn = ReferenceEquals(priv, null);
 			bool vn = ReferenceEquals(val, null);
 
 			if (pn && vn)
-				return;
+				return false;
 			if ((pn && !vn) || !priv.Equals(val))
 			{
 				priv = val;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(caller));
+                return true;
             }
+            return false;
 		}
 
 	}

@@ -3,21 +3,17 @@
 #include "structs.h"
 
 
-typedef void (*linehandler)(const char*, sprite*, int&);
+typedef void (*linehandler)(const char*, sprite*, int&, void*);
 
 
-void cfg_type(const char* line, sprite* spr, int& handle);
-void cfg_actlike(const char* line, sprite* spr, int& handle);
-void cfg_tweak(const char* line, sprite* spr, int& handle);
-void cfg_prop(const char* line, sprite* spr, int& handle);
-void cfg_asm(const char* line, sprite* spr, int& handle);
-void cfg_extra(const char* line, sprite* spr, int& handle);
+void cfg_type(const char* line, sprite* spr, int& handle, void*);
+void cfg_actlike(const char* line, sprite* spr, int& handle, void*);
+void cfg_tweak(const char* line, sprite* spr, int& handle, void*);
+void cfg_prop(const char* line, sprite* spr, int& handle, void*);
+void cfg_asm(const char* line, sprite* spr, int& handle, void*);
+void cfg_extra(const char* line, sprite* spr, int& handle, void*);
 
-// void cfg_name(const char* line, sprite* spr, int& handle);
-// void cfg_map16(const char* line, sprite* spr, int& handle);
-// void cfg_ssc(const char* line, sprite* spr, int& handle);
-
-bool read_cfg_file(sprite* spr, const char* cfg, FILE* output) {
+bool read_cfg_file(sprite* spr, FILE* output) {
 
 	const int handlelimit = 6;
 	linehandler handlers[handlelimit];
@@ -30,29 +26,26 @@ bool read_cfg_file(sprite* spr, const char* cfg, FILE* output) {
 	handlers[4] = &cfg_asm;
 	handlers[5] = &cfg_extra;
 	
-	// handlers[6] = nullptr;
-	// handlers[7] = &cfg_name;
-	// handlers[8] = &cfg_map16;
-	// handlers[9] = &cfg_ssc;
-	
-	
 	
 	int bytes_read = 0;
 	simple_string current_line;
 	int line = 0;
 				
-	//int nummap16 = 0, numname = 0, numssc = 0;
-				
+   int count = 0;
+   const char* cfg = (char*)read_all(spr->cfg_file, true);
+            
 	do{
 		current_line = static_cast<simple_string &&>(get_line(cfg, bytes_read));
 		bytes_read += current_line.length;
 		if(!current_line.length || !trim(current_line.data)[0])
 			continue;
 
-		handlers[line](current_line.data, spr, line);
+		handlers[line](current_line.data, spr, line, &count);
 		
-		if(line < 0)
+		if(line < 0) {
+         delete[] cfg;
 			return false;
+      }
 		
 	}while(current_line.length && line < handlelimit);
 		
@@ -83,23 +76,24 @@ bool read_cfg_file(sprite* spr, const char* cfg, FILE* output) {
 		set_pointer(&spr->table.main, (MAIN_PTR + 2 * spr->number));
 	}
    
+   delete[] cfg;
    return true;
 }
 
-void cfg_type(const char* line, sprite* spr, int& handle) { sscanf(line, "%x", &spr->table.type); handle++; }
-void cfg_actlike(const char* line, sprite* spr, int& handle) { sscanf(line, "%x", &spr->table.actlike); handle++; }
-void cfg_tweak(const char* line, sprite* spr, int& handle) {
+void cfg_type(const char* line, sprite* spr, int& handle, void*) { sscanf(line, "%x", &spr->table.type); handle++; }
+void cfg_actlike(const char* line, sprite* spr, int& handle, void*) { sscanf(line, "%x", &spr->table.actlike); handle++; }
+void cfg_tweak(const char* line, sprite* spr, int& handle, void*) {
 	sscanf(line, "%x %x %x %x %x %x",	
 		&spr->table.tweak[0], &spr->table.tweak[1], &spr->table.tweak[2],
 		&spr->table.tweak[3], &spr->table.tweak[4], &spr->table.tweak[5]);
 	handle++; 
 }
-void cfg_prop(const char* line, sprite* spr, int& handle) {
+void cfg_prop(const char* line, sprite* spr, int& handle, void*) {
 	sscanf(line, "%x %x",	
 		&spr->table.extra[0], &spr->table.extra[1]);
 	handle++; 
 }
-void cfg_asm(const char* line, sprite* spr, int& handle) {	
+void cfg_asm(const char* line, sprite* spr, int& handle, void*) {	
 
 	//fetches path of cfg file and appand it before asm path.	
 	char* dic_end = strrchr(spr->cfg_file,'/');	//last '/' in string
@@ -114,8 +108,7 @@ void cfg_asm(const char* line, sprite* spr, int& handle) {
 	handle++; 
 }
 
-
-void cfg_extra(const char* line, sprite* spr, int& handle){
+void cfg_extra(const char* line, sprite* spr, int& handle, void*){
 	int num = 0;
 	int num_ex = 0;
 	char c = 'F';
@@ -139,82 +132,5 @@ void cfg_extra(const char* line, sprite* spr, int& handle){
 	spr->byte_count = num;
 	spr->extra_byte_count = num_ex;
 }
-
-
-// void cfg_assmbl(const char* line, sprite* spr, int& handle){
-	// int numname = 0;
-	// int nummap16 = 0xFF;
-	// int numssc = 0xFF;
-	
-	// sscanf(line, "%d %d %d",
-		// &numname,
-		// &nummap16,
-		// &numssc);
-	
-	// if(numname > 2)
-		// return;			//somehow pass an error?
-	
-	// //return if not enough arguments => old cfg file.
-	// if(nummap16 == 0xFF)
-		// return;
-	
-	// spr->name_size = numname;
-	
-	// spr->map_data_size = nummap16;
-	// spr->map_data = new map16[nummap16];
-	
-	// spr->ssc_size = numssc;
-	// spr->ssc = new (unsigned char*)[numssc];
-	
-	// handle++;
-// }
-
-// void cfg_extra(const char* line, sprite* spr, int& handle) {
-	// sscanf(line, "%d", spr->extra_byte);
-	// handle++;
-// }
-
-// void cfg_name(const char* line, sprite* spr, int& handle) {
-	// //if no more sprite names to read, continue with next handler and return
-	// if(!spr->name_size) {
-		// handle++;
-		// return;
-	// }
-	
-	// spr->name_size--;
-	// char* name = new char[strlen(line) + 1];
-	// memcpy(name, line, strlen(line) + 1);
-	// spr->name[spr->name_size] = name;
-// }
-
-// void cfg_map16(const char* line, sprite* spr, int& handle) {
-	// //if no more map16 to read, continue with next handler and return
-	// if(!spr->map_data_size) {
-		// handle++;
-		// return;
-	// }
-	
-	// spr->map_data_size--;	
-	
-	// unsigned char* data = (unsigned char*)(spr->map_data + spr->name_size);
-	// sscanf(line, "%x %x %x %x %x %x %x %x",
-		// &data[0], &data[1],
-		// &data[2], &data[3],
-		// &data[4], &data[5],
-		// &data[6], &data[7]);		
-// }
-
-// void cfg_ssc(const char* line, sprite* spr, int& handle) {
-	// //if no more map16 to read, continue with next handler and return
-	// if(!spr->ssc_size) {
-		// handle++;
-		// return;
-	// }
-	// spr->ssc_size--;
-	
-	// char* ssc = new char[strlen(line) + 1];
-	// memcpy(ssc, line, strlen(line) + 1);
-	// spr->ssc[spr->ssc_size] = ssc;
-// }
 
 

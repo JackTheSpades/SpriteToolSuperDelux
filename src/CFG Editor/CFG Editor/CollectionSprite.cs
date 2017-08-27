@@ -27,6 +27,7 @@ namespace CFG
         }
 
         private byte _ExtraPropertyByte1;
+        [Newtonsoft.Json.JsonProperty("Extra Property Byte 1")]
         public byte ExtraPropertyByte1
         {
             get { return _ExtraPropertyByte1; }
@@ -34,6 +35,7 @@ namespace CFG
         }
 
         private byte _ExtraPropertyByte2;
+        [Newtonsoft.Json.JsonProperty("Extra Property Byte 2")]
         public byte ExtraPropertyByte2
         {
             get { return _ExtraPropertyByte2; }
@@ -41,6 +43,7 @@ namespace CFG
         }
 
         private byte _ExtraPropertyByte3;
+        [Newtonsoft.Json.JsonProperty("Extra Property Byte 3")]
         public byte ExtraPropertyByte3
         {
             get { return _ExtraPropertyByte3; }
@@ -48,6 +51,7 @@ namespace CFG
         }
 
         private byte _ExtraPropertyByte4;
+        [Newtonsoft.Json.JsonProperty("Extra Property Byte 4")]
         public byte ExtraPropertyByte4
         {
             get { return _ExtraPropertyByte4; }
@@ -59,9 +63,9 @@ namespace CFG
         }
         public CollectionSprite(string line)
         {
-            var match = System.Text.RegularExpressions.Regex.Match(line, "(?<E>\\d) (?<P1>[0-9A-Fa-f]{1,2}) (?<P2>[0-9A-Fa-f]{1,2}) (?<P3>[0-9A-Fa-f]{1,2}) (?<P4>[0-9A-Fa-f]{1,2}) (?<NAME>\\s*)");
+            var match = System.Text.RegularExpressions.Regex.Match(line, "(?<E>\\d) (?<P1>[0-9A-Fa-f]{1,2}) (?<P2>[0-9A-Fa-f]{1,2}) (?<P3>[0-9A-Fa-f]{1,2}) (?<P4>[0-9A-Fa-f]{1,2}) (?<NAME>.*)");
 
-            ExtraBit = match.Groups["E"].Value == "1";
+            ExtraBit = match.Groups["E"].Value != "0";
             ExtraPropertyByte1 = Convert.ToByte(match.Groups["P1"].Value, 16);
             ExtraPropertyByte2 = Convert.ToByte(match.Groups["P2"].Value, 16);
             ExtraPropertyByte3 = Convert.ToByte(match.Groups["P3"].Value, 16);

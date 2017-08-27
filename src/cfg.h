@@ -17,6 +17,6 @@ struct sprite;
 	@param dir -ectory of the asm file
 	@param output to write the debug information into, leave as nullptr for no output to be used
 */
-bool read_cfg_file(sprite* spr, const char* content, FILE* output);
+bool read_cfg_file(sprite* spr, FILE* output);
 
 #endif

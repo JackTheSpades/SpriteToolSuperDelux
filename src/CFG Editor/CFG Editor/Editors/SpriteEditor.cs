@@ -56,20 +56,22 @@ namespace CFG.Map16
                     _Sprite.PropertyChanged -= Sprite_PropertyChanged;
                 }
                 _Sprite = value;
-                _Sprite.Tiles.ListChanged += Tiles_ListChanged;
-                _Sprite.PropertyChanged += Sprite_PropertyChanged;
-
-                if (_Sprite.UseText)
+                if (_Sprite != null)
                 {
-                    rtbDisplayText.Visible = true;
-                    pcbSprite.Height = 112;
-                }
-                else
-                {
-                    rtbDisplayText.Visible = false;
-                    pcbSprite.Height = 176;
-                }
+                    _Sprite.Tiles.ListChanged += Tiles_ListChanged;
+                    _Sprite.PropertyChanged += Sprite_PropertyChanged;
 
+                    if (_Sprite.UseText)
+                    {
+                        rtbDisplayText.Visible = true;
+                        pcbSprite.Height = 112;
+                    }
+                    else
+                    {
+                        rtbDisplayText.Visible = false;
+                        pcbSprite.Height = 176;
+                    }
+                }
                 Redraw();
             }
 
