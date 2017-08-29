@@ -84,10 +84,7 @@ struct display {
 struct collection {
    const char* name = nullptr;
    bool extra_bit = false;
-   unsigned char prop1 = 0;
-   unsigned char prop2 = 0;
-   unsigned char prop3 = 0;
-   unsigned char prop4 = 0;
+   unsigned char prop[4];
    
    ~collection();
 };

@@ -1,2 +1,2 @@
-pixi.exe -d -k clean.smc
+pixi.exe -d -k test/clean.smc
 @pause

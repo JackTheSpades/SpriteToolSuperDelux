@@ -20,14 +20,12 @@
 #define CLUSTER 6
 #define OVERWORLD 7
 
-#define DEBUGMSG
-
 #define TEMP_SPR_FILE "spr_temp.asm"
 #define SPRITE_COUNT 0x80	//count for other sprites like cluster, ow, extended
 
 
 //version 1.xx
-const char VERSION = 0x01;
+const char VERSION = 0x02;
 
 void double_click_exit()
 {
@@ -61,7 +59,7 @@ T* from_table(T* table, int level, int number) {
 }
 
 bool patch(const char* patch_name, ROM &rom, const char *debug_name) {
-   debug_print("Try patch: %-20s ", patch_name);
+   debug_print("Try patch: %-20s\n", patch_name);
 	if(!asar_patch(patch_name, (char *)rom.real_data, MAX_ROM_SIZE, &rom.size)){
       debug_print("Failure. Try fetch errors:\n");
 		int error_count;
@@ -485,8 +483,10 @@ void write_long_table(sprite* spr, const char* filename, int size = 0x800) {
 
 FILE* open_subfile(ROM &rom, const char* ext, const char* mode) {
    char* name = new char[strlen(rom.name) + 1];
+   strcpy(name, rom.name);
    char* dot = strrchr(name, '.');
    strcpy(dot + 1, ext);
+   debug_print("\ttry opening %s mode %s\n", name, mode);
    FILE* r = open(name, mode);   
    delete[] name;
    return r;
@@ -632,12 +632,15 @@ int main(int argc, char* argv[]) {
 	patch_sprites(cluster_list, SPRITE_COUNT, rom, output);
 	patch_sprites(extended_list, SPRITE_COUNT, rom, output);
 	//patch_sprites(ow_list, SPRITE_COUNT, rom, output);
+   
+   debug_print("Sprites successfully patched.\n");
 	
 	//------------------------------------------------------------------------------------------
 	// create binary files
 	//------------------------------------------------------------------------------------------	
 	
 	//sprites
+   debug_print("Try create binaries.\n");
 	write_all(versionflag, "asm/_versionflag.bin", 4);	
 	write_long_table(sprite_list + 0x0000, "asm/_PerLevelT1.bin");
 	write_long_table(sprite_list + 0x0800, "asm/_PerLevelT2.bin");
@@ -665,6 +668,7 @@ int main(int argc, char* argv[]) {
 	// write_all(file, "asm/_OverworldInitPtr.bin", SPRITE_COUNT * 3);
 		
 	//more?
+   debug_print("Binaries created.\n");
 		
 	
 		
@@ -672,13 +676,16 @@ int main(int argc, char* argv[]) {
    //plus data for .ssc, .mwt, .mw2 files
 	unsigned char extra_bytes[0x200];
    
+   debug_print("Try create romname files.\n");
    FILE* s16 = open_subfile(rom, "s16", "wb");
    FILE* ssc = open_subfile(rom, "ssc", "w");
    FILE* mwt = open_subfile(rom, "mwt", "w");
    FILE* mw2 = open_subfile(rom, "mw2", "wb");
+   debug_print("\tromname files opened.\n");
    
    map16 map[MAP16_SIZE];
    
+   fputc(0x00, mw2);
 	for(int i = 0; i < 0x100; i++) {
 		sprite* spr = from_table<sprite>(sprite_list, 0x200, i);	
 		
@@ -694,8 +701,6 @@ int main(int argc, char* argv[]) {
             //----- s16 / map16 -------------------------------------------------
             
             int map16_tile = find_free_map(map, spr->map_block_count);
-            if(map16_tile == -1)
-               error("No more space left in s16 (sprite map16 block data). Wtf dude?");
             memcpy(map + map16_tile, spr->map_data, spr->map_block_count * sizeof(map16));
             
             //----- ssc / display -----------------------------------------------
@@ -714,7 +719,7 @@ int main(int argc, char* argv[]) {
                for(int k = 0; k < d->tile_count; k++) {
                   tile* t = d->tiles + k;
                   if(t->text) {
-                     fprintf(ssc, " 0,0,*%s*\n", t->text);
+                     fprintf(ssc, " 0,0,*%s*", t->text);
                      break;
                   } else {
                      int tile_num = t->tile_number;
@@ -722,10 +727,26 @@ int main(int argc, char* argv[]) {
                         tile_num += 0x100 + map16_tile;
                      fprintf(ssc, " %d,%d,%x", t->x_offset, t->y_offset, tile_num);
                   }
-               }               
+               }
+               fprintf(ssc, "\n");
             }
             
-            //----- mwt,mw2 / collection ------------------------------------------
+            //----- mwt,mw2 / collection ------------------------------------------          
+            for(int j = 0; j < spr->collection_count; j++) {
+               collection* c = spr->collections + j;
+               
+               //mw2
+               char c1 = 0x79 + (c->extra_bit ? 0x04 : 0);
+               fputc(c1, mw2); fputc(0x70, mw2); fputc(spr->number, mw2);               
+               int byte_count = (c->extra_bit ? spr->extra_byte_count : spr->byte_count);
+               fwrite(c->prop, 1, byte_count, mw2);
+               
+               //mwt
+               if(j == 0)
+                  fprintf(mwt, "%2X\t%s\n", spr->number, c->name);
+               else
+                  fprintf(mwt, "\t%s\n", c->name);
+            }
             
 			} else  {
 				extra_bytes[i] = 3;
@@ -733,8 +754,10 @@ int main(int argc, char* argv[]) {
 			}
 		}
 	}
+   fputc(0xFF, mw2);
+            
 	write_all(extra_bytes, "asm/_CustomSize.bin", 0x200);
-   fwrite(map, sizeof(map16), sizeof(map), s16);
+   fwrite(map, sizeof(map16), MAP16_SIZE, s16);
    fclose(s16); fclose(ssc); fclose(mwt); fclose(mw2);
 	
 	//apply the actual patches

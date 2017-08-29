@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CollectionSprite.cs" />
+    <Compile Include="Converter.cs" />
     <Compile Include="Editors\PaletteEditorForm.cs">
       <SubType>Form</SubType>
     </Compile>

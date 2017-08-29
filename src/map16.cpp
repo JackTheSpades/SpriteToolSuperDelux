@@ -9,7 +9,7 @@ int find_free_map(map16* map, int count) {
    char* zero = new char[count * 8];
    memset(zero, 0, count * 8);
    
-	for(int i = 0; i < MAP16_SIZE; i+= 8) {
+	for(int i = 0; i < MAP16_SIZE; i++) {
 		if(!memcmp(zero, (char*)(map + i), 8)) {
          delete[] zero;
 			return i;

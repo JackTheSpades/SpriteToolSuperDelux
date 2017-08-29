@@ -105,6 +105,18 @@ namespace CFG
 
 		public CFG_Editor(string[] args)
         {
+            if(args.Length > 0)
+            {
+                int flag = Array.IndexOf(args, "-c");
+                if (flag >= 0)
+                {
+                    Converter.Convert(args.Skip(flag + 1));
+                    Environment.Exit(0);
+                    return;
+                }
+            }
+
+
             InitializeComponent();
 
             #region Default Tab
@@ -703,7 +715,7 @@ namespace CFG
             SaveFileDialog sfd = new SaveFileDialog();
 			sfd.Title = "Save CFG File";
             sfd.Filter = "Json CFG File|*.json|CFG File|*.cfg";
-			sfd.FileName = Path.ChangeExtension(Filename, ".json");
+            sfd.FileName = Path.GetFileName(Path.ChangeExtension(Filename, ".json"));
 			if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
 				return;
 

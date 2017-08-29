@@ -3,6 +3,8 @@
 #include "json/base64.h"
 #include "json_const.h"
 #include "structs.h"
+#include "file_io.h"
+
 #include <string.h>
 #include <fstream>
 
@@ -24,85 +26,95 @@ bool read_json_file(sprite* spr, FILE* output) {
    json j;
    std::ifstream instr(spr->cfg_file);
    instr >> j;
-   
 
-   spr->asm_file = strcln(j["AsmFile"]);
-   spr->table.actlike = j["ActLike"];
-   spr->table.type = j["Type"];
-   
-   spr->table.extra[0] = j["Extra Property Byte 1"];
-   spr->table.extra[1] = j["Extra Property Byte 2"];
-   
-   spr->byte_count = j["Additional Byte Count (extra bit clear)"];
-   spr->extra_byte_count = j["Additional Byte Count (extra bit set)"];
-   
-   unsigned char tmp = 0;
-   #define SET(TWEAK, J) {\
-         tmp = 0;\
-         J(tmp, j);\
-         spr->table.tweak[TWEAK] = tmp;\
+   try {
+      
+      std::string asm_file = j.at("AsmFile");
+      spr->asm_file = append_to_dir(spr->cfg_file, asm_file.c_str());
+      spr->table.actlike = j.at("ActLike");
+      spr->table.type = j.at("Type");
+      
+      spr->table.extra[0] = j.at("Extra Property Byte 1");
+      spr->table.extra[1] = j.at("Extra Property Byte 2");
+      
+      spr->byte_count = j.at("Additional Byte Count (extra bit clear)");
+      spr->extra_byte_count = j.at("Additional Byte Count (extra bit set)");
+      
+      unsigned char tmp = 0;
+      #define SET(TWEAK, J) {\
+            tmp = 0;\
+            J(tmp, j);\
+            spr->table.tweak[TWEAK] = tmp;\
+         }
+         
+      SET(0, J1656)
+      SET(1, J1662)
+      SET(2, J166E)
+      SET(3, J167A)
+      SET(4, J1686)
+      SET(5, J190F)
+         
+      #undef SET
+      
+      std::string decoded = base64_decode(j.at("Map16"));
+      spr->map_block_count = decoded.size() / 8;
+      spr->map_data = (map16*)strcln(decoded);
+      
+      //displays
+      spr->display_count = j.at("Displays").size();
+      spr->displays = new display[spr->display_count];
+      int counter = 0;
+      for(auto jdisplay : j.at("Displays")) {
+         display* dis = spr->displays + counter;
+         
+         dis->description = strcln(jdisplay.at("Description"));
+         
+         dis->x = jdisplay.at("X");
+         dis->y = jdisplay.at("Y");
+         dis->extra_bit = jdisplay.at("ExtraBit");
+         if(jdisplay.at("UseText")) {
+            dis->tile_count = 1;
+            dis->tiles = new tile[1];
+            dis->tiles->text = strcln(jdisplay.at("DisplayText"));
+         }
+         else {
+            dis->tile_count = jdisplay.at("Tiles").size();
+            dis->tiles = new tile[dis->tile_count];
+            int counter2 = 0;
+            for(auto jtile : jdisplay.at("Tiles")) {
+               tile* til = dis->tiles + counter2;
+               til->x_offset = jtile.at("X offset");
+               til->y_offset = jtile.at("Y offset");
+               til->tile_number = jtile.at("map16 tile");
+               counter2++;
+            }         
+         }      
+         counter++;
       }
       
-   SET(0, J1656)
-   SET(1, J1662)
-   SET(2, J166E)
-   SET(3, J167A)
-   SET(4, J1686)
-   SET(5, J190F)
-      
-   #undef SET
-   
-   std::string decoded = base64_decode(j["Map16"]);
-   spr->map_block_count = decoded.size() / 8;
-   spr->map_data = (map16*)strcln(decoded);
-   
-   //displays
-   spr->display_count = j["Displays"].size();
-   spr->displays = new display[spr->display_count];
-   int counter = 0;
-   for(auto jdisplay : j["Displays"]) {
-      display* dis = spr->displays + counter;
-      
-      dis->description = strcln(jdisplay["Description"]);
-      
-      dis->x = jdisplay["X"];
-      dis->y = jdisplay["Y"];
-      dis->extra_bit = jdisplay["ExtraBit"];
-      if(jdisplay["UseText"]) {
-         dis->tile_count = 1;
-         dis->tiles = new tile[1];
-         dis->tiles->text = strcln(jdisplay["DisplayText"]);
+      //collections
+      counter = 0;
+      spr->collection_count = j.at("Collection").size();
+      spr->collections = new collection[spr->collection_count];
+      for(auto jCollection : j.at("Collection")) {
+         collection* col = spr->collections + counter;
+         col->name = strcln(jCollection.at("Name"));
+         col->extra_bit = jCollection.at("ExtraBit");
+         col->prop[0] = jCollection.at("Extra Property Byte 1");
+         col->prop[1] = jCollection.at("Extra Property Byte 2");
+         col->prop[2] = jCollection.at("Extra Property Byte 3");
+         col->prop[3] = jCollection.at("Extra Property Byte 4");
+         counter++;
       }
-      else {
-         dis->tile_count = jdisplay["Tiles"].size();
-         dis->tiles = new tile[dis->tile_count];
-         int counter2 = 0;
-         for(auto jtile : jdisplay["Tiles"]) {
-            tile* til = dis->tiles + counter2;
-            til->x_offset = jtile["X offset"];
-            til->y_offset = jtile["Y offset"];
-            til->tile_number = jtile["map16 tile"];
-            counter2++;
-         }         
-      }      
-      counter++;
-   }
-   
-   //collections
-   counter = 0;
-   spr->collection_count = j["Collection"].size();
-   spr->collections = new collection[spr->collection_count];
-   for(auto jCollection : j["Collection"]) {
-      collection* col = spr->collections + counter;
-      col->name = strcln(jCollection["Name"]);
-      col->extra_bit = jCollection["ExtraBit"];
-      col->prop1 = jCollection["Extra Property Byte 1"];
-      col->prop2 = jCollection["Extra Property Byte 2"];
-      col->prop3 = jCollection["Extra Property Byte 3"];
-      col->prop4 = jCollection["Extra Property Byte 4"];
-      counter++;
-   }
-   
-   return true;
-   
+      
+      return true;
+   } catch( const std::domain_error& e) {
+      if(output)
+         fprintf(output, "Error when parsing json: %s", e.what());
+      return false;
+   } catch( const std::out_of_range& e ) {
+      if(output)
+         fprintf(output, "Error when parsing json: %s", e.what());
+      return false;
+   }   
 }

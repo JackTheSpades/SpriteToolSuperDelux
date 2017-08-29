@@ -300,6 +300,8 @@ namespace CFG
         {
             var cfgJson = Newtonsoft.Json.JsonConvert.DeserializeObject<CFG.Json.JsonCfgFile>(json);
             cfgJson.FillData(this);
+            PropertyChanged(this, new PropertyChangedEventArgs(nameof(DisplayEntries)));
+            PropertyChanged(this, new PropertyChangedEventArgs(nameof(CollectionEntries)));
         }
         /// <summary>
         /// Converts the data into an indented json string

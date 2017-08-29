@@ -95,16 +95,7 @@ void cfg_prop(const char* line, sprite* spr, int& handle, void*) {
 }
 void cfg_asm(const char* line, sprite* spr, int& handle, void*) {	
 
-	//fetches path of cfg file and appand it before asm path.	
-	char* dic_end = strrchr(spr->cfg_file,'/');	//last '/' in string
-	size_t len = 0;
-	if(dic_end) len = dic_end - spr->cfg_file + 1;
-		
-	spr->asm_file = new char[len + strlen(line) + 1];     
-	strncpy(spr->asm_file, spr->cfg_file, len);
-	spr->asm_file[len] = 0;
-	strcat(spr->asm_file, line); 
-	
+   spr->asm_file = append_to_dir(spr->cfg_file, line);	
 	handle++; 
 }
 
