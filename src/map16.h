@@ -1,7 +1,7 @@
 #ifndef MAP16_H
 #define MAP16_H
 
-#define MAP16_SIZE 0x8000
+#define MAP16_SIZE 0x1000
 
 struct map16;
 

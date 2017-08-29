@@ -64,7 +64,7 @@ struct tile {
    int x_offset = 0;
    int y_offset = 0;
    int tile_number = 0;
-   char* text = nullptr;
+   const char* text = nullptr;
 
    ~tile();
    
@@ -132,8 +132,8 @@ struct sprite {
 	int extra_byte_count = 0;
 	
 	const char* directory = nullptr;
-	char* asm_file = nullptr;
-	char* cfg_file = nullptr;
+	const char* asm_file = nullptr;
+	const char* cfg_file = nullptr;
 	
 	int map_block_count = 0;
 	map16* map_data = nullptr;

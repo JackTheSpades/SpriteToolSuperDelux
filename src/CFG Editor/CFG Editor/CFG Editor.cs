@@ -534,6 +534,11 @@ namespace CFG
             switch(ext.ToLower())
             {
                 case ".cfg":
+                    Data.FromLines(File.ReadAllText(path));
+                    FileType = FileType.CfgFile;
+                    break;
+                case ".json":
+                    Data.FromJson(File.ReadAllText(path));
                     FileType = FileType.CfgFile;
                     break;
                 case ".smc":
@@ -547,7 +552,6 @@ namespace CFG
 
             if (FileType == FileType.CfgFile)
             {
-                Data.FromLines(File.ReadAllText(path));
                 cmbType.DataSource = types_list;
                 cmbType.SelectedIndex = Data.Type;
                 disabled_controlls.ForEach(c => c.Enabled = Data.Type != 0);
@@ -671,7 +675,7 @@ namespace CFG
 		private void loadToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			OpenFileDialog ofd = new OpenFileDialog();
-			ofd.Filter = "CFG file|*.cfg|ROM file|*.smc;*.sfc";
+			ofd.Filter = "JSON file|*.json|CFG file|*.cfg|ROM file|*.smc;*.sfc";
 			ofd.Title = "Load CFG file";
 			if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
 				return;

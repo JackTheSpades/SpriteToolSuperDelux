@@ -36,7 +36,7 @@ namespace Build_Json_Cpp
 
                     int bit = attr.Order;
                     string define = string.Format("J{0}_{1}", addr, bit);
-                    sb.AppendFormat("#define {0}\t\"{1}\"\r\n", define, attr.PropertyName);
+                    sb.AppendFormat("#define {0}\t\"${1}\"][\"{2}\"\r\n", define, addr, attr.PropertyName);
 
                     if (prop.PropertyType == typeof(bool))
                         sb_sub.AppendFormat("\tc |= (j[{0}] ? 0x{1:X2} : 0);\\\r\n", define, 1 << bit);

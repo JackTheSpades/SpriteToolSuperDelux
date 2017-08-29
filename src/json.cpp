@@ -24,6 +24,7 @@ bool read_json_file(sprite* spr, FILE* output) {
    json j;
    std::ifstream instr(spr->cfg_file);
    instr >> j;
+   
 
    spr->asm_file = strcln(j["AsmFile"]);
    spr->table.actlike = j["ActLike"];
@@ -53,16 +54,55 @@ bool read_json_file(sprite* spr, FILE* output) {
    
    std::string decoded = base64_decode(j["Map16"]);
    spr->map_block_count = decoded.size() / 8;
-   spr->map_data = (map16*)strcln(decoded.c_str());
+   spr->map_data = (map16*)strcln(decoded);
    
-   spr->display_count = j["displays"].size();
+   //displays
+   spr->display_count = j["Displays"].size();
    spr->displays = new display[spr->display_count];
    int counter = 0;
-   for(auto jdisplay : j["displays"]) {
+   for(auto jdisplay : j["Displays"]) {
       display* dis = spr->displays + counter;
+      
+      dis->description = strcln(jdisplay["Description"]);
+      
+      dis->x = jdisplay["X"];
+      dis->y = jdisplay["Y"];
+      dis->extra_bit = jdisplay["ExtraBit"];
+      if(jdisplay["UseText"]) {
+         dis->tile_count = 1;
+         dis->tiles = new tile[1];
+         dis->tiles->text = strcln(jdisplay["DisplayText"]);
+      }
+      else {
+         dis->tile_count = jdisplay["Tiles"].size();
+         dis->tiles = new tile[dis->tile_count];
+         int counter2 = 0;
+         for(auto jtile : jdisplay["Tiles"]) {
+            tile* til = dis->tiles + counter2;
+            til->x_offset = jtile["X offset"];
+            til->y_offset = jtile["Y offset"];
+            til->tile_number = jtile["map16 tile"];
+            counter2++;
+         }         
+      }      
       counter++;
    }
    
-   return false;
+   //collections
+   counter = 0;
+   spr->collection_count = j["Collection"].size();
+   spr->collections = new collection[spr->collection_count];
+   for(auto jCollection : j["Collection"]) {
+      collection* col = spr->collections + counter;
+      col->name = strcln(jCollection["Name"]);
+      col->extra_bit = jCollection["ExtraBit"];
+      col->prop1 = jCollection["Extra Property Byte 1"];
+      col->prop2 = jCollection["Extra Property Byte 2"];
+      col->prop3 = jCollection["Extra Property Byte 3"];
+      col->prop4 = jCollection["Extra Property Byte 4"];
+      counter++;
+   }
+   
+   return true;
    
 }
