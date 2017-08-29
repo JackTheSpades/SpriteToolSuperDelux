@@ -70,11 +70,6 @@ bool read_cfg_file(sprite* spr, FILE* output) {
 		}
 		fprintf(output,"\n--------------------------------------\n");
 	}
-
-	if(!spr->table.type) {
-		set_pointer(&spr->table.init, (INIT_PTR + 2 * spr->number));
-		set_pointer(&spr->table.main, (MAIN_PTR + 2 * spr->number));
-	}
    
    delete[] cfg;
    return true;

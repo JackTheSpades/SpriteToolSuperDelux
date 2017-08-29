@@ -99,6 +99,63 @@ sprite::~sprite() {
       delete[] collections;
 }
 
+void sprite::print(FILE* stream) {
+   fprintf(stream, "Type:       %02X\n", table.type);
+   fprintf(stream, "ActLike:    %02X\n", table.actlike);
+   fprintf(stream, "Tweak:      %02X, %02X, %02X, %02X, %02X, %02X\n",
+      table.tweak[0], table.tweak[1], table.tweak[2], 
+      table.tweak[3], table.tweak[4], table.tweak[5]);
+      
+   //not needed for tweaks
+   if(table.type) {
+      fprintf(stream, "Extra:      %02X, %02X\n", table.extra[0], table.extra[1]);
+      fprintf(stream, "ASM File:   %s\n", asm_file);
+      fprintf(stream, "Byte Count: %d, %d\n", byte_count, extra_byte_count);
+   }
+   
+   if(map_block_count) {
+      fprintf(stream, "Map16:\n");
+      unsigned char* mapdata = (unsigned char*)map_data;
+      for(int i = 0; i < map_block_count * 8; i++){
+         if((i % 8) == 0)
+            fprintf(stream, "\t");
+         fprintf(stream, "%02X, ", (int)mapdata[i]);
+         if((i % 8) == 7)
+            fprintf(stream, "\n");
+      }
+   }
+   
+   #define BOOL_STR(b) ((b) ? "true" : "false")
+   
+   if(display_count) {
+      fprintf(stream, "Displays:\n");
+      for(int i = 0; i < display_count; i++){
+         display* d = displays + i;
+         fprintf(stream, "\tX: %d, Y: %d, Extra-Bit: %s\n", d->x, d->y, BOOL_STR(d->extra_bit));
+         fprintf(stream, "\tDescription: %s\n", d->description);
+         for(int j = 0; j < d->tile_count; j++) {
+            tile* t = d->tiles + j;
+            if(t->text)
+               fprintf(stream, "\t\t%d,%d,*%s*\n", t->x_offset, t->y_offset, t->text);
+            else
+               fprintf(stream, "\t\t%d,%d,%X\n", t->x_offset, t->y_offset, t->tile_number);
+         }
+      }
+   }
+   
+   if(display_count) {
+      fprintf(stream, "Collections:\n");
+      for(int i = 0; i < collection_count; i++){
+         collection* c = collections + i;
+         fprintf(stream, "\tExtra-Bit: %s, Property Bytes: (%02X %02X %02X %02X) Name: %s\n", BOOL_STR(c->extra_bit),
+            c->prop[0], c->prop[1], c->prop[2], c->prop[3],
+            c->name);
+      }
+   }
+   
+   #undef BOOL_STR
+}
+
 tile::~tile() {
    if(text)
       delete[] text;

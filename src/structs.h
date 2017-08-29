@@ -142,6 +142,7 @@ struct sprite {
    collection* collections = nullptr;
 		
 	~sprite();
+   void print(FILE* stream);
 };
 
 int get_pointer(unsigned char *data, int address, int size = 3, int bank = 0x00);

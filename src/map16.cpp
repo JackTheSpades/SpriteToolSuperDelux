@@ -19,6 +19,7 @@ int find_free_map(map16* map, int count) {
 	return -1;
 }
 
-void open_map16(map16** map, const char* file) {
-	(*map) = (map16*)read_all(file);
+void read_map16(map16* map, const char* file) {
+	map16* src = (map16*)read_all(file);
+   memcpy(map, src, MAP16_SIZE);
 }

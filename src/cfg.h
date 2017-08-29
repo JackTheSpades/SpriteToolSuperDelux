@@ -3,9 +3,6 @@
 
 #include <stdio.h>
 
-#define INIT_PTR 0x01817D	//snes address of default init pointers
-#define MAIN_PTR 0x0185CC	//guess what?
-
 struct sprite;
 
 /**

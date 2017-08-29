@@ -20,6 +20,14 @@
 #define CLUSTER 6
 #define OVERWORLD 7
 
+#define EXT_SSC 0
+#define EXT_MWT 1
+#define EXT_MW2 2
+#define EXT_S16 3
+
+#define INIT_PTR 0x01817D	//snes address of default init pointers
+#define MAIN_PTR 0x0185CC	//guess what?
+
 #define TEMP_SPR_FILE "spr_temp.asm"
 #define SPRITE_COUNT 0x80	//count for other sprites like cluster, ow, extended
 
@@ -355,7 +363,7 @@ bool populate_sprite_list(const char** paths, sprite** sprite_lists, const char 
 		if(!current_line.length || !trim(current_line.data)[0])
 			continue;
 		
-		//context switching
+		//context switching (also goes back to beginning of loop)
 		if(!strcmp(current_line.data, "SPRITE:"))
 			SETTYPE(Sprite)
 		if(!strcmp(current_line.data, "EXTENDED:"))
@@ -376,6 +384,7 @@ bool populate_sprite_list(const char** paths, sprite** sprite_lists, const char 
 				sscanf(current_line.data, "%x%*c%hx%n", &level, &sprite_id, &bytes_read);
 			
 			spr = from_table<sprite>(sprite_list, level, sprite_id);
+         //verify sprite pointer and determine cause if invalid
 			if(!spr) {
 				if(sprite_id >= 0x100)
 					ERROR("Error on line %d: Sprite number must be less than 0x100");
@@ -392,11 +401,11 @@ bool populate_sprite_list(const char** paths, sprite** sprite_lists, const char 
 			spr = sprite_list + sprite_id;
 		}
 					
-		
+		//check sprite pointer already in use.
 		if(spr->line)
 			ERROR("Error on line %d: Sprite number already used.");
 		
-		
+		//initialize some.
 		spr->line = line_number;
 		spr->level = level;
 		spr->number = sprite_id;
@@ -430,14 +439,11 @@ bool populate_sprite_list(const char** paths, sprite** sprite_lists, const char 
 		
 		char* dot = strrchr(file_name, '.');
 		
-		//set filename to either cfg or asm file, depending on type.
+		//set filename to either cfg/json or asm file, depending on type.
 		if(type != Sprite) {		
 		   if(!dot || (strcmp(dot, ".asm") && strcmp(dot, ".ASM")))
 			   ERROR("Error on line %d: Not an asm file.");
-			
 			spr->asm_file = file_name;
-			if(output)
-				fprintf(output, "%s\n\n--------------------------------------\n", file_name);
 		}
 		else {
 			spr->cfg_file = file_name;
@@ -451,8 +457,24 @@ bool populate_sprite_list(const char** paths, sprite** sprite_lists, const char 
                ERROR("Error on line %d: Cannot parse JSON file.");
          } else
             ERROR("Error on line %d: Unknown filetype");
-         
-		}		
+		}
+      
+      if(output) {
+         fprintf(output, "Read from line %d\n", spr->line);
+         if(spr->level != 0x200)
+            fprintf(output, "Number %02X for level %03X\n", spr->number, spr->level);
+         else
+            fprintf(output, "Number %02X\n", spr->number);
+         spr->print(output);
+         fprintf(output, "\n--------------------------------------\n");
+      }
+
+      //if sprite is tweak, set init and main pointer to contents of ROM pointer table.
+      if(!spr->table.type) {
+         set_pointer(&spr->table.init, (INIT_PTR + 2 * spr->number));
+         set_pointer(&spr->table.main, (MAIN_PTR + 2 * spr->number));
+      }
+		
 	}while(current_line.length);
 	
 	#undef ERROR
@@ -474,7 +496,6 @@ void write_long_table(sprite* spr, const char* filename, int size = 0x800) {
 	if(is_empty_table(spr, size))
 		write_all(dummy, filename, 0x10);
 	else {
-		
 		for(int i = 0; i < size; i++)
 			memcpy(file + (i * 0x10), &spr[i].table, 0x10);	
 		write_all(file, filename, size * 0x10);
@@ -496,11 +517,13 @@ int main(int argc, char* argv[]) {
 					
 	ROM rom;
 	
+   //individual lists containing the sprites for the specific sections
 	sprite sprite_list[MAX_SPRITE_COUNT];	
 	sprite cluster_list[SPRITE_COUNT];
 	sprite extended_list[SPRITE_COUNT];
 	sprite ow_list[SPRITE_COUNT];
 	
+   //the list containing the lists...
 	sprite* sprites_list_list[4];	
 	sprites_list_list[Sprite] = sprite_list;
 	sprites_list_list[Extended] = extended_list;
@@ -513,6 +536,7 @@ int main(int argc, char* argv[]) {
 	//first is version 1.xx, others are preserved
 	unsigned char versionflag[4] = { VERSION, 0x00, 0x00, 0x00 };
 	
+   //list of strings containing the default paths.
 	const char* paths[8];
 	paths[ROUTINES] = "routines/";
 	paths[SPRITES] = "sprites/";
@@ -522,13 +546,20 @@ int main(int argc, char* argv[]) {
 	paths[EXTENDED] = "extended/";
 	paths[CLUSTER] = "cluster/";
 	paths[OVERWORLD] = "overworld/";
+   
+   //list of strings containing the files to be used as base for <romname.xxx>
+   //all nullptr by default
+   const char* extensions[4] = {0};
+   
+   //map16 for sprite displays
+   map16 map[MAP16_SIZE];
 	
 	if(argc < 2){
-        atexit(double_click_exit);
+      atexit(double_click_exit);
    }
 
 	if(!asar_init()){
-		error("Error: Asar library is missing, please redownload the tool or add the dll.\n", "");
+		error("Error: Asar library is missing or couldn't be initialized, please redownload the tool or add the dll.\n", "");
 	}
 	
 	//------------------------------------------------------------------------------------------
@@ -536,50 +567,54 @@ int main(int argc, char* argv[]) {
 	//------------------------------------------------------------------------------------------
 		
 	for(int i = 1; i < argc; i++){
+   
+      #define SET_PATH(str, index) else if(!strcmp(argv[i], str) && i < argc - 2) { paths[index] = argv[i+1]; i++; }
+      #define SET_EXT(str, index) else if(!strcmp(argv[i], str) && i < argc - 2) { extensions[index] = argv[i+1]; i++; }
+   
 		if(!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help") ){
 			printf("Version 1.%02d\n", VERSION);
 			printf("Usage: pixi <options> <ROM>\nOptions are:\n");
 			printf("-d\t\tEnable debug output\n");
 			printf("-k\t\tKeep debug files\n");
-			printf("-l  <listpath>\tSpecify a custom list file (Default: %s)\n", paths[LIST]);
+			printf("-l   <listpath>\tSpecify a custom list file (Default: %s)\n", paths[LIST]);
 			printf("\n");
 			
-			printf("-sp <sprites>\tSpecify a custom sprites directory (Default %s)\n", paths[SPRITES]);
-			printf("-sh <shooters>\tSpecify a custom shooters directory (Default %s)\n", paths[SHOOTERS]);
-			printf("-g  <generators>\tSpecify a custom generators directory (Default %s)\n", paths[GENERATORS]);
-			printf("-e  <extended>\tSpecify a custom extended sprites directory (Default %s)\n", paths[EXTENDED]);
-			printf("-c  <cluster>\tSpecify a custom cluster sprites directory (Default %s)\n", paths[CLUSTER]);			
-			//printf("-ow <cluster>\tSpecify a custom overworld sprites directory (Default %s)\n", paths[OVERWORLD]);
+			printf("-sp  <sprites>\tSpecify a custom sprites directory (Default %s)\n", paths[SPRITES]);
+			printf("-sh  <shooters>\tSpecify a custom shooters directory (Default %s)\n", paths[SHOOTERS]);
+			printf("-g   <generators>\tSpecify a custom generators directory (Default %s)\n", paths[GENERATORS]);
+			printf("-e   <extended>\tSpecify a custom extended sprites directory (Default %s)\n", paths[EXTENDED]);
+			printf("-c   <cluster>\tSpecify a custom cluster sprites directory (Default %s)\n", paths[CLUSTER]);			
+			//printf("-ow  <overworld>\tSpecify a custom overworld sprites directory (Default %s)\n", paths[OVERWORLD]);
 			printf("\n");
 			
-			printf("-r  <sharedpath>\tSpecify a shared routine directory (Default %s)\n", paths[ROUTINES]);
+			printf("-r   <routines>\tSpecify a shared routine directory (Default %s)\n", paths[ROUTINES]);
+			printf("\n");
+         
+         printf("-ssc <append ssc>\tSpecify ssc file to be copied into <romname>.ssc\n");
+         printf("-mwt <append mwt>\tSpecify mwt file to be copied into <romname>.mwt\n");
+         printf("-mw2 <append mw2>\tSpecify mw2 file to be copied into <romname>.mw2\n");
+         printf("-s16 <base s16>\tSpecify s16 file to be used as a base for <romname>.s16\n");
+         printf("     Do not use <romname>.xxx as an argument as the file will be overwriten\n");
+         
 			exit(0);
 		}else if(!strcmp(argv[i], "-d") || !strcmp(argv[i], "--debug")){
 			output = stdout;
 		}else if(!strcmp(argv[i], "-k")){
 			keep_temp = true;
-		}else if(!strcmp(argv[i], "-r") && i < argc - 2){
-			paths[ROUTINES] = argv[i+1];
-			i++;
-		}else if(!strcmp(argv[i], "-sp") && i < argc - 2){
-			paths[SPRITES] = argv[i+1];
-			i++;
-		}else if(!strcmp(argv[i], "-sh") && i < argc - 2){
-			paths[SHOOTERS] = argv[i+1];
-			i++;
-		}else if(!strcmp(argv[i], "-g") && i < argc - 2){
-			paths[GENERATORS] = argv[i+1];
-			i++;
-		}else if(!strcmp(argv[i], "-l") && i < argc - 2){
-			paths[LIST] = argv[i+1];
-			i++;
-		}else if(!strcmp(argv[i], "-e") && i < argc - 2){
-			paths[EXTENDED] = argv[i+1];
-			i++;
-		}else if(!strcmp(argv[i], "-c") && i < argc - 2){
-			paths[CLUSTER] = argv[i+1];
-			i++;
-		}else{
+		}
+      SET_PATH("-r", ROUTINES)
+      SET_PATH("-sp", SPRITES)
+      SET_PATH("-sh", SHOOTERS)
+      SET_PATH("-g", GENERATORS)
+      SET_PATH("-l", LIST)
+      SET_PATH("-e", EXTENDED)
+      SET_PATH("-c", CLUSTER)
+      
+      SET_EXT("-ssc", EXT_SSC)
+      SET_EXT("-mwt", EXT_MWT)
+      SET_EXT("-mw2", EXT_MW2)
+      SET_EXT("-s16", EXT_S16)
+      else{
 			if(i == argc-1){
 				break;
 			}
@@ -610,6 +645,10 @@ int main(int argc, char* argv[]) {
 		rom.open(argv[argc-1]);
 	}
 	
+	//------------------------------------------------------------------------------------------
+	// Check if a newer version has been used before.
+	//------------------------------------------------------------------------------------------
+   
 	char version = *((char*)rom.data + rom.snes_to_pc(0x02FFE2 + 4));
 	if(version > VERSION && version != 0xFF) {	
 		printf("The ROM has been patched with a newer version of PIXI (1.%02d) already.\n", version);
@@ -617,7 +656,7 @@ int main(int argc, char* argv[]) {
 		printf("Please get a newer version.");
 		exit(-1);
 	}
-	
+   	
 	//------------------------------------------------------------------------------------------
 	// regular stuff
 	//------------------------------------------------------------------------------------------
@@ -640,7 +679,7 @@ int main(int argc, char* argv[]) {
 	//------------------------------------------------------------------------------------------	
 	
 	//sprites
-   debug_print("Try create binaries.\n");
+   debug_print("Try create binary tables.\n");
 	write_all(versionflag, "asm/_versionflag.bin", 4);	
 	write_long_table(sprite_list + 0x0000, "asm/_PerLevelT1.bin");
 	write_long_table(sprite_list + 0x0800, "asm/_PerLevelT2.bin");
@@ -668,9 +707,14 @@ int main(int argc, char* argv[]) {
 	// write_all(file, "asm/_OverworldInitPtr.bin", SPRITE_COUNT * 3);
 		
 	//more?
-   debug_print("Binaries created.\n");
+   debug_print("Binary tables created.\n");
 		
 	
+	//------------------------------------------------------------------------------------------
+	// create custom size table (extra property byte count)
+   // and <romname>.xxx files.
+   // (and any other stuff that can be done from looping over all 0x100 regular sprites
+	//------------------------------------------------------------------------------------------	
 		
 	//extra byte size file
    //plus data for .ssc, .mwt, .mw2 files
@@ -681,20 +725,24 @@ int main(int argc, char* argv[]) {
    FILE* ssc = open_subfile(rom, "ssc", "w");
    FILE* mwt = open_subfile(rom, "mwt", "w");
    FILE* mw2 = open_subfile(rom, "mw2", "wb");
-   debug_print("\tromname files opened.\n");
+   debug_print("Romname files opened.\n");
    
-   map16 map[MAP16_SIZE];
+   if(extensions[EXT_S16])
+      read_map16(map, extensions[EXT_S16]);
    
-   fputc(0x00, mw2);
+   fputc(0x00, mw2); //binary data starts with 0x00
 	for(int i = 0; i < 0x100; i++) {
 		sprite* spr = from_table<sprite>(sprite_list, 0x200, i);	
 		
+      //sprite pointer being null indicates per-level sprite
 		if(!spr) {
 			extra_bytes[i] = 7;
 			extra_bytes[i + 0x100] = 7;
 		}
 		else {
-			if(spr->asm_file) {
+      
+         //line number within the list file indicates we've got a filled out sprite
+			if(spr->line) {
 				extra_bytes[i] = 3 + spr->byte_count;
 				extra_bytes[i + 0x100] = 3 + spr->extra_byte_count;
             
@@ -707,25 +755,34 @@ int main(int argc, char* argv[]) {
             for(int j = 0; j < spr->display_count; j++) {
                display* d = spr->displays + j;
             
+               //4 digit hex value. First is Y pos (0-F) then X (0-F) then custom/extra bit combination
+               //here custom bit is always set (because why the fuck not?)
                int ref = d->y * 0x1000 +
                   d->x * 0x100 + 
                   0x20 +
                   (d->extra_bit ? 0x10 : 0);
                
-               if(d->description)
-                  fprintf(ssc, "%2X %4X %s\n", i, ref, d->description);
+               //if no description (or empty) just asm filename instead.
+               if(d->description && strlen(d->description))
+                  fprintf(ssc, "%02X %04X %s\n", i, ref, d->description);
+               else
+                  fprintf(ssc, "%02X %04X %s\n", i, ref, spr->asm_file);
                   
-               fprintf(ssc, "%2X %4X", i, ref + 2);
+               //loop over tiles and append them into the output.
+               fprintf(ssc, "%02X %04X", i, ref + 2);
                for(int k = 0; k < d->tile_count; k++) {
                   tile* t = d->tiles + k;
                   if(t->text) {
                      fprintf(ssc, " 0,0,*%s*", t->text);
                      break;
                   } else {
+                     //tile numbers > 0x300 indicates it's a "custom" map16 tile, so we add the offset we got earlier
+                     //+0x100 because in LM these start at 0x400.
                      int tile_num = t->tile_number;
                      if(tile_num >= 0x300)
                         tile_num += 0x100 + map16_tile;
-                     fprintf(ssc, " %d,%d,%x", t->x_offset, t->y_offset, tile_num);
+                     //note we're using %d because x/y are signed integers here
+                     fprintf(ssc, " %d,%d,%X", t->x_offset, t->y_offset, tile_num);
                   }
                }
                fprintf(ssc, "\n");
@@ -736,37 +793,47 @@ int main(int argc, char* argv[]) {
                collection* c = spr->collections + j;
                
                //mw2
+               //build 3 byte level format
                char c1 = 0x79 + (c->extra_bit ? 0x04 : 0);
                fputc(c1, mw2); fputc(0x70, mw2); fputc(spr->number, mw2);               
+               //add the extra property bytes
                int byte_count = (c->extra_bit ? spr->extra_byte_count : spr->byte_count);
                fwrite(c->prop, 1, byte_count, mw2);
                
                //mwt
+               //first one prints sprite number as well, all others just their name.
                if(j == 0)
-                  fprintf(mwt, "%2X\t%s\n", spr->number, c->name);
+                  fprintf(mwt, "%02X\t%s\n", spr->number, c->name);
                else
                   fprintf(mwt, "\t%s\n", c->name);
             }
             
+         //no line means unused sprite, so just set to default 3.
 			} else  {
 				extra_bytes[i] = 3;
 				extra_bytes[i + 0x100] = 3;
 			}
 		}
 	}
-   fputc(0xFF, mw2);
+   fputc(0xFF, mw2); //binary data ends with 0xFF (see SMW level data format)
             
 	write_all(extra_bytes, "asm/_CustomSize.bin", 0x200);
    fwrite(map, sizeof(map16), MAP16_SIZE, s16);
+   //close all the files.
    fclose(s16); fclose(ssc); fclose(mwt); fclose(mw2);
 	
-	//apply the actual patches
+	//------------------------------------------------------------------------------------------
+	// apply the actual patches
+	//------------------------------------------------------------------------------------------	
+   
 	patch("asm/main.asm", rom, "asm/main.asm");
 	patch("asm/cluster.asm", rom, "asm/cluster.asm");
 	patch("asm/extended.asm", rom, "asm/extended.asm");
 	//patch("asm/overworld.asm", rom, "asm/overworld.asm");
 	
-	
+	//------------------------------------------------------------------------------------------
+	// clean up (if necessary)
+	//------------------------------------------------------------------------------------------		
 	
 	if(!keep_temp){	
 		remove("asm/_versionflag.bin");

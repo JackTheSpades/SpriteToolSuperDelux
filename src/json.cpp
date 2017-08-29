@@ -27,18 +27,26 @@ bool read_json_file(sprite* spr, FILE* output) {
    std::ifstream instr(spr->cfg_file);
    instr >> j;
 
+   #define CAP(x,y) x = (x < (y) ? x : (y))
+   
    try {
       
-      std::string asm_file = j.at("AsmFile");
-      spr->asm_file = append_to_dir(spr->cfg_file, asm_file.c_str());
       spr->table.actlike = j.at("ActLike");
       spr->table.type = j.at("Type");
       
-      spr->table.extra[0] = j.at("Extra Property Byte 1");
-      spr->table.extra[1] = j.at("Extra Property Byte 2");
-      
-      spr->byte_count = j.at("Additional Byte Count (extra bit clear)");
-      spr->extra_byte_count = j.at("Additional Byte Count (extra bit set)");
+      //values will only be filled for non-tweak sprites.
+      if(spr->table.type) {
+         std::string asm_file = j.at("AsmFile");
+         spr->asm_file = append_to_dir(spr->cfg_file, asm_file.c_str());
+         
+         spr->table.extra[0] = j.at("Extra Property Byte 1");
+         spr->table.extra[1] = j.at("Extra Property Byte 2");
+         
+         spr->byte_count = j.at("Additional Byte Count (extra bit clear)");
+         spr->extra_byte_count = j.at("Additional Byte Count (extra bit set)");
+         CAP(spr->byte_count, 4);
+         CAP(spr->extra_byte_count, 4);
+      }
       
       unsigned char tmp = 0;
       #define SET(TWEAK, J) {\
@@ -71,7 +79,10 @@ bool read_json_file(sprite* spr, FILE* output) {
          
          dis->x = jdisplay.at("X");
          dis->y = jdisplay.at("Y");
+         CAP(dis->x, 0x0F);
+         CAP(dis->y, 0x0F);         
          dis->extra_bit = jdisplay.at("ExtraBit");
+         
          if(jdisplay.at("UseText")) {
             dis->tile_count = 1;
             dis->tiles = new tile[1];
@@ -117,4 +128,6 @@ bool read_json_file(sprite* spr, FILE* output) {
          fprintf(output, "Error when parsing json: %s", e.what());
       return false;
    }   
+   
+   #undef CAP
 }
