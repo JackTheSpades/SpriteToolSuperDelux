@@ -118,6 +118,10 @@ bool read_json_file(sprite* spr, FILE* output) {
          counter++;
       }
       
+      if(output){	
+         fprintf(output, "Parsed %s\n", spr->cfg_file);
+      }
+      
       return true;
    } catch( const std::domain_error& e) {
       if(output)

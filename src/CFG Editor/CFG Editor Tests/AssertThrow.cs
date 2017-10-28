@@ -9,19 +9,19 @@ namespace CFG_Editor_Tests
 {
     public static class AssertThrow
     {
-        public static void Throws<T>(Action action) where T : Exception
+        public static void Throws<T>(Action action, string message = null) where T : Exception
         {
             try
             {
                 action();
-                Assert.Fail();
+                Assert.Fail(message);
             }
             catch(Exception ex)
             {
                 if (ex is T)
                     Assert.IsTrue(true);
                 else
-                    Assert.Fail();
+                    Assert.Fail(message);
             }
         }
     }

@@ -15,13 +15,26 @@ namespace CFG
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        private static string FixName(string name)
+        public static string FixName(string name)
         {
             StringBuilder sb = new StringBuilder(name);
-            sb.Replace('_', ' ');
+
+            //capitalize first letter.
+            sb[0] = Char.ToUpper(sb[0]);
+
             for (int i = 1; i < sb.Length; i++)
-                if (Char.IsUpper(sb[i]))
+            {
+                //if char is underline, replace it with space and make the next char uppercase.
+                if(sb[i] == '_')
+                {
+                    sb[i] = ' ';
+                    if (sb.Length - 1 > i + 1)
+                        sb[i + 1] = Char.ToUpper(sb[i + 1]);
+                }
+                //insert space before every upper character if there isn't one already
+                if (Char.IsUpper(sb[i]) && sb[i - 1] != ' ')
                     sb.Insert(i, ' ');
+            }
             return sb.ToString();
         }
 

@@ -2,13 +2,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CFG
@@ -41,23 +44,40 @@ namespace CFG
         public DialogResult Show() => MessageBox.Show(Message, Caption, Buttons, Icon);
     }
 
+    
+    /// <summary>
+    /// Helper class for diagnosis. Only realls does anything if DEBUG is defined.
+    /// </summary>
+    public static class Diagnose
+    {
+        /// <summary>
+        /// Restarts the stopwatch.
+        /// </summary>
+        public static Stopwatch Stopwatch;
+        [Conditional("DEBUG")]
+        public static void Start()
+        {
+            if (Stopwatch == null)
+                Stopwatch = new Stopwatch();
+            Stopwatch.Restart();
+        }
+        /// <summary>
+        /// Prints the elapsed time and the name of the member calling this method.
+        /// </summary>
+        /// <param name="name">The name to be put before the elsapsed time.</param>
+        [Conditional("DEBUG")]
+        public static void Time([CallerMemberName]string name = null)
+        {
+            if (name == null)
+                Console.WriteLine(Stopwatch.Elapsed);
+            else
+                Console.WriteLine(name + ": " + Stopwatch.Elapsed);
+        }
+    }
+    
+
     public static class Extensions
     {
-        public static bool[] ToBoolArray(this byte b)
-        {
-            bool[] arr = new bool[8];
-            for(int i = 0; i < 8; i++)
-                arr[i] = b.GetBit(i);
-            return arr;
-        }
-
-        public static byte ToByte(this bool[] arr)
-        {
-            byte b = 0;
-            for (int i = 0; i < 8; i++)
-                b = b.SetBit(i, arr[i]);
-            return b;
-        }
         
         /// <summary>
         /// Detects if an enumeration contains duplicate entries
@@ -83,10 +103,21 @@ namespace CFG
         /// <returns><c>True</c> if the bit is set.</returns>
         public static bool GetBit(this byte b, int bit)
         {
+            if (bit >= sizeof(byte) * 8 || bit < 0)
+                throw new ArgumentOutOfRangeException(nameof(bit), bit, "Cannot fetch bit outside of bitrange of value");
             return (b & (1 << bit)) != 0;
         }
+        /// <summary>
+        /// Sets the bit of a byte and returns the new byte. The value of the byte this is called on remains unaffected
+        /// </summary>
+        /// <param name="b">The source byte</param>
+        /// <param name="bit">The the digit of the bit. Starting from the right with 0</param>
+        /// <param name="set">Wether to set or clear the bit</param>
+        /// <returns>The new byte.</returns>
         public static byte SetBit(this byte b, int bit, bool set)
         {
+            if (bit >= sizeof(byte) * 8 || bit < 0)
+                throw new ArgumentOutOfRangeException(nameof(bit), bit, "Cannot set bit outside of bitrange of value");
             if (set)
                 return (byte)(b | (1 << bit));
             return (byte)(b & ((1 << bit) ^ 0xFF));
@@ -359,7 +390,7 @@ namespace CFG
                 bind.Format += (_, e) => e.Value = castToControl((TOProp)e.Value);
             if (castToSource != null)
                 bind.Parse += (_, e) => e.Value = castToSource((TCProp)e.Value);
-
+            
             control.DataBindings.Add(bind);
 
             return bind;

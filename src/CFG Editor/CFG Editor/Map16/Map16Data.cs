@@ -18,6 +18,10 @@ namespace CFG.Map16
 
     public interface IMap16Object : INotifyPropertyChanged
     {
+        /// <summary>
+        /// A value between 0 and 7 for the color the map16 object uses or 8 in case multiple are used.
+        /// Setting this property should set the palette of any and all sub objects so that future reading returns the same value.
+        /// </summary>
         int Palette { get; set; }
         
         int TopLeft { get; set; }
@@ -25,7 +29,13 @@ namespace CFG.Map16
         int BottomLeft { get; set; }
         int BottomRight { get; set; }
 
+        /// <summary>
+        /// Flips the map16 object x wise
+        /// </summary>
         void FlipX();
+        /// <summary>
+        /// Flips the map16 object y wise
+        /// </summary>
         void FlipY();
         
         Map16Resources Resources { get; }
@@ -34,7 +44,17 @@ namespace CFG.Map16
         int PixelX { get; }
         int PixelY { get; }
         Size Size { get; }
+
+        /// <summary>
+        /// Returns an image representation of the map16 object.
+        /// </summary>
+        /// <returns>The image</returns>
         Image GetImage();
+        /// <summary>
+        /// Returns the raw data of the map16 object.
+        /// </summary>
+        /// <returns>The raw data./returns>
+        byte[] GetData();
     }
 
 	[DebuggerDisplay("Tile={GFXNumber.ToString(\"X2\")}")]
@@ -155,6 +175,8 @@ namespace CFG.Map16
 			return im;
 		}
 
+        public byte[] GetData() => Data;
+
 
 		/// <summary>
 		/// Checks if two Map16Tile8x8 objects contain the same data
@@ -244,7 +266,9 @@ namespace CFG.Map16
             }
             set
             {
+                Diagnose.Start();
                 SubTiles.ForEach(t => t.Palette = value);
+                Diagnose.Time();
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Palette)));
             }
         }
@@ -361,32 +385,72 @@ namespace CFG.Map16
         public void FlipX()
         {
             SubTiles.ForEach(t => t.FlipX());
-            int tmp = TopLeft;
-            TopLeft = TopRight;
-            TopRight = tmp;
-
-            tmp = BottomLeft;
-            BottomLeft = BottomRight;
-            BottomRight = tmp;
+            SwapData(SubTiles[TopLeftIndex].Data, SubTiles[TopRightIndex].Data);
+            SwapData(SubTiles[BottomLeftIndex].Data, SubTiles[BottomRightIndex].Data);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("FlipX"));
         }
 
         public void FlipY()
         {
             SubTiles.ForEach(t => t.FlipY());
-            int tmp = TopLeft;
-            TopLeft = BottomLeft;
-            BottomLeft = tmp;
+            SwapData(SubTiles[TopLeftIndex].Data, SubTiles[BottomLeftIndex].Data);
+            SwapData(SubTiles[TopRightIndex].Data, SubTiles[BottomRightIndex].Data);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("FlipY"));
+        }
 
-            tmp = TopRight;
-            TopRight = BottomRight;
-            BottomRight = tmp;
+        public void ChangeData(byte[] data, bool top, bool left)
+        {
+            if (data.Length == 8)
+            {
+                SubTiles[0].Data[0] = data[0];
+                SubTiles[0].Data[1] = data[1];
+                SubTiles[1].Data[0] = data[2];
+                SubTiles[1].Data[1] = data[3];
+                SubTiles[2].Data[0] = data[4];
+                SubTiles[2].Data[1] = data[5];
+                SubTiles[3].Data[0] = data[6];
+                SubTiles[3].Data[1] = data[7];
+            }
+            else if (data.Length == 2)
+            {
+                int index = (!top ? 1 : 0) + (!left ? 2 : 0);
+                SubTiles[index].Data[0] = data[0];
+                SubTiles[index].Data[1] = data[1];
+            }
+            else
+                throw new ArgumentException("Length must be 8 or 2", nameof(data));
+        }
+
+        private void SwapData(byte[] bytes1, byte[] bytes2)
+        {
+            if (bytes1.Length != bytes2.Length)
+                throw new ArgumentException("Arrays need same length");
+            byte[] tmp = new byte[bytes1.Length];
+
+            Array.Copy(bytes1, tmp, bytes1.Length);
+            Array.Copy(bytes2, bytes1, bytes1.Length);
+            Array.Copy(tmp, bytes2, bytes2.Length);
         }
 
 	}
 
     public class Map16Collection : IMap16Object
     {
-        public readonly IEnumerable<IMap16Object> Objects;
+        public IEnumerable<IMap16Object> Objects { get; set; }
+        public Size Size
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+
+            }
+        }
+
+        protected Size SizeInBlocks => new Size(Size.Width / 8, Size.Height / 16);
+
 
         public int BottomLeft
         {
@@ -407,30 +471,11 @@ namespace CFG.Map16
 
         public int PixelX => Objects.Min(o => o.PixelX);
         public int PixelY => Objects.Min(o => o.PixelY);
+        public int TileNumber => Objects.Min(o => o.TileNumber);
 
-        public Map16Resources Resources
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public Map16Resources Resources => Objects.FirstOrDefault()?.Resources;
 
-        public Size Size
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
 
-        public int TileNumber
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
 
         public int TopLeft
         {
@@ -460,6 +505,133 @@ namespace CFG.Map16
         {
             throw new NotImplementedException();
         }
+
+        public byte[] GetData()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Fun Fact: You cannot use DataBinding on Interface properties as apperently they run GetType internally, so when you pass another type to the
+    /// interface property it causes an exception. Hence, this wrapper class to represent <see cref="IMap16Object"/> types.
+    /// It can <see cref="Load(IMap16Object)"/>  a map16 object and then represent it's values through itself. It will also forward the <see cref="PropertyChanged"/> event.
+    /// </summary>
+    public class Map16Wrapper : IMap16Object
+    {
+        private IMap16Object _Source = null;
+        public IMap16Object Source
+        {
+            get { return _Source; }
+            set
+            {
+                if (_Source != null)
+                    Source.PropertyChanged -= Source_PropertyChanged;
+                _Source = value;
+                _Source.PropertyChanged += Source_PropertyChanged;
+            }
+        }
+
+        public Map16Wrapper(IMap16Object source)
+        {
+            Source = source;
+        }
+
+        public void Load(IMap16Object source)
+        {
+            Source = source;
+        }
+
+        
+        /// <summary>
+        /// Method for the PropertyChanged Event of the <see cref="Source"/>. It just forwards the event without making any changes.
+        /// Even the sender remains unchanged.
+        /// </summary>
+        /// <param name="sender"><see cref="Source"/> most likely.</param>
+        /// <param name="e">Event args containing the name of the property that triggered the event.</param>
+        private void Source_PropertyChanged(object sender, PropertyChangedEventArgs e) =>
+            PropertyChanged?.Invoke(sender, e);
+
+        /// <summary>
+        /// Generic method to get the value of a property from the underlying <see cref="Source"/> object.
+        /// Using the <see cref="CallerMemberNameAttribute"/> it automatically uses the name of the calling property.
+        /// </summary>
+        /// <typeparam name="T">The expected return type of the property.</typeparam>
+        /// <param name="name">The name of the property</param>
+        /// <returns>A casted content of the property</returns>
+        protected T Get<T>([CallerMemberName]string name = "")
+        {
+            var prop = typeof(IMap16Object).GetProperty(name);
+            return (T)prop.GetValue(Source);
+        }
+        /// <summary>
+        /// Generic method to set the value of a property of the underlying <see cref="Source"/> object.
+        /// Using the <see cref="CallerMemberNameAttribute"/> it automatically uses the name of the calling property.
+        /// </summary>
+        /// <typeparam name="T">The expected return type of the property.</typeparam>
+        /// <param name="val">The value to write ot the property.</param>
+        /// <param name="name">The name of the property</param>
+        protected void Set<T>(T val,[CallerMemberName]string name = "")
+        {
+            var prop = typeof(IMap16Object).GetProperty(name);
+            prop.SetValue(Source, val);
+        }
+        protected T Invoke<T>(object[] args, [CallerMemberName]string name = "")
+        {
+            Type[] types = args?.Select(a => a.GetType())?.ToArray() ?? Type.EmptyTypes;
+            var meth = typeof(IMap16Object).GetMethod(name, types);
+            return (T)meth.Invoke(Source, args);
+        }
+        protected void Invoke(object[] args, [CallerMemberName]string name = "")
+        {
+            Type[] types = args?.Select(a => a.GetType())?.ToArray() ?? Type.EmptyTypes;
+            var meth = typeof(IMap16Object).GetMethod(name, types);
+            meth.Invoke(Source, args);
+        }
+
+        #region IMap16Object Data
+
+        public int BottomLeft
+        {
+            get { return Get<int>(); }
+            set { Set(value); }
+        }
+        public int BottomRight
+        {
+            get { return Get<int>(); }
+            set { Set(value); }
+        }
+        public int Palette
+        {
+            get { return Get<int>(); }
+            set { Set(value); }
+        }
+
+        public int PixelX => Get<int>();
+        public int PixelY => Get<int>();
+        public Map16Resources Resources => Get<Map16Resources>();
+        public Size Size => Get<Size>();
+        public int TileNumber => Get<int>();
+
+        public int TopLeft
+        {
+            get { return Get<int>(); }
+            set { Set(value); }
+        }
+
+        public int TopRight
+        {
+            get { return Get<int>(); }
+            set { Set(value); }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void FlipX() => Invoke(null);
+        public void FlipY() => Invoke(null);
+        public byte[] GetData() => Invoke<byte[]>(null);
+        public Image GetImage() => Invoke<Image>(null);
+        #endregion
     }
 
     public class Map16Data : INotifyPropertyChanged
@@ -468,13 +640,8 @@ namespace CFG.Map16
 
         public readonly Bitmap Image;
         public readonly Map16Resources Resources;
-
-        private IMap16Object _SelectedObject = null;
-        public IMap16Object SelectedObject
-        {
-            get { return _SelectedObject; }
-            set { SetPropertyValue(ref _SelectedObject, value); }
-        }
+        
+        public IMap16Object SelectedObject { get; set; }
 
 
         Map16Tile16x16[] Map { get; set; }
@@ -515,16 +682,29 @@ namespace CFG.Map16
         }
 
         /// <summary>
-        /// Gets all 16x16 blocks beyond block 0x300 until we reach an empty one.
+        /// Gets all 16x16 blocks beyond block 0x300 until only empty ones are left.
         /// </summary>
         /// <returns></returns>
         public byte[] GetNotEmptyData()
         {
             List<byte> data = new List<byte>();
-            int index = 0x300;
-            while (!Map[index].IsEmpty())
-                data.AddRange(Map[index++].GetData());
+            int size = 0x3FF;
+            while (Map[size--].IsEmpty())
+                ;   //EMPTY
+            
+            for(int index = 0; index <= size; index++)
+                data.AddRange(Map[index].GetData());
             return data.ToArray();
+        }
+
+        public void ChangeData(byte[] data, int x8, int y8)
+        {
+            int x16 = x8 / 2;
+            int y16 = y8 / 2;
+            Map16Tile16x16 t16 = Map[x16 + y16 * 16];
+            t16.ChangeData(data, y8 % 2 == 0, x8 % 2 == 0);
+            RedrawObject(t16);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Image)));
         }
 
         public void ChangeData(byte[] data, int block_start)
@@ -555,7 +735,7 @@ namespace CFG.Map16
         {
             var subtiles = Map.SelectMany(m => m.SubTiles)
                 .Where(s => s.Palette == row);
-
+            
             foreach (var t in subtiles)
                 RedrawObject(t);
 
@@ -585,12 +765,15 @@ namespace CFG.Map16
             }
 
             SelectedObject.PropertyChanged += SelectedObject_PropertyChanged;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedObject)));
         }
 
         private void SelectedObject_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            Diagnose.Start();
             IMap16Object obj = (IMap16Object)sender;
             RedrawObject(obj);
+            Diagnose.Time();
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Image)));
         }
 
@@ -600,6 +783,8 @@ namespace CFG.Map16
         /// <param name="obj"></param>
         public void RedrawObject(IMap16Object obj)
         {
+
+
             //redraw.
             Rectangle rec = new Rectangle(obj.PixelX, obj.PixelY, obj.Size.Width, obj.Size.Height);
             using (Graphics g = Graphics.FromImage(Image))
@@ -610,21 +795,7 @@ namespace CFG.Map16
                 g.DrawImage(obj.GetImage(), rec);
             }
         }
-
-
-        protected void SetPropertyValue<T>(ref T priv, T val, [CallerMemberName] string caller = "")
-        {
-            bool pn = ReferenceEquals(priv, null);
-            bool vn = ReferenceEquals(val, null);
-
-            if (pn && vn)
-                return;
-            if ((pn && !vn) || !priv.Equals(val))
-            {
-                priv = val;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(caller));
-            }
-        }
+        
     }
 
 }

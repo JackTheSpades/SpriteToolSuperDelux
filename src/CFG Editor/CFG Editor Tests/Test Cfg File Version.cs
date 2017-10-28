@@ -44,16 +44,19 @@ namespace CFG_Editor_Tests
         }
 
         /// <summary>
-        /// Asserts that fields that were added in Version 1.1 or later remained clear on older loadings.
-        /// Custom map16 data ought to be empty, Display sprites only contain default sprite and the collection is empty.
+        /// Asserts that fields that were added in Version 1.2 or later remained clear on older loadings.
+        /// Entries are suppose to be empty and not null
         /// </summary>
         /// <param name="data"></param>
         public void AssertVersion_1_2(CfgFile data)
         {
-            Assert.AreEqual(0, data.CustomMap16Data.Length, nameof(CfgFile.CustomMap16Data));
-            Assert.AreEqual(1, data.DisplayEntries.Count, nameof(CfgFile.CustomMap16Data));
+            Assert.IsNotNull(data.CustomMap16Data, nameof(CfgFile.CustomMap16Data));
+            Assert.IsNotNull(data.DisplayEntries, nameof(CfgFile.CustomMap16Data));
+            Assert.IsNotNull(data.CollectionEntries, nameof(CfgFile.CollectionEntries));
 
-            Assert.AreEqual(DisplaySprite.Default, data.DisplayEntries[0], "Default Display Sprite");
+            Assert.AreEqual(0, data.CustomMap16Data.Length, nameof(CfgFile.CustomMap16Data));
+            Assert.AreEqual(0, data.DisplayEntries.Count, nameof(CfgFile.CustomMap16Data));
+            Assert.AreEqual(0, data.CollectionEntries.Count, nameof(CfgFile.CollectionEntries));
         }
     }
 }

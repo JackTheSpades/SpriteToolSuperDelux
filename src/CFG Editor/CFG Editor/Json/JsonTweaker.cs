@@ -8,13 +8,24 @@ using System.Reflection;
 
 namespace CFG.Json
 {
-    public class IntFieldAttribute : Attribute
+    public class JsonIntPropertyAttribute : Attribute
     {
         public int Size { get; set; }
     }
 
+    /// <summary>
+    /// Basis class for JSON objects that are representativ for a single byte.
+    /// That is to say, their properties can be compiled into a byte.
+    /// Only properties having the <see cref="JsonPropertyAttribute"/> or <see cref="JsonIntPropertyAttribute"/> are used to build the byte by default.
+    /// </summary>
     public abstract class ByteRepresentant
     {
+        /// <summary>
+        /// The method used to compile the byte. It looks for all bool or int properties within the class.
+        /// For bool properties the <see cref="JsonPropertyAttribute.Order"/> field is used to indicate which bit in the byte to set.
+        /// For int properties, in addition, the <see cref="JsonIntPropertyAttribute.Size"/> field is used to determine how many bits to set.
+        /// </summary>
+        /// <returns>The compiled byte representing this object</returns>
         public virtual byte ToByte()
         {
             byte b = 0;
@@ -31,7 +42,7 @@ namespace CFG.Json
                 }
                 else if(prop.PropertyType == typeof(int))
                 {
-                    var iAttr = prop.GetCustomAttribute<IntFieldAttribute>();
+                    var iAttr = prop.GetCustomAttribute<JsonIntPropertyAttribute>();
                     if (iAttr == null)
                         continue;
 
@@ -41,6 +52,12 @@ namespace CFG.Json
             }
             return b;
         }
+        /// <summary>
+        /// The method used to set the properties of this object from a byte. It looks for all bool or int properties within the class.
+        /// For bool properties the <see cref="JsonPropertyAttribute.Order"/> field is used to indicate which bit of the byte is used to set the property.
+        /// For int properties, in addition, the <see cref="JsonIntPropertyAttribute.Size"/> field is used to determine how many bits of the byte to read.
+        /// </summary>
+        /// <returns>The compiled byte representing this object</returns>
         public virtual void FromByte(byte value)
         {
             var props = GetType().GetProperties();
@@ -56,7 +73,7 @@ namespace CFG.Json
                 }
                 else if(prop.PropertyType == typeof(int))
                 {
-                    var iAttr = prop.GetCustomAttribute<IntFieldAttribute>();
+                    var iAttr = prop.GetCustomAttribute<JsonIntPropertyAttribute>();
                     if (iAttr == null)
                         continue;
 
@@ -66,6 +83,11 @@ namespace CFG.Json
             }
         }
 
+        /// <summary>
+        /// Compares to another object. If it also is a <see cref="ByteRepresentant"/> their byte values are compared.
+        /// </summary>
+        /// <param name="obj">The object to compare to</param>
+        /// <returns><c>True</c> if obj is a <see cref="ByteRepresentant"/> and their byte values are the same.</returns>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
@@ -75,6 +97,10 @@ namespace CFG.Json
                 return false;
             return ToByte() == br.ToByte();
         }
+        /// <summary>
+        /// Returns the byte representation of the object
+        /// </summary>
+        /// <returns>The byte representation</returns>
         public override int GetHashCode() => ToByte();
         public override string ToString() => string.Format("0x{0:X2}", ToByte());
     }
@@ -82,7 +108,7 @@ namespace CFG.Json
     public class Value1656 : ByteRepresentant
     {
         [JsonProperty(Order = 0, PropertyName = "Object Clipping")]
-        [IntField(Size = 4)]
+        [JsonIntProperty(Size = 4)]
         public int Object_Clipping { get; set; }
         [JsonProperty(Order = 4, PropertyName = "Can be jumped on")]
         public bool Can_Be_Jumped_On { get; set; }
@@ -97,7 +123,7 @@ namespace CFG.Json
     public class Value1662 : ByteRepresentant
     {
         [JsonProperty(Order = 0, PropertyName = "Sprite Clipping")]
-        [IntField(Size = 6)]
+        [JsonIntProperty(Size = 6)]
         public int Sprite_Clipping { get; set; }
         [JsonProperty(Order = 6, PropertyName = "Use shell as death frame")]
         public bool Use_Shell_As_Death_Frame { get; set; }
@@ -110,7 +136,7 @@ namespace CFG.Json
         [JsonProperty(Order = 0, PropertyName = "Use second graphics page")]
         public bool Use_Second_Graphics_Page { get; set; }
         [JsonProperty(Order = 1, PropertyName = "Palette")]
-        [IntField(Size = 3)]
+        [JsonIntProperty(Size = 3)]
         public int Palette { get; set; }
         [JsonProperty(Order = 4, PropertyName = "Disable fireball killing")]
         public bool Disable_Fireball_Killing { get; set; }

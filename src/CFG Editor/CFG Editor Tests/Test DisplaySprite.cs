@@ -53,30 +53,7 @@ namespace CFG_Editor_Tests
             TestChange(ds1, ds2, comp, ds => ds.X++, nameof(DisplaySprite.X));
             TestChange(ds1, ds2, comp, ds => ds.Y--, nameof(DisplaySprite.Y));
         }
-
-        [TestMethod]
-        [TestCategory(nameof(DisplaySprite))]
-        public void TestDisplayDescription()
-        {
-            var ds = Create();
-
-            ds.Description = "Bla";
-            ds.X = 5;
-            ds.Y = 15;
-            ds.ExtraBit = false;
-            ds.CustomBit = true;
-
-            Assert.AreEqual("F520 Bla", ds.GetDescLine(), "First");
-            ds.ExtraBit = true;
-            Assert.AreEqual("F530 Bla", ds.GetDescLine(), nameof(DisplaySprite.ExtraBit));
-            ds.X = 0x0A;
-            Assert.AreEqual("FA30 Bla", ds.GetDescLine(), nameof(DisplaySprite.X));
-            ds.Y = 0x01;
-            Assert.AreEqual("1A30 Bla", ds.GetDescLine(), nameof(DisplaySprite.Y));
-            ds.Description = "New";
-            Assert.AreEqual("1A30 New", ds.GetDescLine(), nameof(DisplaySprite.Description));
-        }
-
+        
         [TestMethod]
         [TestCategory(nameof(DisplaySprite))]
         public void TestDisplayText()

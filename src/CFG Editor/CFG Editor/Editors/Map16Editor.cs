@@ -10,23 +10,72 @@ using System.Windows.Forms;
 using CFG.Map16;
 using System.Drawing.Drawing2D;
 using System.IO;
+using System.Diagnostics;
 
 namespace CFG
 {
     public partial class Map16Editor : UserControl, INotifyPropertyChanged
     {
         public event SelectionChangedEventHandler SelectionChanged;
+        public event HoverChangedEventHandler HoverChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler In8x8ModeChanged;
 
+        public event EventHandler PageChanged;
         public int Page => vScrollBar.Value / 16;
 
+        public event EventHandler PrintPageChanged;
+        private bool _PrintPage = false;
         [DefaultValue(false)]
-        public bool PrintPage { get; set; } = true;
+        public bool PrintPage
+        {
+            get { return _PrintPage; }
+            set
+            {
+                _PrintPage = value;
+                UpdateImage();
+                PrintPageChanged?.Invoke(this, EventArgs.Empty);
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PrintPage)));
+            }
+        }
+
+        public event EventHandler ShowGridChanged;
+        private bool _ShowGrid = false;
         [DefaultValue(false)]
-        public bool In8x8Mode { get; set; }
+        public bool ShowGrid
+        {
+            get { return _ShowGrid; }
+            set
+            {
+                _ShowGrid = value;
+                UpdateImage();
+                ShowGridChanged?.Invoke(this, EventArgs.Empty);
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ShowGrid)));
+            }
+        }
 
-        public int SelectedTile { get; private set; }
+        private bool _In8x8Mode = false;
+        [DefaultValue(false)]
+        public bool In8x8Mode
+        {
+            get { return _In8x8Mode; }
+            set
+            {
+                _In8x8Mode = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(In8x8Mode)));
+                In8x8ModeChanged?.Invoke(this, EventArgs.Empty);
+                if (Map != null && x8Selected != -1 && y8Selected != -1)
+                {
+                    int yOff = vScrollBar.Value * 2;
+                    Map.Select(x8Selected, y8Selected + yOff, In8x8Mode);
+                    SelectionChanged?.Invoke(this, new TileChangedEventArgs(SelectedTile, XY_ToPoint(x8Selected, y8Selected)));
+                }
+            }
+        }
 
-        public IMap16Object SelectedObject { get { return Map?.SelectedObject ?? new Map16Empty(In8x8Mode ? 8 : 16); } }
+        public int SelectedTile { get; private set; } = -1;
+
+        public Map16Wrapper SelectedObject { get; private set; } = new Map16Wrapper(new Map16Empty(16));
 
         [DefaultValue(null)]
         public Map16Data Map { get; set; }
@@ -47,6 +96,11 @@ namespace CFG
             {
                 if (e.PropertyName == nameof(Map.Image))
                     UpdateImage();
+                else if (e.PropertyName == nameof(Map.SelectedObject))
+                {
+                    SelectedObject.Load(Map.SelectedObject);
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedObject)));
+                }
             };
 
             timer1.Start();
@@ -74,6 +128,7 @@ namespace CFG
                 y8LastHover += inc;
 
             UpdateImage();
+            PageChanged?.Invoke(this, EventArgs.Empty);
         }
 
 
@@ -86,34 +141,55 @@ namespace CFG
 
         private float dashOffset = 0;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        private int XY_ToTile(int x8, int y8)
+        {
+            int yOff = vScrollBar.Value * 2; //2 8x8 tiles scroll step
+            return ((y8 + yOff) / 2) * 16 + (x8 / 2);
+        }
+        private Point XY_ToPoint(int x8, int y8)
+        {
+            int yOff = vScrollBar.Value * 2; //2 8x8 tiles scroll step
+            return new Point(x8 / 2 * 16, (y8 + yOff) / 2 * 16);
+        }
+
 
         private void pcbMap16_MouseClick(object sender, MouseEventArgs e)
         {
+            byte[] previousData = null;
+            if (e.Button == MouseButtons.Right)
+            {
+                previousData = SelectedObject.GetData();
+            }
+
+
             x8Selected = x8LastHover;
             y8Selected = y8LastHover;
 
             int yOff = vScrollBar.Value * 2; //2 8x8 tiles scroll step
-            Map.Select(x8Selected, y8Selected + yOff, In8x8Mode);
+            SelectedTile = XY_ToTile(x8Selected, y8Selected);
 
-            SelectedTile = ((y8Selected + yOff) / 2) * 16 + (x8Selected / 2);
-
-            SelectionChanged?.Invoke(this, new SelectionChangedEventArgs()
+            if(previousData != null && yOff >= 0x60)
             {
-                Tile = SelectedTile,
-                Point = new Point(x8Selected / 2 * 16, (y8Selected + yOff) / 2 * 16),
-            });
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedObject)));
+                Map.ChangeData(previousData, x8Selected, y8Selected + yOff);
+            }
+
+            Map.Select(x8Selected, y8Selected + yOff, In8x8Mode);
+            SelectionChanged?.Invoke(this, new TileChangedEventArgs(SelectedTile, XY_ToPoint(x8Selected, y8Selected)));
         }
 
         private void pcbMap16_MouseMove(object sender, MouseEventArgs e)
         {
             x8LastHover = e.X / 8;
             y8LastHover = e.Y / 8;
+
+            HoverChanged?.Invoke(this, new TileChangedEventArgs(
+                XY_ToTile(x8LastHover, y8LastHover),
+                XY_ToPoint(x8LastHover, y8LastHover)));
         }
         
         private void UpdateImage()
         {
+            Diagnose.Start();
             Bitmap bg = pcbMap16.BackgroundImage as Bitmap;
             if (bg != null)
                 bg.Dispose();
@@ -129,7 +205,17 @@ namespace CFG
                 Rectangle rec = new Rectangle(0, vScrollBar.Value * 16, 256, 256);
                 g.DrawImage(Map.Image, 0, 0, rec, GraphicsUnit.Pixel);
 
-                if(PrintPage)
+                if (ShowGrid)
+                {
+                    using (Pen p = new Pen(Color.White))
+                    {
+                        for (int x = 15; x < bg.Width; x += 16)
+                            g.DrawLine(p, x, 0, x, bg.Height - 1);
+                        for (int y = 15; y < bg.Height; y += 16)
+                            g.DrawLine(p, 0, y, bg.Width - 1, y);
+                    }
+                }
+                if (PrintPage)
                 {
                     int end = 16 - (vScrollBar.Value % 16);
 
@@ -140,20 +226,19 @@ namespace CFG
                         new Point(bg.Width, end * 16),
                         new Point(bg.Width, 0),
                     };
-                    g.DrawLines(new Pen(Color.FromArgb(128, Color.Blue), 5), points);
+                    g.DrawLines(new Pen(Color.FromArgb(128, Color.Blue), 6), points);
                 }
+
             }
 
             pcbMap16.BackgroundImage = bg;
+            Diagnose.Time();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            Bitmap fg = pcbMap16.Image as Bitmap;
-            if (fg != null)
-                fg.Dispose();
-
-            fg = new Bitmap(pcbMap16.Width, pcbMap16.Height);
+            pcbMap16.Image?.Dispose();
+            Bitmap fg = new Bitmap(pcbMap16.Width, pcbMap16.Height);
 
             using (Graphics g = Graphics.FromImage(fg))
             {
@@ -255,18 +340,29 @@ namespace CFG
         }
 
         public int TileNumber => 0;
-        
+
+#pragma warning disable CS0067
         public event PropertyChangedEventHandler PropertyChanged;
+#pragma warning restore CS0067
 
         public void FlipX() { }
         public void FlipY() { }
         public Image GetImage() => new Bitmap(Size.Width, Size.Height);
+
+        public byte[] GetData() => new byte[Size.Width * Size.Height / 32];
     }
 
-    public class SelectionChangedEventArgs : EventArgs
+    public class TileChangedEventArgs : EventArgs
     {
         public int Tile { get; set; }
         public Point Point { get; set; }
+
+        public TileChangedEventArgs(int tile, Point point)
+        {
+            Tile = tile;
+            Point = point;
+        }
     }
-    public delegate void SelectionChangedEventHandler(object sender, SelectionChangedEventArgs e);
+    public delegate void SelectionChangedEventHandler(object sender, TileChangedEventArgs e);
+    public delegate void HoverChangedEventHandler(object sender, TileChangedEventArgs e);
 }

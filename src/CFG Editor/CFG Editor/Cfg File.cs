@@ -23,7 +23,7 @@ namespace CFG
 			get { return _AsmFile; }
 			set { SetPropertyValue(ref _AsmFile, value); }
         }
-
+        
         private byte _ActLike;
         public byte ActLike
         {
@@ -111,7 +111,9 @@ namespace CFG
         public BindingList<Map16.DisplaySprite> DisplayEntries { get; set; } = new BindingList<Map16.DisplaySprite>();
         public byte[] CustomMap16Data { get; set; } = new byte[0];
         #endregion
-        
+
+        #region ROM Data
+
         const int rom_1656 = 0x3F46C - 0x200;
         const int rom_1662 = rom_1656 + 201 * 1;
         const int rom_166E = rom_1656 + 201 * 2;
@@ -149,6 +151,7 @@ namespace CFG
             rom[rom_190F + spriteNumber + header] = Addr190F;
         }
 
+        #endregion
 
         public void FromLines(string text)
         {
@@ -189,46 +192,40 @@ namespace CFG
                 ExByteCount = Math.Min(count[1], (byte)4);
             }, () => { ByteCount = ExByteCount = 0; });
 
-            //line 7 (map16)
-            TrySet(lines, currentLine++, str => CustomMap16Data = BytesFromStringLine(str), () => CustomMap16Data = new byte[0]);
+            ////line 7 (map16)
+            //TrySet(lines, currentLine++, str => CustomMap16Data = BytesFromStringLine(str), () => CustomMap16Data = new byte[0]);
 
-            //line 8 (display cound)
-            int displayCount = 0;
-            TrySet(lines, currentLine++, str => displayCount = Convert.ToInt32(str), () => displayCount = 0);
+            ////line 8 (display cound)
+            //int displayCount = 0;
+            //TrySet(lines, currentLine++, str => displayCount = Convert.ToInt32(str), () => displayCount = 0);
 
-            //line 9+ (display info)
-            Map16.DisplaySprite ds = null;
-            bool brk = false;
-            for (int i = 0; i < displayCount && !brk; i++)
-            {
-                ds = new Map16.DisplaySprite();
-                TrySet(lines, currentLine++, str =>
-                {
-                    Map16.DisplaySprite.FillData(ds, str);
-                }, () => brk = true);
-                TrySet(lines, currentLine++, str =>
-                {
-                    ds.Description = str;
-                }, () => brk = true);
+            ////line 9+ (display info)
+            //Map16.DisplaySprite ds = null;
+            //bool brk = false;
+            //for (int i = 0; i < displayCount && !brk; i++)
+            //{
+            //    ds = new Map16.DisplaySprite();
+            //    TrySet(lines, currentLine++, str =>
+            //    {
+            //        Map16.DisplaySprite.FillData(ds, str);
+            //    }, () => brk = true);
+            //    TrySet(lines, currentLine++, str =>
+            //    {
+            //        ds.Description = str;
+            //    }, () => brk = true);
 
-                if (brk) break;
-                DisplayEntries.Add(ds);
-            }
+            //    if (brk) break;
+            //    DisplayEntries.Add(ds);
+            //}
 
-            //line 10+ (collection count)
-            int collectionCount = 0;
-            TrySet(lines, currentLine++, str => collectionCount = Convert.ToInt32(str), () => collectionCount = 0);
+            ////line 10+ (collection count)
+            //int collectionCount = 0;
+            //TrySet(lines, currentLine++, str => collectionCount = Convert.ToInt32(str), () => collectionCount = 0);
 
-            //line 11+ (collection info)
-            brk = false;
-            for (int i = 0; i < collectionCount && !brk; i++)
-                TrySet(lines, currentLine++, str => CollectionEntries.Add(new CollectionSprite(str)), () => brk = true);
-
-
-            if (DisplayEntries.Count == 0)
-                DisplayEntries.Add(Map16.DisplaySprite.Default);
-            if (CollectionEntries.Count == 0)
-                CollectionEntries.Add(new CollectionSprite() { Name = System.IO.Path.GetFileNameWithoutExtension(AsmFile) });
+            ////line 11+ (collection info)
+            //brk = false;
+            //for (int i = 0; i < collectionCount && !brk; i++)
+            //    TrySet(lines, currentLine++, str => CollectionEntries.Add(new CollectionSprite(str)), () => brk = true);
         }
 
         /// <summary>
@@ -274,19 +271,19 @@ namespace CFG
             //v1.1
             sb.AppendLine(string.Format("{0:X2}:{1:X2}", ByteCount, ExByteCount));
 
-            //v1.2
-            sb.AppendLine(string.Join(" ", CustomMap16Data.Select(b => b.ToString("X2"))));
+            ////v1.2
+            //sb.AppendLine(string.Join(" ", CustomMap16Data.Select(b => b.ToString("X2"))));
 
-            sb.AppendLine(DisplayEntries.Count.ToString());
-            foreach (var dis in DisplayEntries)
-            {
-                sb.AppendLine(dis.GetTileLine());
-                sb.AppendLine(dis.Description);
-            }
+            //sb.AppendLine(DisplayEntries.Count.ToString());
+            //foreach (var dis in DisplayEntries)
+            //{
+            //    sb.AppendLine(dis.GetTileLine());
+            //    sb.AppendLine(dis.Description);
+            //}
 
-            sb.AppendLine(CollectionEntries.Count.ToString());
-            foreach (var col in CollectionEntries)
-                sb.AppendLine(col.ToString());
+            //sb.AppendLine(CollectionEntries.Count.ToString());
+            //foreach (var col in CollectionEntries)
+            //    sb.AppendLine(col.ToString());
 
 
             return sb.ToString().TrimEnd('\r', '\n');
@@ -300,8 +297,6 @@ namespace CFG
         {
             var cfgJson = Newtonsoft.Json.JsonConvert.DeserializeObject<CFG.Json.JsonCfgFile>(json);
             cfgJson.FillData(this);
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(DisplayEntries)));
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(CollectionEntries)));
         }
         /// <summary>
         /// Converts the data into an indented json string

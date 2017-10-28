@@ -74,6 +74,12 @@
     <Compile Include="Editors\PaletteEditorForm.Designer.cs">
       <DependentUpon>PaletteEditorForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Editors\Tile8x8EditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Editors\Tile8x8EditorForm.Designer.cs">
+      <DependentUpon>Tile8x8EditorForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extension.cs" />
     <Compile Include="CFG Editor.cs">
       <SubType>Form</SubType>
@@ -89,7 +95,6 @@
       <DependentUpon>FileSelector.cs</DependentUpon>
     </Compile>
     <Compile Include="Json\JsonCfgFile.cs" />
-    <Compile Include="Json\JsonHexConverter.cs" />
     <Compile Include="Json\JsonTweaker.cs" />
     <Compile Include="Map16\Map16Data.cs" />
     <Compile Include="Editors\Map16Editor.cs">
@@ -123,6 +128,9 @@
     <EmbeddedResource Include="Editors\SpriteEditor.resx">
       <DependentUpon>SpriteEditor.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Editors\Tile8x8EditorForm.resx">
+      <DependentUpon>Tile8x8EditorForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -155,6 +163,7 @@
     <None Include="Properties\DataSources\CollectionSprite.datasource" />
     <None Include="Resources\m16Page1_3.m16" />
     <None Include="Resources\sprite.pal" />
+    <None Include="Resources\sprites_palettes.pal" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

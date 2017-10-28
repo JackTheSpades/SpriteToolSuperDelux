@@ -53,10 +53,17 @@ namespace CFG.Editors
             pcbDisplay.Image = bm;
         }
 
+
         private void pcbDisplay_MouseDown(object sender, MouseEventArgs e)
         {
             int row = e.Y / (16 * Zoom);
-            int col = e.Y / (16 * Zoom);
+            int col = e.X / (16 * Zoom);
+
+            if (ModifierKeys.HasFlag(Keys.Control) || e.Button == MouseButtons.Right)
+            {
+                DoClipboard(row, col, e.Button);
+                return;
+            }
 
             ColorDialog cd = new ColorDialog();
             cd.Color = Resources.Palette[row][col];
@@ -69,18 +76,44 @@ namespace CFG.Editors
             PaletteChanged?.Invoke(this, new PaletteChangedEventArges(row, col));
         }
 
-        public static Color[][] ColorArrayFromBytes(byte[] data, int offset = 0)
+        private Color[] clipboard;
+        private void DoClipboard(int row, int col, MouseButtons button)
         {
-            Color[][] palette = new Color[8][];
-            for (int row = 0; row < 8; row++)
+            if (button != MouseButtons.Left && button != MouseButtons.Right)
+                return;
+            bool entireRow = ModifierKeys.HasFlag(Keys.Alt);
+            bool copy = button == MouseButtons.Left;
+            if (!copy && clipboard == null)
+                return;
+
+            if (copy && entireRow)
+                clipboard = (Color[])Resources.Palette[row].Clone();
+            else if (copy && !entireRow)
+                clipboard = new Color[1] { Resources.Palette[row][col] };
+            else if (!copy && entireRow && clipboard.Length != 1)
+                Resources.Palette[row] = (Color[])clipboard.Clone();
+            else if (!copy && !entireRow && clipboard.Length == 1)
+                Resources.Palette[row][col] = clipboard[0];
+
+            if (!copy)
             {
-                Color[] palrow = new Color[16];
-                for (int col = 0; col < 16; col++)
+                DrawPalette();
+                PaletteChanged?.Invoke(this, new PaletteChangedEventArges(row, entireRow ? PaletteChangedEventArges.EntireRow : col));
+            }
+        }
+
+        public static Color[][] ColorArrayFromBytes(byte[] data, int offset = 0, int rows = 8, int columns = 16)
+        {
+            Color[][] palette = new Color[rows][];
+            for (int row = 0; row < rows; row++)
+            {
+                Color[] palrow = new Color[columns];
+                for (int col = 0; col < columns; col++)
                 {
                     palrow[col] = Color.FromArgb(
-                        data[offset + 16 * 3 * row + 3 * col + 0],
-                        data[offset + 16 * 3 * row + 3 * col + 1],
-                        data[offset + 16 * 3 * row + 3 * col + 2]
+                        data[offset + columns * 3 * row + 3 * col + 0],
+                        data[offset + columns * 3 * row + 3 * col + 1],
+                        data[offset + columns * 3 * row + 3 * col + 2]
                         );
                 }
                 palette[row] = palrow;
@@ -104,6 +137,7 @@ namespace CFG.Editors
 
     public class PaletteChangedEventArges : EventArgs
     {
+        public const int EntireRow = -1;
         public int Column { get; set; }
         public int Row { get; set; }
 

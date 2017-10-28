@@ -21,9 +21,12 @@ namespace CFG.Json
         public Value1686 Val1686 { get; set; } = new Value1686();
         [JsonProperty(PropertyName = "$190F")]
         public Value190F Val190F { get; set; } = new Value190F();
-        
+
+        [JsonProperty(PropertyName = "AsmFile")]
         public string AsmFile { get; set; }
+        [JsonProperty(PropertyName = "ActLike")]
         public byte ActLike { get; set; }
+        [JsonProperty(PropertyName = "Type")]
         public byte Type { get; set; }
 
         [JsonProperty("Extra Property Byte 1")]
@@ -36,8 +39,11 @@ namespace CFG.Json
         [JsonProperty("Additional Byte Count (extra bit set)")]
         public byte ExByteCount { get; set; }
 
+        [JsonProperty(PropertyName = "Map16")]
         public byte[] Map16 { get; set; }
+        [JsonProperty(PropertyName = "Displays")]
         public List<Map16.DisplaySprite> Displays { get; set; }
+        [JsonProperty(PropertyName = "Collection")]
         public List<CollectionSprite> Collection { get; set; }
 
         public JsonCfgFile() { }
@@ -85,8 +91,14 @@ namespace CFG.Json
             cfgFile.ExByteCount = ExByteCount;
 
             cfgFile.CustomMap16Data = Map16;
-            cfgFile.DisplayEntries = new System.ComponentModel.BindingList<CFG.Map16.DisplaySprite>(Displays);
-            cfgFile.CollectionEntries = new System.ComponentModel.BindingList<CollectionSprite>(Collection);
+
+            cfgFile.DisplayEntries.Clear();
+            foreach (var ds in Displays)
+                cfgFile.DisplayEntries.Add(ds);
+
+            cfgFile.CollectionEntries.Clear();
+            foreach (var cs in Collection)
+                cfgFile.CollectionEntries.Add(cs);
         }
     }
 }

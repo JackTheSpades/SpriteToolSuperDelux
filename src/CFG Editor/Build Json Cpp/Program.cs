@@ -42,7 +42,7 @@ namespace Build_Json_Cpp
                         sb_sub.AppendFormat("\tc |= (j[{0}] ? 0x{1:X2} : 0);\\\r\n", define, 1 << bit);
                     else if(prop.PropertyType == typeof(int))
                     {
-                        var iAttr = prop.GetCustomAttribute<CFG.Json.IntFieldAttribute>();
+                        var iAttr = prop.GetCustomAttribute<CFG.Json.JsonIntPropertyAttribute>();
                         if (iAttr == null)
                             continue;
                         int and = (int)Math.Pow(2, iAttr.Size) - 1;
@@ -61,4 +61,5 @@ namespace Build_Json_Cpp
                 System.IO.File.Copy("json_const.h", target, true);
         }
     }
+    
 }

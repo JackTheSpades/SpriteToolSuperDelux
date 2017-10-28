@@ -81,16 +81,6 @@ namespace CFG.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] sprite {
-            get {
-                object obj = ResourceManager.GetObject("sprite", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to 00 Green Koopa, no shell
         ///01 Red Koopa, no shell
         ///02 Blue Koopa, no shell
@@ -120,6 +110,16 @@ namespace CFG.Properties {
         internal static string SpriteList {
             get {
                 return ResourceManager.GetString("SpriteList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] sprites_palettes {
+            get {
+                object obj = ResourceManager.GetObject("sprites_palettes", resourceCulture);
+                return ((byte[])(obj));
             }
         }
     }

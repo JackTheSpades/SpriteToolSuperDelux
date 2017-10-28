@@ -14,6 +14,9 @@ namespace CFG.Map16
 	[DebuggerDisplay("X={X},Y={Y},Ex={ExtraBit} Tiles: {Tiles.Count}")]
 	public class DisplaySprite : ICloneable, INotifyPropertyChanged
 	{
+        /// <summary>
+        /// The default sprite with only a description and one tile (a pink X)
+        /// </summary>
         public static DisplaySprite Default => new DisplaySprite()
         {
             Description = "Undefined Sprite",
@@ -78,15 +81,15 @@ namespace CFG.Map16
             Tiles = new BindingList<Tile>();
         }
 
-        public static void FillData(DisplaySprite sprite, string tilesLine)
-        {
-            sprite.Y = Convert.ToInt32(tilesLine.Substring(0, 1), 16);
-            sprite.X = Convert.ToInt32(tilesLine.Substring(1, 1), 16);
-            sprite.ExtraBit = tilesLine[2] == '3';
+        //public static void FillData(DisplaySprite sprite, string tilesLine)
+        //{
+        //    sprite.Y = Convert.ToInt32(tilesLine.Substring(0, 1), 16);
+        //    sprite.X = Convert.ToInt32(tilesLine.Substring(1, 1), 16);
+        //    sprite.ExtraBit = tilesLine[2] == '3';
             
-            foreach (Tile t in Tile.GetTiles(tilesLine))
-                sprite.Tiles.Add(t);
-        }
+        //    foreach (Tile t in Tile.GetTiles(tilesLine))
+        //        sprite.Tiles.Add(t);
+        //}
 
         #region Object Overrides
 

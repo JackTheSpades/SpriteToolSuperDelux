@@ -50,25 +50,8 @@ bool read_cfg_file(sprite* spr, FILE* output) {
 	}while(current_line.length && line < handlelimit);
 		
 	
-	if(output != nullptr){	
-		fprintf(output, "\n%s:, %d lines parsed:\n",spr->cfg_file,line-1);
-		if(spr->level < 0x200)
-			fprintf(output, "Sprite: %02X, Level: %03X\n", spr->number, spr->level);
-		else
-			fprintf(output, "Sprite: %02X\n", spr->number);
-		fprintf(output, "Type: %02X, ActLike: %02X\nTweaker: ",spr->table.type, spr->table.actlike);
-		for(int i = 0; i < 6; i++)
-			fprintf(output, "%02X, ",spr->table.tweak[i]);
-		fprintf(output, "\n");
-
-		//if sprite isn't a tweak, print extra prop and asm file too:
-		if(spr->table.type) {
-			fprintf(output, "Extra: ");
-			for(int i = 0; i < 2; i++)
-				fprintf(output, "%02X, ",spr->table.extra[i]);
-			fprintf(output, "\nASM File: %s\n", spr->asm_file);			
-		}
-		fprintf(output,"\n--------------------------------------\n");
+	if(output){	
+		fprintf(output, "Parsed: %s, %d lines\n", spr->cfg_file,line-1);
 	}
    
    delete[] cfg;
