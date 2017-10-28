@@ -407,6 +407,19 @@ SubLoadHack2:
 	STA !14E0,x
 	LDA $05
 	STA !new_sprite_num,x
+   
+   PHY
+   INY : INY : INY            ; move sprie data pointer to extra bytes
+	LDA [$CE],y
+   STA !extra_byte_1,x
+	INY : LDA [$CE],y
+   STA !extra_byte_2,x
+	INY : LDA [$CE],y
+   STA !extra_byte_3,x
+	INY : LDA [$CE],y
+   STA !extra_byte_4,x   
+   PLY
+   
 	PLA
 	RTL
 
