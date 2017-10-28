@@ -45,5 +45,5 @@ db $06,$45,$9E,$E2,$A7,$BC,$59,$40,$61,$F5,$D6,$24,$7B,$33,$C6,$0B,$00,$39,$70,$
 
 
 print "MAIN ",pc
-	STZ $14C8,x      ; \ self destruct
+	STZ !14C8,x      ; \ self destruct
 	RTL              ; /

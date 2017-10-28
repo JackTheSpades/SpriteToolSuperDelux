@@ -24,7 +24,9 @@
 
 
 //version 1.xx
-const char VERSION = 0x01;
+const char VERSION = 0x02;
+bool PER_LEVEL = true;
+
 
 void double_click_exit()
 {
@@ -35,6 +37,10 @@ void double_click_exit()
 
 template <typename T>
 T* from_table(T* table, int level, int number) {
+
+   if(!PER_LEVEL)
+      return table + number;
+
 	if(level > 0x200 || number > 0xFF)
 		return nullptr;
 	if(level == 0x200) {
@@ -142,27 +148,41 @@ void clean_hack(ROM &rom){
 	if(!strncmp((char*)rom.data + rom.snes_to_pc(0x02FFE2), "STSD", 4)){		//already installed load old tables				
 		FILE* clean_patch = open("asm/_cleanup.asm", "w");
 		
-		//remove per level sprites
-		for(int bank = 0; bank < 4; bank++) {
-			fprintf(clean_patch, ";Per Level sprites for levels %03X - %03X\n", (bank * 0x80), ((bank+1)*0x80)-1);
-			int level_table_address = (rom.data[rom.snes_to_pc(0x02FFEA + bank)] << 16) + 0x8000;
-			for(int table_offset = 11; table_offset < 0x8000; table_offset += 0x10)	{
-				pointer main_pointer = rom.pointer_snes(level_table_address + table_offset);
-				if(main_pointer.addr() == 0xFFFFFF) {
-					fprintf(clean_patch, ";Encountered pointer to 0xFFFFFF, assuming there to be no sprites to clean!\n");
-					break;
-				}
-				if(!main_pointer.is_empty()) {
-					fprintf(clean_patch, "autoclean $%06X\n", main_pointer.addr());
-				}				
-			}
-			fprintf(clean_patch, "\n");
-		}
+		int version = rom.data[rom.snes_to_pc(0x02FFE6)];
+      int flags = rom.data[rom.snes_to_pc(0x02FFE7)];
+      
+      bool per_level_sprites_inserted = (flags & 0x01 == 1) || (version < 2);
+      
+      // bit 0 = per level sprites inserted
+      if(per_level_sprites_inserted) {      
+         //remove per level sprites
+         for(int bank = 0; bank < 4; bank++) {
+            int level_table_address = (rom.data[rom.snes_to_pc(0x02FFEA + bank)] << 16) + 0x8000;
+            if(level_table_address == 0xFF8000)
+               continue;
+            fprintf(clean_patch, ";Per Level sprites for levels %03X - %03X\n", (bank * 0x80), ((bank+1)*0x80)-1);
+            for(int table_offset = 11; table_offset < 0x8000; table_offset += 0x10)	{
+               pointer main_pointer = rom.pointer_snes(level_table_address + table_offset);
+               if(main_pointer.addr() == 0xFFFFFF) {
+                  fprintf(clean_patch, ";Encountered pointer to 0xFFFFFF, assuming there to be no sprites to clean!\n");
+                  break;
+               }
+               if(!main_pointer.is_empty()) {
+                  fprintf(clean_patch, "autoclean $%06X\n", main_pointer.addr());
+               }				
+            }
+            fprintf(clean_patch, "\n");
+         }
+      }
+      
+      //if per level sprites are inserted, we only have 0xF00 bytes of normal sprites
+      //due to 10 bytes per sprite and B0-BF not being in the table.
+      const int limit = per_level_sprites_inserted ? 0xF00 : 0x1000;
 		
 		//remove global sprites
 		fprintf(clean_patch, ";Global sprites: \n");
 		int global_table_address = rom.pointer_snes(0x02FFEE).addr();
-		for(int table_offset = 11; table_offset < 0xF00; table_offset += 0x10)	{
+		for(int table_offset = 11; table_offset < limit; table_offset += 0x10)	{
 			pointer main_pointer = rom.pointer_snes(global_table_address + table_offset);
 			if(!main_pointer.is_empty()) {
 				fprintf(clean_patch, "autoclean $%06X\n", main_pointer.addr());
@@ -180,7 +200,6 @@ void clean_hack(ROM &rom){
 			}
 		}
 		
-		int version = rom.data[rom.snes_to_pc(0x02FFE6)];
 		
 		//Version 1.01 stuff:		
 		if(version >= 1) {		
@@ -188,20 +207,22 @@ void clean_hack(ROM &rom){
 			//remove cluster sprites
 			fprintf(clean_patch, "\n\n;Cluster:\n");
 			int cluster_table = rom.pointer_snes(0x00A68A).addr();
-			for(int i = 0; i < SPRITE_COUNT; i++) {
-				pointer cluster_pointer = rom.pointer_snes(cluster_table + 3 * i);
-				if(!cluster_pointer.is_empty())
-					fprintf(clean_patch, "autoclean $%06X\n", cluster_pointer.addr());
-			}
+         if(cluster_table != 9C1498)   //check with default/uninserted address
+            for(int i = 0; i < SPRITE_COUNT; i++) {
+               pointer cluster_pointer = rom.pointer_snes(cluster_table + 3 * i);
+               if(!cluster_pointer.is_empty())
+                  fprintf(clean_patch, "autoclean $%06X\n", cluster_pointer.addr());
+            }
 			
 			//remove extended sprites
 			fprintf(clean_patch, "\n\n;Extended:\n");
-			int extended_table = rom.pointer_snes(0x029B1F).addr();
-			for(int i = 0; i < SPRITE_COUNT; i++) {
-				pointer extended_pointer = rom.pointer_snes(extended_table + 3 * i);
-				if(!extended_pointer.is_empty())
-					fprintf(clean_patch, "autoclean $%06X\n", extended_pointer.addr());
-			}
+			int extended_table = rom.pointer_snes(0x029B1F).addr();         
+         if(extended_table != 0x176FBC)   //check with default/uninserted address
+            for(int i = 0; i < SPRITE_COUNT; i++) {
+               pointer extended_pointer = rom.pointer_snes(extended_table + 3 * i);
+               if(!extended_pointer.is_empty())
+                  fprintf(clean_patch, "autoclean $%06X\n", extended_pointer.addr());
+            }
 			
 			//remove overworld sprites
 			// fprintf(clean_patch, "\n\n;Overworld:\n");
@@ -368,6 +389,9 @@ bool populate_sprite_list(const char** paths, sprite** sprite_lists, const char 
 			if(current_line.data[bytes_read] == ':')
 				sscanf(current_line.data, "%x%*c%hx%n", &level, &sprite_id, &bytes_read);
 			
+         if(level != 0x200 && !PER_LEVEL)
+            ERROR("Error on line %d: Trying to insert per level sprites with per level mode disabled (-npl)");
+         
 			spr = from_table<sprite>(sprite_list, level, sprite_id);
 			if(!spr) {
 				if(sprite_id >= 0x100)
@@ -518,6 +542,7 @@ int main(int argc, char* argv[]) {
 			printf("-d\t\tEnable debug output\n");
 			printf("-k\t\tKeep debug files\n");
 			printf("-l  <listpath>\tSpecify a custom list file (Default: %s)\n", paths[LIST]);
+         printf("-npl\t\tNo per level sprites. Run like normal sprite_tool\n");
 			printf("\n");
 			
 			printf("-sp <sprites>\tSpecify a custom sprites directory (Default %s)\n", paths[SPRITES]);
@@ -534,6 +559,8 @@ int main(int argc, char* argv[]) {
 			output = stdout;
 		}else if(!strcmp(argv[i], "-k")){
 			keep_temp = true;
+		}else if(!strcmp(argv[i], "-npl")){
+			PER_LEVEL = false;
 		}else if(!strcmp(argv[i], "-r") && i < argc - 2){
 			paths[ROUTINES] = argv[i+1];
 			i++;
@@ -563,6 +590,9 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	
+   
+   versionflag[1] = (PER_LEVEL ? 1 : 0);
+   
 	//------------------------------------------------------------------------------------------
 	// Get ROM name if none has been passed yet.
 	//------------------------------------------------------------------------------------------
@@ -604,7 +634,8 @@ int main(int argc, char* argv[]) {
 		
 	create_shared_patch(paths[ROUTINES], rom);
 	
-	patch_sprites(sprite_list, MAX_SPRITE_COUNT, rom, output);
+   int size = PER_LEVEL ? MAX_SPRITE_COUNT ? 0x100;
+	patch_sprites(sprite_list, size, rom, output);
 	patch_sprites(cluster_list, SPRITE_COUNT, rom, output);
 	patch_sprites(extended_list, SPRITE_COUNT, rom, output);
 	//patch_sprites(ow_list, SPRITE_COUNT, rom, output);
@@ -614,12 +645,17 @@ int main(int argc, char* argv[]) {
 	//------------------------------------------------------------------------------------------	
 	
 	//sprites
-	write_all(versionflag, "asm/_versionflag.bin", 4);	
-	write_long_table(sprite_list + 0x0000, "asm/_PerLevelT1.bin");
-	write_long_table(sprite_list + 0x0800, "asm/_PerLevelT2.bin");
-	write_long_table(sprite_list + 0x1000, "asm/_PerLevelT3.bin");
-	write_long_table(sprite_list + 0x1800, "asm/_PerLevelT4.bin");
-	write_long_table(sprite_list + 0x2000, "asm/_DefaultTables.bin", 0xF0);
+	write_all(versionflag, "asm/_versionflag.bin", 4);
+   if(PER_LEVEL) {
+      write_long_table(sprite_list + 0x0000, "asm/_PerLevelT1.bin");
+      write_long_table(sprite_list + 0x0800, "asm/_PerLevelT2.bin");
+      write_long_table(sprite_list + 0x1000, "asm/_PerLevelT3.bin");
+      write_long_table(sprite_list + 0x1800, "asm/_PerLevelT4.bin");
+      write_long_table(sprite_list + 0x2000, "asm/_DefaultTables.bin", 0xF0);
+   } else {
+      write_long_table(sprite_list, "asm/_DefaultTables.bin", 0x100);
+   }
+      
 	
 	//cluster
 	unsigned char file[SPRITE_COUNT * 3];	

@@ -29,7 +29,7 @@ IncrementByOneRain:
    LDA #$01                        ; | Appear.
    STA $1E2A|!Base2,y              ; /
 +
-   RTS
+   RTL
 
 print "MAIN ",pc
 Main:                              ;The code always starts at this label in all sprites.

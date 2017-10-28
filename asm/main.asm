@@ -1,5 +1,6 @@
 
 !GenStart = $D0
+!PerLevel = 1
 
 !__debug = 0
 incsrc "sa1def.asm"		;sa-1 defines
@@ -12,21 +13,37 @@ incsrc "sa1def.asm"		;sa-1 defines
 org $02FFE2
 	db "STSD"						;header!
 	incbin "_versionflag.bin"	;byte 1 is version number 1.xx
-										;byte 2,3,4 reserved
+										;byte 2 are flags ---- ---l
+                              ; l = per level sprites code inserted
+                              ;byte 3,4 reserved
+                              
+;$02FFEA
 TableLoc:
-	db table1>>16	;bank bytes only. (for easier access later)
-	db table2>>16	;since they all fill the whole bank, they start at xx8000
-	db table3>>16
-	db table4>>16
-	
+   if !PerLevel = 1
+      db table1>>16	;bank bytes only. (for easier access later)
+      db table2>>16	;since they all fill the whole bank, they start at xx8000
+      db table3>>16
+      db table4>>16
+   else
+      db $FF,$FF,$FF,$FF
+   endif
+	                    
+;$02FFEE
 	autoclean dl TableStart
 	
 	; yeah, kinda wasting 4 byte here by having the tables twice.
 	; but the above makes access easier and these are for cleanup.
-	autoclean dl table1
-	autoclean dl table2
-	autoclean dl table3
-	autoclean dl table4
+   if !PerLevel = 1
+      autoclean dl table1
+      autoclean dl table2
+      autoclean dl table3
+      autoclean dl table4
+   else
+      dl $FFFFFF
+      dl $FFFFFF
+      dl $FFFFFF
+      dl $FFFFFF
+   endif
 	
 	;3 bytes left over in bank... possible future use?
 	dl $FFFFFF
@@ -290,12 +307,15 @@ GetMainPtr:
 	REP #$30
 	AND #$00FF
 	
-	CMP #$00B0
-	BCC .normal
-	CMP #$00C0
-	BCC .perlevel	
-	SBC #$0010	;carry already set
-.normal
+   if !PerLevel = 1
+      CMP #$00B0
+      BCC .normal
+      CMP #$00C0
+      BCC .perlevel	
+      SBC #$0010	;carry already set
+   .normal
+   endif
+   
 	ASL #$04
 	TAY
 
@@ -308,64 +328,69 @@ GetMainPtr:
 	RTS
 
 	
-.perlevel
-	LDY #$000B
-	JSR GetPerLevelPtr
-	PLP
-	PLB
-	RTS
+   if !PerLevel = 1
+   .perlevel
+      LDY #$000B
+      JSR GetPerLevelPtr
+      PLP
+      PLB
+      RTS
+   endif
 
 	
-; Input, Y for in table offset
-;        A=Sprite number (inbetween B0-BF)
-;        Y=08 -> init
-;        Y=0B -> main
-GetPerLevelPtr:
-	JSR GetPerLevelAddr
-	LDA [$00]			; load low-high byte of pointer
-	PHA					; save
-	INC $00				; inc offset
-	LDA [$00]			; load high-bank byte of pointer
-	STA $01				; 00=x, 01=high, 02=bank
-	PLA					; load
-	STA $00				; 00=low, 01=high, 02=bank
-	
-	RTS
-	
-; Input, Y for in table offset
-;        A=Sprite number (inbetween B0-BF)
-GetPerLevelAddr:
-	SEC
-	SBC #$00B0	;carry already set
-	PHX
-	
-	ASL #4		; sprite number * 0x10
-	CLC			; +
-	ADC #$8000	; high-low byte of table
-	STA $00		; table always takes full bank and starts at $8000
-	
-	LDA $010B|!Base2	; level number
-	AND #$007F			; table stretches accross 4 banks, so only get in table bits
-	XBA					; times 0x100
-	ADC $00				; carry has to be clear because of ASL
-	STA $00
-	
-	TYA				; add Y for in table offset
-	AND #$00FF		;
-	CLC : ADC $00	;
-	STA $00			;
-	
-	
-	LDA $010B|!Base2	; \	
-	ASL					; | two high bits of level number
-	XBA					; |
-	AND #$00FF			; /
-	TAX 
-	
-	LDA.l TableLoc,x	; bank byte of table
-	STA $02
-	PLX
-	RTS
+   
+if !PerLevel = 1
+   ; Input, Y for in table offset
+   ;        A=Sprite number (inbetween B0-BF)
+   ;        Y=08 -> init
+   ;        Y=0B -> main
+   GetPerLevelPtr:
+      JSR GetPerLevelAddr
+      LDA [$00]			; load low-high byte of pointer
+      PHA					; save
+      INC $00				; inc offset
+      LDA [$00]			; load high-bank byte of pointer
+      STA $01				; 00=x, 01=high, 02=bank
+      PLA					; load
+      STA $00				; 00=low, 01=high, 02=bank
+      
+      RTS
+      
+   ; Input, Y for in table offset
+   ;        A=Sprite number (inbetween B0-BF)
+   GetPerLevelAddr:
+      SEC
+      SBC #$00B0	;carry already set
+      PHX
+      
+      ASL #4		; sprite number * 0x10
+      CLC			; +
+      ADC #$8000	; high-low byte of table
+      STA $00		; table always takes full bank and starts at $8000
+      
+      LDA $010B|!Base2	; level number
+      AND #$007F			; table stretches accross 4 banks, so only get in table bits
+      XBA					; times 0x100
+      ADC $00				; carry has to be clear because of ASL
+      STA $00
+      
+      TYA				; add Y for in table offset
+      AND #$00FF		;
+      CLC : ADC $00	;
+      STA $00			;
+      
+      
+      LDA $010B|!Base2	; \	
+      ASL					; | two high bits of level number
+      XBA					; |
+      AND #$00FF			; /
+      TAX 
+      
+      LDA.l TableLoc,x	; bank byte of table
+      STA $02
+      PLX
+      RTS
+endif
 	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; clear init bit when changing sprites
@@ -458,7 +483,7 @@ SubGenLoad:
 	BCS .IsCustomGen
 
 .IsCustomShooter
-	JML $02A8D8
+	JML $02A8D8|!BankB
 
 .IsCustomGen
 	LDA !new_code_flag
@@ -589,14 +614,15 @@ SetSpriteTables:
 	AND #$00FF
 	
 	
-	CMP #$00B0
-	BCC .normal	
-	CMP #$00C0
-	BCC .perlevel
-	
-	SBC #$0010	; carry already set, sub 0x10
-	
-.normal
+   if !PerLevel = 1
+      CMP #$00B0
+      BCC .normal	
+      CMP #$00C0
+      BCC .perlevel
+      
+      SBC #$0010	; carry already set, sub 0x10
+   .normal
+   endif
 	
 	ASL #$04
 	TAY
@@ -651,69 +677,71 @@ SetSpriteTables:
 	PLY
 	RTL
 	
-.perlevel	
-	LDY #$0000
-	JSR GetPerLevelAddr	
-	SEP #$20
+   if !PerLevel = 1
+   .perlevel	
+      LDY #$0000
+      JSR GetPerLevelAddr	
+      SEP #$20
 
-	LDA [$00]				;0
-	STA !new_code_flag
-	INC $00					;1 no need for 16bit check, since table always starts at $xx:xxx0
-	LDA [$00]
-	STA !9E,x
-	INC $00					;2
-	LDA [$00]
-	STA !1656,x
-	INC $00					;3
-	LDA [$00]
-	STA !1662,x
-	INC $00					;4
-	LDA [$00]
-	STA !166E,x
-	AND #$0F
-	STA !15F6,x
-	INC $00					;5
-	LDA [$00]
-	STA !167A,x
-	INC $00					;6
-	LDA [$00]
-	STA !1686,x
-	INC $00					;7
-	LDA [$00]
-	STA !190F,x
-	INC $00					;8
+      LDA [$00]				;0
+      STA !new_code_flag
+      INC $00					;1 no need for 16bit check, since table always starts at $xx:xxx0
+      LDA [$00]
+      STA !9E,x
+      INC $00					;2
+      LDA [$00]
+      STA !1656,x
+      INC $00					;3
+      LDA [$00]
+      STA !1662,x
+      INC $00					;4
+      LDA [$00]
+      STA !166E,x
+      AND #$0F
+      STA !15F6,x
+      INC $00					;5
+      LDA [$00]
+      STA !167A,x
+      INC $00					;6
+      LDA [$00]
+      STA !1686,x
+      INC $00					;7
+      LDA [$00]
+      STA !190F,x
+      INC $00					;8
 
-	LDA !new_code_flag
-	BEQ .notCustom
-		
-	REP #$20
-	LDA [$00]
-	PHA
-	INC $00					;9
-	LDA [$00]
-	PHA						;INIT pointer on stack
-	
-	LDA #$0005
-	CLC : ADC $00
-	STA $00
-	
-	;INC $00					;A 
-	;INC $00					;B 
-	;INC $00					;C
-	;INC $00					;D
-	;INC $00					;E
-	
-	SEP #$20
-	LDA [$00]
-	STA !extra_prop_1,x
-	INC $00						;F
-	LDA [$00]
-	STA !extra_prop_2,x
-	REP #$20
+      LDA !new_code_flag
+      BEQ .notCustom
+         
+      REP #$20
+      LDA [$00]
+      PHA
+      INC $00					;9
+      LDA [$00]
+      PHA						;INIT pointer on stack
+      
+      LDA #$0005
+      CLC : ADC $00
+      STA $00
+      
+      ;INC $00					;A 
+      ;INC $00					;B 
+      ;INC $00					;C
+      ;INC $00					;D
+      ;INC $00					;E
+      
+      SEP #$20
+      LDA [$00]
+      STA !extra_prop_1,x
+      INC $00						;F
+      LDA [$00]
+      STA !extra_prop_2,x
+      REP #$20
 
-	PLA : STA $01
-	PLA : STA $00				;init pointer to [$00]
-	BRA .ret
+      PLA : STA $01
+      PLA : STA $00				;init pointer to [$00]
+      BRA .ret
+   endif
 	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Call Main after handling status > 9
@@ -821,25 +849,31 @@ TestSilverCoinBit:
 	PHP
 	REP #$30
 	AND #$00FF
-	
-	CMP #$00B0
-	BCC .normal
-	CMP #$00C0
-	BCC .perlevel
-	SBC #$0010	
-.normal
+
+
+   if !PerLevel = 1	
+      CMP #$00B0
+      BCC .normal
+      CMP #$00C0
+      BCC .perlevel
+      SBC #$0010	
+   .normal
+   endif
+
 	ASL #$04
 	TAX
 	LDA.l TableStart+$07,x
 	PLP
 	RTL
 	
-.perlevel
-	LDY #$0007
-	JSR GetPerLevelAddr
-	LDA [$00]
-	PLP
-	RTL
+   if !PerLevel = 1
+   .perlevel
+      LDY #$0007
+      JSR GetPerLevelAddr
+      LDA [$00]
+      PLP
+      RTL
+   endif
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Custom sprites' table
@@ -852,19 +886,22 @@ TableStart:
 ; ---------------------------------------------------
 ; per-level tables for sprite B0-BF 0x8000 bytes each.
 ; ---------------------------------------------------
-freedata align
-table1:
-	print "Level Table 1 at ",pc
-	incbin "_PerLevelT1.bin"
-freedata align
-table2:
-	print "Level Table 2 at ",pc
-	incbin "_PerLevelT2.bin"
-freedata align
-table3:
-	print "Level Table 3 at ",pc
-	incbin "_PerLevelT3.bin"
-freedata align
-table4:
-	print "Level Table 4 at ",pc
-	incbin "_PerLevelT4.bin"
+
+if !PerLevel = 1
+   freedata align
+   table1:
+      print "Level Table 1 at ",pc
+      incbin "_PerLevelT1.bin"
+   freedata align
+   table2:
+      print "Level Table 2 at ",pc
+      incbin "_PerLevelT2.bin"
+   freedata align
+   table3:
+      print "Level Table 3 at ",pc
+      incbin "_PerLevelT3.bin"
+   freedata align
+   table4:
+      print "Level Table 4 at ",pc
+      incbin "_PerLevelT4.bin"
+endif

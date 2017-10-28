@@ -39,7 +39,7 @@ LDA #$01                        ;  | Appear.
 STA $1E2A,y                     ; /
 
 +
-RTS
+RTL
 
 print "MAIN ",pc
 Main:				;The code always starts at this label in all sprites.
