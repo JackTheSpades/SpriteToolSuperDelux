@@ -1,12 +1,14 @@
-*.smc
+**/*.smc
 *.srm
 *.zst
 *.exe
-*.bin
+**/*.bin
 */tweak/*
 !asm/DefaultSize.bin
 !asm/Restore/*.bin
 !Graphics for Included Sprites/*.bin
+!src/CFG Editor/**/*.bin
+!src/CFG Editor/**/*.smc
 shared.asm
 asm/_cleanup.asm
 HxD.ini

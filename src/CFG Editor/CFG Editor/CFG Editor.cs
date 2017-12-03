@@ -1,10 +1,14 @@
-﻿using System;
+﻿using CFG.Map16;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Windows.Forms;
+using System.Collections;
 
 namespace CFG
 {
@@ -12,7 +16,7 @@ namespace CFG
 	{
 		Normal = 0,
 		Custom = 1,
-        [Description("Generator/Shooter")]
+        [DisplayName("Generator/Shooter")]
 		GeneratorShooter = 3,
 	}
 
@@ -20,6 +24,20 @@ namespace CFG
     {
         CfgFile,
         RomFile,
+    }
+
+    public enum GridSize
+    {
+        [DisplayName("1x1")]
+        Size1x1 = 1,
+        [DisplayName("2x2")]
+        Size2x2 = 2,
+        [DisplayName("4x4")]
+        Size4x4 = 4,
+        [DisplayName("8x8")]
+        Size8x8 = 8,
+        [DisplayName("16x16")]
+        Size16x16 = 16,
     }
 
 	public partial class CFG_Editor : Form
@@ -57,46 +75,106 @@ namespace CFG
             }
         }
 
-        public readonly CFGFile Data;
+        public readonly CfgFile Data;
 
         		
 		public Image[] objClip = new Image[0x10];
 		public Image[] sprClip = new Image[0x40];
 		public Bitmap[] sprPal = new Bitmap[6 + 2 * 8];
-
         
         /// <summary>
         /// The sprite palette to be used. Not the one from the CFG file but the one displayed when pal E or F are selected.
         /// </summary>
-		public int SpritePalette = 0;
+        public int SpritePalette { get; set; } = 0;
 
         #endregion
 
         BindingList<ComboBoxItem> types_list = new BindingList<ComboBoxItem>();
         BindingList<ComboBoxItem> sprites_list = new BindingList<ComboBoxItem>();
-
-        /// <summary>
-        /// List of all controlls that will be disabled when the Type is 0 or when in Rom editing mdoe.
-        /// </summary>
-        List<Control> disabled_controlls;
-
+        
+        Map16Resources resources = new Map16.Map16Resources();
+        
         FileType FileType;
         byte[] RomData = null;
-               
+        List<ControlEnabler> control_enablers = new List<ControlEnabler>();
 
 		public CFG_Editor(string[] args)
-		{
+        {
+            if(args.Length > 0)
+            {
+                int flag = Array.IndexOf(args, "-c");
+                if (flag >= 0)
+                {
+                    Converter.Convert(args.Skip(flag + 1));
+                    Environment.Exit(0);
+                    return;
+                }
+            }
+
+
             InitializeComponent();
 
-            disabled_controlls = new List<Control>()
+            #region map16 resources
+
+            List<byte> gfx = new List<byte>();
+            gfx.AddRange(Enumerable.Repeat<byte>(0, 0x4000));
+            gfx.AddRange(GetGfxArray(0x33, 0x3000));
+            gfx.AddRange(Enumerable.Repeat<byte>(0, 0x800));
+
+            resources.Graphics = new Map16.SnesGraphics(gfx.ToArray());
+            resources.Palette = Editors.PaletteEditorForm.ColorArrayFromBytes(CFG.Properties.Resources.sprites_palettes, rows: 22);
+
+            byte[] map16data = new byte[0x2000];
+            Array.Copy(CFG.Properties.Resources.m16Page1_3, map16data, 0x1800);
+            
+            #endregion
+
+
+            ControlEnabler FileTypeEnabler = new ControlEnabler(() => FileType == FileType.CfgFile)
+            {
+                grpAsmActLike,
+                grpExtraByteCount,
+                grpExtraPropByte,
+                tpgLm,
+                tpgList,
+                //saveAsToolStripMenuItem,
+            };
+            ControlEnabler CustomEnabler = new ControlEnabler(() => FileType == FileType.CfgFile && Data.Type != (int)CFG_SpriteType.Normal)
             {
                 grpAsmActLike,
                 grpExtraByteCount,
                 grpExtraPropByte,
             };
+            ControlEnabler ShooterEnabler = new ControlEnabler(() => FileType == FileType.CfgFile && Data.Type != (int)CFG_SpriteType.GeneratorShooter)
+            {
+                txt_1656,
+                txt_1662,
+                txt_166E,
+                txt_167A,
+                txt_1686,
+                txt_190F,
 
-            Data = new CFGFile();
-            Data.PropertyChanged += (_, __) => Unsaved = true;
+                grp_1656,
+                grp_1662,
+                grp_166E,
+                grp_167A,
+                grp_1686,
+                grp_190F,
+            };
+            control_enablers.Add(FileTypeEnabler);
+            control_enablers.Add(CustomEnabler);
+            control_enablers.Add(ShooterEnabler);
+
+            Data = new CfgFile();
+            Data.PropertyChanged += (_, e) =>
+            {
+                Unsaved = true;
+                if (e.PropertyName == nameof(Data.Type))
+                    control_enablers.ForEach(c => c.Evaluate());
+            };
+
+            #region Default Tab
+
 
             cmb_1656_0F.BitsBind(Data, c => c.SelectedIndex, f => f.Addr1656, 4, 0).DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
 			cmb_1662_3F.BitsBind(Data, c => c.SelectedIndex, f => f.Addr1662, 6, 0).DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
@@ -141,48 +219,175 @@ namespace CFG
 			}
 			
 			//draw bitmap of palette file for sprites.
-			var palfile = Properties.Resources.sprite;
 			for (int i = 0; i < sprPal.Length; i++)
 			{
 				Bitmap b = new Bitmap(8 * 16, 16);
 				using(Graphics g = Graphics.FromImage(b))
 					for(int pal = 0; pal < 8; pal++)
 					{
-						Color c = Color.FromArgb(
-							palfile[8 * 3 * i + 3 * pal + 0],
-							palfile[8 * 3 * i + 3 * pal + 1],
-							palfile[8 * 3 * i + 3 * pal + 2]);
+                        Color c = resources.Palette[i][pal];
 						Rectangle rec = new Rectangle(16 * pal, 0, 16, 16);
 						g.FillRectangle(new SolidBrush(c), rec);
 					}
 				sprPal[i] = b;
 			}
 
-			if (args.Length == 0)
-				cmb_1656_0F.SelectedIndex = cmb_1662_3F.SelectedIndex = cmb_166E_0E.SelectedIndex = 0;
-			else if (File.Exists(args[0]))
-			{
-				try
+            #endregion
+
+            #region Lunar Magic Tab
+
+            cmbTilesets.Items.AddRange(new[]
+            {
+                new SpriteTileset(0x13, 0x02, "Forest"),
+                new SpriteTileset(0x12, 0x03, "Castle"),
+                new SpriteTileset(0x13, 0x05, "Mushroom"),
+                new SpriteTileset(0x13, 0x04, "Underground"),
+                new SpriteTileset(0x13, 0x06, "Water"),
+                new SpriteTileset(0x13, 0x09, "Pokey"),
+                new SpriteTileset(0x06, 0x11, "Ghost House"),
+                new SpriteTileset(0x13, 0x20, "Banzai Bill"),
+                new SpriteTileset(0x1C, 0x1D, "Overworld") { Sp1 = 0x10, Sp2 = 0x0F },
+            });
+            cmbTilesets.SelectedIndexChanged += (_, __) =>
+            {
+                var tileset = (SpriteTileset)cmbTilesets.SelectedItem;
+                SetDataSelectorGfx(dsSP1, tileset.Sp1);
+                SetDataSelectorGfx(dsSP2, tileset.Sp2);
+                SetDataSelectorGfx(dsSP3, tileset.Sp3);
+                SetDataSelectorGfx(dsSP4, tileset.Sp4);
+            };
+            dsSP1.Tag = 0x0000;
+            dsSP2.Tag = 0x1000;
+            dsSP3.Tag = 0x2000;
+            dsSP4.Tag = 0x3000;
+            cmbTilesets.SelectedIndex = 0;
+            
+            //Grid size combobox data + events
+            foreach (GridSize gridSize in Enum.GetValues(typeof(GridSize)).Cast<GridSize>().Reverse())
+                cmbGrid.Items.Add(new ComboBoxItem(gridSize.GetName(), (int)gridSize));
+            cmbGrid.SelectedIndex = 0;
+            cmbGrid.SelectedIndexChanged += (_, __) => spriteEditor1.GridSize = ((ComboBoxItem)cmbGrid.SelectedItem).Value;
+            
+            //------------------------------------------------------------------------------------------------------
+
+            //create binding source for later databinding.
+            displaySpriteBindingSource.DataSource = Data;
+            displaySpriteBindingSource.DataMember = nameof(CfgFile.DisplayEntries);
+            
+            //create databindings between display list and controls.
+            BindToSourceDisplay(rtbDesc, displaySpriteBindingSource, ctrl => ctrl.Text, ds => ds.Description);
+            BindToSourceDisplay(nudX, displaySpriteBindingSource, ctrl => ctrl.Value, ds => ds.X);
+            BindToSourceDisplay(nudY, displaySpriteBindingSource, ctrl => ctrl.Value, ds => ds.Y);
+            BindToSourceDisplay(chbExtraBit, displaySpriteBindingSource, ctrl => ctrl.Checked, ds => ds.ExtraBit);
+            BindToSourceDisplay(chbUseText, displaySpriteBindingSource, ctrl => ctrl.Checked, ds => ds.UseText);
+            displaySpriteBindingSource.CurrentChanged += (_, __) => spriteEditor1.Sprite = (DisplaySprite)displaySpriteBindingSource.Current;
+
+            ConnectViewAndButtons(displaySpriteBindingSource, dgvDisplay, btnDisplayNew, btnDisplayClone, btnDisplayDelete);
+
+
+            map16Editor1.Initialize(map16data, resources);
+            map16Editor1.SelectionChanged += (_, e) => pnlEdit.Enabled = e.Tile >= 0x300;
+            map16Editor1.In8x8ModeChanged += (_, __) => txtTopRight.Enabled = txtBottomLeft.Enabled = txtBottomRight.Enabled = !map16Editor1.In8x8Mode;
+
+            //create databindings between map16 and controls.
+            txtTopLeft.Bind(map16Editor1, c => c.Text, e => e.SelectedObject.TopLeft, i => i.ToString("X2"), StringToInt);
+            txtTopRight.Bind(map16Editor1, c => c.Text, e => e.SelectedObject.TopRight, i => i.ToString("X2"), StringToInt);
+            txtBottomLeft.Bind(map16Editor1, c => c.Text, e => e.SelectedObject.BottomLeft, i => i.ToString("X2"), StringToInt);
+            txtBottomRight.Bind(map16Editor1, c => c.Text, e => e.SelectedObject.BottomRight, i => i.ToString("X2"), StringToInt);
+
+            //linking palette combobox and property.
+            //If you're wondering why I'm not using DataBinding for this... because for some reason it's insanly slow. 10 seconds slow...
+            int trigger = 0;
+            cmbPalette.SelectedIndexChanged += (_, __) =>
+            {
+                if (cmbPalette.SelectedIndex >= 8 || trigger == 2)
+                    return;
+                trigger = 1;
+                map16Editor1.SelectedObject.Palette = cmbPalette.SelectedIndex;
+                trigger = 0;
+            };
+            map16Editor1.SelectionChanged += (_, __) =>
+            {
+                if (trigger == 1)
+                    return;
+                trigger = 2;
+                cmbPalette.SelectedIndex = map16Editor1.SelectedObject.Palette;
+                trigger = 0;
+            };
+            
+            btnX.Click += (_, __) => map16Editor1.SelectedObject.FlipX();
+            btnY.Click += (_, __) => map16Editor1.SelectedObject.FlipY();
+
+
+            //link sprite editor and map16 editor
+            spriteEditor1.Map16Editor = map16Editor1;
+            map16Editor1.HoverChanged += (_, e) => { tslHover.Text = $"Tile: {e.Tile.ToString("X3")}"; };
+
+            tsb8x8Mode.CheckedChanged += (_, __) => map16Editor1.In8x8Mode = tsb8x8Mode.Checked;
+            tsbGrid.CheckedChanged += (_, __) => map16Editor1.ShowGrid = tsbGrid.Checked;
+            tsbPage.CheckedChanged += (_, __) => map16Editor1.PrintPage = tsbPage.Checked;
+
+            tsbPalette.Click += (_, __) =>
+            {
+                var palette_editor = new Editors.PaletteEditorForm(resources);
+                palette_editor.PaletteChanged += (___, e) => map16Editor1.Map.PaletteChanged(e.Row);
+                palette_editor.Show();
+            };
+
+            #endregion
+
+            #region Custom List Tab
+
+            //create binding source for later databinding.
+            collectionSpriteBindingSource.DataSource = Data;
+            collectionSpriteBindingSource.DataMember = nameof(CfgFile.CollectionEntries);
+
+            //bind controlls to current selection in list
+            BindToSourceCollection(txtListName, collectionSpriteBindingSource, ctrl => ctrl.Text, cs => cs.Name);
+            BindToSourceCollection(chbListExtraBit, collectionSpriteBindingSource, ctrl => ctrl.Checked, cs => cs.ExtraBit);
+            Binding[] expropbind = new Binding[]
+            {
+                txtListExProp1.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte1)),
+                txtListExProp2.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte2)),
+                txtListExProp3.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte3)),
+                txtListExProp4.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte4)),
+            };
+            expropbind.ForEach(b =>
+            {
+                b.Format += (_, e) => e.Value = ((byte)e.Value).ToString("X2");
+                b.Parse += (_, e) => e.Value = StringToByte((string)e.Value);
+            });
+            ConnectViewAndButtons(collectionSpriteBindingSource, dgvList, btnColNew, btnColClone, btnColRemove);
+
+            #endregion
+
+
+            if (args.Length == 0)
+            {
+                cmb_1656_0F.SelectedIndex = cmb_1662_3F.SelectedIndex = cmb_166E_0E.SelectedIndex = 0;
+                Data.Clear();
+            }
+            else
+            {
+                try
                 {
                     LoadFile(args[0]);
                 }
-				catch (Exception ex)
-				{
+                catch (Exception ex)
+                {
                     Data.Clear();
-					Filename = "";
-                    cmbType.SelectedItem = 0;
-					MessageBox.Show("An error occured while trying to read the file.\n" + ex.Message, "Unexpected Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				}
-			}
-			else
-				MessageBox.Show("File: \"" + args[0] + "\" doesn't exist", "File not found", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
+                    Filename = "";
+                    Unsaved = false;
+                    cmb_1656_0F.SelectedIndex = cmb_1662_3F.SelectedIndex = cmb_166E_0E.SelectedIndex = 0;
+                    MessageBox.Show("An error occured while trying to read the file.\n\n" + ex.Message, "Unexpected Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
 #if DEBUG
             testToolStripMenuItem.Visible = true;
 #endif
 
 		}
-
+        
         /// <summary>
         /// Testbutton on the menu. Only available in debug mode.
         /// </summary>
@@ -193,6 +398,45 @@ namespace CFG
         }
 
         #region Helper Methods
+
+        void ConnectViewAndButtons(BindingSource source, DataGridView dgv, Button btnNew, Button btnClone, Button btnRemove)
+        {
+            btnRemove.Enabled = false;
+            dgv.AllowUserToDeleteRows = false;
+
+            //events to control the button/view behaviour for new/clone/delete
+            btnNew.Click += (_, __) => source.AddNew();
+            btnClone.Click += (_, __) => source.RemoveCurrent();
+            btnRemove.Click += (_, __) => source.Add(((ICloneable)displaySpriteBindingSource.Current).Clone());
+
+            dgv.RowsAdded += (_, __) => dgv.AllowUserToDeleteRows = dgv.Rows.Count > 1;
+            dgv.RowsRemoved += (_, __) => dgv.AllowUserToDeleteRows = dgv.Rows.Count != 1;
+
+            dgv.AllowUserToDeleteRowsChanged += (_, __) => btnDisplayDelete.Enabled = dgv.AllowUserToDeleteRows;
+        }
+
+        private Binding BindToSourceCollection<TCon, TProp>(TCon control, BindingSource source, Expression<Func<TCon, TProp>> controlMember, Expression<Func<CollectionSprite, TProp>> objectMember)
+            where TCon : Control
+            => BindToSource(control, source, controlMember, objectMember);
+        private Binding BindToSourceDisplay<TCon, TProp>(TCon control, BindingSource source, Expression<Func<TCon, TProp>> controlMember, Expression<Func<DisplaySprite, TProp>> objectMember)
+            where TCon : Control
+            => BindToSource(control, source, controlMember, objectMember);
+
+        private Binding BindToSource<TCon, TObj, TProp>(TCon control, BindingSource source, Expression<Func<TCon, TProp>> controlMember, Expression<Func<TObj, TProp>> objectMember)
+            where TCon : Control
+        {
+            string ctrlMem = ((MemberExpression)controlMember.Body).GetName();
+
+            string objMem = "";
+            if (objectMember.Body is UnaryExpression)
+            {
+                var op = ((UnaryExpression)objectMember.Body).Operand;
+                objMem = ((MemberExpression)op).GetName();
+            }
+            else
+                objMem = ((MemberExpression)objectMember.Body).GetName();
+            return control.DataBindings.Add(ctrlMem, source, objMem);
+        }
 
         /// <summary>
         /// Helper method for data binding. Converts a hex-string to byte. An empty string will be parsed as 0.
@@ -214,7 +458,25 @@ namespace CFG
                 return 0;
             }
         }
-        
+        /// <summary>
+        /// Helper method for data binding. Converts a hex-string to int. An empty string will be parsed as 0.
+        /// </summary>
+        /// <param name="str">The string containing two digits to be parsed</param>
+        /// <returns></returns>
+        private int StringToInt(string str)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(str))
+                    return 0;
+                return Convert.ToInt32(str, 16);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
         /// <summary>
         /// Creats a new image based on the passed on with the given size, but the same ratio.
         /// </summary>
@@ -272,7 +534,7 @@ namespace CFG
         /// <param name="expr">The expression that selects the Property to bind to from the CFGFile</param>
         /// <param name="addr">The string representation of the address, used for searching through the controlls</param>
         /// <param name="start_bit">For the CheckBoxes, this indicates where to start</param>
-		private void SetupBinding(CFGFile file, System.Linq.Expressions.Expression<Func<CFGFile, byte>> expr, string addr, int start_bit = 0)
+		private void SetupBinding(CfgFile file, System.Linq.Expressions.Expression<Func<CfgFile, byte>> expr, string addr, int start_bit = 0)
 		{
 			TextBox txt = (TextBox)Controls.Find("txt_" + addr, true).FirstOrDefault();
 			if (txt == null)
@@ -287,6 +549,39 @@ namespace CFG
 			}
 		}
 
+        private void SetDataSelectorGfx(FileSelector ds, int id)
+        {
+            string display = $"GFX{id.ToString("X2")}";
+
+            if (ds.TextDisplay == display)
+                return;
+
+            ds.TextDisplay = display;
+            ds.DataLoadHandler = () => GetGfxArray(id);
+            ds_FileLoaded(ds, null);
+        }
+
+        private byte[] GetGfxArray(int id, int size = 0x1000)
+        {
+            byte[] ret = new byte[size];
+            try
+            {
+                using (Stream str = this.GetType().Assembly.GetManifestResourceStream("CFG.Resources.Graphics.GFX" + id.ToString("X2") + ".bin"))
+                {
+                    str.Read(ret, 0, ret.Length);
+                }
+            }
+            catch { }
+            return ret;
+        }
+
+        private DialogResult ShowException(Exception ex, bool rethrow = false )
+        {
+            if (ex is UserException)
+                return ((UserException)ex).Show();
+            return MessageBox.Show(ex.Message, "Unexpected Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
         #endregion
         
         public void LoadFile(string path)
@@ -297,6 +592,11 @@ namespace CFG
             switch(ext.ToLower())
             {
                 case ".cfg":
+                    Data.FromLines(File.ReadAllText(path));
+                    FileType = FileType.CfgFile;
+                    break;
+                case ".json":
+                    Data.FromJson(File.ReadAllText(path));
                     FileType = FileType.CfgFile;
                     break;
                 case ".smc":
@@ -306,31 +606,33 @@ namespace CFG
                 default:
                     throw new FormatException($"Uknown file extension {ext}");
             }
-
-
+            
             if (FileType == FileType.CfgFile)
             {
-                Data.FromLines(File.ReadAllText(path));
                 cmbType.DataSource = types_list;
-                cmbType.SelectedIndex = Data.Type;
-                disabled_controlls.SetControllsEnabled(Data.Type != 0);
-                grpActLike.Enabled = true;
-                saveAsToolStripMenuItem.Enabled = true;
+
+                if (Data.Type == (int)CFG_SpriteType.GeneratorShooter)
+                    cmbType.SelectedIndex = 2;
+                else
+                    cmbType.SelectedIndex = Data.Type;
             }
             else if (FileType == FileType.RomFile)
             {
                 RomData = File.ReadAllBytes(path);
-
                 cmbType.DataSource = sprites_list;
-                cmbType.SelectedIndex = 0;
-
-                disabled_controlls.SetControllsEnabled(false);
-                grpActLike.Enabled = false;
-                saveAsToolStripMenuItem.Enabled = false;
             }
+
+            control_enablers.ForEach(c => c.Evaluate());
+
+            if (Data.DisplayEntries.Count == 0)
+                Data.DisplayEntries.Add(Map16.DisplaySprite.Default);
+            if (Data.CollectionEntries.Count == 0)
+                Data.CollectionEntries.Add(new CollectionSprite() { Name = Converter.FixName(System.IO.Path.GetFileNameWithoutExtension(path)) });
 
             Unsaved = false;
             Filename = path;
+            map16Editor1.Map.ChangeData(Data.CustomMap16Data, 0x300);
+            
         }
         
         public void SaveFile(string path)
@@ -341,11 +643,19 @@ namespace CFG
             if (bindings != null && bindings.Count != 0)
                 bindings[0].WriteValue();
 
+            if (!Data.DisplayEntries.IsDistinct(new DisplaySpriteUniqueComparer()))
+                throw new UserException("The combination of X, Y and ExtraBit settings must be unique for all entries in the Lunar Magic display sprites.");
+
+            Data.CustomMap16Data = map16Editor1.Map.GetNotEmptyData();
+
             string ext = Path.GetExtension(path);
             switch (ext.ToLower())
             {
                 case ".cfg":
                     File.WriteAllText(path, Data.ToLines());
+                    break;
+                case ".json":
+                    File.WriteAllText(path, Data.ToJson());
                     break;
                 case ".smc":
                 case ".sfc":
@@ -353,12 +663,9 @@ namespace CFG
                     File.WriteAllBytes(path, RomData);
                     break;
                 default:
-                    MessageBox.Show($"Uknown file extension {ext}", "Couldn't save file", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    return;
+                    throw new FormatException($"Uknown file extension {ext}");
             }
-
-            Unsaved = false;
-            Filename = path;
+            
         }
 
 		#region Events
@@ -397,7 +704,6 @@ namespace CFG
             if (FileType == FileType.CfgFile)
             {
                 Data.Type = (byte)((ComboBoxItem)cmbType.SelectedValue).Value;
-                disabled_controlls.SetControllsEnabled(Data.Type != 0);
             }
             else if (FileType == FileType.RomFile)
             {
@@ -426,7 +732,7 @@ namespace CFG
 		private void loadToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			OpenFileDialog ofd = new OpenFileDialog();
-			ofd.Filter = "CFG file|*.cfg|ROM file|*.smc;*.sfc";
+			ofd.Filter = "JSON file|*.json|CFG file|*.cfg|ROM file|*.smc;*.sfc";
 			ofd.Title = "Load CFG file";
 			if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
 				return;
@@ -453,15 +759,18 @@ namespace CFG
 
             SaveFileDialog sfd = new SaveFileDialog();
 			sfd.Title = "Save CFG File";
-            sfd.Filter = "CFG File|*.cfg";
-			sfd.FileName = Filename;
+            sfd.Filter = "Json CFG File|*.json|CFG File|*.cfg";
+            sfd.FileName = Path.GetFileName(Path.ChangeExtension(Filename, ".json"));
 			if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
 				return;
 
-            try { SaveFile(sfd.FileName); }
+            try
+            {
+                SaveFile(sfd.FileName);
+            }
             catch(Exception ex)
             {
-                MessageBox.Show("An error occured while trying to write the CFG data\n" + ex.Message, "Unexpected Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowException(ex);
             }
 		}
 
@@ -471,18 +780,47 @@ namespace CFG
                 saveAsToolStripMenuItem_Click(sender, e);
             else
             {
-                try { SaveFile(Filename); }
+                try
+                {
+                    SaveFile(Filename);
+                }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("An error occured while trying to write the CFG data\n" + ex.Message, "Unexpected Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ShowException(ex);
                 }
             }
 		}
-		#endregion
+        #endregion
+
+        private void ds_FileLoaded(object sender, EventArgs e)
+        {
+            var fs = ((FileSelector)sender);
+
+            int offset = (int)fs.Tag;
+            resources.Graphics.ChangeData(fs.Data, offset);
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            var p = new Editors.PaletteEditorForm(resources);
+            p.ShowDialog();
+        }
+
+        private void viewTile8x8ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var t = new Editors.Tile8x8EditorForm(resources);
+            t.ShowDialog();
+        }
     }
-    
+
+    /// <summary>
+    /// Wrapper class for items with custom display text to be used within a Combobox.
+    /// </summary>
     public class ComboBoxItem
     {
+        /// <summary>
+        /// String representation of the entry
+        /// </summary>
         public string Name { get; set; }
         public int Value { get; set; }
         public ComboBoxItem(string name, int value)
@@ -491,5 +829,86 @@ namespace CFG
             Value = value;
         }
         public override string ToString() => Name;
+
+        public override int GetHashCode() => Value;
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;
+            ComboBoxItem item = obj as ComboBoxItem;
+            if (ReferenceEquals(item, null))
+                return false;
+            return this.Value == item.Value;
+        }
+    }
+
+    public class SpriteTileset
+    {
+        public string Name { get; set; }
+        public int Sp1 { get; set; } = 0;
+        public int Sp2 { get; set; } = 1;
+        public int Sp3 { get; set; }
+        public int Sp4 { get; set; }
+
+        public SpriteTileset(int sp3, int sp4, string name)
+        {
+            Sp3 = sp3;
+            Sp4 = sp4;
+            Name = name;
+        }
+
+        public override string ToString()
+        {
+            return $"{Sp1.ToString("X2")} {Sp2.ToString("X2")} {Sp3.ToString("X2")} {Sp4.ToString("X2")} ({Name})";
+        }
+    }
+
+    public class EnablerCollection : IEnumerable<ControlEnabler>
+    {
+        List<ControlEnabler> ControlEnablers = new List<ControlEnabler>();
+
+        public EnablerCollection(params INotifyPropertyChanged[] notifiers)
+        {
+            foreach (var notifier in notifiers)
+                notifier.PropertyChanged += (_, __) =>
+                {
+                    ControlEnablers.ForEach(ce => ce.Evaluate());
+                };
+        }
+        public void Add(ControlEnabler enabler) => ControlEnablers.Add(enabler);
+
+        public IEnumerator<ControlEnabler> GetEnumerator() => ControlEnablers.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ControlEnablers.GetEnumerator();
+    }
+
+    public class ControlEnabler : IEnumerable<Control>
+    {
+        public List<Control> Controls { get; set; }
+        public Func<bool> Enabler { get; set; }
+
+
+        public ControlEnabler(Func<bool> enlabler)
+        {
+            Enabler = enlabler;
+            Controls = new List<Control>();
+        }
+        public ControlEnabler(Func<bool> enlabler, IEnumerable<Control> controls)
+        {
+            Enabler = enlabler;
+            Controls = new List<Control>(controls);
+        }
+
+        public void Evaluate()
+        {
+            Controls.ForEach(c => c.Enabled = Enabler());
+        }
+
+        public void Add(Control control)
+        {
+            Controls.Add(control);
+        }
+
+        public IEnumerator<Control> GetEnumerator() => Controls.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => Controls.GetEnumerator();
     }
 }

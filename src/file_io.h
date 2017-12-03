@@ -16,4 +16,11 @@ unsigned char* read_all(const char *file_name, bool text_mode = false, unsigned 
 void write_all(unsigned char *data, const char *file_name, unsigned int size);
 void write_all(unsigned char *data, const char* dir, const char *file_name, unsigned int size);
 
+
+// combines the path of src and file
+// if src is a file itself, it will backtrace to the containing directory
+// if src is a direcotry, it needs to have a trailing /
+// the returned char* is new and needs to be cleaned.
+char* append_to_dir(const char* src, const char* file);
+
 #endif

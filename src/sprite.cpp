@@ -6,8 +6,10 @@
 
 #include "asar/asardll.h"
 #include "cfg.h"
+#include "json.h"
 #include "structs.h"
 #include "file_io.h"
+#include "map16.h"
 
 #define ROUTINES 0
 #define SPRITES 1
@@ -19,7 +21,13 @@
 #define EXTENDED 6
 #define CLUSTER 7
 #define OVERWORLD 8
+#define EXT_SSC 0
+#define EXT_MWT 1
+#define EXT_MW2 2
+#define EXT_S16 3
 
+#define INIT_PTR 0x01817D	//snes address of default init pointers
+#define MAIN_PTR 0x0185CC	//guess what?
 
 #define TEMP_SPR_FILE "spr_temp.asm"
 #define SPRITE_COUNT 0x80	//count for other sprites like cluster, ow, extended
@@ -36,6 +44,12 @@ void double_click_exit()
 	getc(stdin); //Pause before exit
 }
 
+template <typename ...A>
+void debug_print(const char* msg, A... args) {
+   #ifdef DEBUGMSG
+      printf(msg, args...);
+   #endif      
+}
 
 
 template <typename T>
@@ -62,13 +76,15 @@ T* from_table(T* table, int level, int number) {
 
 bool patch(const char* patch_name, ROM &rom) {
 	if(!asar_patch(patch_name, (char *)rom.real_data, MAX_ROM_SIZE, &rom.size)){
+      debug_print("Failure. Try fetch errors:\n");
 		int error_count;
 		const errordata *errors = asar_geterrors(&error_count);
 		printf("An error has been detected:\n");
 		for(int i = 0; i < error_count; i++)
 			printf("%s\n", errors[i].fullerrdata);
-			exit(-1);
+      exit(-1);
 	}
+   debug_print("Success\n");
 	return true;
 }
 bool patch(const char* dir, const char* patch_name, ROM &rom) {   
@@ -125,9 +141,6 @@ void patch_sprite(sprite* spr, ROM &rom, FILE* output) {
 			spr->table.init.addr(), spr->table.main.addr());
 	}	
 }
-
-
-
 
 void patch_sprites(sprite* sprite_list, int size, ROM &rom, FILE* output) {
 
@@ -388,7 +401,7 @@ bool populate_sprite_list(const char** paths, sprite** sprite_lists, const char 
 		if(!current_line.length || !trim(current_line.data)[0])
 			continue;
 		
-		//context switching
+		//context switching (also goes back to beginning of loop)
 		if(!strcmp(current_line.data, "SPRITE:"))
 			SETTYPE(Sprite)
 		if(!strcmp(current_line.data, "EXTENDED:"))
@@ -412,6 +425,7 @@ bool populate_sprite_list(const char** paths, sprite** sprite_lists, const char 
             ERROR("Error on line %d: Trying to insert per level sprites with per level mode disabled (-npl)");
          
 			spr = from_table<sprite>(sprite_list, level, sprite_id);
+         //verify sprite pointer and determine cause if invalid
 			if(!spr) {
 				if(sprite_id >= 0x100)
 					ERROR("Error on line %d: Sprite number must be less than 0x100");
@@ -428,11 +442,11 @@ bool populate_sprite_list(const char** paths, sprite** sprite_lists, const char 
 			spr = sprite_list + sprite_id;
 		}
 					
-		
+		//check sprite pointer already in use.
 		if(spr->line)
 			ERROR("Error on line %d: Sprite number already used.");
 		
-		
+		//initialize some.
 		spr->line = line_number;
 		spr->level = level;
 		spr->number = sprite_id;
@@ -466,22 +480,42 @@ bool populate_sprite_list(const char** paths, sprite** sprite_lists, const char 
 		
 		char* dot = strrchr(file_name, '.');
 		
-		//set filename to either cfg or asm file, depending on type.
+		//set filename to either cfg/json or asm file, depending on type.
 		if(type != Sprite) {		
 		   if(!dot || (strcmp(dot, ".asm") && strcmp(dot, ".ASM")))
 			   ERROR("Error on line %d: Not an asm file.");
-			
 			spr->asm_file = file_name;
-			if(output)
-				fprintf(output, "%s\n\n--------------------------------------\n", file_name);
 		}
 		else {
-		   if(!dot || (strcmp(dot, ".cfg") && strcmp(dot, ".CFG")))
-			   ERROR("Error on line %d: Not a cfg file.");
 			spr->cfg_file = file_name;
-			if(!read_cfg_file(spr, (char *)read_all(spr->cfg_file, true), output))
-            ERROR("Error on line %d: Cannot parse CFG file.");
-		}		
+         if(!dot) {
+			   ERROR("Error on line %d: No file extension.");
+         } else if(!strcmp(dot, ".cfg") || !strcmp(dot, ".CFG")) {
+            if(!read_cfg_file(spr, output))
+               ERROR("Error on line %d: Cannot parse CFG file.");
+         } else if(!strcmp(dot, ".json")) {
+            if(!read_json_file(spr, output))
+               ERROR("Error on line %d: Cannot parse JSON file.");
+         } else
+            ERROR("Error on line %d: Unknown filetype");
+		}
+      
+      if(output) {
+         fprintf(output, "Read from line %d\n", spr->line);
+         if(spr->level != 0x200)
+            fprintf(output, "Number %02X for level %03X\n", spr->number, spr->level);
+         else
+            fprintf(output, "Number %02X\n", spr->number);
+         spr->print(output);
+         fprintf(output, "\n--------------------------------------\n");
+      }
+
+      //if sprite is tweak, set init and main pointer to contents of ROM pointer table.
+      if(!spr->table.type) {
+         set_pointer(&spr->table.init, (INIT_PTR + 2 * spr->number));
+         set_pointer(&spr->table.main, (MAIN_PTR + 2 * spr->number));
+      }
+		
 	}while(current_line.length);
 	
 	#undef ERROR
@@ -503,13 +537,22 @@ void write_long_table(sprite* spr, const char* dir, const char* filename, int si
 	if(is_empty_table(spr, size))
 		write_all(dummy, dir, filename, 0x10);
 	else {
-		
 		for(int i = 0; i < size; i++)
 			memcpy(file + (i * 0x10), &spr[i].table, 0x10);	
 		write_all(file, dir, filename, size * 0x10);
 	}
 }
 
+FILE* open_subfile(ROM &rom, const char* ext, const char* mode) {
+   char* name = new char[strlen(rom.name) + 1];
+   strcpy(name, rom.name);
+   char* dot = strrchr(name, '.');
+   strcpy(dot + 1, ext);
+   debug_print("\ttry opening %s mode %s\n", name, mode);
+   FILE* r = open(name, mode);   
+   delete[] name;
+   return r;
+}
 
 void set_paths_relative_to(const char** path, const char* arg0) {
    
@@ -558,11 +601,13 @@ int main(int argc, char* argv[]) {
 					
 	ROM rom;
 	
+   //individual lists containing the sprites for the specific sections
 	sprite sprite_list[MAX_SPRITE_COUNT];	
 	sprite cluster_list[SPRITE_COUNT];
 	sprite extended_list[SPRITE_COUNT];
 	sprite ow_list[SPRITE_COUNT];
 	
+   //the list containing the lists...
 	sprite* sprites_list_list[4];	
 	sprites_list_list[Sprite] = sprite_list;
 	sprites_list_list[Extended] = extended_list;
@@ -585,13 +630,20 @@ int main(int argc, char* argv[]) {
 	paths[EXTENDED] = "extended/";
 	paths[CLUSTER] = "cluster/";
 	paths[OVERWORLD] = "overworld/";
+   
+   //list of strings containing the files to be used as base for <romname.xxx>
+   //all nullptr by default
+   const char* extensions[4] = {0};
+   
+   //map16 for sprite displays
+   map16 map[MAP16_SIZE];
 	
 	if(argc < 2){
-        atexit(double_click_exit);
+      atexit(double_click_exit);
    }
 
 	if(!asar_init()){
-		error("Error: Asar library is missing, please redownload the tool or add the dll.\n", "");
+		error("Error: Asar library is missing or couldn't be initialized, please redownload the tool or add the dll.\n", "");
 	}
 	
 	//------------------------------------------------------------------------------------------
@@ -601,6 +653,10 @@ int main(int argc, char* argv[]) {
    printf("%s\n", argv[0]);
 		
 	for(int i = 1; i < argc; i++){
+   
+      #define SET_PATH(str, index) else if(!strcmp(argv[i], str) && i < argc - 2) { paths[index] = argv[i+1]; i++; }
+      #define SET_EXT(str, index) else if(!strcmp(argv[i], str) && i < argc - 2) { extensions[index] = argv[i+1]; i++; }
+   
 		if(!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help") ){
 			printf("Version 1.%02d\n", VERSION);
 			printf("Usage: pixi <options> <ROM>\nOptions are:\n");
@@ -619,7 +675,15 @@ int main(int argc, char* argv[]) {
 			//printf("-ow <cluster>\tSpecify a custom overworld sprites directory (Default %s)\n", paths[OVERWORLD]);
 			printf("\n");
 			
-			printf("-r  <sharedpath>\tSpecify a shared routine directory (Default %s)\n", paths[ROUTINES]);
+			printf("-r   <routines>\tSpecify a shared routine directory (Default %s)\n", paths[ROUTINES]);
+			printf("\n");
+         
+         printf("-ssc <append ssc>\tSpecify ssc file to be copied into <romname>.ssc\n");
+         printf("-mwt <append mwt>\tSpecify mwt file to be copied into <romname>.mwt\n");
+         printf("-mw2 <append mw2>\tSpecify mw2 file to be copied into <romname>.mw2\n");
+         printf("-s16 <base s16>\tSpecify s16 file to be used as a base for <romname>.s16\n");
+         printf("     Do not use <romname>.xxx as an argument as the file will be overwriten\n");
+         
 			exit(0);
 		}else if(!strcmp(argv[i], "-d") || !strcmp(argv[i], "--debug")){
 			output = stdout;
@@ -627,31 +691,20 @@ int main(int argc, char* argv[]) {
 			keep_temp = true;
 		}else if(!strcmp(argv[i], "-npl")){
 			PER_LEVEL = false;
-		}else if(!strcmp(argv[i], "-r") && i < argc - 2){
-			paths[ROUTINES] = argv[i+1];
-			i++;
-		}else if(!strcmp(argv[i], "-a") && i < argc - 2){
-			paths[ASM] = argv[i+1];
-			i++;
-		}else if(!strcmp(argv[i], "-sp") && i < argc - 2){
-			paths[SPRITES] = argv[i+1];
-			i++;
-		}else if(!strcmp(argv[i], "-sh") && i < argc - 2){
-			paths[SHOOTERS] = argv[i+1];
-			i++;
-		}else if(!strcmp(argv[i], "-g") && i < argc - 2){
-			paths[GENERATORS] = argv[i+1];
-			i++;
-		}else if(!strcmp(argv[i], "-l") && i < argc - 2){
-			paths[LIST] = argv[i+1];
-			i++;
-		}else if(!strcmp(argv[i], "-e") && i < argc - 2){
-			paths[EXTENDED] = argv[i+1];
-			i++;
-		}else if(!strcmp(argv[i], "-c") && i < argc - 2){
-			paths[CLUSTER] = argv[i+1];
-			i++;
-		}else{
+		}
+      SET_PATH("-r", ROUTINES)
+      SET_PATH("-sp", SPRITES)
+      SET_PATH("-sh", SHOOTERS)
+      SET_PATH("-g", GENERATORS)
+      SET_PATH("-l", LIST)
+      SET_PATH("-e", EXTENDED)
+      SET_PATH("-c", CLUSTER)
+      
+      SET_EXT("-ssc", EXT_SSC)
+      SET_EXT("-mwt", EXT_MWT)
+      SET_EXT("-mw2", EXT_MW2)
+      SET_EXT("-s16", EXT_S16)
+      else{
 			if(i == argc-1){
 				break;
 			}
@@ -683,6 +736,10 @@ int main(int argc, char* argv[]) {
 	}else{
 		rom.open(argv[argc-1]);
 	}
+	
+	//------------------------------------------------------------------------------------------
+	// Check if a newer version has been used before.
+	//------------------------------------------------------------------------------------------
    
 	char version = *((char*)rom.data + rom.snes_to_pc(0x02FFE2 + 4));
 	if(version > VERSION && version != 0xFF) {	
@@ -720,12 +777,15 @@ int main(int argc, char* argv[]) {
 	patch_sprites(cluster_list, SPRITE_COUNT, rom, output);
 	patch_sprites(extended_list, SPRITE_COUNT, rom, output);
 	//patch_sprites(ow_list, SPRITE_COUNT, rom, output);
+   
+   debug_print("Sprites successfully patched.\n");
 	
 	//------------------------------------------------------------------------------------------
 	// create binary files
 	//------------------------------------------------------------------------------------------	
 	
 	//sprites
+   debug_print("Try create binary tables.\n");
 	write_all(versionflag, paths[ASM], "_versionflag.bin", 4);
    if(PER_LEVEL) {
       write_long_table(sprite_list + 0x0000, paths[ASM], "_PerLevelT1.bin");
@@ -758,30 +818,120 @@ int main(int argc, char* argv[]) {
 	// write_all(file, paths[ASM], "_OverworldInitPtr.bin", SPRITE_COUNT * 3);
 		
 	//more?
+   debug_print("Binary tables created.\n");
 		
 	
+	//------------------------------------------------------------------------------------------
+	// create custom size table (extra property byte count)
+   // and <romname>.xxx files.
+   // (and any other stuff that can be done from looping over all 0x100 regular sprites
+	//------------------------------------------------------------------------------------------	
 		
 	//extra byte size file
+   //plus data for .ssc, .mwt, .mw2 files
 	unsigned char extra_bytes[0x200];
+   
+   debug_print("Try create romname files.\n");
+   FILE* s16 = open_subfile(rom, "s16", "wb");
+   FILE* ssc = open_subfile(rom, "ssc", "w");
+   FILE* mwt = open_subfile(rom, "mwt", "w");
+   FILE* mw2 = open_subfile(rom, "mw2", "wb");
+   debug_print("Romname files opened.\n");
+   
+   if(extensions[EXT_S16])
+      read_map16(map, extensions[EXT_S16]);
+   
+   fputc(0x00, mw2); //binary data starts with 0x00
 	for(int i = 0; i < 0x100; i++) {
-	
 		sprite* spr = from_table<sprite>(sprite_list, 0x200, i);	
 		
+      //sprite pointer being null indicates per-level sprite
 		if(!spr) {
 			extra_bytes[i] = 7;
 			extra_bytes[i + 0x100] = 7;
 		}
 		else {
-			if(spr->asm_file) {
+      
+         //line number within the list file indicates we've got a filled out sprite
+			if(spr->line) {
 				extra_bytes[i] = 3 + spr->byte_count;
 				extra_bytes[i + 0x100] = 3 + spr->extra_byte_count;
+            
+            //----- s16 / map16 -------------------------------------------------
+            
+            int map16_tile = find_free_map(map, spr->map_block_count);
+            memcpy(map + map16_tile, spr->map_data, spr->map_block_count * sizeof(map16));
+            
+            //----- ssc / display -----------------------------------------------
+            for(int j = 0; j < spr->display_count; j++) {
+               display* d = spr->displays + j;
+            
+               //4 digit hex value. First is Y pos (0-F) then X (0-F) then custom/extra bit combination
+               //here custom bit is always set (because why the fuck not?)
+               int ref = d->y * 0x1000 +
+                  d->x * 0x100 + 
+                  0x20 +
+                  (d->extra_bit ? 0x10 : 0);
+               
+               //if no description (or empty) just asm filename instead.
+               if(d->description && strlen(d->description))
+                  fprintf(ssc, "%02X %04X %s\n", i, ref, d->description);
+               else
+                  fprintf(ssc, "%02X %04X %s\n", i, ref, spr->asm_file);
+                  
+               //loop over tiles and append them into the output.
+               fprintf(ssc, "%02X %04X", i, ref + 2);
+               for(int k = 0; k < d->tile_count; k++) {
+                  tile* t = d->tiles + k;
+                  if(t->text) {
+                     fprintf(ssc, " 0,0,*%s*", t->text);
+                     break;
+                  } else {
+                     //tile numbers > 0x300 indicates it's a "custom" map16 tile, so we add the offset we got earlier
+                     //+0x100 because in LM these start at 0x400.
+                     int tile_num = t->tile_number;
+                     if(tile_num >= 0x300)
+                        tile_num += 0x100 + map16_tile;
+                     //note we're using %d because x/y are signed integers here
+                     fprintf(ssc, " %d,%d,%X", t->x_offset, t->y_offset, tile_num);
+                  }
+               }
+               fprintf(ssc, "\n");
+            }
+            
+            //----- mwt,mw2 / collection ------------------------------------------          
+            for(int j = 0; j < spr->collection_count; j++) {
+               collection* c = spr->collections + j;
+               
+               //mw2
+               //build 3 byte level format
+               char c1 = 0x79 + (c->extra_bit ? 0x04 : 0);
+               fputc(c1, mw2); fputc(0x70, mw2); fputc(spr->number, mw2);               
+               //add the extra property bytes
+               int byte_count = (c->extra_bit ? spr->extra_byte_count : spr->byte_count);
+               fwrite(c->prop, 1, byte_count, mw2);
+               
+               //mwt
+               //first one prints sprite number as well, all others just their name.
+               if(j == 0)
+                  fprintf(mwt, "%02X\t%s\n", spr->number, c->name);
+               else
+                  fprintf(mwt, "\t%s\n", c->name);
+            }
+            
+         //no line means unused sprite, so just set to default 3.
 			} else  {
 				extra_bytes[i] = 3;
 				extra_bytes[i + 0x100] = 3;
 			}
 		}
 	}
-	write_all(extra_bytes, paths[ASM], "_CustomSize.bin", 0x200);
+   fputc(0xFF, mw2); //binary data ends with 0xFF (see SMW level data format)
+            
+	write_all(extra_bytes, "asm/_CustomSize.bin", 0x200);
+   fwrite(map, sizeof(map16), MAP16_SIZE, s16);
+   //close all the files.
+   fclose(s16); fclose(ssc); fclose(mwt); fclose(mw2);
 	
 	//apply the actual patches
 	patch(paths[ASM], "main.asm" , rom);
@@ -789,7 +939,9 @@ int main(int argc, char* argv[]) {
 	patch(paths[ASM], "extended.asm", rom);
 	//patch(paths[ASM], "asm/overworld.asm", rom);
 	
-	
+	//------------------------------------------------------------------------------------------
+	// clean up (if necessary)
+	//------------------------------------------------------------------------------------------		
 	
 	if(!keep_temp){	
 		remove(paths[ASM], "_versionflag.bin");

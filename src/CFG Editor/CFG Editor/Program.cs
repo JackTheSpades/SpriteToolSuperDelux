@@ -9,7 +9,8 @@ namespace CFG
 	static class Program
 	{
 		/// <summary>
-		/// Der Haupteinstiegspunkt für die Anwendung.
+		/// The main entry point of the progam.
+        /// Other than passing the calling arguments into the CFG Editor, nothing new happens here.
 		/// </summary>
 		[STAThread]
 		static void Main(string[] args)
