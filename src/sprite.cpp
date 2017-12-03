@@ -21,6 +21,7 @@
 #define EXTENDED 6
 #define CLUSTER 7
 #define OVERWORLD 8
+
 #define EXT_SSC 0
 #define EXT_MWT 1
 #define EXT_MW2 2
@@ -556,6 +557,9 @@ FILE* open_subfile(ROM &rom, const char* ext, const char* mode) {
 
 void set_paths_relative_to(const char** path, const char* arg0) {
    
+   if(*path == nullptr)
+      return;
+   
    int count = 0;
    char* pos = strrchr(arg0, '\\');
    if(pos == nullptr)
@@ -649,9 +653,7 @@ int main(int argc, char* argv[]) {
 	//------------------------------------------------------------------------------------------
 	// handle arguments passed to tool
 	//------------------------------------------------------------------------------------------
-   
-   printf("%s\n", argv[0]);
-		
+   		
 	for(int i = 1; i < argc; i++){
    
       #define SET_PATH(str, index) else if(!strcmp(argv[i], str) && i < argc - 2) { paths[index] = argv[i+1]; i++; }
@@ -693,6 +695,7 @@ int main(int argc, char* argv[]) {
 			PER_LEVEL = false;
 		}
       SET_PATH("-r", ROUTINES)
+      SET_PATH("-a", ASM)
       SET_PATH("-sp", SPRITES)
       SET_PATH("-sh", SHOOTERS)
       SET_PATH("-g", GENERATORS)
@@ -752,15 +755,23 @@ int main(int argc, char* argv[]) {
 	}
    
      
-   //set path for directories relative to pixi, not working dir.
+	//------------------------------------------------------------------------------------------
+   // set path for directories relative to pixi or rom, not working dir.
+	//------------------------------------------------------------------------------------------
+   
    for(int i = 0; i < 9; i++) {
       if(i == LIST)
          set_paths_relative_to(paths + i, rom.name);
       else
          set_paths_relative_to(paths + i, argv[0]);
-      printf("paths[%d] = %s\n", i, paths[i]);
+      debug_print("paths[%d] = %s\n", i, paths[i]);
    }
    ASM_DIR = paths[ASM];
+   
+   for(int i = 0; i < 4; i++) {
+      set_paths_relative_to(extensions + i, rom.name);
+      debug_print("extensions[%d] = %s\n", i, paths[i]);
+   }
 	
 	//------------------------------------------------------------------------------------------
 	// regular stuff
