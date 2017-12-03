@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "file_io.h"
 
 FILE *open(const char *name, const char *mode) {
@@ -34,4 +35,13 @@ void write_all(unsigned char* data, const char* file_name, unsigned int size)
 		error("%s could not be fully written.  Please check file permissions.", file_name);
 	}
 	fclose(file);
+}
+void write_all(unsigned char* data, const char* dir, const char* file_name, unsigned int size)
+{
+   char* path = new char[strlen(dir) + strlen(file_name) + 1];
+   path[0] = 0;
+   strcat(path, dir);
+   strcat(path, file_name);
+   write_all(data, path, size);
+   delete[] path;
 }

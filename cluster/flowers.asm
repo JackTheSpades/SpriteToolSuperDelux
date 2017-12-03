@@ -2,6 +2,7 @@
 ; Cluster Flower Petals - by Ladida                                     ;
 ; Can be anything, like petals, leaves, snow; just change the graphics. ;
 ; Edit of Roy's original Spike Hell sprite.                             ;
+; pixi and sa-1 compabitility by JackTheSpades                          ;
 ;-----------------------------------------------------------------------;
 
 !FlowerTile = $6F	;Tile # of the flower petal.

@@ -2,3 +2,4 @@
 **/*.s16
 **/*.mwt
 **/*.mw2
+!UberASMTool11/UberASMTool.exe

@@ -1,7 +1,8 @@
 ;------------------------------------------------------;
-; Cluster Fish - by Ladida			       ;
+; Cluster Fish - by Ladida                             ;
 ; Meant to be a replacement of the normal Layer 3 fish ;
-; Edit of Roy's original Spike Hell sprite	       ;
+; Edit of Roy's original Spike Hell sprite             ;
+; pixi and sa-1 compabitility by JackTheSpades         ;
 ;------------------------------------------------------;
 
 !FishTile = $1D	;Tile # of the fish.
