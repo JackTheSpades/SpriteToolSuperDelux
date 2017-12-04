@@ -71,7 +71,9 @@ namespace CFG.Json
             foreach(var display in cfgFile.DisplayEntries)
             {
                 var newDisplay = (CFG.Map16.DisplaySprite)display.Clone();
+                bool useText = display.UseText;
                 newDisplay.DisplayText = newDisplay.DisplayText.Replace("\n", @"\n");
+                newDisplay.UseText = useText;
                 Displays.Add(newDisplay);
             }
             Collection = new List<CollectionSprite>(cfgFile.CollectionEntries);
@@ -101,7 +103,9 @@ namespace CFG.Json
             cfgFile.DisplayEntries.Clear();
             foreach (var ds in Displays)
             {
+                bool useText = ds.UseText;
                 ds.DisplayText = ds.DisplayText.Replace(@"\n", "\n");
+                ds.UseText = useText;
                 cfgFile.DisplayEntries.Add(ds);
             }
 
