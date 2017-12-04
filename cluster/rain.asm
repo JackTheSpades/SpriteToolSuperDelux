@@ -2,6 +2,7 @@
 ; Cluster Rain - by Ladida                           ;
 ; Can be whatever you want, just change the graphics ;
 ; Edit of Roy's original Spike Hell sprite           ;
+; pixi and sa-1 compabitility by JackTheSpades       ;
 ;----------------------------------------------------;
 
 !RainTile = $22      ;Tile # of the rain.
@@ -29,7 +30,7 @@ IncrementByOneRain:
    LDA #$01                        ; | Appear.
    STA $1E2A|!Base2,y              ; /
 +
-   RTS
+   RTL
 
 print "MAIN ",pc
 Main:                              ;The code always starts at this label in all sprites.

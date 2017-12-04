@@ -61,11 +61,21 @@ namespace CFG.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Letters {
+            get {
+                object obj = ResourceManager.GetObject("Letters", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] sprite {
+        internal static byte[] m16Page1_3 {
             get {
-                object obj = ResourceManager.GetObject("sprite", resourceCulture);
+                object obj = ResourceManager.GetObject("m16Page1_3", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -100,6 +110,16 @@ namespace CFG.Properties {
         internal static string SpriteList {
             get {
                 return ResourceManager.GetString("SpriteList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] sprites_palettes {
+            get {
+                object obj = ResourceManager.GetObject("sprites_palettes", resourceCulture);
+                return ((byte[])(obj));
             }
         }
     }

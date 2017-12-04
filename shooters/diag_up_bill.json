@@ -1,0 +1,120 @@
+{
+  "$1656": {
+    "Object Clipping": 15,
+    "Can be jumped on": true,
+    "Dies when jumped on": true,
+    "Hop in/kick shell": true,
+    "Disappears in cloud of smoke": true
+  },
+  "$1662": {
+    "Sprite Clipping": 63,
+    "Use shell as death frame": true,
+    "Fall straight down when killed": true
+  },
+  "$166E": {
+    "Use second graphics page": true,
+    "Palette": 7,
+    "Disable fireball killing": true,
+    "Disable cape killing": true,
+    "Disable water splash": true,
+    "Don't interact with Layer 2": true
+  },
+  "$167A": {
+    "Don't disable cliping when starkilled": true,
+    "Invincible to star/cape/fire/bounce blk.": true,
+    "Process when off screen": true,
+    "Don't change into shell when stunned": true,
+    "Can't be kicked like shell": true,
+    "Process interaction with Mario every frame": true,
+    "Gives power-up when eaten by yoshi": true,
+    "Don't use default interaction with Mario": true
+  },
+  "$1686": {
+    "Inedible": true,
+    "Stay in Yoshi's mouth": true,
+    "Weird ground behaviour": true,
+    "Don't interact with other sprites": true,
+    "Don't change direction if touched": true,
+    "Don't turn into coin when goal passed": true,
+    "Spawn a new sprite": true,
+    "Don't interact with objects": true
+  },
+  "$190F": {
+    "Make platform passable from below": true,
+    "Don't erase when goal passed": true,
+    "Can't be killed by sliding": true,
+    "Takes 5 fireballs to kill": true,
+    "Can be jumped on with upwards Y speed": true,
+    "Death frame two tiles high": true,
+    "Don't turn into a coin with silver POW": true,
+    "Don't get stuck in walls (carryable sprites)": true
+  },
+  "AsmFile": "diag_up_bill.asm",
+  "ActLike": 255,
+  "Type": 3,
+  "Extra Property Byte 1": 255,
+  "Extra Property Byte 2": 255,
+  "Additional Byte Count (extra bit clear)": 0,
+  "Additional Byte Count (extra bit set)": 0,
+  "Map16": "p1m3WaZZtlk=",
+  "Displays": [
+    {
+      "Description": "Diagonal Bullet Bill shooter, shooting up-left",
+      "ExtraBit": false,
+      "Tiles": [
+        {
+          "X offset": 0,
+          "Y offset": 0,
+          "map16 tile": 768
+        },
+        {
+          "X offset": 0,
+          "Y offset": -8,
+          "map16 tile": 276
+        }
+      ],
+      "X": 0,
+      "Y": 0,
+      "DisplayText": "",
+      "UseText": false
+    },
+    {
+      "Description": "Diagonal Bullet Bill shooter, shooting up-right",
+      "ExtraBit": true,
+      "Tiles": [
+        {
+          "X offset": 0,
+          "Y offset": 0,
+          "map16 tile": 457
+        },
+        {
+          "X offset": 0,
+          "Y offset": -8,
+          "map16 tile": 276
+        }
+      ],
+      "X": 0,
+      "Y": 0,
+      "DisplayText": "",
+      "UseText": false
+    }
+  ],
+  "Collection": [
+    {
+      "Name": "Diagonal Bill Shooter (up left)",
+      "ExtraBit": false,
+      "Extra Property Byte 1": 0,
+      "Extra Property Byte 2": 0,
+      "Extra Property Byte 3": 0,
+      "Extra Property Byte 4": 0
+    },
+    {
+      "Name": "Diagonal Bill Shooter (up right)",
+      "ExtraBit": true,
+      "Extra Property Byte 1": 0,
+      "Extra Property Byte 2": 0,
+      "Extra Property Byte 3": 0,
+      "Extra Property Byte 4": 0
+    }
+  ]
+}

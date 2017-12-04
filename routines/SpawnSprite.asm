@@ -24,7 +24,7 @@
 	+
 	XBA
 	STA !9E,x
-	JSL $07F7D2
+	JSL $07F7D2|!BankB
 	
 	BCC +
 		LDA !9E,x
@@ -35,7 +35,7 @@
 		LDA $02 : PHA
 		SEP #$20
 		
-		JSL $0187A7			; this sucker kills $00-$02
+		JSL $0187A7|!BankB			; this sucker kills $00-$02
 				
 		REP #$20
 		PLA : STA $02

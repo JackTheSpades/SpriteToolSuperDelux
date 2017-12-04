@@ -50,6 +50,10 @@
     <ApplicationIcon>VioletEgg.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -62,6 +66,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CollectionSprite.cs" />
+    <Compile Include="Converter.cs" />
+    <Compile Include="Editors\PaletteEditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Editors\PaletteEditorForm.Designer.cs">
+      <DependentUpon>PaletteEditorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Editors\Tile8x8EditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Editors\Tile8x8EditorForm.Designer.cs">
+      <DependentUpon>Tile8x8EditorForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extension.cs" />
     <Compile Include="CFG Editor.cs">
       <SubType>Form</SubType>
@@ -69,11 +87,49 @@
     <Compile Include="CFG Editor.Designer.cs">
       <DependentUpon>CFG Editor.cs</DependentUpon>
     </Compile>
-    <Compile Include="CFGFile.cs" />
+    <Compile Include="Cfg File.cs" />
+    <Compile Include="Editors\FileSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Editors\FileSelector.Designer.cs">
+      <DependentUpon>FileSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Json\JsonCfgFile.cs" />
+    <Compile Include="Json\JsonTweaker.cs" />
+    <Compile Include="Map16\Map16Data.cs" />
+    <Compile Include="Editors\Map16Editor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Editors\Map16Editor.Designer.cs">
+      <DependentUpon>Map16Editor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Map16\SnesGraphics.cs" />
+    <Compile Include="Map16\DisplaySprite.cs" />
+    <Compile Include="Editors\SpriteEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Editors\SpriteEditor.Designer.cs">
+      <DependentUpon>SpriteEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="CFG Editor.resx">
       <DependentUpon>CFG Editor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Editors\FileSelector.resx">
+      <DependentUpon>FileSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Editors\Map16Editor.resx">
+      <DependentUpon>Map16Editor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Editors\PaletteEditorForm.resx">
+      <DependentUpon>PaletteEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Editors\SpriteEditor.resx">
+      <DependentUpon>SpriteEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Editors\Tile8x8EditorForm.resx">
+      <DependentUpon>Tile8x8EditorForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -85,7 +141,29 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="packages.config" />
+    <None Include="Properties\DataSources\CFG.Map16.Sprite.datasource" />
+    <EmbeddedResource Include="Resources\Graphics\GFX00.bin" />
+    <EmbeddedResource Include="Resources\Graphics\GFX01.bin" />
+    <EmbeddedResource Include="Resources\Graphics\GFX02.bin" />
+    <EmbeddedResource Include="Resources\Graphics\GFX03.bin" />
+    <EmbeddedResource Include="Resources\Graphics\GFX04.bin" />
+    <EmbeddedResource Include="Resources\Graphics\GFX05.bin" />
+    <EmbeddedResource Include="Resources\Graphics\GFX06.bin" />
+    <EmbeddedResource Include="Resources\Graphics\GFX09.bin" />
+    <EmbeddedResource Include="Resources\Graphics\GFX0F.bin" />
+    <EmbeddedResource Include="Resources\Graphics\GFX10.bin" />
+    <EmbeddedResource Include="Resources\Graphics\GFX11.bin" />
+    <EmbeddedResource Include="Resources\Graphics\GFX1C.bin" />
+    <EmbeddedResource Include="Resources\Graphics\GFX1D.bin" />
+    <EmbeddedResource Include="Resources\Graphics\GFX20.bin" />
+    <EmbeddedResource Include="Resources\Graphics\GFX33.bin" />
+    <EmbeddedResource Include="Resources\Graphics\GFX12.bin" />
+    <EmbeddedResource Include="Resources\Graphics\GFX13.bin" />
+    <None Include="Properties\DataSources\CollectionSprite.datasource" />
+    <None Include="Resources\m16Page1_3.m16" />
     <None Include="Resources\sprite.pal" />
+    <None Include="Resources\sprites_palettes.pal" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -180,6 +258,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\SpriteList.txt" />
+    <None Include="Resources\Letters.png" />
     <Content Include="VioletEgg.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -199,6 +278,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -14,7 +14,8 @@
 	#endif
 	inline void * getlib()
 	{
-		const char * names[]={"./libasar" EXTENSION, "libasar", NULL};
+		char libname[256];
+		const char * names[]={"./libasar"EXTENSION, "libasar", NULL};
 		for (int i=0;names[i];i++)
 		{
 			void * rval=dlopen(names[i], RTLD_LAZY);
@@ -57,6 +58,8 @@ bool asar_init()
 	load(getdefine);
 	load(getalldefines);
 	load(math);
+	load(getwrittenblocks);
+	load(getmapper);
 	if (asar_apiversion()<expectedapiversion || (asar_apiversion()/100)>(expectedapiversion/100)) return false;
 	require(asar_i_init());
 	return true;

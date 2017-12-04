@@ -1,18 +1,217 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CFG
 {
-    public static class ControlExtension
+    public class UserException : Exception
     {
-        public static void SetControllsEnabled(this IEnumerable<Control> controlls, bool enabled)
+        public MessageBoxButtons Buttons { get; set; } = MessageBoxButtons.OK;
+        public MessageBoxIcon Icon { get; set; } = MessageBoxIcon.Error;
+        public string Caption { get; set; } = "Error";
+
+        public UserException() { }
+        public UserException(string message) : base(message) { }
+        public UserException(string message, Exception innerException) : base(message, innerException) { }
+        protected UserException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+
+        public UserException(string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon) : base(message)
         {
-            foreach (var control in controlls)
-                control.Enabled = enabled;
+            Caption = caption;
+            Buttons = buttons;
+            Icon = icon;
+        }
+        public UserException(string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, Exception innerException) : base(message, innerException)
+        {
+            Caption = caption;
+            Buttons = buttons;
+            Icon = icon;
+        }
+
+
+        public DialogResult Show() => MessageBox.Show(Message, Caption, Buttons, Icon);
+    }
+
+    
+    /// <summary>
+    /// Helper class for diagnosis. Only realls does anything if DEBUG is defined.
+    /// </summary>
+    public static class Diagnose
+    {
+        /// <summary>
+        /// Restarts the stopwatch.
+        /// </summary>
+        public static Stopwatch Stopwatch;
+        [Conditional("DEBUG")]
+        public static void Start()
+        {
+            if (Stopwatch == null)
+                Stopwatch = new Stopwatch();
+            Stopwatch.Restart();
+        }
+        /// <summary>
+        /// Prints the elapsed time and the name of the member calling this method.
+        /// </summary>
+        /// <param name="name">The name to be put before the elsapsed time.</param>
+        [Conditional("DEBUG")]
+        public static void Time([CallerMemberName]string name = null)
+        {
+            if (name == null)
+                Console.WriteLine(Stopwatch.Elapsed);
+            else
+                Console.WriteLine(name + ": " + Stopwatch.Elapsed);
+        }
+    }
+    
+
+    public static class Extensions
+    {
+        
+        /// <summary>
+        /// Detects if an enumeration contains duplicate entries
+        /// </summary>
+        /// <typeparam name="T">The type of the list</typeparam>
+        /// <param name="elements">The enumertion to check</param>
+        /// <param name="comparer">The (optional) comparer to be used in the detection</param>
+        /// <returns><c>True</c> if there are no duplicate entries</returns>
+        public static bool IsDistinct<T>(this IEnumerable<T> elements, IEqualityComparer<T> comparer = null)
+        {
+            var set = new HashSet<T>(comparer ?? EqualityComparer<T>.Default);
+            foreach(T t in elements)
+                if (!set.Add(t))
+                    return false;
+            return true;
+        }
+
+        /// <summary>
+        /// Gets the bit of a byte, start counting from the right side with 0.
+        /// </summary>
+        /// <param name="b">The byte to read from.</param>
+        /// <param name="bit">The digit the bit is at. Starts from the right with 0</param>
+        /// <returns><c>True</c> if the bit is set.</returns>
+        public static bool GetBit(this byte b, int bit)
+        {
+            if (bit >= sizeof(byte) * 8 || bit < 0)
+                throw new ArgumentOutOfRangeException(nameof(bit), bit, "Cannot fetch bit outside of bitrange of value");
+            return (b & (1 << bit)) != 0;
+        }
+        /// <summary>
+        /// Sets the bit of a byte and returns the new byte. The value of the byte this is called on remains unaffected
+        /// </summary>
+        /// <param name="b">The source byte</param>
+        /// <param name="bit">The the digit of the bit. Starting from the right with 0</param>
+        /// <param name="set">Wether to set or clear the bit</param>
+        /// <returns>The new byte.</returns>
+        public static byte SetBit(this byte b, int bit, bool set)
+        {
+            if (bit >= sizeof(byte) * 8 || bit < 0)
+                throw new ArgumentOutOfRangeException(nameof(bit), bit, "Cannot set bit outside of bitrange of value");
+            if (set)
+                return (byte)(b | (1 << bit));
+            return (byte)(b & ((1 << bit) ^ 0xFF));
+        }
+
+        /// <summary>
+        /// Sets a number of bits based on an integer value
+        /// </summary>
+        /// <param name="b">The byte used as a reference to set the bits</param>
+        /// <param name="value">The value the bits should be set to</param>
+        /// <param name="bitsToSet">How many bits should be set based on the value</param>
+        /// <param name="lsb">Which is the least bit to be affected.</param>
+        /// <returns>A new byte with the bits set.</returns>
+        public static byte SetBits(this byte b, int value, int bitsToSet, int lsb)
+        {
+            byte b2 = b;
+            for (int i = 0; i < bitsToSet && i < 8; i++)
+                b2 = b2.SetBit(lsb + i, (value & (0x01 << i)) != 0);
+            return b2;
+        }
+
+        /// <summary>
+        /// Gets a number of bits from a byte as an integer
+        /// </summary>
+        /// <param name="b">The byte who's bits should be interpreted</param>
+        /// <param name="bitsToGet">How many bits should be get</param>
+        /// <param name="lsb">Which is the first bit of the 8 to be fetched.</param>
+        /// <returns></returns>
+        public static int GetBits(this byte b, int bitsToGet, int lsb)
+        {
+            int and = (1 << bitsToGet) - 1;
+            return (b & (and << lsb)) >> lsb;
+        }
+
+
+        /// <summary>
+        /// Itterates over each entry and executes and action with the item.
+        /// </summary>
+        /// <typeparam name="T">The type of the enumeration</typeparam>
+        /// <param name="list">The list to iterate</param>
+        /// <param name="action">The action to be execute with each entry passed</param>
+        public static void ForEach<T>(this IEnumerable<T> list, Action<T> action)
+        {
+            foreach (T t in list)
+                action(t);
+        }
+        /// <summary>
+        /// Itterates over each entry and executes and action with the item and the index of said item.
+        /// </summary>
+        /// <typeparam name="T">The type of the enumeration</typeparam>
+        /// <param name="list">The list to iterate</param>
+        /// <param name="action">The action to be execute with each entry and index passed.</param>
+        public static void ForEach<T>(this IEnumerable<T> list, Action<T, int> action)
+        {
+            int i = 0;
+            foreach (T t in list)
+                action(t, i++);
+        }
+        public static TRet GetAll<T, TRet>(this IEnumerable<T> list, Func<T, TRet> get, TRet fallback, IEqualityComparer<TRet> comp = null)
+        {
+            if (comp == null)
+                comp = EqualityComparer<TRet>.Default;
+
+            bool first = true;
+            TRet prev = default(TRet);
+            foreach(T t in list)
+            {
+                TRet ret = get(t);
+                if(!first && comp.Equals(ret, prev))
+                {
+                    return fallback;
+                }
+                prev = ret;
+                first = false;
+            }
+            return prev;
+        }
+                
+        /// <summary>
+        /// Sets the background image of a control to a gradient.
+        /// </summary>
+        /// <param name="control">The PictureBox which's background image should be set</param>
+        /// <param name="end">The bottom color of the gradient</param>
+        /// <param name="start">The top color of the gradient</param>
+        public static void SetBackgroundGradient(this Control control, Color end, Color start)
+        {
+            Bitmap bm = new Bitmap(control.Width, control.Height);
+            using (Graphics g = Graphics.FromImage(bm))
+            {
+                Rectangle rec = new Rectangle(0, 0, bm.Width, bm.Height);
+                using (LinearGradientBrush lgd = new LinearGradientBrush(rec, start, end, 90))
+                    g.FillRectangle(lgd, rec);
+            }
+            control.BackgroundImage = bm;
         }
 
         public static Binding BitsBind<TCon, TObj, TOProp>(
@@ -135,11 +334,11 @@ namespace CFG
         {
             string controlProp = "";
             if (controlProperty.Body as MemberExpression != null)
-                controlProp = getName((MemberExpression)controlProperty.Body);
+                controlProp = GetName((MemberExpression)controlProperty.Body);
 
             string objectProp = "";
             if (objectProperty.Body as MemberExpression != null)
-                objectProp = getName((MemberExpression)objectProperty.Body);
+                objectProp = GetName((MemberExpression)objectProperty.Body);
 
             Binding bind = new Binding(controlProp, list, objectProp);
 
@@ -179,11 +378,11 @@ namespace CFG
         {
             string controlProp = "";
             if (controlProperty.Body as MemberExpression != null)
-                controlProp = getName((MemberExpression)controlProperty.Body);
+                controlProp = GetName((MemberExpression)controlProperty.Body);
 
             string objectProp = "";
             if (objectProperty.Body as MemberExpression != null)
-                objectProp = getName((MemberExpression)objectProperty.Body);
+                objectProp = GetName((MemberExpression)objectProperty.Body);
 
             Binding bind = new Binding(controlProp, obj, objectProp);
 
@@ -191,30 +390,41 @@ namespace CFG
                 bind.Format += (_, e) => e.Value = castToControl((TOProp)e.Value);
             if (castToSource != null)
                 bind.Parse += (_, e) => e.Value = castToSource((TCProp)e.Value);
-
+            
             control.DataBindings.Add(bind);
 
             return bind;
         }
 
 
-        private static string getName(MemberExpression mem)
+        public static string GetName(this MemberExpression mem)
         {
             string parent = "";
             if (mem.Expression as MemberExpression != null)
             {
-                parent = getName((MemberExpression)mem.Expression) + ".";
+                parent = GetName((MemberExpression)mem.Expression) + ".";
             }
             return parent + mem.Member.Name;
         }
 
-        public static string GetName(this Enum en)
+        public static string GetName(this Enum en) => en.GetName<DisplayNameAttribute>(a => a.Name);
+        public static string GetName<TAttr>(this Enum en, Func<TAttr, string> getName) where TAttr : Attribute
         {
             var memInfo = en.GetType().GetMember(en.ToString())[0];
-            var attr = memInfo.GetCustomAttribute<DescriptionAttribute>();
+            var attr = memInfo.GetCustomAttribute<TAttr>();
             if (attr != null)
-                return attr.Description;
+                return getName(attr);
             return en.ToString();
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+    public class DisplayNameAttribute : Attribute
+    {
+        public string Name { get; set; }
+        public DisplayNameAttribute(string name)
+        {
+            Name = name;
         }
     }
 }

@@ -122,6 +122,16 @@ namespace CFG_Editor_Tests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] sampleGFX {
+            get {
+                object obj = ResourceManager.GetObject("sampleGFX", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 00
         ///48
         ///10 80 17 00 00 00.

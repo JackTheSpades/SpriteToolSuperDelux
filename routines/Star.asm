@@ -14,7 +14,7 @@
 		BCC +                   ; |
 		LDA #$08                ; |
 		STA $18D2|!Base2        ; /
-+		JSL $02ACE5             ; give mario points
++		JSL $02ACE5|!BankB      ; give mario points
 		LDY $18D2|!Base2        ; \ 
 		CPY #$08                ; | if consecutive enemies stomped < 8 ...
 		BCS +                   ; |

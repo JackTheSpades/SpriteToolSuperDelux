@@ -31,7 +31,7 @@
 		DEY                     ; |
 		BPL .loop               ; |
 		SEC                     ; |
-		RTS                     ; /  RETURN if no slots open
+		RTL                     ; /  RETURN if no slots open
 
 +		XBA                     ; \ set effect graphic to smoke graphic
 		STA $17C0|!Base2,y      ; /

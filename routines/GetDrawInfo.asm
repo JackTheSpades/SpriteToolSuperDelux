@@ -11,84 +11,63 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 GET_DRAW_INFO:
-    	STZ !186C,x             ; \ reset horz/vert offscreen flags.
-    	STZ !15A0,x             ; /
-    	LDA !E4,x               ;
-    	CMP $1A                 ;
-    	LDA !14E0,x             ;
-    	SBC $1B                 ;
-    	BEQ .on_screen_X        ;
-    	INC !15A0,x             ;
-     
-    .on_screen_X
-    	LDA !14E0,x
-    	XBA
-    	LDA !E4,x
-    	REP #$20
-    	SEC
-    	SBC $1A
-    	CLC
-    	ADC #$0040
-    	CMP #$0180
-    	SEP #$20
-    	ROL
-    	AND #$01
-    	STA !15C4,x
-    	BNE .invalid
-     
-    	PHB
-    	PHK
-    	PLB
-    	LDY #$00
-    	LDA !1662,x             ; check tweaker high bit sprite clipping
-    	AND #$20
-    	BEQ .loop
-    	INY
-    .loop
-    	LDA !D8,x
-    	CLC
-    	ADC .data_1,y
-    	PHP
-    	CMP $1C
-    	ROL $00
-    	PLP
-    	LDA !14D4,x
-    	ADC #$00
-    	LSR $00
-    	SBC $1D
-    	BEQ .on_screen_Y
-    	LDA !186C,x
-    	ORA .data_2,y
-    	STA !186C,x
-     
-    .on_screen_Y
-    	DEY
-    	BPL .loop
-    	PLB
-     
-    	LDY !15EA,x
-    	LDA !E4,x
-    	SEC
-    	SBC $1A
-    	STA $00
-    	LDA !D8,x
-    	SEC
-    	SBC $1C
-    	STA $01
-    	RTL
-     
-    .invalid
-    	PLA			; destroy the JSL
-    	PLA
-    	PLA
-    	PLA			; sneak in the bank
-    	PLY
-    	PHB
-    	PHY
-    	PHA
-    	RTL
-     
-    .data_1
-    	db $0C,$1C
-    .data_2
-    	db $01,$02
+   LDA !14E0,x
+   XBA
+   LDA !E4,x
+   REP #$20
+   SEC : SBC $1A
+   STA $00
+   CLC
+   ADC.w #$0040
+   CMP.w #$0180
+   SEP #$20
+   LDA $01
+   BEQ +
+     LDA #$01
+   +   STA !15A0,x
+   TDC
+   ROL A
+   STA !15C4,x
+   BNE .Invalid
+
+   LDA !14D4,x
+   XBA
+   LDA !1662,x
+   AND #$20
+   BEQ .CheckOnce
+.CheckTwice
+   LDA !D8,x
+   REP #$21
+   ADC.w #$001C
+   SEC : SBC $1C
+   SEP #$20
+   LDA !14D4,x
+   XBA
+   BEQ .CheckOnce
+   LDA #$02
+.CheckOnce
+   STA !186C,x
+   LDA !D8,x
+   REP #$21
+   ADC.w #$000C
+   SEC : SBC $1C
+   SEP #$21
+   SBC #$0C
+   STA $01
+   XBA
+   BEQ .OnScreenY
+   INC !186C,x
+.OnScreenY
+   LDY !15EA,x
+   RTL
+ 
+.Invalid
+   PLA             ; destroy the JSL
+   PLA
+   PLA
+   PLA             ; sneak in the bank
+   PLY
+   PHB
+   PHY
+   PHA
+   RTL
