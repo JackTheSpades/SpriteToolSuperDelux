@@ -36,6 +36,11 @@ with zipfile.ZipFile('pixi.zip', 'w') as pixizip:
 
    #exe
    pixizip.write(cfgexe.replace('/', os.sep), 'CFG Editor.exe');
+   pixizip.write(
+      os.path.join(
+         os.path.dirname(cfgexe.replace('/', os.sep)),
+         'Newtonsoft.Json.dll'), 
+      'Newtonsoft.Json.dll');
    pixizip.write('pixi.exe')
    pixizip.write('asar.dll')
    

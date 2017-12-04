@@ -1,6 +1,6 @@
 
 !GenStart = $D0
-!PerLevel = 1
+!PerLevel ?= 1
 
 !__debug = 0
 incsrc "sa1def.asm"		;sa-1 defines

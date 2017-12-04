@@ -67,7 +67,13 @@ namespace CFG.Json
             ExByteCount = cfgFile.ExByteCount;
 
             Map16 = cfgFile.CustomMap16Data;
-            Displays = new List<CFG.Map16.DisplaySprite>(cfgFile.DisplayEntries);
+            Displays = new List<CFG.Map16.DisplaySprite>();
+            foreach(var display in cfgFile.DisplayEntries)
+            {
+                var newDisplay = (CFG.Map16.DisplaySprite)display.Clone();
+                newDisplay.DisplayText = newDisplay.DisplayText.Replace("\n", @"\n");
+                Displays.Add(newDisplay);
+            }
             Collection = new List<CollectionSprite>(cfgFile.CollectionEntries);
         }
 
@@ -94,7 +100,10 @@ namespace CFG.Json
 
             cfgFile.DisplayEntries.Clear();
             foreach (var ds in Displays)
+            {
+                ds.DisplayText = ds.DisplayText.Replace(@"\n", "\n");
                 cfgFile.DisplayEntries.Add(ds);
+            }
 
             cfgFile.CollectionEntries.Clear();
             foreach (var cs in Collection)

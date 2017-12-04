@@ -128,6 +128,8 @@ TableNames:
    db "CLUSTER-RAIN    "
    db "CLUSTER-SAND    "
    db "BULLET BILL     "
+   db "PER LEVEL 004   "
+   db "PER LEVEL 005   "
    
    
 macro level(level, midway)
@@ -147,4 +149,6 @@ TableLevels:
    %secen($0002, 0)
    %secen($0003, 0)
    %level($0003, 0)
+   %level($0004, 0)
+   %level($0005, 0)
 .end

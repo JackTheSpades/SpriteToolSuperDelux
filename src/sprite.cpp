@@ -939,13 +939,16 @@ int main(int argc, char* argv[]) {
 	}
    fputc(0xFF, mw2); //binary data ends with 0xFF (see SMW level data format)
             
-	write_all(extra_bytes, "asm/_CustomSize.bin", 0x200);
+	write_all(extra_bytes, paths[ASM], "_CustomSize.bin", 0x200);
    fwrite(map, sizeof(map16), MAP16_SIZE, s16);
    //close all the files.
    fclose(s16); fclose(ssc); fclose(mwt); fclose(mw2);
 	
 	//apply the actual patches
-	patch(paths[ASM], "main.asm" , rom);
+   if(PER_LEVEL)
+      patch(paths[ASM], "main.asm" , rom);
+   else
+      patch(paths[ASM], "main_npl.asm" , rom);
 	patch(paths[ASM], "cluster.asm", rom);
 	patch(paths[ASM], "extended.asm", rom);
 	//patch(paths[ASM], "asm/overworld.asm", rom);

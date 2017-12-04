@@ -279,7 +279,7 @@ namespace CFG
             BindToSourceDisplay(nudX, displaySpriteBindingSource, ctrl => ctrl.Value, ds => ds.X);
             BindToSourceDisplay(nudY, displaySpriteBindingSource, ctrl => ctrl.Value, ds => ds.Y);
             BindToSourceDisplay(chbExtraBit, displaySpriteBindingSource, ctrl => ctrl.Checked, ds => ds.ExtraBit);
-            BindToSourceDisplay(chbUseText, displaySpriteBindingSource, ctrl => ctrl.Checked, ds => ds.UseText);
+            BindToSourceDisplay(chbUseText, displaySpriteBindingSource, ctrl => ctrl.Checked, ds => ds.UseText).DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
             displaySpriteBindingSource.CurrentChanged += (_, __) => spriteEditor1.Sprite = (DisplaySprite)displaySpriteBindingSource.Current;
 
             ConnectViewAndButtons(displaySpriteBindingSource, dgvDisplay, btnDisplayNew, btnDisplayClone, btnDisplayDelete);
@@ -406,13 +406,15 @@ namespace CFG
 
             //events to control the button/view behaviour for new/clone/delete
             btnNew.Click += (_, __) => source.AddNew();
-            btnClone.Click += (_, __) => source.RemoveCurrent();
-            btnRemove.Click += (_, __) => source.Add(((ICloneable)displaySpriteBindingSource.Current).Clone());
+            btnClone.Click += (_, __) => source.Add(((ICloneable)source.Current).Clone());
+            btnRemove.Click += (_, __) => source.RemoveCurrent();
 
-            dgv.RowsAdded += (_, __) => dgv.AllowUserToDeleteRows = dgv.Rows.Count > 1;
-            dgv.RowsRemoved += (_, __) => dgv.AllowUserToDeleteRows = dgv.Rows.Count != 1;
-
-            dgv.AllowUserToDeleteRowsChanged += (_, __) => btnDisplayDelete.Enabled = dgv.AllowUserToDeleteRows;
+            dgv.RowsAdded += (_, __) => 
+                dgv.AllowUserToDeleteRows = dgv.Rows.Count > 1;
+            dgv.RowsRemoved += (_, __) => 
+                dgv.AllowUserToDeleteRows = dgv.Rows.Count > 1;
+            dgv.AllowUserToDeleteRowsChanged += (_, __) =>
+                btnRemove.Enabled = dgv.AllowUserToDeleteRows;
         }
 
         private Binding BindToSourceCollection<TCon, TProp>(TCon control, BindingSource source, Expression<Func<TCon, TProp>> controlMember, Expression<Func<CollectionSprite, TProp>> objectMember)
@@ -632,7 +634,13 @@ namespace CFG
             Unsaved = false;
             Filename = path;
             map16Editor1.Map.ChangeData(Data.CustomMap16Data, 0x300);
-            
+
+            if (Data.CustomMap16Data.Length <= 0x800)
+            {
+                byte[] clear_data = new byte[0x800 - Data.CustomMap16Data.Length];
+                map16Editor1.Map.ChangeData(clear_data, 0x300 + (Data.CustomMap16Data.Length / 8));
+            }
+
         }
         
         public void SaveFile(string path)
@@ -767,6 +775,7 @@ namespace CFG
             try
             {
                 SaveFile(sfd.FileName);
+                Filename = sfd.FileName;
             }
             catch(Exception ex)
             {
@@ -806,10 +815,22 @@ namespace CFG
             p.ShowDialog();
         }
 
+        private void tsbPalette_Click(object sender, EventArgs e)
+        {
+            var p = new Editors.PaletteEditorForm(resources);
+            p.ShowDialog();
+        }
+
         private void viewTile8x8ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var t = new Editors.Tile8x8EditorForm(resources);
-            t.ShowDialog();
+            t.Show();
+        }
+
+        private void tsb8x8Editor_Click(object sender, EventArgs e)
+        {
+            var t = new Editors.Tile8x8EditorForm(resources);
+            t.Show();
         }
     }
 

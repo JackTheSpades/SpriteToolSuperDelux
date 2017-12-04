@@ -689,10 +689,11 @@ namespace CFG.Map16
         {
             List<byte> data = new List<byte>();
             int size = 0x3FF;
-            while (Map[size--].IsEmpty())
-                ;   //EMPTY
+            while (Map[size].IsEmpty() && size >= 0x300)
+                size--;
             
-            for(int index = 0; index <= size; index++)
+
+            for(int index = 0x300; index <= size; index++)
                 data.AddRange(Map[index].GetData());
             return data.ToArray();
         }
@@ -714,7 +715,7 @@ namespace CFG.Map16
             var subData = new byte[block_start * 8 + data.Length];
             Array.Copy(data, 0, subData, block_start * 8, data.Length);
 
-            for (int i = 0; i < data.Length; i += 8)
+            for (int i = 0; i < data.Length && block_start + (i / 8) < 0x400; i += 8)
             {
                 var sub = new Map16Tile16x16(subData, block_start * 8 + i)
                 {

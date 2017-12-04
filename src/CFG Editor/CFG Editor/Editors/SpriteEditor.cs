@@ -60,22 +60,14 @@ namespace CFG.Map16
                 {
                     _Sprite.Tiles.ListChanged += Tiles_ListChanged;
                     _Sprite.PropertyChanged += Sprite_PropertyChanged;
-
-                    if (_Sprite.UseText)
-                    {
-                        rtbDisplayText.Visible = true;
-                        pcbSprite.Height = 112;
-                    }
-                    else
-                    {
-                        rtbDisplayText.Visible = false;
-                        pcbSprite.Height = 176;
-                    }
+                    UpdateUseText();
                 }
                 Redraw();
-            }
-
+                SpriteChanged?.Invoke(this, EventArgs.Empty);
+            }            
         }
+
+        public event EventHandler SpriteChanged;
 
         private int _GridSize = 16;
         [DefaultValue(16)]
@@ -107,6 +99,20 @@ namespace CFG.Map16
         {
             UpdateGrid(GridSize);
             UpdateSpriteScreen(pcbSprite.Size);
+        }
+
+        public void UpdateUseText()
+        {
+            if (Sprite.UseText)
+            {
+                rtbDisplayText.Visible = true;
+                pcbSprite.Height = 112;
+            }
+            else
+            {
+                rtbDisplayText.Visible = false;
+                pcbSprite.Height = 176;
+            }
         }
 
         public void UpdateGrid(int size)
@@ -152,11 +158,13 @@ namespace CFG.Map16
                     if (UseText)
                     {
                         Bitmap bm = ConvertStringToImage(Sprite.DisplayText);
-                        if (bm == null)
-                            return;
-                        int x = (Image.Width / 2) - (bm.Width / 2);
-                        int y = (Image.Height / 2) - (bm.Height / 2);
-                        g.DrawImage(bm, x, y);
+                        if (bm != null)
+                        {
+                            int x = (Image.Width / 2) - (bm.Width / 2);
+                            int y = (Image.Height / 2) - (bm.Height / 2);
+                            g.DrawImage(bm, x, y);
+                            bm.Dispose();
+                        }
                     }
                     else
                     {
@@ -250,8 +258,15 @@ namespace CFG.Map16
 
         private void Tiles_ListChanged(object sender, ListChangedEventArgs e) =>
             UpdateSpriteScreen(pcbSprite.Size);
-        private void Sprite_PropertyChanged(object sender, PropertyChangedEventArgs e) =>
+        private void Sprite_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(DisplaySprite.UseText))
+            {
+                UpdateUseText();
+                UpdateGrid(GridSize);
+            }
             UpdateSpriteScreen(pcbSprite.Size);
+        }
 
         private bool DeleteSelected()
         {

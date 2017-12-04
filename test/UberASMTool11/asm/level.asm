@@ -299,7 +299,7 @@ dl null_pointer
 dl null_pointer
 dl null_pointer
 dl null_pointer
-dl $90D490
+dl $90DDFE
 dl null_pointer
 dl null_pointer
 dl null_pointer
@@ -813,7 +813,7 @@ dl null_pointer
 dl null_pointer
 dl null_pointer
 dl null_pointer
-dl $90D48B
+dl $90DDFD
 dl null_pointer
 dl null_pointer
 dl null_pointer

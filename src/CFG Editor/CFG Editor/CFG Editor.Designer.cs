@@ -29,11 +29,11 @@
 		private void InitializeComponent()
 		{
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CFG_Editor));
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -45,6 +45,7 @@
             this.loadCustomM16ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadCustomGFX33ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.viewTile8x8ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.testToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tpgDefault = new System.Windows.Forms.TabPage();
             this.grpActLike = new System.Windows.Forms.GroupBox();
@@ -135,6 +136,11 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tslHover = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.tsb8x8Mode = new System.Windows.Forms.ToolStripButton();
+            this.tsb8x8Editor = new System.Windows.Forms.ToolStripButton();
+            this.tsbGrid = new System.Windows.Forms.ToolStripButton();
+            this.tsbPage = new System.Windows.Forms.ToolStripButton();
+            this.tsbPalette = new System.Windows.Forms.ToolStripButton();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.cmbTilesets = new System.Windows.Forms.ComboBox();
@@ -174,7 +180,6 @@
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.txtListExProp3 = new System.Windows.Forms.TextBox();
-            this.viewTile8x8ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.extraBitDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.xDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.yDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -192,11 +197,6 @@
             this.extraPropertyByte3DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.extraPropertyByte4DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.collectionSpriteBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.tsb8x8Mode = new System.Windows.Forms.ToolStripButton();
-            this.tsb8x8Editor = new System.Windows.Forms.ToolStripButton();
-            this.tsbGrid = new System.Windows.Forms.ToolStripButton();
-            this.tsbPage = new System.Windows.Forms.ToolStripButton();
-            this.tsbPalette = new System.Windows.Forms.ToolStripButton();
             this.menuStrip1.SuspendLayout();
             this.tpgDefault.SuspendLayout();
             this.grpActLike.SuspendLayout();
@@ -328,6 +328,13 @@
             this.toolStripMenuItem1.Size = new System.Drawing.Size(181, 22);
             this.toolStripMenuItem1.Text = "Palette";
             this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
+            // 
+            // viewTile8x8ToolStripMenuItem
+            // 
+            this.viewTile8x8ToolStripMenuItem.Name = "viewTile8x8ToolStripMenuItem";
+            this.viewTile8x8ToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.viewTile8x8ToolStripMenuItem.Text = "8x8 Tile Selector";
+            this.viewTile8x8ToolStripMenuItem.Click += new System.EventHandler(this.viewTile8x8ToolStripMenuItem_Click);
             // 
             // testToolStripMenuItem
             // 
@@ -1314,6 +1321,61 @@
             this.toolStrip1.TabIndex = 16;
             this.toolStrip1.Text = "toolStrip1";
             // 
+            // tsb8x8Mode
+            // 
+            this.tsb8x8Mode.CheckOnClick = true;
+            this.tsb8x8Mode.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb8x8Mode.Image = ((System.Drawing.Image)(resources.GetObject("tsb8x8Mode.Image")));
+            this.tsb8x8Mode.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsb8x8Mode.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb8x8Mode.Name = "tsb8x8Mode";
+            this.tsb8x8Mode.Size = new System.Drawing.Size(27, 26);
+            this.tsb8x8Mode.Text = "toolStripButton1";
+            // 
+            // tsb8x8Editor
+            // 
+            this.tsb8x8Editor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb8x8Editor.Image = ((System.Drawing.Image)(resources.GetObject("tsb8x8Editor.Image")));
+            this.tsb8x8Editor.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsb8x8Editor.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb8x8Editor.Name = "tsb8x8Editor";
+            this.tsb8x8Editor.Size = new System.Drawing.Size(27, 26);
+            this.tsb8x8Editor.Text = "toolStripButton1";
+            this.tsb8x8Editor.Click += new System.EventHandler(this.tsb8x8Editor_Click);
+            // 
+            // tsbGrid
+            // 
+            this.tsbGrid.CheckOnClick = true;
+            this.tsbGrid.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbGrid.Image = ((System.Drawing.Image)(resources.GetObject("tsbGrid.Image")));
+            this.tsbGrid.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbGrid.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbGrid.Name = "tsbGrid";
+            this.tsbGrid.Size = new System.Drawing.Size(27, 26);
+            this.tsbGrid.Text = "toolStripButton1";
+            // 
+            // tsbPage
+            // 
+            this.tsbPage.CheckOnClick = true;
+            this.tsbPage.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbPage.Image = ((System.Drawing.Image)(resources.GetObject("tsbPage.Image")));
+            this.tsbPage.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbPage.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbPage.Name = "tsbPage";
+            this.tsbPage.Size = new System.Drawing.Size(27, 26);
+            this.tsbPage.Text = "toolStripButton1";
+            // 
+            // tsbPalette
+            // 
+            this.tsbPalette.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbPalette.Image = ((System.Drawing.Image)(resources.GetObject("tsbPalette.Image")));
+            this.tsbPalette.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbPalette.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbPalette.Name = "tsbPalette";
+            this.tsbPalette.Size = new System.Drawing.Size(27, 26);
+            this.tsbPalette.Text = "toolStripButton1";
+            this.tsbPalette.Click += new System.EventHandler(this.tsbPalette_Click);
+            // 
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.tableLayoutPanel1);
@@ -1740,13 +1802,6 @@
             this.txtListExProp3.Text = "FF";
             this.txtListExProp3.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
             // 
-            // viewTile8x8ToolStripMenuItem
-            // 
-            this.viewTile8x8ToolStripMenuItem.Name = "viewTile8x8ToolStripMenuItem";
-            this.viewTile8x8ToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
-            this.viewTile8x8ToolStripMenuItem.Text = "8x8 Tile Selector";
-            this.viewTile8x8ToolStripMenuItem.Click += new System.EventHandler(this.viewTile8x8ToolStripMenuItem_Click);
-            // 
             // extraBitDataGridViewCheckBoxColumn
             // 
             this.extraBitDataGridViewCheckBoxColumn.DataPropertyName = "ExtraBit";
@@ -1835,8 +1890,8 @@
             // extraPropertyByte1DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte1DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte1";
-            dataGridViewCellStyle5.Format = "X2";
-            this.extraPropertyByte1DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle1.Format = "X2";
+            this.extraPropertyByte1DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle1;
             this.extraPropertyByte1DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte1DataGridViewTextBoxColumn.HeaderText = "Extra 1";
             this.extraPropertyByte1DataGridViewTextBoxColumn.Name = "extraPropertyByte1DataGridViewTextBoxColumn";
@@ -1844,8 +1899,8 @@
             // extraPropertyByte2DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte2DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte2";
-            dataGridViewCellStyle6.Format = "X2";
-            this.extraPropertyByte2DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle2.Format = "X2";
+            this.extraPropertyByte2DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle2;
             this.extraPropertyByte2DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte2DataGridViewTextBoxColumn.HeaderText = "Extra 2";
             this.extraPropertyByte2DataGridViewTextBoxColumn.Name = "extraPropertyByte2DataGridViewTextBoxColumn";
@@ -1853,8 +1908,8 @@
             // extraPropertyByte3DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte3DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte3";
-            dataGridViewCellStyle7.Format = "X2";
-            this.extraPropertyByte3DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle7;
+            dataGridViewCellStyle3.Format = "X2";
+            this.extraPropertyByte3DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle3;
             this.extraPropertyByte3DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte3DataGridViewTextBoxColumn.HeaderText = "Extra 3";
             this.extraPropertyByte3DataGridViewTextBoxColumn.Name = "extraPropertyByte3DataGridViewTextBoxColumn";
@@ -1862,8 +1917,8 @@
             // extraPropertyByte4DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte4DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte4";
-            dataGridViewCellStyle8.Format = "X2";
-            this.extraPropertyByte4DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle8;
+            dataGridViewCellStyle4.Format = "X2";
+            this.extraPropertyByte4DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle4;
             this.extraPropertyByte4DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte4DataGridViewTextBoxColumn.HeaderText = "Extra 4";
             this.extraPropertyByte4DataGridViewTextBoxColumn.Name = "extraPropertyByte4DataGridViewTextBoxColumn";
@@ -1871,59 +1926,6 @@
             // collectionSpriteBindingSource
             // 
             this.collectionSpriteBindingSource.DataSource = typeof(CFG.CollectionSprite);
-            // 
-            // tsb8x8Mode
-            // 
-            this.tsb8x8Mode.CheckOnClick = true;
-            this.tsb8x8Mode.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb8x8Mode.Image = ((System.Drawing.Image)(resources.GetObject("tsb8x8Mode.Image")));
-            this.tsb8x8Mode.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsb8x8Mode.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsb8x8Mode.Name = "tsb8x8Mode";
-            this.tsb8x8Mode.Size = new System.Drawing.Size(27, 26);
-            this.tsb8x8Mode.Text = "toolStripButton1";
-            // 
-            // tsb8x8Editor
-            // 
-            this.tsb8x8Editor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb8x8Editor.Image = ((System.Drawing.Image)(resources.GetObject("tsb8x8Editor.Image")));
-            this.tsb8x8Editor.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsb8x8Editor.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsb8x8Editor.Name = "tsb8x8Editor";
-            this.tsb8x8Editor.Size = new System.Drawing.Size(27, 26);
-            this.tsb8x8Editor.Text = "toolStripButton1";
-            // 
-            // tsbGrid
-            // 
-            this.tsbGrid.CheckOnClick = true;
-            this.tsbGrid.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbGrid.Image = ((System.Drawing.Image)(resources.GetObject("tsbGrid.Image")));
-            this.tsbGrid.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbGrid.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbGrid.Name = "tsbGrid";
-            this.tsbGrid.Size = new System.Drawing.Size(27, 26);
-            this.tsbGrid.Text = "toolStripButton1";
-            // 
-            // tsbPage
-            // 
-            this.tsbPage.CheckOnClick = true;
-            this.tsbPage.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbPage.Image = ((System.Drawing.Image)(resources.GetObject("tsbPage.Image")));
-            this.tsbPage.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbPage.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbPage.Name = "tsbPage";
-            this.tsbPage.Size = new System.Drawing.Size(27, 26);
-            this.tsbPage.Text = "toolStripButton1";
-            // 
-            // tsbPalette
-            // 
-            this.tsbPalette.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbPalette.Image = ((System.Drawing.Image)(resources.GetObject("tsbPalette.Image")));
-            this.tsbPalette.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbPalette.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbPalette.Name = "tsbPalette";
-            this.tsbPalette.Size = new System.Drawing.Size(27, 26);
-            this.tsbPalette.Text = "toolStripButton1";
             // 
             // CFG_Editor
             // 

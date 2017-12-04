@@ -7,9 +7,9 @@ incsrc "/../other/macro_library.asm"
 
 !sprite_RAM	= $7FAC80
 
-autoclean $90CC8F
-autoclean $90B951
-autoclean $90B94E
+autoclean $90CBB7
+autoclean $90D490
+autoclean $90D48B
 
 !previous_mode = !sprite_RAM+(!sprite_slots*3)
 
