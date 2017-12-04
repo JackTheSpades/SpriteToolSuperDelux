@@ -14,5 +14,5 @@ if test ! -e libasar.so ; then
 fi
 
 #### compile
-g++ $CFLAGS -o "pixi" -Wall --std=c++11 -Wno-format $LDFLAGS src/*.cpp src/asar/asardll.c
+g++ $CFLAGS -o "pixi" -Wall --std=c++11 -Wno-format $LDFLAGS src/*.cpp src/asar/asardll.c src/json/base64.cpp
 #@pause
