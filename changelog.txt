@@ -1,6 +1,6 @@
 Changelog
 
-Version 1.x (xxx xx, 2018):
+Version 1.2.1 (Jan 17, 2018):
   -(RPG Hacker) Added a changelog so that we don't have to search all over the
    internet for things that have changed between versions.
    (Note that information on versions prior to this one may be inaccurate)
