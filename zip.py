@@ -87,7 +87,8 @@ with zipfile.ZipFile('pixi.zip', 'w') as pixizip:
    #misc
    pixizip.write('src.zip')
    zipdir('Graphics for Included Sprites', pixizip)
-   pixizip.write('readme.txt')   
+   pixizip.write('readme.txt')
+   pixizip.write('changelog.txt')
 
 print("pixi.zip created")
 os.remove('src.zip')

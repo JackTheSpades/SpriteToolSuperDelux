@@ -1,0 +1,41 @@
+Changelog
+
+Version 1.x (xxx xx, 2018):
+  -(RPG Hacker) Added a changelog so that we don't have to search all over the
+   internet for things that have changed between versions.
+   (Note that information on versions prior to this one may be inaccurate)
+  -(RPG Hacker) Added missing command line arguments to Readme.
+
+Version 1.2 (Dec 04, 2017):
+ (Information on this version added post-released by RPG Hacker, may not be accurate,
+ feel free to fix any mistakes and add any missing information)
+  -Added support for JSON configuration file (with CFG files still supported for
+   backwards-compatibility).
+  -Added functionality to generate .ssc, .mwt, .mw2 and .s16 files from information
+   embedded into the JSON sprite configuration files.
+   (Those files are used by Lunar Magic for displaying sprites more nicelys in the editor)
+  -Updated the CFG Editor so that it actually lets you edit said embedded information
+   in the JSON files via a more intuitive GUI, inspired by Lunar Magic's interface.
+  -Added -npl option to disable per-level sprites. This is primarily intended as a
+   workaround for Asar's "freedata align" freezing bug.
+   NOTE: Do not use on ROMs with sprites already inserted into slots B0 to BF.
+  -Added -a <asm> option to override the asm path PIXI uses.
+  -Improved handling for when the ROM isn't in the same folder as PIXI by converting paths
+   to either paths relativ to the ROM or paths relative to the executable.
+
+Version 1.1 (Jul 29, 2017):
+ (Information on this version added post-released by RPG Hacker, may not be accurate,
+ feel free to fix any mistakes and add any missing information)
+  -Added support for cluster sprites.
+  -Added support for extended sprite.
+  -Added support for up to 4 extra bytes per sprite that can be set via Lunar Magic.
+  -Renamed and added new command line options for customizing the paths PIXI uses.
+  -Updated CFG Editor, which now contains all the functionality of Tweaker.
+  -(RPG Hacker; Aug 22, 2017) Fixed a couple of bugs in different included ASM files,
+   mainly in regards to SA-1 compatibility.
+
+
+Version 1.0 (Feb 16, 2017):
+ (Information on this version added post-released by RPG Hacker, may not be accurate,
+ feel free to fix any mistakes and add any missing information)
+  -Initial release

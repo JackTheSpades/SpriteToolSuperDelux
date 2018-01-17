@@ -16,8 +16,10 @@ ReadMe Contents:
 -- Per-Level Sprites
 -- SA-1 Detection and Default Labels
 -- CFG Files and the new CFG Editor
+-- JSON Files
 -- Shared Routines
 -- Header Files
+-- Extra Bytes
 
 - Common Errors
 -- JMP (label,x) or JSR (label,x)
@@ -56,7 +58,7 @@ ReadMe Contents:
 	to a Thwomp and B0 of level 106 to a Hammer Bro if you wanted. Keep in mind this only holds true for slots B0 to BF.
 	The format for per-level sprites looks as follows:
 	
-    level COLON id SPACE cfg_file
+		level COLON id SPACE cfg_file
 	
 	Here is an example of a "list.txt" file that inserts Blue.cfg and Green.cfg in the same slots as earlier,
 	and then inserts Red.cfg and Yellow.cfg only for level 105, while Boo.cfg uses the same slot as Red.cfg but in level 106:
@@ -111,6 +113,9 @@ ReadMe Contents:
 		-d              Enable debug output
 		-k              Keep debug files
 		-l  <listpath>  Specify a custom list file (Default: list.txt)
+		-npl            No per level sprites. Run like normal sprite_tool
+
+		-a  <asm>       Specify a custom asm directory (Default asm/)
 		
 		-sp <sprites>   Specify a custom sprites directory (Default sprites/)
 		-sh <shooters>  Specify a custom shooters directory (Default shooters/)
@@ -119,6 +124,12 @@ ReadMe Contents:
 		-c  <cluster>   Specify a custom cluster sprites directory (Default cluster/)
 
 		-r  <sharedpath>        Specify a shared routine directory (Default routines/)
+
+		-ssc <append ssc>       Specify ssc file to be copied into <romname>.ssc
+		-mwt <append mwt>       Specify mwt file to be copied into <romname>.mwt
+		-mw2 <append mw2>       Specify mw2 file to be copied into <romname>.mw2
+		-s16 <base s16>         Specify s16 file to be used as a base for <romname>.s16
+		                        Do not use <romname>.xxx as an argument as the file will be overwriten
 		
 	Example:
 		
@@ -172,6 +183,18 @@ If you are used to using Romi's SpriteTool, here is a quick rundown of everythin
 	For those who aren't aware, the Object Clipping (the green box) determines how the sprite interacts with tiles and
 	objects, while the Sprite Clipping determines how it interacts with other sprites, including Mario.
 
+	BONUS: As of version 1.1, you can also open your ROM in the CFG Editor and use it to tweak existing sprites in the
+	game, basically replicating the functionality of Tweaker.
+
+
+-- JSON Files
+	As of version 1.2, PIXI now aso supports JSON files as an alternative to CFG files (CFG files can still be used
+	for backwards-compatibility). The JSON format has the advantage of being more human-readable and wide-spread
+	(there exist a lot of tools and libraries using JSON files). In the case of PIXI in particular, JSON files,
+	unlike CFG files, embed additional information that can be used by PIXI to automatically generate .ssc, .mwt,
+	.mw2 and .s16 files for you. The CFG Editor has also been updated with a graphical user interface inspired by
+	 Lunar Magic that lets you edit that embedded information intuitively.
+
 
 -- Shared Routines
 	If you have used GPS before, the shared routines in PIXI work exactly like the ones there.
@@ -191,7 +214,24 @@ If you are used to using Romi's SpriteTool, here is a quick rundown of everythin
 	Each sprite directory has a "_header.asm" file within it. This file will be included only with sprites of their
 	respective type. Unlike sa1def.asm which is included with every sprite.
 	You can use it to implement defines or macros that have different behavior with different sprite types without having
-	to name them all differently.		
+	to name them all differently.
+
+
+-- Extra Bytes
+	As of version 1.1, PIXI supports up to four extra bytes per sprite that can be customized via the CFG file and then set by
+	Lunar Magic when placing a sprite in a level. The CFG file determines how many extra bytes a sprite uses, though
+	per-level sprites always have all four extra bytes enabled.
+
+	WARNING: Be EXTREMELY CAUTIONS with this feature. Changing the number of extra bytes for an already inserted sprite will
+	corrupt the level data, as Lunar Magic will expect the sprite to be a different size than it is. So make sure to delete all
+	instances of a sprite before changing it's number.
+
+	sa1def.asm provides convenient defines for sprite coders to access all extra bytes:
+
+	!extra_byte_1
+	!extra_byte_2
+	!extra_byte_3
+	!extra_byte_4
 		
 		
 - Common Errors
