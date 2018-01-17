@@ -22,7 +22,7 @@ Version 1.2 (Dec 04, 2017):
    NOTE: Do not use on ROMs with sprites already inserted into slots B0 to BF.
   -Added -a <asm> option to override the asm path PIXI uses.
   -Improved handling for when the ROM isn't in the same folder as PIXI by converting paths
-   to either paths relativ to the ROM or paths relative to the executable.
+   to either relative to the ROM or relative to the executable.
 
 Version 1.1 (Jul 29, 2017):
  (Information on this version added post-released by RPG Hacker, may not be accurate,
