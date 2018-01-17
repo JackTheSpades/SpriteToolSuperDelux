@@ -5,6 +5,7 @@ Version 1.x (xxx xx, 2018):
    internet for things that have changed between versions.
    (Note that information on versions prior to this one may be inaccurate)
   -(RPG Hacker) Added missing command line arguments to Readme.
+  -(Blind Devil) Fixed SubOffScren.asm.
 
 Version 1.2 (Dec 04, 2017):
  (Information on this version added post-released by RPG Hacker, may not be accurate,
