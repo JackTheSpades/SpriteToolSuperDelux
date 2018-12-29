@@ -35,8 +35,8 @@
 
 
 //version 1.xx
-const char VERSION = 0x02;
-bool PER_LEVEL = true;
+const char VERSION = 0x19;
+bool PER_LEVEL = false;
 const char* ASM_DIR = nullptr;
 
 
@@ -55,7 +55,6 @@ void debug_print(const char* msg, A... args) {
 
 template <typename T>
 T* from_table(T* table, int level, int number) {
-
    if(!PER_LEVEL)
       return table + number;
 
@@ -101,11 +100,14 @@ bool patch(const char* dir, const char* patch_name, ROM &rom) {
 void patch_sprite(sprite* spr, ROM &rom, FILE* output) {
 			
 	FILE* sprite_patch = open(TEMP_SPR_FILE,"w");
+	fprintf(sprite_patch, "namespace nested on\n");
 	fprintf(sprite_patch, "incsrc \"%ssa1def.asm\"\n", ASM_DIR);
 	fprintf(sprite_patch, "incsrc \"shared.asm\"\n");
+	fprintf(sprite_patch, "SPRITE_ENTRY_%d:\n", spr->number);
 	fprintf(sprite_patch, "incsrc \"%s_header.asm\"\n", spr->directory);
 	fprintf(sprite_patch, "freecode cleaned\n");
 	fprintf(sprite_patch, "\tincsrc \"%s\"", spr->asm_file);
+	fprintf(sprite_patch, "\nnamespace nested off\n");
 	fclose(sprite_patch);
 				
 	patch(TEMP_SPR_FILE, rom);
@@ -337,9 +339,11 @@ void create_shared_patch(const char *routine_path, ROM &rom) {
 				"			<base> = read3(<offset>+$03E05C)\n"
 				"		else\n"
 				"			freecode cleaned\n"
-				"				<base>:\n"
+				"				#<base>:\n"
 				"				print \"    Routine: <base> inserted at $\",pc\n"
+				"				namespace <base>\n"
 				"				incsrc \"<target>\"\n"
+				"               namespace off\n"
 				"			ORG <offset>+$03E05C\n"
 				"				dl <base>\n"				
 				"		endif\n"
@@ -423,19 +427,26 @@ bool populate_sprite_list(const char** paths, sprite** sprite_lists, const char 
 				sscanf(current_line.data, "%x%*c%hx%n", &level, &sprite_id, &bytes_read);
 			
          if(level != 0x200 && !PER_LEVEL)
-            ERROR("Error on line %d: Trying to insert per level sprites with per level mode disabled (-npl)");
-         
+            ERROR("Error on line %d: Trying to insert per level sprites without the -pl flag");
+
 			spr = from_table<sprite>(sprite_list, level, sprite_id);
          //verify sprite pointer and determine cause if invalid
 			if(!spr) {
 				if(sprite_id >= 0x100)
+				{
 					ERROR("Error on line %d: Sprite number must be less than 0x100");
+				}
 				if(level == 0x200 && sprite_id >= 0xB0 && sprite_id < 0xC0)
+				{
 					ERROR("Error on line %d: Sprite B0-BF must be assigned a level. Eg. 105:B0");
-				if(level > 0x200)
+				}
+				if(level > 0x200) {
 					ERROR("Error on line %d: Level must range from 000-1FF");
-				if(sprite_id >= 0xB0 && sprite_id < 0xC0)
+				}
+				if(sprite_id < 0xB0 || sprite_id >= 0xC0)
+				{
 					ERROR("Error on line %d: Only sprite B0-BF must be assigned a level.");
+				}
 			}
       } else {
 			if(sprite_id > SPRITE_COUNT)
@@ -665,10 +676,11 @@ int main(int argc, char* argv[]) {
 			printf("-d\t\tEnable debug output\n");
 			printf("-k\t\tKeep debug files\n");
 			printf("-l  <listpath>\tSpecify a custom list file (Default: %s)\n", paths[LIST]);
-         printf("-npl\t\tNo per level sprites. Run like normal sprite_tool\n");
+			printf("-pl\t\tPer level sprites - will insert perlevel sprite code\n");
+			printf("-npl\t\tSame as the current default, no sprite per level will be inserted, left dangling for compatibility reasons\n");
 			printf("\n");
 			
-         printf("-a  <asm>\tSpecify a custom asm directory (Default %s)\n", paths[ASM]);
+			printf("-a  <asm>\tSpecify a custom asm directory (Default %s)\n", paths[ASM]);
 			printf("-sp <sprites>\tSpecify a custom sprites directory (Default %s)\n", paths[SPRITES]);
 			printf("-sh <shooters>\tSpecify a custom shooters directory (Default %s)\n", paths[SHOOTERS]);
 			printf("-g  <generators>\tSpecify a custom generators directory (Default %s)\n", paths[GENERATORS]);
@@ -691,7 +703,10 @@ int main(int argc, char* argv[]) {
 			output = stdout;
 		}else if(!strcmp(argv[i], "-k")){
 			keep_temp = true;
-		}else if(!strcmp(argv[i], "-npl")){
+		}else if(!strcmp(argv[i], "-pl")){
+			PER_LEVEL = true;
+		}
+		else if(!strcmp(argv[i], "-npl")){
 			PER_LEVEL = false;
 		}
       SET_PATH("-r", ROUTINES)
