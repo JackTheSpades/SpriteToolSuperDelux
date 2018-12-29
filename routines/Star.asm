@@ -1,6 +1,6 @@
 ;Routine that star-kills the sprite and gives Mario points.
 ;Doesn't check whether Mario actually has a star.
-		
+		PHB : PHK : PLB
 		LDA #$02                ; \ sprite status = 2 (being killed by star)
 		STA !14C8,x             ; /
 		LDA #$D0                ; \ set y speed
@@ -11,15 +11,16 @@
 		INC $18D2|!Base2        ; increment number consecutive enemies killed
 		LDA $18D2|!Base2        ; \
 		CMP #$08                ; | if consecutive enemies stomped >= 8, reset to 8
-		BCC +                   ; |
+		BCC ?+                   ; |
 		LDA #$08                ; |
 		STA $18D2|!Base2        ; /
-+		JSL $02ACE5|!BankB      ; give mario points
+?+		JSL $02ACE5|!BankB      ; give mario points
 		LDY $18D2|!Base2        ; \ 
 		CPY #$08                ; | if consecutive enemies stomped < 8 ...
-		BCS +                   ; |
+		BCS ?+                   ; |
 		LDA .sound,y            ; |    ... play sound effect
 		STA $1DF9|!Base2        ; /
+		PLB
 		RTL                     ; final return
 
 .speed	db $F0,$10
@@ -34,6 +35,6 @@
 		LDA $95
 		SBC !14E0,x
 		STA $0F
-		BPL +
+		BPL ?+
 		INY
-+		RTS
+?+		RTS

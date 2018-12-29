@@ -27,13 +27,13 @@
 		XBA
 .loop
 		LDA $17C0|!Base2,y      ; |
-		BEQ +                   ; |
+		BEQ ?+                   ; |
 		DEY                     ; |
 		BPL .loop               ; |
 		SEC                     ; |
 		RTL                     ; /  RETURN if no slots open
 
-+		XBA                     ; \ set effect graphic to smoke graphic
+?+		XBA                     ; \ set effect graphic to smoke graphic
 		STA $17C0|!Base2,y      ; /
 		LDA $02                 ; \ set time to show smoke
 		STA $17CC|!Base2,y      ; /

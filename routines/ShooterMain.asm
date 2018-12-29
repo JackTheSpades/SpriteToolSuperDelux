@@ -14,14 +14,14 @@
 	XBA                     ; \ set time till next generation = 60
 	STA !shoot_timer,x      ; /
 	
-	BCC +							; skip Mario check if carry set.
+	BCC ?+							; skip Mario check if carry set.
 	LDA $94                 ; \ don't fire if mario is next to generator
 	SBC !shoot_x_low,x      ;  |
 	CLC                     ;  |
 	ADC #$11                ;  |
 	CMP #$22                ;  |
 	BCC .Return             ; /
-+
+?+
 	
 	LDA !shoot_y_low,x      ; \ don't generate if off screen vertically
 	CMP $1C                 ;  |

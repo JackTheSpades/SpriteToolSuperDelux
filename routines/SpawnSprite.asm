@@ -14,19 +14,19 @@
 	PHX
 	XBA
 	LDX #!SprSize-1
-	-
+	?-
 		LDA !14C8,x
-		BEQ +
+		BEQ ?+
 			DEX
-		BPL -
+		BPL ?-
 		SEC
 		BRA no_slot
-	+
+	?+
 	XBA
 	STA !9E,x
 	JSL $07F7D2|!BankB
 	
-	BCC +
+	BCC ?+
 		LDA !9E,x
 		STA !7FAB9E,x
 		
@@ -44,7 +44,7 @@
 		
 		LDA #$08
 		STA !7FAB10,x
-	+
+	?+
 	
 	LDA #$01
 	STA !14C8,x
@@ -57,9 +57,9 @@
 	STA.w !E4,y				; | store x position + x offset (low byte)
 	LDA #$00					; |
 	BIT $00					; | create high byte based on $00 in A and add
-	BPL +						; | to x position
+	BPL ?+						; | to x position
 	DEC						; |
-+	ADC !14E0,x				; |
+?+	ADC !14E0,x				; |
 	STA !14E0,y				; /
 		
 	LDA $01					; \ 
@@ -67,9 +67,9 @@
 	STA.w !D8,y				; | store y position + y offset	
 	LDA #$00					; |
 	BIT $01					; | create high byte based on $01 in A and add
-	BPL +						; | to y position
+	BPL ?+						; | to y position
 	DEC						; |
-+	ADC !14D4,x				; |
+?+	ADC !14D4,x				; |
 	STA !14D4,y				; /
 	
 	LDA $02					; \ store x speed

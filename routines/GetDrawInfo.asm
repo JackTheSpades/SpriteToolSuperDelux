@@ -22,9 +22,10 @@ GET_DRAW_INFO:
    CMP.w #$0180
    SEP #$20
    LDA $01
-   BEQ +
+   BEQ ?+
      LDA #$01
-   +   STA !15A0,x
+   ?+
+   STA !15A0,x
    TDC
    ROL A
    STA !15C4,x

@@ -29,9 +29,9 @@ else
 	rep #$20
 	lda $2307
 endif
-	bcc +
+	bcc ?+
 	eor #$FFFF : inc
-+	
+?+	
 	sta $09
 	sep #$20
 	plx
