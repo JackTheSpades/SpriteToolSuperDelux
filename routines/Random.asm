@@ -1,6 +1,6 @@
 ; Ranged pseudorandom number generation.
-; Input: Y = max value
-; Output: A = random number in the interval [0; Y]
+; Input: A = max value
+; Output: A = random number in the interval [0, A]
  
     PHX : PHP
     SEP #$30
@@ -9,12 +9,12 @@
     PLX
     CPX #$FF
     BNE .normal
-    LDA $148B|!Base2
+    LDA $148D|!Base2
     BRA .end
  
 .normal
     INX
-    LDA $148B|!Base2
+    LDA $148D|!Base2
  
     if !SA1 == 0
         STA $4202               ; Write first multiplicand.
@@ -28,7 +28,7 @@
         STX $2253               ; Write second multiplicand.
         STZ $2254
         NOP : BRA $00           ; Wait 5 cycles.
-        LDA $2107               ; Read multiplication product.
+        LDA $2307               ; Read multiplication product.
     endif
 .end
     PLP : PLX
