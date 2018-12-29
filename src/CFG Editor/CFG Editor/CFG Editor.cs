@@ -740,7 +740,7 @@ namespace CFG
 		private void loadToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			OpenFileDialog ofd = new OpenFileDialog();
-			ofd.Filter = "JSON file|*.json|CFG file|*.cfg|ROM file|*.smc;*.sfc";
+			ofd.Filter = "CFG or JSON file|*.json;*.cfg|ROM file|*.smc;*.sfc";
 			ofd.Title = "Load CFG file";
 			if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
 				return;
