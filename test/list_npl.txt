@@ -3,8 +3,8 @@
 02 bros/boomerang.json
 03 piranha_sideways.cfg
 04 roto_disc.cfg
-05 thwomps/thwomp_left.cfg
-06 thwomps/thwomp_right.cfg
+05 thwomps/thwomp_left.json
+06 thwomps/thwomp_right.json
 07 bros/shell_bro.json
 08 bros/bomb_bro.json
 10 donut_lift.cfg

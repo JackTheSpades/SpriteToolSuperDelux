@@ -1,3 +1,4 @@
+@include
 
 macro Speed()
    LDA #$00

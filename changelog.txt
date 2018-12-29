@@ -1,12 +1,47 @@
 Changelog
 
+Version 1.2.5 (Dec 29, 2018):
+  -(Tattletale) Fixed an inconsistency I left in main.asm that would cause a half-state of the perlevel feature to be inserted. Without -npl this would cause the first shooter or generator to not spawn properly.
+  -(Tattletale) Perlevel sprite has been turned off by default.
+  -(Tattletale) -npl doesn't do anything anymore, but is still around so stuff don't break with it.
+  -(Tattletale) New flag -pl created so you can still use sprite perlevel feature.
+  -(Tattletale) Bugfix on the LM version detection code. Rude, rude mistake (didn't affect anyone unless you use lm 193 and 16x), unredeemable.
+  -(Tattletale) Fixed a bug in error handling for sprite per level below B0 or above BF.
+  -(Tattletale) CFG Editor now opens either cfg or json without changing file types in the menu (mask is *.json; *.cfg).
+  -(Tattletale) Fixed thwomp json mappings.
+  -(Tattletale) Donut Lift's code reverted. Now it should be working normally. I'm sorry I left a piece of test code there.
+
+Version 1.2.4 (Dec 25, 2018):
+  -(Tattletale) Recompiled with new g++. Added namespace as a fix for the macro sublabel shenanigan.
+  -(Tattletale) Updated Asar dll to 1.61.
+  -(Tattletale) SA-1 16bit sprite data pointer support.
+  -(Tattletale) FastROM pagination sprite data pointer support.
+  -(Tattletale) GetMap16 and ChangeMap16 were replaced by Akaginite's implementation. Added support to new LM.
+  -(Tattletale) Sprite 7B is entirely reserved to LM, so nothing inserted in the 7B slot will work as a custom sprite.
+  -(Tattletale) SubOffScreen updated to consider new LM settings.
+  -(Tattletale) Fixed a bug with SubOffScreen, it would run all checks even when the sprite is on screen.
+  -(Tattletale) Aiming routine update to use Akaginite's version.
+  -(Tattletale) All routines were updated to use ?+/?- instead of +/- to avoid redefines outside the routine context.
+
+Version 1.2.3 (Jul 15, 2018):
+  -(Telinc1) Updated to use Asar 1.60 DLL.
+  -(Telinc1) Fixed problems with the Aiming, ExtendedGetDrawInfo and Random routines.
+
+Version 1.2.2 (Jun 10, 2018):
+  -(Blind Devil) Fixed Star.asm, which didn't have a bank wrapper, thus not
+   reading tables correctly.
+  -(Blind Devil) Fixed sa1def.asm, uncommenting the !7FAB64 define macro
+   (Extra Byte 4), and also correcting the default SA-1 address of
+   !extra_byte_4, used by the tool, which was wrong (default was $4000D8
+   when the correct is $4000DB).
+
 Version 1.2.1 (Jan 17, 2018):
   -(RPG Hacker) Added a changelog so that we don't have to search all over the
    internet for things that have changed between versions.
    (Note that information on versions prior to this one may be inaccurate)
   -(RPG Hacker) Added missing command line arguments to Readme.
   -(Blind Devil) Fixed SubOffScren.asm.
-  -(lx5) Fixed a define in sa1def.asm.
+  -(LX5) Fixed some extended sprites defines having wrong RAM addresses.
 
 Version 1.2 (Dec 04, 2017):
  (Information on this version added post-released by RPG Hacker, may not be accurate,

@@ -8,12 +8,20 @@
 ;; LX5's note: needs a block of FreeRAM in order to animate (!extra_extended)
 
 !extra_extended = $000000
+xinc:
+	db $01,$FF
+xmax:
+	db $20,$E0
+yinc:
+	db $01,$FF
+ymax:
+	db $12,$EE
 
 print "MAIN ",pc
 Boomerang:
 	JSR Graphics
 	LDA $9D
-	BNE Return
+	BNE .ret
    
 	%SpeedNoGrav()
 	%ExtendedHurt()
@@ -27,11 +35,11 @@ Boomerang:
 	LDA $1765|!Base2,x
 	TAY
 	LDA $1747|!Base2,x	; accelerate sprite based on "direction."
-	CMP .xmax,y
+	CMP xmax,y
 	BEQ .nodecre
 	LDA $1747|!Base2,x
 	CLC
-	ADC .xinc,y
+	ADC xinc,y
 	STA $1747|!Base2,x
 .nodecre
 	LDA $14		; run every other frame.
@@ -44,29 +52,29 @@ Boomerang:
 	AND #$01
 	TAY
 	LDA $173D|!Base2,x
-	CMP .ymax,y
+	CMP ymax,y
 	BNE +
 	INC $1779|!Base2,x
 +	LDA $173D|!Base2,x
 	CLC
-	ADC .yinc,y
+	ADC yinc,y
 	STA $173D|!Base2,x
 	RTS
 ++	LDA $173D|!Base2,x
 	BEQ .ret
 	DEC $173D|!Base2,x	; decrement timer used by the x speed.
-Return:
+.ret
 	RTL
    
-.xinc	db $01,$FF
-.xmax	db $20,$E0
-.yinc	db $01,$FF
-.ymax	db $12,$EE
 
+prop:
+	db $40,$40,$80,$80
+	db $00,$00,$C0,$C0
+tilemap:
+	db $24,$26,$24,$26
+   
 Graphics:
    %ExtendedGetDrawInfo()
-sublabel:
-
 	LDA $1747|!Base2,x
 	STA $03
 
@@ -82,7 +90,7 @@ sublabel:
 	LDA $02
 	STA $0201|!Base2,y
 
-	LDA .tilemap,x
+	LDA tilemap,x
 	STA $0202|!Base2,y
 
 	LDA #$09	; palette
@@ -91,7 +99,7 @@ sublabel:
 	LDX $03		; flip based on direction.
 	BPL +
 	INY : INY : INY : INY
-+	ORA .prop,y	; set properties.
++	ORA prop,y	; set properties.
 	ORA $64
 	PLY
 	STA $0203|!Base2,y
@@ -104,7 +112,3 @@ sublabel:
 	STA $0420|!Base2,x
 	PLX
 	RTS
-.prop	db $40,$40,$80,$80
-	db $00,$00,$C0,$C0
-.tilemap
-	db $24,$26,$24,$26

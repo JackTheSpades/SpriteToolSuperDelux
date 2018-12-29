@@ -52,7 +52,7 @@ ReadMe Contents:
 	If you want to insert a shooter, it has to be in the range of C0 to CF due to the sprite type's different coding.
 		
 
--- Per-Level Sprites
+-- Per-Level Sprites (has to be enabled with -pl)
 	The slots B0 to BF are special, in that you have to assign a level to them. The sprite will only use
 	the sprite slot between B0 and BF in that one specified level. Meaning you can assign sprite slot B0 of level 105
 	to a Thwomp and B0 of level 106 to a Hammer Bro if you wanted. Keep in mind this only holds true for slots B0 to BF.
@@ -113,7 +113,8 @@ ReadMe Contents:
 		-d              Enable debug output
 		-k              Keep debug files
 		-l  <listpath>  Specify a custom list file (Default: list.txt)
-		-npl            No per level sprites. Run like normal sprite_tool
+		-pl				Per level sprites - will insert perlevel sprite code
+		-npl            Same as the current default, no sprite per level will be inserted, left dangling for compatibility reasons
 
 		-a  <asm>       Specify a custom asm directory (Default asm/)
 		
@@ -147,7 +148,7 @@ If you are used to using Romi's SpriteTool, here is a quick rundown of everythin
   any patch. This is of course mainly intended for people with understanding of ASM.
 
 
--- Per-Level Sprites
+-- Per-Level Sprites (has to be enabled with -pl since 1.2.5)
   As explained in the Usage portion of this readme, sprite slots B0 to BF are per-level sprites, meaning
   those same 16 sprite slots can point to different sprite code in different levels.
   This can be especially useful for collaboration hacks or for one-off sprites that don't need to occupy

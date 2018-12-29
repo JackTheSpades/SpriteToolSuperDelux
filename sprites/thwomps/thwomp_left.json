@@ -81,17 +81,12 @@
           "X offset": 16,
           "Y offset": 16,
           "map16 tile": 69
-        },
-        {
-          "X offset": -16,
-          "Y offset": 8,
-          "map16 tile": 768
         }
       ],
       "X": 0,
       "Y": 0,
       "DisplayText": "",
-      "UseText": true
+      "UseText": false
     }
   ],
   "Collection": [
