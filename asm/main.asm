@@ -1,4 +1,3 @@
-
 !GenStart = $D0
 !PerLevel ?= 1
 
@@ -51,15 +50,14 @@ TableLoc:
 ;I think asar warns you for bank crossing anyway, but no harm done.
 warnpc $038000
 
-
 InitSpriteTables = $07F7D2|!BankB
 
 ; make it so the full level number can be read from $010B
 ; this part will not be removed on cleanup since other
 ; level based tools may also use this hijack
-org $05D8B9
+org $05D8B9|!BankB
 	JSR Levelnum 
-org $05DC46
+org $05DC46|!BankB
 	Levelnum:
 	LDA $0E
 	STA $010B|!Base2
@@ -72,61 +70,70 @@ org $05DC46
 
 
 ; patch goal tape init to get extra bits in $187B
-org $01C089
-	LDA !extra_bits,x
-	NOP
-	NOP
-	NOP
-	NOP
-	STA !187B,x
+if !EXLEVEL
+	org $01C089|!BankB
+		LDA !extra_bits,x
+		STA !187B,x
+		LDA !14D4,x
+		NOP
+else
+	org $01C089|!BankB
+		LDA !extra_bits,x
+		NOP
+		NOP
+		NOP
+		NOP
+		STA !187B,x
+endif
 
 ; RPG Hacker: Fixes a soft-lock related to shooters by replacing a
 ; a JSR with a JMP (solution proposed by MarioFanGamer)
-org $02A8D8
+org $02A8D8|!BankB
 	JMP $AB78
 	
-;hammer bro init pointer to null
-org $0182B3
-	db $C2,$85
+;hammer bro init pointer to null if it's using its original pointer
+if read2($0182B3) == $87A7
+	org $0182B3|!BankB
+		db $C2,$85
+endif
 ;status routine wrapper
-org $01D43E
+org $01D43E|!BankB
 	JSR $8133		;goto exucute pointer for sprite status ($14C8)
 	RTL
-	
 
 ; store extra bits separate from $14D4
-org $02A963
+org $02A963|!BankB
 	JSL SubLoadHack
 	NOP
-org $02A94B
+org $02A94B|!BankB
 	JSL SubLoadHack2
 	NOP
 
 ; sprite init call subroutine
-org $018172
+org $018172|!BankB
 	JSL SubInitHack
 	NOP
 
 ; sprite code call subroutine					
-org $0185C3
+org $0185C3|!BankB
 	JSL SubCodeHack
 	NOP
 
 ; clear init bit when changing sprites
-org $07F785
+org $07F785|!BankB
 	JSL EraserHack
 	NOP
 
-org $018151
+org $018151|!BankB
 	JSL EraserHack2
 	NOP
 	
 	
-org $02A866
+org $02A866|!BankB
 	JML SubGenLoad
 
 if !SA1 = 0
-	org $02ABA0
+	org $02ABA0|!BankB
 		JSL SubShootLoad
 		NOP
 else
@@ -135,28 +142,26 @@ else
 		NOP #2
 endif
 
-org $02B395
+org $02B395|!BankB
 	JML SubShootExec
 	NOP
 	
-org $02AFFE
+org $02AFFE|!BankB
 	JSL SubGenExec
 	NOP
 	
-org $0187A7
+org $0187A7|!BankB
 	JML SetSpriteTables
 	
-org $018127
+org $018127|!BankB
 	JML SubHandleStatus
 	
-org $02A9C9
+org $02A9C9|!BankB
 	JSL InitKeepextra_bits
 	
-org $02A9A6
+org $02A9A6|!BankB
 	JSL TestSilverCoinBit
 	NOP
-	
-	
 ; ---------------------------------------------------
 ; dev stuff / LM Hijacks
 ; ---------------------------------------------------
@@ -180,9 +185,61 @@ Size:
 	incbin "_CustomSize.bin"
 	
 
-org $02A846
+org $02A846|!BankB
 	JML SprtOffset
 	NOP						; not necessary but still...
+
+; 16bit sprite data pointer
+; stuff by Telinc1, Maks and boldowa
+if !SA1 == 0
+	org $028B1D|!BankB
+		JSR LoadSpriteInLevel
+
+	; From Giepy
+	org $02AC7A|!BankB
+		JSR	LoadSpriteInInit
+		JSR	LoadSpriteInInit
+
+	; From Giepy
+	org $02ACBA|!BankB
+		JSR	LoadSpriteInInit
+		JSR	LoadSpriteInInit
+		
+	org $02B5EC|!BankB
+	; From Giepy
+	LoadSpriteInInit:
+		PEI ($CE)
+		JSR $a802
+		PLA
+		STA $CE
+		PLA
+		STA $CF
+		RTS
+	LoadSpriteInLevel:			;extended sprite data
+		PEI ($CE)
+		JSR $A7FC
+		PLA
+		STA $CE
+		PLA
+		STA $CF
+		RTS
+	DisplaceIndex:
+		DEX
+		DEY
+		DEY
+		JMP $A846
+
+	org $02ABEF|!BankB
+		JMP DisplaceIndex
+		
+	org $02A9DB|!BankB
+		JMP DisplaceIndex
+		
+	if !EXLEVEL == 0		
+		org $02ABF3|!BankB
+			db $7F	;be able to load 128 sprites without issue
+	endif
+endif
  
 ; ---------------------------------------------------
 ; 80% original sprite_tool code, credit to roy.	
@@ -203,23 +260,55 @@ SprtOffset:
 	DEY #2					; back to start of sprite
 	
 	;A = 000000EE NNNNNNNN (index to size table)
-	
+
 	PHP
+if !SA1
+	REP #$30
+else
 	REP #$10
+endif
 	PHX
 	TAX
 	
-	TYA						; \
+	TYA
+if !SA1
+	SEP #$20
+endif
+	
 	CLC						; | Y += Size table
 	ADC.l Size,x			; |
-	XBA : LDA #$00 : XBA ; | still better than REP #$20 : AND #$00FF : SEP #$20
-	TAY						; /
-	
+	; | still better than REP #$20 : AND #$00FF : SEP #$20
+	XBA
+if !SA1
+	ADC #$00
+else
+	LDA #$00
+endif
+	XBA 
+
+if !SA1
+	REP #$30
+	TAY
 	PLX
+	SEP #$20	; XY has to be 16bit in SA1
+else	
+	CMP #$F9
+	BCC +
+	CLC
+	ADC $CE
+	STA $CE
+	LDA #$00
+	BCC +
+	INC $CF
++
+	TAY
+	PLX
+	SEP #$10
+endif
 	PLP
 
-   INX               ; restore code
-	JML $02A82E			; return to loop
+	INX               ; restore code
+	JML $02A82E|!BankB			; return to loop
    
    
 SubLoadHack:
@@ -232,17 +321,17 @@ SubLoadHack:
 	LDA $05
 	STA !new_sprite_num,x
    
-   PHY
-   INY : INY : INY            ; move sprie data pointer to extra bytes
+	PHY
+	INY : INY : INY            ; move sprie data pointer to extra bytes
 	LDA [$CE],y
-   STA !extra_byte_1,x
+	STA !extra_byte_1,x
 	INY : LDA [$CE],y
-   STA !extra_byte_2,x
+	STA !extra_byte_2,x
 	INY : LDA [$CE],y
-   STA !extra_byte_3,x
+	STA !extra_byte_3,x
 	INY : LDA [$CE],y
-   STA !extra_byte_4,x   
-   PLY   
+	STA !extra_byte_4,x   
+	PLY   
    
 	PLA
    
@@ -259,6 +348,12 @@ SubInitHack:
 	LDA #$08
 	STA !14C8,x
 
+if !EXLEVEL
+	LDA !9E,x
+	CMP.b #$7B
+	BEQ .R
+endif
+	
 	LDA !extra_bits,x
 	AND #!CustomBit
 	BNE .IsCustom
@@ -285,10 +380,18 @@ SubInitHack:
 SubCodeHack:
 	%debugmsg("SubCodeHack")
 	STZ $1491|!Base2
+	
+if !EXLEVEL
+	LDA !9E,x
+	CMP #$7B
+	BEQ .returnNormal
+endif
+
 	LDA !extra_bits,x
 	AND #!CustomBit
 	BNE .IsCustom
 	LDA !9E,x
+.returnNormal
 	RTL
 .IsCustom
 	LDA !new_sprite_num,x
@@ -436,17 +539,17 @@ SubLoadHack2:
 	LDA $05
 	STA !new_sprite_num,x
    
-   PHY
-   INY : INY : INY            ; move sprie data pointer to extra bytes
+	PHY
+	INY : INY : INY            ; move sprie data pointer to extra bytes
 	LDA [$CE],y
-   STA !extra_byte_1,x
+	STA !extra_byte_1,x
 	INY : LDA [$CE],y
-   STA !extra_byte_2,x
+	STA !extra_byte_2,x
 	INY : LDA [$CE],y
-   STA !extra_byte_3,x
+	STA !extra_byte_3,x
 	INY : LDA [$CE],y
-   STA !extra_byte_4,x   
-   PLY
+	STA !extra_byte_4,x   
+	PLY
    
 	PLA
 	RTL
@@ -519,7 +622,7 @@ SubShootLoad:
 	LDA $04
 	SEC
 	SBC #$C8	
-	if !SA1 = 1
+	if !SA1
 		STA $7783,x
 	endif	
 	RTL
@@ -805,7 +908,7 @@ InitKeepextra_bits:
 	LDA !extra_bits,x
 	PHA
 	
-	if !SA1 = 1
+	if !SA1
 		PHX
 		PHY
 		SEP #$10
@@ -813,7 +916,7 @@ InitKeepextra_bits:
 	
 	JSL InitSpriteTables	
 	
-	if !SA1 = 1
+	if !SA1
 		REP #$10
 		PLY
 		PLX

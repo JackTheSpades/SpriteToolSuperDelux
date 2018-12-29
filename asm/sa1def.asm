@@ -30,6 +30,11 @@ macro Between(x, label)
 	BCS <label>
 endmacro
 
+!EXLEVEL = 0
+if (((read1($0FF0B4)-'0')*100)+((read1($0FF0B4+2)-'0')*10)+(read1($0FF0B4+3)-'0')) > 253
+	!EXLEVEL = 1
+endif
+
 if read1($00FFD5) == $23		; check if the rom is sa-1
 	sa1rom
 	!SA1 = 1
@@ -86,6 +91,7 @@ endmacro
 %define_sprite_table("7FAB40",$7FAB40,$400099)
 %define_sprite_table("7FAB4C",$7FAB4C,$4000AF)
 %define_sprite_table("7FAB58",$7FAB58,$4000C5)
+%define_sprite_table("7FAB64",$7FAB64,$4000DB)
 
 %define_sprite_table("extra_bits",$7FAB10,$400040)
 %define_sprite_table("new_code_flag",$7FAB1C,$400056)
@@ -95,9 +101,8 @@ endmacro
 %define_sprite_table("extra_byte_1",$7FAB40,$400099)
 %define_sprite_table("extra_byte_2",$7FAB4C,$4000AF)
 %define_sprite_table("extra_byte_3",$7FAB58,$4000C5)
-%define_sprite_table("extra_byte_4",$7FAB64,$4000D8)
+%define_sprite_table("extra_byte_4",$7FAB64,$4000DB)
 
-;%define_sprite_table("7FAB64",$7FAB64,$4000DB)
 ;%define_sprite_table(shoot_misc,$7FAB64,$4000DB)
 
 ;shooter defines

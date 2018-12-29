@@ -5,11 +5,11 @@
 incsrc "sa1def.asm"
 incsrc "pointer_caller.asm"
 
-org $00A686
+org $00A686|!BankB
 	autoclean JML NotQuiteMain
 	autoclean dl Ptr      ; org $0x00A68A, default dl $9C1498
 
-org $02F815
+org $02F815|!BankB
 	autoclean JML Main
 
 
