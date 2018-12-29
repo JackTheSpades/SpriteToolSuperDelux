@@ -10,109 +10,124 @@
 ; $1933   layer
 ;
 ; output:
-; A Map16 lowbyte
+; A Map16 lowbyte (or all 16bits in 16bit mode)
 ; Y Map16 highbyte
 ;
-; $65-$68 will be destructed.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-GetBlock:	LDA $5B
-		AND #$01
-		TAY
-		LDA #$20
-		CPY #$01
-		BCC .Horz0
-		LDA #$1C
-.Horz0		BIT $5B
-		BPL .Layer1_0
-		LSR A
-.Layer1_0	CPY #$01
-		BCC .Horz1
-		CMP $99
-		BCC .RangeOver
-		LDA $9B
-		CMP #$02
-		BCC .Next
-.RangeOver	LDA #$FF
-		TAY
-		RTL
-
-.Horz1		CMP $9B
-		BCC .RangeOver
-		LDA $98
-		CMP #$B0
-		LDA $99
-		SBC #$01
-		BCS .RangeOver
-.Next		LDA $1933|!addr
-		REP #$21
-		BEQ .Layer1_1
-		TYA
-		BEQ .Horz2
-		LDA $98
-		ADC.w #$0E00
-		AND.w #$FFF0
-		STA $67
-		BRA +
-.Horz2		LDA $98
-		AND.w #$FFF0
-		STA $67
-		LDA $9A
-		ADC.w #$1000
-		BRA .Common0
-.Layer1_1	LDA $98
-		AND.w #$FFF0
-		STA $67
-+		LDA $9A
-.Common0	SEP #$20
-		LSR #4
-		STA $65
-		XBA
-		CPY #$01
-		BCC .Horz3
-		STA $66
-		ASL $68
-		REP #$21
-		LDA.w #$0000
-		BRA .Common1
-.Horz3
-
-; non SA-1 rom - use 5A22's multiplication register
-if !sa1 == 0
-		ASL A
-		STA $4202
-		LDA #$D8
-		STA $4203
-		NOP			;\
-		STZ $66			; | wait 8 cycles...
-		REP #$21		;/
-		LDA $4216
-
-; SA-1 rom - use SA-1's arithmetic register
+; by Akaginite
+;
+; It used to return FF but it also fucked with N and Z lol, that's fixed now
+; Slightly modified by Tattletale
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	PHX
+	PHP
+	REP #$10
+	PHB
+	LDY $98
+	STY $0E
+	LDY $9A
+	STY $0C
+	SEP #$30
+	LDA $5B
+	LDX $1933|!Base2
+	BEQ Layer1
+	LSR A
+Layer1:	
+	STA $0A
+	LSR A
+	BCC Horz
+	LDA $9B
+	LDY $99
+	STY $9B
+	STA $99
+Horz:
+if !EXLEVEL
+	REP #$20
+	LDA $98
+	CMP $13D7|!Base2
+	SEP #$20
 else
-		STA $2252
-		REP #$20
-		STZ $2250
-		LDA.w #$01B0
-		STA $2253
-		LDY #$00		;\ wait 5 cycles...
-		STY $66			;/
-		LDA $2307
+	LDA #$99
+	CMP #$02
 endif
+	BCC NoEnd
+	PLB
+	PLP
+	PLX
+	LDA #$FF
+	RTL
+	
+NoEnd:
+	LDA $9B
+	STA $0B
+	ASL A
+	ADC $0B
+	TAY
+	REP #$20
+	LDA $98
+	AND.w #$FFF0
+	STA $08
+	AND.w #$00F0
+	ASL #2			; 0000 00YY YY00 0000
+	XBA			; YY00 0000 0000 00YY
+	STA $06
+	TXA
+	SEP #$20
+	ASL A
+	TAX
+	
+	LDA $0D
+	LSR A
+	LDA $0F
+	AND #$01		; 0000 000y
+	ROL A			; 0000 00yx
+	ASL #2			; 0000 yx00
+	ORA #$20		; 0010 yx00
+	CPX #$00
+	BEQ NoAdd
+	ORA #$10		; 001l yx00
+NoAdd:	
+	TSB $06			; $06 : 001l yxYY
+	LDA $9A			; X LowByte
+	AND #$F0		; XXXX 0000
+	LSR #3			; 000X XXX0
+	TSB $07			; $07 : YY0X XXX0
+	LSR A
+	TSB $08
 
-.Common1	ADC $67
-		ADC $65
-		ADC.w #$C800
-		STA $65
-		SEP #$20
-if !sa1 == 0
-		LDA #$7F		; non SA-1 - bank $7F
+	LDA $1925|!Base2
+	ASL A
+	REP #$31
+	ADC $00BEA8|!BankB,x
+	TAX
+	TYA
+if !SA1
+    ADC.l $00,x
+    TAX
+    LDA $08
+    ADC.l $00,x
 else
-		LDA #$41		; SA-1     - bank $41
+    ADC $00,x
+    TAX
+    LDA $08
+    ADC $00,x
 endif
-		STA $67
-		LDA [$65]
-		TAY
-		DEC $67
-		LDA [$65]
-		RTL
+	TAX
+	SEP #$20
+if !SA1
+	LDA $410000,x
+	XBA
+	LDA $400000,x
+else
+	LDA $7F0000,x
+	XBA
+	LDA $7E0000,x
+endif
+	SEP #$30
+	XBA
+	TAY
+	XBA
+
+	PLB
+	PLP
+	PLX
+	RTL

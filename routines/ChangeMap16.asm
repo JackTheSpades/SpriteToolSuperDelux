@@ -1,198 +1,175 @@
-;Routine that changes the map16 block at a given position
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; change_map16 - Optimized version
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; input:
+; $98-$99 block position Y
+; $9A-$9B block position X
+; $1933   layer
 ;
-;Input:  A   = 16 bit map16 number. (should be in 16 bit mode when entering routine)
-;        $98 = 16 bit Y position
-;        $9A = 16 bit X position
+; Usage:
+; REP #$20
+; LDA #!block_number
+; %change_map16()
 ;
+; by Akaginite
+;
+; For compatibility reasons, input was changed from X to A.
+; Return SEC = didn't work, CLC = did work
 
-
-;todo optimize
+; Slightly modified by Tattletale
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	PHX
 	PHP
-	
-	PHX	
 	REP #$10
 	TAX
-	
 	SEP #$20
 	PHB
 	PHY
-	LDA #$00				; \
-	PHA					; | bank = 0
-	PLB					; /
-	REP #$30				; 
-	PHX					;
-	LDA $9A				; \
-	STA $0C				; | $0C = x pos
-	LDA $98				; | $0E = y pos
-	STA $0E				; /
-	LDA #$0000			; clear A
-	SEP #$20				; A back 8 bit, X/Y still 16.
-	LDA $5B				; bit 0,1 set = vertical level.
-	STA $09				
-	LDA $1933|!Base2	; layer being processed
-	BEQ +
-	LSR $09				; bit 0 set = processed layer being vertical	
-+
-
-	LDY $0E				; Y = y pos of block
-	LDA $09
-	AND #$01
-	BEQ .LeaveXY			; branch if layer horizontal
-	LDA $9B				; \
-	STA $00				; |
-	LDA $99				; | swap low bytes of x and y position
-	STA $9B				; |
-	LDA $00				; |
-	STA $99				; /
-	LDY $0C				; Y = x pos of block
-	
-.LeaveXY:
-	CPY #$0200
-	BCC .NoEnd
+	PHX
+	LDY $98
+	STY $0E
+	LDY $9A
+	STY $0C
+	SEP #$30
+	LDA $5B
+	LDX $1933|!Base2
+	BEQ Layer1
+	LSR A
+Layer1:	
+	STA $0A
+	LSR A
+	BCC Horz
+	LDA $9B
+	LDY $99
+	STY $9B
+	STA $99
+Horz:
+if !EXLEVEL
+	REP #$20
+	LDA $98
+	CMP $13D7|!Base2
+	SEP #$20
+else
+	LDA $99
+	CMP #$02
+endif
+	BCC NoEnd
+	REP #$10
 	PLX
-	PLY
 	PLY
 	PLB
-	PLX
 	PLP
+	PLX
 	RTL
 	
-.NoEnd:
-	LDA $1933|!Base2	; layer being processed
-	ASL A
-	TAX
-	LDA $BEA8,x			; \ [$65] = pointer to block pointer table
-	STA $65				; | table contains $20 word sized entries (pointers)
-	LDA $BEA9,x			; | indexed by the level header mdoe
-	STA $66				; | 
-	STZ $67				; /
-	LDA $1925|!Base2	; \
-	ASL A					; |
-	TAY					; |
-	LDA [$65],y			; | [$04] points to a table of long RAM addresses
-	STA $04				; | 
-	INY					; |
-	LDA [$65],y			; |
-	STA $05				; |
-	STZ $06				; /
-	LDA $9B				; \
-	STA $07				; |
-	ASL A					; | fetch RAM address indexed by x_pos high byte.
-	CLC					; |
-	ADC $07				; |
-	TAY					; |
-	LDA [$04],y			; | [$6B] = map16 low byte
-	STA $6B				; | [$6E] = map16 high byte
-	STA $6E				; |
-	INY					; |
-	LDA [$04],y			; |
-	STA $6C				; |
-	STA $6F				; |
-	INY					; |
-	LDA [$04],y			; |
-	STA $6D				; |
-	INC A					; |
-	STA $70				; /
-	
-	LDA $09
-	AND #$01
-	BEQ .SwitchXY		; branch if horizontal
-	LDA $99		
-	LSR A
+NoEnd:
 	LDA $9B
-	AND #$01
-	BRA .CurrentXY
-.SwitchXY:
-	LDA $9B
-	LSR A
-	LDA $99
-	
-.CurrentXY:
-	ROL A
+	STA $0B
 	ASL A
-	ASL A
-	ORA #$20
-	STA $04
-	CPX #$0000
-	BEQ .NoAdd
-	CLC
-	ADC #$10
-	STA $04
-.NoAdd:
+	ADC $0B
+	TAY
+	REP #$20
 	LDA $98
-	AND #$F0
-	CLC
-	ASL A
-	ROL A
-	STA $05
-	ROL A
-	AND #$03
-	ORA $04
+	AND.w #$FFF0
+	STA $08
+	AND.w #$00F0
+	ASL #2			; 0000 00YY YY00 0000
+	XBA			; YY00 0000 0000 00YY
 	STA $06
-	LDA $9A
-	AND #$F0
-	REP 3 : LSR A
-	STA $04
-	LDA $05
-	AND #$C0
-	ORA $04
-	STA $07
-	REP #$20
-	LDA $09
-	AND #$0001
-	BNE .LayerSwitch
-	LDA $1A
-	SEC
-	SBC #$0080
-	TAX
-	LDY $1C
-	LDA $1933|!Base2
-	BEQ .CurrentLayer
-	LDX $1E
-	LDA $20
-	SEC
-	SBC #$0080
-	TAY
-	BRA .CurrentLayer
-.LayerSwitch: 
-	LDX $1A
-	LDA $1C
-	SEC
-	SBC #$0080
-	TAY
-	LDA $1933|!Base2
-	BEQ .CurrentLayer
-	LDA $1E
-	SEC
-	SBC #$0080
-	TAX
-	LDY $20
-.CurrentLayer:
-	STX $08
-	STY $0A
-	LDA $98
-	AND #$01F0
-	STA $04
-	LDA $9A
-	REP 4 : LSR A
-	AND #$000F
-	ORA $04
-	TAY
-	PLA
+	TXA
 	SEP #$20
-	STA [$6B],y
-	XBA
-	STA [$6E],y
-	XBA
-	REP #$20
+	ASL A
+	TAX
+	
+	LDA $0D
+	LSR A
+	LDA $0F
+	AND #$01		; 0000 000y
+	ROL A			; 0000 00yx
+	ASL #2			; 0000 yx00
+	ORA #$20		; 0010 yx00
+	CPX #$00
+	BEQ NoAdd
+	ORA #$10		; 001l yx00
+NoAdd:	
+	TSB $06			; $06 : 001l yxYY
+	LDA $9A			; X LowByte
+	AND #$F0		; XXXX 0000
+	LSR #3			; 000X XXX0
+	TSB $07			; $07 : YY0X XXX0
+	LSR A
+	TSB $08
+
+	LDA $1925|!Base2
+	ASL A
+	REP #$31
+	ADC $00BEA8|!BankB,x
+	TAX
+	TYA
+if !SA1
+    ADC.l $00,x
+    TAX
+    LDA $08
+    ADC.l $00,x
+else
+    ADC $00,x
+    TAX
+    LDA $08
+    ADC $00,x
+endif
+	TAX
+	PLA
 	ASL A
 	TAY
+	LSR A
+	SEP #$20
+if !SA1
+	STA $400000,x
+	XBA
+	STA $410000,x
+else
+	STA $7E0000,x
+	XBA
+	STA $7F0000,x
+endif
+	LSR $0A
+	LDA $1933|!Base2
+	REP #$20
+	BCS Vert
+	BNE HorzL2
+HorzL1:	
+	LDA $1A			;\
+	SBC #$007F		; |$08 : Layer1X - 0x80
+	STA $08			;/
+	LDA $1C			;  $0A : Layer1Y
+	BRA ?+
+HorzL2:	
+	LDA $1E			;\ $08 : Layer2X
+	STA $08			;/
+	LDA $20			;\ $0A : Layer2Y - 0x80
+	SBC #$007F		;/
+	BRA ?+
+	
+Vert:	
+	BNE VertL2
+	LDA $1A			;\ $08 : Layer1X
+	STA $08			;/
+	LDA $1C			;\ $0A : Layer1Y - 0x80
+	SBC #$0080		;/
+	BRA ?+
+VertL2:	
+	LDA $1E			;\
+	SBC #$0080		; |$08 : Layer2X - 0x80
+	STA $08			;/
+	LDA $20			;  $0A : Layer2Y
+?+
+	STA $0A
 	PHK
-	PER $0006
+?-	PEA.w (?-)+9
 	PEA $804C
-	JML $00C0FB
+	JML $00C0FB|!BankB
 	PLY
 	PLB
-	PLX
 	PLP
+	PLX
 	RTL
