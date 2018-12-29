@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import os
 import zipfile
 import re
@@ -40,7 +42,7 @@ routine_excludes = [
         r"^routines/\."
         ]
         
-with zipfile.ZipFile('src.zip', 'w') as srczip:
+with zipfile.ZipFile('src.zip', 'w', zipfile.ZIP_DEFLATED) as srczip:
    zipdir('src', srczip, src_excludes)
    srczip.write('make.sh')
    srczip.write('make.bat')
@@ -49,7 +51,7 @@ print("src.zip created")
 
 cfgexe = "src/CFG Editor/CFG Editor/bin/Release/CFG Editor.exe"
 
-with zipfile.ZipFile('pixi.zip', 'w') as pixizip:
+with zipfile.ZipFile('pixi.zip', 'w', zipfile.ZIP_DEFLATED) as pixizip:
 
    #sprite dirs
    zipdir('sprites', pixizip)
