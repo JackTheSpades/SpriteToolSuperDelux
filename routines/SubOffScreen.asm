@@ -7,19 +7,54 @@
 			ASL A
 			STA $03
 
-.start:			JSR .is_off             ; \ if sprite is not off screen, return
-
+.start:			
+			LDA !15A0,x             ; \ if sprite is on screen, accumulator = 0 
+			ORA !186C,x             ; | return
+			BNE .checkSubOff
+			RTL
+			
+.checkSubOff			
 			PHB : PHK : PLB
-			BEQ .return             ; /
 			LDA $5B                 ; \ goto .vert_level if vertical level
 			AND #$01                ; |
 			BNE .vert_level         ; /
-			LDA !D8,x               ; \
+			LDA !D8,x
+			
+		if !EXLEVEL
+			PHA
+			; from the exsprite patch
+			LDA !14D4,x
+			XBA
+			TAX
+			PLA				; \ Get 16-bit Y position of sprite
+			REP #$20				; /
+			; screen size
+			CMP.w $13D7|!Base2			; \ If it's beyond level boundaries...
+			BPL .checkErase				; /
+			SEC					; \ More than 224 pixels *after* screen
+			SBC $1C					;  | boundary...
+			; y range max
+			CMP.w $0BF2|!Base2			;  |
+			BPL .checkErase				; /
+			SEC					; \ Or more than 224 pixels *before*
+			; y range min
+			SBC.w $0BF0|!Base2			;  | screen boundary...
+			EOR.w #$8000				; /
+		.checkErase						; \ We will return with N clear which means
+			SEP #$20				;  | delete the sprite!
+			PHP
+			TXA
+			XBA
+			LDX $15E9|!Base2
+			PLP
+		else
 			CLC                     ; | 
 			ADC #$50                ; | if the sprite has gone off the bottom of the level...
 			LDA !14D4,x             ; | (if adding 0x50 to the sprite y position would make the high byte >= 2)
 			ADC #$00                ; | 
 			CMP #$02                ; | 
+		endif
+
 			BPL .erase              ; / ...erase the sprite
 			LDA !167A,x             ; \ if "process offscreen" flag is set, return
 			AND #$04                ; |
@@ -103,10 +138,6 @@
 .spr_l38:	LDA $00                 ;A:007F X:0009 Y:0001 D:0000 DB:01 S:01F3 P:envMXdizcHC:0478 VC:251 00 FL:5379
 			BPL .return             ;A:007F X:0009 Y:0001 D:0000 DB:01 S:01F3 P:envMXdizcHC:0502 VC:251 00 FL:5379
 			BMI .erase              ;A:8AFF X:0002 Y:0000 D:0000 DB:01 S:01F3 P:eNvMXdizcHC:0704 VC:184 00 FL:5490
-
-.is_off:	LDA !15A0,x             ; \ if sprite is on screen, accumulator = 0 
-			ORA !186C,x             ; |  
-			RTS                     ; /
 
 .spr_t12:	db $40,$B0
 .spr_t13:	db $01,$FF
