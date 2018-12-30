@@ -41,14 +41,17 @@ Layer1:
 	STA $99
 Horz:
 if !EXLEVEL
+	BCS .verticalCheck
 	REP #$20
 	LDA $98
 	CMP $13D7|!Base2
 	SEP #$20
-else
-	LDA #$99
-	CMP #$02
+	BRA .check
 endif
+.verticalCheck
+	LDA $99
+	CMP #$02
+.check
 	BCC NoEnd
 	PLB
 	PLP

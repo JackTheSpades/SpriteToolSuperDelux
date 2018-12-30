@@ -1,5 +1,9 @@
 Changelog
 
+Version 1.2.6 (Dec 30, 2018):
+  -(Tattletale) Fixed an issue with ChangeMap16 in vertical levels.
+  -(Tattletale) Fixed an issue with GetMap16 in vertical levels.
+
 Version 1.2.5 (Dec 29, 2018):
   -(Tattletale) Fixed an inconsistency I left in main.asm that would cause a half-state of the perlevel feature to be inserted. Without -npl this would cause the first shooter or generator to not spawn properly.
   -(Tattletale) Perlevel sprite has been turned off by default.
