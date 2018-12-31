@@ -16,6 +16,11 @@ unsigned char* read_all(const char *file_name, bool text_mode = false, unsigned 
 void write_all(unsigned char *data, const char *file_name, unsigned int size);
 void write_all(unsigned char *data, const char* dir, const char *file_name, unsigned int size);
 
+/**
+   @param *dir
+   @param *file
+*/
+void remove(const char* dir, const char* file);
 
 // combines the path of src and file
 // if src is a file itself, it will backtrace to the containing directory

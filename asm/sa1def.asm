@@ -59,6 +59,9 @@ else
 	!SprSize = $0C
 endif
 
+!OwSprSize = $18         ;  Lunar Magic gives support for up to 0x18 (24) slots per submap
+
+
 macro define_sprite_table(name, addr, addr_sa1)
 	if !SA1 == 0
 		!<name> = <addr>
@@ -136,28 +139,28 @@ endmacro
 
 
 ;overworld defines
-; %define_sprite_table(ow_num,     $0DE5, $3200)
-; %define_sprite_table(ow_x_pos,     $9E, $3230)
-; %define_sprite_table(ow_y_pos,     $9E, $3260)
-; %define_sprite_table(ow_z_pos,     $9E, $3290)
-; %define_sprite_table(ow_x_speed, $0E95, $32C0)
-; %define_sprite_table(ow_y_speed, $0EA5, $32F0)
-; %define_sprite_table(ow_z_speed, $0EB5, $3320)
-
-; %define_sprite_table(ow_misc1,   $0DF5, $3350)
-; %define_sprite_table(ow_misc2,   $0E05, $3380)
-; %define_sprite_table(ow_misc3,     $9E, $33B0)
-; %define_sprite_table(ow_misc4,     $9E, $33E0)
-; %define_sprite_table(ow_misc5,     $9E, $3410)
-; %define_sprite_table(ow_timer1,  $0E15, $3440)
-; %define_sprite_table(ow_timer2,  $0E25, $3470)
-; %define_sprite_table(ow_timer3,    $9E, $34A0)
-; %define_sprite_table(ow_extra,     $9E, $34D0)
-
-; %define_sprite_table(ow_x_speed_acc, $9E, $3500)
-; %define_sprite_table(ow_y_speed_acc, $9E, $3500)
-; %define_sprite_table(ow_z_speed_acc, $9E, $3500)
-
+%define_base2_address(ow_sprite_num, $14C8)
+%define_base2_address(ow_sprite_speed_x, $14F8)
+%define_base2_address(ow_sprite_speed_y, $1528)
+%define_base2_address(ow_sprite_speed_z, $1558)
+%define_base2_address(ow_sprite_x_pos, $1588)
+%define_base2_address(ow_sprite_y_pos, $15B8)
+%define_base2_address(ow_sprite_z_pos, $15E8)
+%define_base2_address(ow_sprite_timer_1, $1618)
+%define_base2_address(ow_sprite_timer_2, $1648)
+%define_base2_address(ow_sprite_timer_3, $1678)
+%define_base2_address(ow_sprite_misc_1, $16A8)
+%define_base2_address(ow_sprite_misc_2, $16D8)
+%define_base2_address(ow_sprite_misc_3, $1708)
+%define_base2_address(ow_sprite_misc_4, $1738)
+%define_base2_address(ow_sprite_misc_5, $1768)
+%define_base2_address(ow_sprite_extra_bits, $1798)
+%define_base2_address(ow_sprite_speed_x_acc, $17C8)
+%define_base2_address(ow_sprite_speed_y_acc, $17F8)
+%define_base2_address(ow_sprite_speed_z_acc, $1828)
+;   Flags
+%define_base2_address(ow_sprite_index, $1858)
+%define_base2_address(ow_sprite_oam, $185A)
 
 
 

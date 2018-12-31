@@ -59,6 +59,7 @@ with zipfile.ZipFile('pixi.zip', 'w', zipfile.ZIP_DEFLATED) as pixizip:
    zipdir('generators', pixizip)
    zipdir('cluster', pixizip)
    zipdir('extended', pixizip)
+   zipdir('overworld', pixizip)
    zipdir('routines', pixizip, routine_excludes)
 
    #exe
@@ -78,6 +79,7 @@ with zipfile.ZipFile('pixi.zip', 'w', zipfile.ZIP_DEFLATED) as pixizip:
    
    pixizip.write(asm('cluster.asm'))
    pixizip.write(asm('extended.asm'))
+   pixizip.write(asm('overworld.asm'))
    pixizip.write(asm('pointer_caller.asm'))
       
    pixizip.write(asm('DefaultSize.bin'))

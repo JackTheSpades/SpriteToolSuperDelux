@@ -17,6 +17,20 @@ int file_size(FILE *file) {
 	return size;
 }
 
+void remove(const char* dir, const char* file) {   
+   int strlen_dir = strlen(dir);
+   bool has_trailing = dir[strlen_dir - 1] == '/' || dir[strlen_dir - 1] == '\\';
+   
+   char* path = new char[strlen_dir + strlen(file) + (has_trailing ? 1 : 2)];
+   path[0] = 0;
+   strcat(path, dir);
+   if(!has_trailing)
+      strcat(path, "/");
+   strcat(path, file);
+   remove(path);
+   delete[] path;
+}
+
 unsigned char* read_all(const char *file_name, bool text_mode, unsigned int minimum_size) {
 	FILE *file = open(file_name, "rb");
 	unsigned int size = file_size(file);
