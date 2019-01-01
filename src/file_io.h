@@ -16,6 +16,9 @@ unsigned char* read_all(const char *file_name, bool text_mode = false, unsigned 
 void write_all(unsigned char *data, const char *file_name, unsigned int size);
 void write_all(unsigned char *data, const char* dir, const char *file_name, unsigned int size);
 
+void copy_to(FILE* destination, const char* source_file, bool text_mode = false, int skip_beginning = 0, int skip_end = 0);
+
+
 /**
    @param *dir
    @param *file

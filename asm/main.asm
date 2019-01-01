@@ -2,7 +2,7 @@
 !PerLevel ?= 1
 
 !__debug = 0
-incsrc "sa1def.asm"		;sa-1 defines
+incsrc "sa1def.asm"     ;sa-1 defines
 
 ; ---------------------------------------------------
 ; tool relevant information.
@@ -10,43 +10,44 @@ incsrc "sa1def.asm"		;sa-1 defines
 ; you also plan to update the tool itself
 ; ---------------------------------------------------
 org $02FFE2
-	db "STSD"						;header!
-	incbin "_versionflag.bin"	;byte 1 is version number 1.xx
-										;byte 2 are flags ---- ---l
+   db "STSD"                  ;header!
+   incbin "_versionflag.bin"  ;byte 1 is version number 1.xx
+                              ;byte 2 are flags ---- ---l
                               ; l = per level sprites code inserted
                               ;byte 3,4 reserved
-                              
+
 ;$02FFEA
 TableLoc:
    if !PerLevel = 1
-      db table1>>16	;bank bytes only. (for easier access later)
-      db table2>>16	;since they all fill the whole bank, they start at xx8000
+      db table1>>16   ;bank bytes only. (for easier access later)
+      db table2>>16   ;since they all fill the whole bank, they start at xx8000
       db table3>>16
       db table4>>16
    else
       db $FF,$FF,$FF,$FF
    endif
-	                    
+
 ;$02FFEE
-	autoclean dl TableStart
-	
-	; yeah, kinda wasting 4 byte here by having the tables twice.
-	; but the above makes access easier and these are for cleanup.
+   autoclean dl TableStart
+   
+   ; yeah, kinda wasting 4 byte here by having the tables twice.
+   ; but the above makes access easier and these are for cleanup.
    if !PerLevel = 1
       autoclean dl table1
       autoclean dl table2
       autoclean dl table3
       autoclean dl table4
    else
+      ;db "Hello World!"   ; ... :D
       dl $FFFFFF
       dl $FFFFFF
       dl $FFFFFF
       dl $FFFFFF
    endif
-	
-	;3 bytes left over in bank... possible future use?
-	dl $FFFFFF
-	
+   
+   ;3 bytes left over in bank... possible future use?
+   dl $FFFFFF
+   
 ;I think asar warns you for bank crossing anyway, but no harm done.
 warnpc $038000
 
@@ -56,112 +57,112 @@ InitSpriteTables = $07F7D2|!BankB
 ; this part will not be removed on cleanup since other
 ; level based tools may also use this hijack
 org $05D8B9|!BankB
-	JSR Levelnum 
+   JSR Levelnum 
 org $05DC46|!BankB
-	Levelnum:
-	LDA $0E
-	STA $010B|!Base2
-	ASL A
-	RTS
-	
+   Levelnum:
+   LDA $0E
+   STA $010B|!Base2
+   ASL A
+   RTS
+   
 ; ---------------------------------------------------
-; original sprite_tool hijacks, credit to roy.	
+; original sprite_tool hijacks, credit to roy.   
 ; ---------------------------------------------------
 
 
 ; patch goal tape init to get extra bits in $187B
 if !EXLEVEL
-	org $01C089|!BankB
-		LDA !extra_bits,x
-		STA !187B,x
-		LDA !14D4,x
-		NOP
+   org $01C089|!BankB
+      LDA !extra_bits,x
+      STA !187B,x
+      LDA !14D4,x
+      NOP
 else
-	org $01C089|!BankB
-		LDA !extra_bits,x
-		NOP
-		NOP
-		NOP
-		NOP
-		STA !187B,x
+   org $01C089|!BankB
+      LDA !extra_bits,x
+      NOP
+      NOP
+      NOP
+      NOP
+      STA !187B,x
 endif
 
 ; RPG Hacker: Fixes a soft-lock related to shooters by replacing a
 ; a JSR with a JMP (solution proposed by MarioFanGamer)
 org $02A8D8|!BankB
-	JMP $AB78
-	
+   JMP $AB78
+   
 ;hammer bro init pointer to null if it's using its original pointer
 if read2($0182B3) == $87A7
-	org $0182B3|!BankB
-		db $C2,$85
+   org $0182B3|!BankB
+      db $C2,$85
 endif
 ;status routine wrapper
 org $01D43E|!BankB
-	JSR $8133		;goto exucute pointer for sprite status ($14C8)
-	RTL
+   JSR $8133      ;goto exucute pointer for sprite status ($14C8)
+   RTL
 
 ; store extra bits separate from $14D4
 org $02A963|!BankB
-	JSL SubLoadHack
-	NOP
+   JSL SubLoadHack
+   NOP
 org $02A94B|!BankB
-	JSL SubLoadHack2
-	NOP
+   JSL SubLoadHack2
+   NOP
 
 ; sprite init call subroutine
 org $018172|!BankB
-	JSL SubInitHack
-	NOP
+   JSL SubInitHack
+   NOP
 
-; sprite code call subroutine					
+; sprite code call subroutine               
 org $0185C3|!BankB
-	JSL SubCodeHack
-	NOP
+   JSL SubCodeHack
+   NOP
 
 ; clear init bit when changing sprites
 org $07F785|!BankB
-	JSL EraserHack
-	NOP
+   JSL EraserHack
+   NOP
 
 org $018151|!BankB
-	JSL EraserHack2
-	NOP
-	
-	
+   JSL EraserHack2
+   NOP
+   
+   
 org $02A866|!BankB
-	JML SubGenLoad
+   JML SubGenLoad
 
 if !SA1 = 0
-	org $02ABA0|!BankB
-		JSL SubShootLoad
-		NOP
+   org $02ABA0|!BankB
+      JSL SubShootLoad
+      NOP
 else
-	org $02ABA2
-		JSL SubShootLoad
-		NOP #2
+   org $02ABA2
+      JSL SubShootLoad
+      NOP #2
 endif
 
 org $02B395|!BankB
-	JML SubShootExec
-	NOP
-	
+   JML SubShootExec
+   NOP
+   
 org $02AFFE|!BankB
-	JSL SubGenExec
-	NOP
-	
+   JSL SubGenExec
+   NOP
+   
 org $0187A7|!BankB
-	JML SetSpriteTables
-	
+   JML SetSpriteTables
+   
 org $018127|!BankB
-	JML SubHandleStatus
-	
+   JML SubHandleStatus
+   
 org $02A9C9|!BankB
-	JSL InitKeepextra_bits
-	
+   JSL InitKeepextra_bits
+   
 org $02A9A6|!BankB
-	JSL TestSilverCoinBit
-	NOP
+   JSL TestSilverCoinBit
+   NOP
 ; ---------------------------------------------------
 ; dev stuff / LM Hijacks
 ; ---------------------------------------------------
@@ -174,168 +175,168 @@ org $02A9A6|!BankB
 ; 00-FF that use an extra bit of 0, next 0x100 are for sprites 00-FF that use an extra bit of 1, etc).
 ; Place the SNES address for this table at 0x7750C PC. Then put 0x42 at 0x7750F to enable use of the table by Lunar Magic.
 
-org $0EF30C					;
-	autoclean dl Size		; pointer to sprite size table
-	db $42					; enable LM custom sprite size 
-		
-	
+org $0EF30C               ;
+   autoclean dl Size      ; pointer to sprite size table
+   db $42               ; enable LM custom sprite size 
+      
+   
 freedata
 Size:
-	incbin "DefaultSize.bin"
-	incbin "_CustomSize.bin"
-	
+   incbin "DefaultSize.bin"
+   incbin "_CustomSize.bin"
+   
 
 org $02A846|!BankB
-	JML SprtOffset
-	NOP						; not necessary but still...
+   JML SprtOffset
+   NOP                  ; not necessary but still...
 
 ; 16bit sprite data pointer
 ; stuff by Telinc1, Maks and boldowa
 if !SA1 == 0
-	org $028B1D|!BankB
-		JSR LoadSpriteInLevel
+   org $028B1D|!BankB
+      JSR LoadSpriteInLevel
 
-	; From Giepy
-	org $02AC7A|!BankB
-		JSR	LoadSpriteInInit
-		JSR	LoadSpriteInInit
+   ; From Giepy
+   org $02AC7A|!BankB
+      JSR   LoadSpriteInInit
+      JSR   LoadSpriteInInit
 
-	; From Giepy
-	org $02ACBA|!BankB
-		JSR	LoadSpriteInInit
-		JSR	LoadSpriteInInit
-		
-	org $02B5EC|!BankB
-	; From Giepy
-	LoadSpriteInInit:
-		PEI ($CE)
-		JSR $a802
-		PLA
-		STA $CE
-		PLA
-		STA $CF
-		RTS
-	LoadSpriteInLevel:			;extended sprite data
-		PEI ($CE)
-		JSR $A7FC
-		PLA
-		STA $CE
-		PLA
-		STA $CF
-		RTS
-	DisplaceIndex:
-		DEX
-		DEY
-		DEY
-		JMP $A846
+   ; From Giepy
+   org $02ACBA|!BankB
+      JSR   LoadSpriteInInit
+      JSR   LoadSpriteInInit
+      
+   org $02B5EC|!BankB
+   ; From Giepy
+   LoadSpriteInInit:
+      PEI ($CE)
+      JSR $a802
+      PLA
+      STA $CE
+      PLA
+      STA $CF
+      RTS
+   LoadSpriteInLevel:         ;extended sprite data
+      PEI ($CE)
+      JSR $A7FC
+      PLA
+      STA $CE
+      PLA
+      STA $CF
+      RTS
+   DisplaceIndex:
+      DEX
+      DEY
+      DEY
+      JMP $A846
 
-	org $02ABEF|!BankB
-		JMP DisplaceIndex
-		
-	org $02A9DB|!BankB
-		JMP DisplaceIndex
-		
-	if !EXLEVEL == 0		
-		org $02ABF3|!BankB
-			db $7F	;be able to load 128 sprites without issue
-	endif
+   org $02ABEF|!BankB
+      JMP DisplaceIndex
+      
+   org $02A9DB|!BankB
+      JMP DisplaceIndex
+      
+   if !EXLEVEL == 0      
+      org $02ABF3|!BankB
+         db $7F   ;be able to load 128 sprites without issue
+   endif
 endif
  
 ; ---------------------------------------------------
-; 80% original sprite_tool code, credit to roy.	
+; 80% original sprite_tool code, credit to roy.   
 ; 20% edits by Jack for sprites B0-BF being on
 ;     individual levels.
 ; --------------------------------------------------- 
 freecode
-	print "Freecode at ",pc	
+   print "Freecode at ",pc   
 
 SprtOffset:
-	DEY						; move index to sprite data byte 0
-	LDA [$CE],y				; format: YYYYEEsy, EE = Extra bits
-	LSR #2
-	AND #$03					; \ EE bits into A high byte
-	XBA						; /
-	INY #2					; \
-	LDA [$CE],y				; / sprite data byte 2 (sprite number)
-	DEY #2					; back to start of sprite
-	
-	;A = 000000EE NNNNNNNN (index to size table)
+   DEY                  ; move index to sprite data byte 0
+   LDA [$CE],y            ; format: YYYYEEsy, EE = Extra bits
+   LSR #2
+   AND #$03               ; \ EE bits into A high byte
+   XBA                  ; /
+   INY #2               ; \
+   LDA [$CE],y            ; / sprite data byte 2 (sprite number)
+   DEY #2               ; back to start of sprite
+   
+   ;A = 000000EE NNNNNNNN (index to size table)
 
-	PHP
+   PHP
 if !SA1
-	REP #$30
+   REP #$30
 else
-	REP #$10
+   REP #$10
 endif
-	PHX
-	TAX
-	
-	TYA
+   PHX
+   TAX
+   
+   TYA
 if !SA1
-	SEP #$20
+   SEP #$20
 endif
-	
-	CLC						; | Y += Size table
-	ADC.l Size,x			; |
-	; | still better than REP #$20 : AND #$00FF : SEP #$20
-	XBA
+   
+   CLC                  ; | Y += Size table
+   ADC.l Size,x         ; |
+                        ; | still better than REP #$20 : AND #$00FF : SEP #$20
+   XBA
 if !SA1
-	ADC #$00
+   ADC #$00
 else
-	LDA #$00
+   LDA #$00
 endif
-	XBA 
+   XBA 
 
 if !SA1
-	REP #$30
-	TAY
-	PLX
-	SEP #$20	; XY has to be 16bit in SA1
-else	
-	CMP #$F9
-	BCC +
-	CLC
-	ADC $CE
-	STA $CE
-	LDA #$00
-	BCC +
-	INC $CF
+   REP #$30
+   TAY
+   PLX
+   SEP #$20   ; XY has to be 16bit in SA1
+else   
+   CMP #$F9
+   BCC +
+   CLC
+   ADC $CE
+   STA $CE
+   LDA #$00
+   BCC +
+   INC $CF
 +
-	TAY
-	PLX
-	SEP #$10
+   TAY
+   PLX
+   SEP #$10
 endif
-	PLP
+   PLP
 
-	INX               ; restore code
-	JML $02A82E|!BankB			; return to loop
+   INX               ; restore code
+   JML $02A82E|!BankB         ; return to loop
    
    
 SubLoadHack:
-	%debugmsg("SubLoadHack")
-	PHA
-	AND #$0D
-	STA !extra_bits,x
-	AND #$01
-	STA !14D4,x
-	LDA $05
-	STA !new_sprite_num,x
+   %debugmsg("SubLoadHack")
+   PHA
+   AND #$0D
+   STA !extra_bits,x
+   AND #$01
+   STA !14D4,x
+   LDA $05
+   STA !new_sprite_num,x
    
-	PHY
-	INY : INY : INY            ; move sprie data pointer to extra bytes
-	LDA [$CE],y
-	STA !extra_byte_1,x
-	INY : LDA [$CE],y
-	STA !extra_byte_2,x
-	INY : LDA [$CE],y
-	STA !extra_byte_3,x
-	INY : LDA [$CE],y
-	STA !extra_byte_4,x   
-	PLY   
+   PHY
+   INY : INY : INY            ; move sprie data pointer to extra bytes
+   LDA [$CE],y
+   STA !extra_byte_1,x
+   INY : LDA [$CE],y
+   STA !extra_byte_2,x
+   INY : LDA [$CE],y
+   STA !extra_byte_3,x
+   INY : LDA [$CE],y
+   STA !extra_byte_4,x   
+   PLY   
    
-	PLA
+   PLA
    
-	RTL
+   RTL
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; convert regular sprite to custom sprite and call initialization
@@ -343,33 +344,33 @@ SubLoadHack:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 SubInitHack:
-	%debugmsg("SubInitHack")
+   %debugmsg("SubInitHack")
 
-	LDA #$08
-	STA !14C8,x
+   LDA #$08
+   STA !14C8,x
 
 if !EXLEVEL
-	LDA !9E,x
-	CMP.b #$7B
-	BEQ .R
+   LDA !9E,x
+   CMP.b #$7B
+   BEQ .R
 endif
-	
-	LDA !extra_bits,x
-	AND #!CustomBit
-	BNE .IsCustom
-.R		
-	RTL
+   
+   LDA !extra_bits,x
+   AND #!CustomBit
+   BNE .IsCustom
+.R      
+   RTL
 .IsCustom
-	JSL SetSpriteTables
-	LDA !new_code_flag
-	BEQ .R
+   JSL SetSpriteTables
+   LDA !new_code_flag
+   BEQ .R
 
-	PLA	;pull lower 16-bit address
-	PLA
+   PLA   ;pull lower 16-bit address
+   PLA
 
-	PEA $85C1
-	LDA #$01
-	JML [!Base1]
+   PEA $85C1
+   LDA #$01
+   JML [!Base1]
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -378,62 +379,62 @@ endif
 
 
 SubCodeHack:
-	%debugmsg("SubCodeHack")
-	STZ $1491|!Base2
-	
+   %debugmsg("SubCodeHack")
+   STZ $1491|!Base2
+   
 if !EXLEVEL
-	LDA !9E,x
-	CMP #$7B
-	BEQ .returnNormal
+   LDA !9E,x
+   CMP #$7B
+   BEQ .returnNormal
 endif
 
-	LDA !extra_bits,x
-	AND #!CustomBit
-	BNE .IsCustom
-	LDA !9E,x
+   LDA !extra_bits,x
+   AND #!CustomBit
+   BNE .IsCustom
+   LDA !9E,x
 .returnNormal
-	RTL
+   RTL
 .IsCustom
-	LDA !new_sprite_num,x
-	JSR GetMainPtr
+   LDA !new_sprite_num,x
+   JSR GetMainPtr
 
-	PLA
-	PLA
+   PLA
+   PLA
 
-	PEA $85C1
-	LDA !14C8,x
-	JML [!Base1]
+   PEA $85C1
+   LDA !14C8,x
+   JML [!Base1]
 
 GetMainPtr:
-	%debugmsg("GetMainPtr")
-	PHB
-	PHK
-	PLB
-	PHP
-	REP #$30
-	AND #$00FF
-	
+   %debugmsg("GetMainPtr")
+   PHB
+   PHK
+   PLB
+   PHP
+   REP #$30
+   AND #$00FF
+   
    if !PerLevel = 1
       CMP #$00B0
       BCC .normal
       CMP #$00C0
-      BCC .perlevel	
-      SBC #$0010	;carry already set
+      BCC .perlevel   
+      SBC #$0010   ;carry already set
    .normal
    endif
    
-	ASL #$04
-	TAY
+   ASL #$04
+   TAY
 
-	LDA TableStart+$0B,y
-	STA $00
-	LDA TableStart+$0C,y
-	STA $01
-	PLP
-	PLB
-	RTS
+   LDA TableStart+$0B,y
+   STA $00
+   LDA TableStart+$0C,y
+   STA $01
+   PLP
+   PLB
+   RTS
 
-	
+   
    if !PerLevel = 1
    .perlevel
       LDY #$000B
@@ -443,7 +444,7 @@ GetMainPtr:
       RTS
    endif
 
-	
+   
    
 if !PerLevel = 1
    ; Input, Y for in table offset
@@ -452,13 +453,13 @@ if !PerLevel = 1
    ;        Y=0B -> main
    GetPerLevelPtr:
       JSR GetPerLevelAddr
-      LDA [$00]			; load low-high byte of pointer
-      PHA					; save
-      INC $00				; inc offset
-      LDA [$00]			; load high-bank byte of pointer
-      STA $01				; 00=x, 01=high, 02=bank
-      PLA					; load
-      STA $00				; 00=low, 01=high, 02=bank
+      LDA [$00]         ; load low-high byte of pointer
+      PHA               ; save
+      INC $00            ; inc offset
+      LDA [$00]         ; load high-bank byte of pointer
+      STA $01            ; 00=x, 01=high, 02=bank
+      PLA               ; load
+      STA $00            ; 00=low, 01=high, 02=bank
       
       RTS
       
@@ -466,62 +467,62 @@ if !PerLevel = 1
    ;        A=Sprite number (inbetween B0-BF)
    GetPerLevelAddr:
       SEC
-      SBC #$00B0	;carry already set
+      SBC #$00B0   ;carry already set
       PHX
       
-      ASL #4		; sprite number * 0x10
-      CLC			; +
-      ADC #$8000	; high-low byte of table
-      STA $00		; table always takes full bank and starts at $8000
+      ASL #4      ; sprite number * 0x10
+      CLC         ; +
+      ADC #$8000   ; high-low byte of table
+      STA $00      ; table always takes full bank and starts at $8000
       
-      LDA $010B|!Base2	; level number
-      AND #$007F			; table stretches accross 4 banks, so only get in table bits
-      XBA					; times 0x100
-      ADC $00				; carry has to be clear because of ASL
+      LDA $010B|!Base2   ; level number
+      AND #$007F         ; table stretches accross 4 banks, so only get in table bits
+      XBA               ; times 0x100
+      ADC $00            ; carry has to be clear because of ASL
       STA $00
       
-      TYA				; add Y for in table offset
-      AND #$00FF		;
-      CLC : ADC $00	;
-      STA $00			;
+      TYA            ; add Y for in table offset
+      AND #$00FF      ;
+      CLC : ADC $00   ;
+      STA $00         ;
       
       
-      LDA $010B|!Base2	; \	
-      ASL					; | two high bits of level number
-      XBA					; |
-      AND #$00FF			; /
+      LDA $010B|!Base2   ; \   
+      ASL               ; | two high bits of level number
+      XBA               ; |
+      AND #$00FF         ; /
       TAX 
       
-      LDA.l TableLoc,x	; bank byte of table
+      LDA.l TableLoc,x   ; bank byte of table
       STA $02
       PLX
       RTS
 endif
-	
+   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; clear init bit when changing sprites
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 EraserHack:
-	%debugmsg("EraserHack")
-	STZ !15AC,x
-	LDA #$01
-	STA !15A0,x
-	DEC A
-	STA !extra_bits,x
-	RTL
+   %debugmsg("EraserHack")
+   STZ !15AC,x
+   LDA #$01
+   STA !15A0,x
+   DEC A
+   STA !extra_bits,x
+   RTL
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; clear init bit when changing sprites
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 EraserHack2:
-	%debugmsg("EraserHack2")
-	LDA #$FF
-	STA !161A,x
-	INC A
-	STA !extra_bits,x
-	RTL
+   %debugmsg("EraserHack2")
+   LDA #$FF
+   STA !161A,x
+   INC A
+   STA !extra_bits,x
+   RTL
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -530,85 +531,85 @@ EraserHack2:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 SubLoadHack2:
-	%debugmsg("SubLoadHack2")
-	PHA
-	AND #$0D
-	STA !extra_bits,x
-	AND #$01
-	STA !14E0,x
-	LDA $05
-	STA !new_sprite_num,x
+   %debugmsg("SubLoadHack2")
+   PHA
+   AND #$0D
+   STA !extra_bits,x
+   AND #$01
+   STA !14E0,x
+   LDA $05
+   STA !new_sprite_num,x
    
-	PHY
-	INY : INY : INY            ; move sprie data pointer to extra bytes
-	LDA [$CE],y
-	STA !extra_byte_1,x
-	INY : LDA [$CE],y
-	STA !extra_byte_2,x
-	INY : LDA [$CE],y
-	STA !extra_byte_3,x
-	INY : LDA [$CE],y
-	STA !extra_byte_4,x   
-	PLY
+   PHY
+   INY : INY : INY            ; move sprie data pointer to extra bytes
+   LDA [$CE],y
+   STA !extra_byte_1,x
+   INY : LDA [$CE],y
+   STA !extra_byte_2,x
+   INY : LDA [$CE],y
+   STA !extra_byte_3,x
+   INY : LDA [$CE],y
+   STA !extra_byte_4,x   
+   PLY
    
-	PLA
-	RTL
+   PLA
+   RTL
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; hijack main sprite loader to handle custom gens and shooters
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 SubGenLoad:
-	%debugmsg("SubGenLoad")
-	PHA
-	LDA #$00
-	STA !new_code_flag
-	PLA      
+   %debugmsg("SubGenLoad")
+   PHA
+   LDA #$00
+   STA !new_code_flag
+   PLA      
       
-	CMP #$C0
-	BCC .NotGen
-	CMP #$E0
-	BCS .NotGen
+   CMP #$C0
+   BCC .NotGen
+   CMP #$E0
+   BCS .NotGen
 
 ;TestExtraBit:
 
-	DEY
-	LDA [$CE],y
-	AND #$08
-	BEQ .NotCustom
+   DEY
+   LDA [$CE],y
+   AND #$08
+   BEQ .NotCustom
 
 ;GetType:
-	LDA [$CE],y
-	AND #$0C
-	ASL #$04
-	STA !new_code_flag
+   LDA [$CE],y
+   AND #$0C
+   ASL #$04
+   STA !new_code_flag
    INY
 
-	LDA $05
-	CMP #!GenStart
-	BCS .IsCustomGen
+   LDA $05
+   CMP #!GenStart
+   BCS .IsCustomGen
 
 .IsCustomShooter
-	JML $02A8D8|!BankB
+   JML $02A8D8|!BankB
 
 .IsCustomGen
-	LDA !new_code_flag
-	STA $18B9|!Base2
-	LDA $05
-	SEC
-	SBC #!GenStart-1
-	ORA $18B9|!Base2
-	JML $02A8B8|!BankB
+   LDA !new_code_flag
+   STA $18B9|!Base2
+   LDA $05
+   SEC
+   SBC #!GenStart-1
+   ORA $18B9|!Base2
+   JML $02A8B8|!BankB
 
 .NotCustom
-	INY
-	LDA $05
-.NotGen		
-	CMP #$E7
-	BCC .Loc2
-	JML $02A86A|!BankB
-.Loc2		
-	JML $02A88C|!BankB
+   INY
+   LDA $05
+.NotGen      
+   CMP #$E7
+   BCC .Loc2
+   JML $02A86A|!BankB
+.Loc2      
+   JML $02A88C|!BankB
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -616,24 +617,24 @@ SubGenLoad:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 SubShootLoad:
-	%debugmsg("SubShootLoad")
-	LDA !new_code_flag
-	BNE .IsCustom
-	LDA $04
-	SEC
-	SBC #$C8	
-	if !SA1
-		STA $7783,x
-	endif	
-	RTL
+   %debugmsg("SubShootLoad")
+   LDA !new_code_flag
+   BNE .IsCustom
+   LDA $04
+   SEC
+   SBC #$C8   
+   if !SA1
+      STA $7783,x
+   endif   
+   RTL
 .IsCustom
-	STA $1783|!Base2,x
-	LDA $04
-	SEC
-	SBC #$BF
-	ORA $1783|!Base2,x
-	STA $1783|!Base2,x
-	RTL
+   STA $1783|!Base2,x
+   LDA $04
+   SEC
+   SBC #$BF
+   ORA $1783|!Base2,x
+   STA $1783|!Base2,x
+   RTL
    
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -641,36 +642,36 @@ SubShootLoad:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 SubShootExec:
-	%debugmsg("SubShootExec")
-	LDY $1783|!Base2,x
-	BMI .IsCustom
-	LDY $17AB|!Base2,x
-	BEQ .Loc2
-	JML $02B39A|!BankB
-.Loc2		
-	JML $02B3A4|!BankB
+   %debugmsg("SubShootExec")
+   LDY $1783|!Base2,x
+   BMI .IsCustom
+   LDY $17AB|!Base2,x
+   BEQ .Loc2
+   JML $02B39A|!BankB
+.Loc2      
+   JML $02B3A4|!BankB
 
-.IsCustom	
-	LDY $17AB|!Base2,x
-	BEQ .CallSprite
-	PHA
-	LDA $13
-	LSR A
-	BCC .NoDecTimer
-	DEC $17AB|!Base2,x
-.NoDecTimer	
-	PLA
-.CallSprite	
-	AND #$3F
-	CLC
-	ADC #$BF
+.IsCustom   
+   LDY $17AB|!Base2,x
+   BEQ .CallSprite
+   PHA
+   LDA $13
+   LSR A
+   BCC .NoDecTimer
+   DEC $17AB|!Base2,x
+.NoDecTimer   
+   PLA
+.CallSprite   
+   AND #$3F
+   CLC
+   ADC #$BF
 
-	JSR GetMainPtr
+   JSR GetMainPtr
 
-	LDA.b #$02|(!BankB>>16)
-	PHA
-	PEA $B3A6
-	JML [!Base1]
+   LDA.b #$02|(!BankB>>16)
+   PHA
+   PEA $B3A6
+   JML [!Base1]
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -678,29 +679,29 @@ SubShootExec:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 SubGenExec:
-	%debugmsg("SubGenExec")
-	LDA $18B9|!Base2
-	BMI .IsCustom
-	PLA
-	PLA
-	PLA
-	LDA $18B9|!Base2
-	BEQ .Loc2
-	JML $02B003|!BankB
-.Loc2		
-	JML $02B02A|!BankB
+   %debugmsg("SubGenExec")
+   LDA $18B9|!Base2
+   BMI .IsCustom
+   PLA
+   PLA
+   PLA
+   LDA $18B9|!Base2
+   BEQ .Loc2
+   JML $02B003|!BankB
+.Loc2      
+   JML $02B02A|!BankB
 
-.IsCustom	
-	AND #$3F
-	CLC
-	ADC #!GenStart-1
+.IsCustom   
+   AND #$3F
+   CLC
+   ADC #!GenStart-1
 
-	JSR GetMainPtr
+   JSR GetMainPtr
 
-	PLA
-	PLA
-	PEA $B029
-	JML [!Base1]
+   PLA
+   PLA
+   PEA $B029
+   JML [!Base1]
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -708,113 +709,113 @@ SubGenExec:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 SetSpriteTables:
-	%debugmsg("SetSpriteTables")
-	PHY
-	PHB
-	PHK
-	PLB
-	PHP
+   %debugmsg("SetSpriteTables")
+   PHY
+   PHB
+   PHK
+   PLB
+   PHP
 
-	LDA !new_sprite_num,x
-	REP #$30
-	AND #$00FF
-	
-	
+   LDA !new_sprite_num,x
+   REP #$30
+   AND #$00FF
+   
+   
    if !PerLevel = 1
       CMP #$00B0
-      BCC .normal	
+      BCC .normal   
       CMP #$00C0
       BCC .perlevel
       
-      SBC #$0010	; carry already set, sub 0x10
+      SBC #$0010   ; carry already set, sub 0x10
    .normal
    endif
-	
-	ASL #$04
-	TAY
-	SEP #$20
+   
+   ASL #$04
+   TAY
+   SEP #$20
 
-	LDA TableStart,y
-	STA !new_code_flag
-	LDA TableStart+$01,y
-	STA !9E,x
-	LDA TableStart+$02,y
-	STA !1656,x
-	LDA TableStart+$03,y
-	STA !1662,x
-	LDA TableStart+$04,y
-	STA !166E,x
-	AND #$0F
-	STA !15F6,x
-	LDA TableStart+$05,y
-	STA !167A,x
-	LDA TableStart+$06,y
-	STA !1686,x
-	LDA TableStart+$07,y
-	STA !190F,x
+   LDA TableStart,y
+   STA !new_code_flag
+   LDA TableStart+$01,y
+   STA !9E,x
+   LDA TableStart+$02,y
+   STA !1656,x
+   LDA TableStart+$03,y
+   STA !1662,x
+   LDA TableStart+$04,y
+   STA !166E,x
+   AND #$0F
+   STA !15F6,x
+   LDA TableStart+$05,y
+   STA !167A,x
+   LDA TableStart+$06,y
+   STA !1686,x
+   LDA TableStart+$07,y
+   STA !190F,x
 
 .join
-	
-	LDA !new_code_flag
-	BNE .IsCustomNormal
+   
+   LDA !new_code_flag
+   BNE .IsCustomNormal
 .notCustom
-	PLP
-	PLB
-	PLY
-	LDA #$00
-	STA !extra_bits,x
-	RTL
+   PLP
+   PLB
+   PLY
+   LDA #$00
+   STA !extra_bits,x
+   RTL
 
 .IsCustomNormal
-	REP #$20
-	LDA TableStart+$08,y
-	STA $00
-	SEP #$20
-	LDA TableStart+$0A,y
-	STA $02
-	LDA TableStart+$0E,y
-	STA !extra_prop_1,x
-	LDA TableStart+$0F,y
-	STA !extra_prop_2,x
+   REP #$20
+   LDA TableStart+$08,y
+   STA $00
+   SEP #$20
+   LDA TableStart+$0A,y
+   STA $02
+   LDA TableStart+$0E,y
+   STA !extra_prop_1,x
+   LDA TableStart+$0F,y
+   STA !extra_prop_2,x
 
 .ret
-	PLP
-	PLB
-	PLY
-	RTL
-	
+   PLP
+   PLB
+   PLY
+   RTL
+   
    if !PerLevel = 1
-   .perlevel	
+   .perlevel   
       LDY #$0000
-      JSR GetPerLevelAddr	
+      JSR GetPerLevelAddr   
       SEP #$20
 
-      LDA [$00]				;0
+      LDA [$00]            ;0
       STA !new_code_flag
-      INC $00					;1 no need for 16bit check, since table always starts at $xx:xxx0
+      INC $00               ;1 no need for 16bit check, since table always starts at $xx:xxx0
       LDA [$00]
       STA !9E,x
-      INC $00					;2
+      INC $00               ;2
       LDA [$00]
       STA !1656,x
-      INC $00					;3
+      INC $00               ;3
       LDA [$00]
       STA !1662,x
-      INC $00					;4
+      INC $00               ;4
       LDA [$00]
       STA !166E,x
       AND #$0F
       STA !15F6,x
-      INC $00					;5
+      INC $00               ;5
       LDA [$00]
       STA !167A,x
-      INC $00					;6
+      INC $00               ;6
       LDA [$00]
       STA !1686,x
-      INC $00					;7
+      INC $00               ;7
       LDA [$00]
       STA !190F,x
-      INC $00					;8
+      INC $00               ;8
 
       LDA !new_code_flag
       BEQ .notCustom
@@ -822,81 +823,81 @@ SetSpriteTables:
       REP #$20
       LDA [$00]
       PHA
-      INC $00					;9
+      INC $00               ;9
       LDA [$00]
-      PHA						;INIT pointer on stack
+      PHA                  ;INIT pointer on stack
       
       LDA #$0005
       CLC : ADC $00
       STA $00
       
-      ;INC $00					;A 
-      ;INC $00					;B 
-      ;INC $00					;C
-      ;INC $00					;D
-      ;INC $00					;E
+      ;INC $00               ;A 
+      ;INC $00               ;B 
+      ;INC $00               ;C
+      ;INC $00               ;D
+      ;INC $00               ;E
       
       SEP #$20
       LDA [$00]
       STA !extra_prop_1,x
-      INC $00						;F
+      INC $00                  ;F
       LDA [$00]
       STA !extra_prop_2,x
       REP #$20
 
       PLA : STA $01
-      PLA : STA $00				;init pointer to [$00]
+      PLA : STA $00            ;init pointer to [$00]
       BRA .ret
    endif
-	
+   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Call Main after handling status > 9
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 SubHandleStatus:
-	%debugmsg("SubHandleStatus")
-	LDA !14C8,x					; restore code
-	CMP #$02						;
-	BCC .CallDefault			; always default handle status 0 and 1
-.NoEraseOrInit					; any other stuats...
-	CMP #$08						
-	BNE .NoMainRoutine		; if status = 8
-	JML $0185C3|!BankB		; call main routine of sprite
+   %debugmsg("SubHandleStatus")
+   LDA !14C8,x               ; restore code
+   CMP #$02                  ;
+   BCC .CallDefault         ; always default handle status 0 and 1
+.NoEraseOrInit               ; any other stuats...
+   CMP #$08                  
+   BNE .NoMainRoutine      ; if status = 8
+   JML $0185C3|!BankB      ; call main routine of sprite
 .NoMainRoutine
-	PHA
-	LDA !extra_bits,x
-	AND #!CustomBit
-	BNE .HandleCustomSprite	; if custom sprite, handle with care ^^
-	PLA
+   PHA
+   LDA !extra_bits,x
+   AND #!CustomBit
+   BNE .HandleCustomSprite   ; if custom sprite, handle with care ^^
+   PLA
 .CallDefault
-	JML $018133|!BankB		;call regular status handler
+   JML $018133|!BankB      ;call regular status handler
 
 .HandleCustomSprite
-	LDA !extra_prop_2,x
-	BMI .CallMain				;check bit 7, if set call main
-	PHA
-	LDA $02,s					;load sprite status
-	JSL $01D43E|!BankB		;execute default status of sprite
-	PLA							;extra_prop_2
-	ASL A							;\ check bit 6
-	BMI .CallMain				;/
-	PLA							;sprite status
-	CMP #$09
-	BCS .CallMain2
-	CMP #$03
-	BEQ .CallMain2
-	JML $0185C2|!BankB		;goto RTL
+   LDA !extra_prop_2,x
+   BMI .CallMain            ;check bit 7, if set call main
+   PHA
+   LDA $02,s               ;load sprite status
+   JSL $01D43E|!BankB      ;execute default status of sprite
+   PLA                     ;extra_prop_2
+   ASL A                     ;\ check bit 6
+   BMI .CallMain            ;/
+   PLA                     ;sprite status
+   CMP #$09
+   BCS .CallMain2
+   CMP #$03
+   BEQ .CallMain2
+   JML $0185C2|!BankB      ;goto RTL
 .CallMain2
-	PHA
+   PHA
 .CallMain
-	LDA !new_sprite_num,x
-	JSR GetMainPtr
-	PLA
+   LDA !new_sprite_num,x
+   JSR GetMainPtr
+   PLA
 
-	LDY.b #$01|(!BankB>>16)	;\
-	PHY							;| setup stack so that RTL will goto $0185C2
-	PEA $85C1					;/
-	JML [!Base1]				; goto sprite main code.
+   LDY.b #$01|(!BankB>>16)   ;\
+   PHY                     ;| setup stack so that RTL will goto $0185C2
+   PEA $85C1               ;/
+   JML [!Base1]            ; goto sprite main code.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Keep extra bits around when setting the sprite tables during
@@ -904,74 +905,74 @@ SubHandleStatus:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 InitKeepextra_bits:
-	%debugmsg("InitKeepextra_bits")
-	LDA !extra_bits,x
-	PHA
-	
-	if !SA1
-		PHX
-		PHY
-		SEP #$10
-	endif
-	
-	JSL InitSpriteTables	
-	
-	if !SA1
-		REP #$10
-		PLY
-		PLX
-	endif
-	
-	PLA
-	STA !extra_bits,x
-	RTL
-			
+   %debugmsg("InitKeepextra_bits")
+   LDA !extra_bits,x
+   PHA
+   
+   if !SA1
+      PHX
+      PHY
+      SEP #$10
+   endif
+   
+   JSL InitSpriteTables   
+   
+   if !SA1
+      REP #$10
+      PLY
+      PLX
+   endif
+   
+   PLA
+   STA !extra_bits,x
+   RTL
+         
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Test a custom sprite's an ACTUAL bit so that the sprite ALWAYS won't be
 ; transformed to a silver coin.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 TestSilverCoinBit:
-	%debugmsg("TestSilverCoinBit")
-	PHA
-	LDA !extra_bits,x
-	AND #!CustomBit
-	BNE .Custom
-	
-	if !SA1 = 0
-		PLX
-	else
-		LDA #$00
-		XBA
-		PLA
-		TAX
-	endif
-	
-	LDA $07F659|!BankB,x	;SMW sprite's $190F,x table
-	RTL
+   %debugmsg("TestSilverCoinBit")
+   PHA
+   LDA !extra_bits,x
+   AND #!CustomBit
+   BNE .Custom
+   
+   if !SA1 = 0
+      PLX
+   else
+      LDA #$00
+      XBA
+      PLA
+      TAX
+   endif
+   
+   LDA $07F659|!BankB,x   ;SMW sprite's $190F,x table
+   RTL
 
 .Custom
-	PLA
-	LDA !new_sprite_num,x
-	PHP
-	REP #$30
-	AND #$00FF
+   PLA
+   LDA !new_sprite_num,x
+   PHP
+   REP #$30
+   AND #$00FF
 
 
-   if !PerLevel = 1	
+   if !PerLevel = 1   
       CMP #$00B0
       BCC .normal
       CMP #$00C0
       BCC .perlevel
-      SBC #$0010	
+      SBC #$0010   
    .normal
    endif
 
-	ASL #$04
-	TAX
-	LDA.l TableStart+$07,x
-	PLP
-	RTL
-	
+   ASL #$04
+   TAX
+   LDA.l TableStart+$07,x
+   PLP
+   RTL
+   
    if !PerLevel = 1
    .perlevel
       LDY #$0007
@@ -985,8 +986,8 @@ TestSilverCoinBit:
 ;Custom sprites' table
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 TableStart:
-	print "Global Table at ",pc
-	incbin "_DefaultTables.bin"
+   print "Global Table at ",pc
+   incbin "_DefaultTables.bin"
   
 
 ; ---------------------------------------------------

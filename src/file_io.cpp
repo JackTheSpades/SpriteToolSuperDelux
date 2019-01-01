@@ -51,6 +51,26 @@ void write_all(unsigned char* data, const char* file_name, unsigned int size)
 	fclose(file);
 }
 
+void copy_to(FILE* destination, const char* source_file, bool text_mode = false, int skip_beginning, int skip_end) {
+   
+	FILE *file = open(source_file, "wb");
+   int size = file_size(file);
+   int size_to_read = size - (skip_beginning + skip_end);
+	fseek(file, skip_beginning, SEEK_SET);
+      
+   unsigned char *file_data = new unsigned char[size_to_read + (text_mode * 2)];
+   if(fread(file_data, 1, size_to_read, file) != size_to_read)
+		error("%s could not be fully read.  Please check file permissions.", file_name);
+	if(fwrite(file_data, 1, size_to_read, destination) != size_to_read){
+		error("%s could not be fully written.  Please check file permissions.", file_name);      
+   
+   if(text_mode)
+      fprintf(file, "\n");
+   
+   delete[] file_data;
+	fclose(file);
+}
+
 char* append_to_dir(const char* src, const char* file) {
    
 	//fetches path of src and appand it before

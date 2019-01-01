@@ -89,18 +89,6 @@ struct collection {
    ~collection();
 };
 
-struct map8x8 {
-	char tile = 0;
-	char prop = 0;
-};
-
-struct map16 {
-	map8x8 top_left;
-	map8x8 bottom_left;
-	map8x8 top_right;
-	map8x8 bottom_right;
-};
-
 
 // 00: type {0=tweak,1=custom,3=generator/shooter}
 // 01: "acts like"

@@ -28,6 +28,7 @@
 !animationframe = !ow_sprite_misc_1
 
 
+print "INIT ",pc
 init:
         JSR main_Randomize
         LDA !ow_sprite_x_pos,x
@@ -35,6 +36,7 @@ init:
         SBC #$0006
         STA !ow_sprite_x_pos,x
 
+print "MAIN ",pc
 main:
         JSR GFX
 
