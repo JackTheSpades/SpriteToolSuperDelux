@@ -1,5 +1,8 @@
 Changelog
 
+Version 1.2.7 (Jan 13, 2019):
+  -(Tattletale) Routines ChangeMap16, ExtendedHurt, SubVertPos, SubHorzPos, SpawnSprite, GetMap16 and GetDrawInfo were updated so their top-most labels were removed and only sublabels are used within them to avoid issues with asar. Reported by DigitalSine.
+
 Version 1.2.6 (Dec 30, 2018):
   -(Tattletale) Fixed an issue with ChangeMap16 in vertical levels.
   -(Tattletale) Fixed an issue with GetMap16 in vertical levels.

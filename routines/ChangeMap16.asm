@@ -33,17 +33,17 @@
 	SEP #$30
 	LDA $5B
 	LDX $1933|!Base2
-	BEQ Layer1
+	BEQ .layer1
 	LSR A
-Layer1:	
+.layer1
 	STA $0A
 	LSR A
-	BCC Horz
+	BCC .horz
 	LDA $9B
 	LDY $99
 	STY $9B
 	STA $99
-Horz:
+.horz
 if !EXLEVEL
 	BCS .verticalCheck
 	REP #$20
@@ -56,7 +56,7 @@ endif
 	LDA $99
 	CMP #$02
 .check
-	BCC NoEnd
+	BCC .noEnd
 	REP #$10
 	PLX
 	PLY
@@ -65,7 +65,7 @@ endif
 	PLX
 	RTL
 	
-NoEnd:
+.noEnd
 	LDA $9B
 	STA $0B
 	ASL A
@@ -92,9 +92,9 @@ NoEnd:
 	ASL #2			; 0000 yx00
 	ORA #$20		; 0010 yx00
 	CPX #$00
-	BEQ NoAdd
+	BEQ .noAdd
 	ORA #$10		; 001l yx00
-NoAdd:	
+.noAdd
 	TSB $06			; $06 : 001l yxYY
 	LDA $9A			; X LowByte
 	AND #$F0		; XXXX 0000
@@ -138,29 +138,29 @@ endif
 	LSR $0A
 	LDA $1933|!Base2
 	REP #$20
-	BCS Vert
-	BNE HorzL2
-HorzL1:	
+	BCS .vert
+	BNE .horzL2
+.horzL1
 	LDA $1A			;\
 	SBC #$007F		; |$08 : Layer1X - 0x80
 	STA $08			;/
 	LDA $1C			;  $0A : Layer1Y
 	BRA ?+
-HorzL2:	
+.horzL2
 	LDA $1E			;\ $08 : Layer2X
 	STA $08			;/
 	LDA $20			;\ $0A : Layer2Y - 0x80
 	SBC #$007F		;/
 	BRA ?+
 	
-Vert:	
-	BNE VertL2
+.vert
+	BNE .vertL2
 	LDA $1A			;\ $08 : Layer1X
 	STA $08			;/
 	LDA $1C			;\ $0A : Layer1Y - 0x80
 	SBC #$0080		;/
 	BRA ?+
-VertL2:	
+.vertL2
 	LDA $1E			;\
 	SBC #$0080		; |$08 : Layer2X - 0x80
 	STA $08			;/

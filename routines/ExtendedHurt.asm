@@ -1,5 +1,5 @@
 ;; extended sprite -> mario interaction.
-   LDA $171F|!Base2,x
+	LDA $171F|!Base2,x
 	CLC
 	ADC #$03
 	STA $04

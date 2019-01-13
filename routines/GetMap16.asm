@@ -29,17 +29,17 @@
 	SEP #$30
 	LDA $5B
 	LDX $1933|!Base2
-	BEQ Layer1
+	BEQ .layer1
 	LSR A
-Layer1:	
+.layer1
 	STA $0A
 	LSR A
-	BCC Horz
+	BCC .horz
 	LDA $9B
 	LDY $99
 	STY $9B
 	STA $99
-Horz:
+.horz:
 if !EXLEVEL
 	BCS .verticalCheck
 	REP #$20
@@ -52,14 +52,14 @@ endif
 	LDA $99
 	CMP #$02
 .check
-	BCC NoEnd
+	BCC .noEnd
 	PLB
 	PLP
 	PLX
 	LDA #$FF
 	RTL
 	
-NoEnd:
+.noEnd
 	LDA $9B
 	STA $0B
 	ASL A
@@ -86,9 +86,9 @@ NoEnd:
 	ASL #2			; 0000 yx00
 	ORA #$20		; 0010 yx00
 	CPX #$00
-	BEQ NoAdd
+	BEQ .noAdd
 	ORA #$10		; 001l yx00
-NoAdd:	
+.noAdd
 	TSB $06			; $06 : 001l yxYY
 	LDA $9A			; X LowByte
 	AND #$F0		; XXXX 0000

@@ -10,7 +10,6 @@
 ; It is adapted from the subroutine at $03B760
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-GET_DRAW_INFO:
    LDA !14E0,x
    XBA
    LDA !E4,x
