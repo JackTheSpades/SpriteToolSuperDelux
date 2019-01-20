@@ -189,8 +189,8 @@ org $02A846|!BankB
 	JML SprtOffset
 	NOP						; not necessary but still...
 
-; 16bit sprite data pointer
-; stuff by Telinc1, Maks and boldowa
+; 16bit sprite data pointer / 8bits with pagination
+; stuff by Telinc1, Super Maks 64 and boldowa
 if !SA1 == 0
 	org $028B1D|!BankB
 		JSR LoadSpriteInLevel
@@ -205,11 +205,13 @@ if !SA1 == 0
 		JSR	LoadSpriteInInit
 		JSR	LoadSpriteInInit
 		
+	; Empty bank2 area, same used in the fastROM hijack
+	; 1F bytes used
 	org $02B5EC|!BankB
 	; From Giepy
 	LoadSpriteInInit:
 		PEI ($CE)
-		JSR $a802
+		JSR $A802
 		PLA
 		STA $CE
 		PLA
@@ -227,7 +229,8 @@ if !SA1 == 0
 		DEX
 		DEY
 		DEY
-		JMP $A846
+		JML SprtOffset
+	warnpc $02B60B|!BankB
 
 	org $02ABEF|!BankB
 		JMP DisplaceIndex
@@ -239,6 +242,34 @@ if !SA1 == 0
 		org $02ABF3|!BankB
 			db $7F	;be able to load 128 sprites without issue
 	endif
+else
+	; I could fit this inside the sa1 hijack, but I don't think that's a good idea
+	; So I got a few bytes more to fix this in and left that untouched
+	; only 3 bytes left that don't touch sprite tables
+	org $02A9D7|!BankB
+		JMP NSprite_FixY3_Displacement
+	
+	; Empty bank2 area, same used in the fastROM hijack
+	; 15 bytes used
+	org $02B5EC|!BankB
+		NSprite_FixY3_Displacement:
+			; restore
+			; notice I didn't restore INY, that's so I don't have to DEY twice, SprtOffset needs it at the beginning
+			LDX $02
+			
+			; sa1 restore
+			; notice I didn't restore INX, that's because SprtOffset will do that
+			PHY
+			SEP #$10
+			REP #$10
+			PLY
+			PLA
+			PLA
+			
+			; displacement back to the beginning
+			DEY
+			JML SprtOffset
+	warnpc $02B5FB|!BankB
 endif
  
 ; ---------------------------------------------------

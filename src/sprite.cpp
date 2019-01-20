@@ -35,7 +35,7 @@
 
 
 //version 1.xx
-const char VERSION = 0x1B;
+const char VERSION = 0x1C;
 bool PER_LEVEL = false;
 const char* ASM_DIR = nullptr;
 

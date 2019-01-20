@@ -1,5 +1,8 @@
 Changelog
 
+Version 1.2.8 (Jan 20, 2019):
+  -(Tattletale) Fixed a bug with sprite data in sa1 not being displaced correctly. This would cause random sprites to spawn when extension byte was used (didn't happen every time). Also added some doc/comments to main.asm while I was at it.
+
 Version 1.2.7 (Jan 13, 2019):
   -(Tattletale) Routines ChangeMap16, ExtendedHurt, SubVertPos, SubHorzPos, SpawnSprite, GetMap16 and GetDrawInfo were updated so their top-most labels were removed and only sublabels are used within them to avoid issues with asar. Reported by DigitalSine.
 

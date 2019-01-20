@@ -39,7 +39,7 @@
 	LDY $99
 	STY $9B
 	STA $99
-.horz:
+.horz
 if !EXLEVEL
 	BCS .verticalCheck
 	REP #$20
