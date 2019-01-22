@@ -18,14 +18,7 @@ org $02FFE2
                               
 ;$02FFEA
 TableLoc:
-   if !PerLevel = 1
-      db table1>>16	;bank bytes only. (for easier access later)
-      db table2>>16	;since they all fill the whole bank, they start at xx8000
-      db table3>>16
-      db table4>>16
-   else
-      db $FF,$FF,$FF,$FF
-   endif
+   db $FF,$FF,$FF,$FF
 	                    
 ;$02FFEE
 	autoclean dl TableStart
@@ -33,16 +26,17 @@ TableLoc:
 	; yeah, kinda wasting 4 byte here by having the tables twice.
 	; but the above makes access easier and these are for cleanup.
    if !PerLevel = 1
-      autoclean dl table1
-      autoclean dl table2
-      autoclean dl table3
-      autoclean dl table4
+      autoclean dl PerLevelTable
+		dl $FFFFFF
+		dl $FFFFFF
+		dl $FFFFFF
    else
       dl $FFFFFF
-      dl $FFFFFF
-      dl $FFFFFF
-      dl $FFFFFF
+		dl $FFFFFF
+		dl $FFFFFF
+		dl $FFFFFF
    endif
+
 	
 	;3 bytes left over in bank... possible future use?
 	dl $FFFFFF
@@ -448,12 +442,12 @@ GetMainPtr:
       CMP #$00B0
       BCC .normal
       CMP #$00C0
-      BCC .perlevel	
-      SBC #$0010	;carry already set
+      BCC .perlevel
    .normal
    endif
    
-	ASL #$04
+	ASL A
+-	ASL #3
 	TAY
 
 	LDA TableStart+$0B,y
@@ -466,67 +460,43 @@ GetMainPtr:
 
 	
    if !PerLevel = 1
-   .perlevel
-      LDY #$000B
-      JSR GetPerLevelPtr
-      PLP
-      PLB
-      RTS
+	.perlevel
+		JSR GetPerLevelAddr
+		BNE +
+		PHK
+		PLB
+		LDA $00
+		BRA -
+	+	LDA.w PerLevelTable+$0B,y			; load low-high byte of pointer
+		STA $00									; 00=low, 01=high, 02=x
+		LDA.w PerLevelTable+$0C,y			; load high-bank byte of pointer
+		STA $01									; 00=low, 01=high, 02=bank
+		PLP
+		PLB
+		RTS
    endif
 
 	
    
 if !PerLevel = 1
-   ; Input, Y for in table offset
-   ;        A=Sprite number (inbetween B0-BF)
-   ;        Y=08 -> init
-   ;        Y=0B -> main
-   GetPerLevelPtr:
-      JSR GetPerLevelAddr
-      LDA [$00]			; load low-high byte of pointer
-      PHA					; save
-      INC $00				; inc offset
-      LDA [$00]			; load high-bank byte of pointer
-      STA $01				; 00=x, 01=high, 02=bank
-      PLA					; load
-      STA $00				; 00=low, 01=high, 02=bank
-      
-      RTS
-      
-   ; Input, Y for in table offset
-   ;        A=Sprite number (inbetween B0-BF)
-   GetPerLevelAddr:
-      SEC
-      SBC #$00B0	;carry already set
-      PHX
-      
-      ASL #4		; sprite number * 0x10
-      CLC			; +
-      ADC #$8000	; high-low byte of table
-      STA $00		; table always takes full bank and starts at $8000
-      
-      LDA $010B|!Base2	; level number
-      AND #$007F			; table stretches accross 4 banks, so only get in table bits
-      XBA					; times 0x100
-      ADC $00				; carry has to be clear because of ASL
-      STA $00
-      
-      TYA				; add Y for in table offset
-      AND #$00FF		;
-      CLC : ADC $00	;
-      STA $00			;
-      
-      
-      LDA $010B|!Base2	; \	
-      ASL					; | two high bits of level number
-      XBA					; |
-      AND #$00FF			; /
-      TAX 
-      
-      LDA.l TableLoc,x	; bank byte of table
-      STA $02
-      PLX
-      RTS
+	; Input, A=Sprite number (inbetween B0-BF)
+	GetPerLevelAddr:
+		ASL
+		STA $00
+		LDA $010B|!Base2
+		ASL
+		TAY
+		PEA.w PerLevelTable>>8
+		PLB
+		PLB
+		LDA.w PerLevelTable,y
+		BEQ .return
+		ADC $00
+		TAY
+		LDA.w PerLevelTable-($B0*2),y
+	.return
+		TAY
+		RTS
 endif
 	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -756,12 +726,11 @@ SetSpriteTables:
       BCC .normal	
       CMP #$00C0
       BCC .perlevel
-      
-      SBC #$0010	; carry already set, sub 0x10
    .normal
    endif
 	
-	ASL #$04
+	ASL A
+-	ASL #3
 	TAY
 	SEP #$20
 
@@ -815,69 +784,43 @@ SetSpriteTables:
 	RTL
 	
    if !PerLevel = 1
-   .perlevel	
-      LDY #$0000
-      JSR GetPerLevelAddr	
-      SEP #$20
-
-      LDA [$00]				;0
-      STA !new_code_flag
-      INC $00					;1 no need for 16bit check, since table always starts at $xx:xxx0
-      LDA [$00]
-      STA !9E,x
-      INC $00					;2
-      LDA [$00]
-      STA !1656,x
-      INC $00					;3
-      LDA [$00]
-      STA !1662,x
-      INC $00					;4
-      LDA [$00]
-      STA !166E,x
-      AND #$0F
-      STA !15F6,x
-      INC $00					;5
-      LDA [$00]
-      STA !167A,x
-      INC $00					;6
-      LDA [$00]
-      STA !1686,x
-      INC $00					;7
-      LDA [$00]
-      STA !190F,x
-      INC $00					;8
-
-      LDA !new_code_flag
-      BEQ .notCustom
-         
-      REP #$20
-      LDA [$00]
-      PHA
-      INC $00					;9
-      LDA [$00]
-      PHA						;INIT pointer on stack
-      
-      LDA #$0005
-      CLC : ADC $00
-      STA $00
-      
-      ;INC $00					;A 
-      ;INC $00					;B 
-      ;INC $00					;C
-      ;INC $00					;D
-      ;INC $00					;E
-      
-      SEP #$20
-      LDA [$00]
-      STA !extra_prop_1,x
-      INC $00						;F
-      LDA [$00]
-      STA !extra_prop_2,x
-      REP #$20
-
-      PLA : STA $01
-      PLA : STA $00				;init pointer to [$00]
-      BRA .ret
+	.perlevel
+		JSR GetPerLevelAddr
+		BNE +
+		PHK
+		PLB
+		LDA $00
+		BRA -
+	+	SEP #$20
+		LDA.w PerLevelTable+$01,y
+		STA !9E,x
+		LDA.w PerLevelTable+$02,y
+		STA !1656,x
+		LDA.w PerLevelTable+$03,y
+		STA !1662,x
+		LDA.w PerLevelTable+$04,y
+		STA !166E,x
+		AND #$0F
+		STA !15F6,x
+		LDA.w PerLevelTable+$05,y
+		STA !167A,x
+		LDA.w PerLevelTable+$06,y
+		STA !1686,x
+		LDA.w PerLevelTable+$07,y
+		STA !190F,x
+		LDA.w PerLevelTable+$00,y
+		STA !new_code_flag
+		BEQ .notCustom
+		LDA.w PerLevelTable+$0E,y
+		STA !extra_prop_1,x
+		LDA.w PerLevelTable+$0F,y
+		STA !extra_prop_2,x
+		LDA.w PerLevelTable+$0A,y
+		STA $02
+		REP #$20
+		LDA.w PerLevelTable+$08,y
+		STA $00					; INIT pointer to [$00]
+		BRA .ret
    endif
 	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1025,20 +968,8 @@ TableStart:
 ; ---------------------------------------------------
 
 if !PerLevel = 1
-   freedata align
-   table1:
-      print "Level Table 1 at ",pc
-      incbin "_PerLevelT1.bin"
-   freedata align
-   table2:
-      print "Level Table 2 at ",pc
-      incbin "_PerLevelT2.bin"
-   freedata align
-   table3:
-      print "Level Table 3 at ",pc
-      incbin "_PerLevelT3.bin"
-   freedata align
-   table4:
-      print "Level Table 4 at ",pc
-      incbin "_PerLevelT4.bin"
+	freedata
+	PerLevelTable:
+		print "Level Table at ", pc
+		incbin "_PerLevelT.bin"
 endif

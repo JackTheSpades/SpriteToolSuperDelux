@@ -35,10 +35,11 @@
 
 
 //version 1.xx
-const char VERSION = 0x1C;
+const char VERSION = 30;
 bool PER_LEVEL = false;
 const char* ASM_DIR = nullptr;
-
+int PLS_ADDR = 0x0400;
+unsigned char PLS_DATA[0x8000];
 
 void double_click_exit()
 {
@@ -60,17 +61,10 @@ T* from_table(T* table, int level, int number) {
 
 	if(level > 0x200 || number > 0xFF)
 		return nullptr;
-	if(level == 0x200) {
-		if(number < 0xB0)
-			return table + (0x2000 + number);
-		else if(number >= 0xB0 && number < 0xC0)
-			return nullptr;
-		else
-			return table + (0x2000 + number - 0x10);
-	}
-	else if(number >= 0xB0 && number < 0xC0){
+	if(level == 0x200)
+		return table + (0x2000 + number);
+	else if(number >= 0xB0 && number < 0xC0)
 		return table + ((level * 0x10) + (number - 0xB0));
-	}
 	return nullptr;
 }
 
@@ -164,10 +158,29 @@ void patch_sprites(sprite* sprite_list, int size, ROM &rom, FILE* output) {
 			}
 		}
 		
-		if(duplicate)
-			continue;
+		if(!duplicate)
+			patch_sprite(spr, rom, output);
+		
+		if(spr->level < 0x200 && spr->number >= 0xB0 && spr->number < 0xC0) {
+			if(PLS_ADDR >= 0x8000)
+				error("Too many Per-Level sprites.  Please remove some.\n", "");
+			int pls_lv_addr = PLS_DATA[spr -> level * 2] + (PLS_DATA[spr -> level * 2 + 1] << 8);
+			if(pls_lv_addr == 0x0000) {
+				pls_lv_addr = PLS_ADDR;
+				PLS_DATA[spr -> level * 2] = (unsigned char)PLS_ADDR;
+				PLS_DATA[spr -> level * 2 + 1] = (unsigned char)(PLS_ADDR >> 8);
+				PLS_ADDR += 0x20;
+				if(PLS_ADDR >= 0x8000)
+					error("Too many Per-Level sprites.  Please remove some.\n", "");
+			}
+			pls_lv_addr += (spr -> number - 0xB0) * 2;
 			
-		patch_sprite(spr, rom, output);
+			PLS_DATA[pls_lv_addr] = (unsigned char)PLS_ADDR;
+			PLS_DATA[pls_lv_addr+1] = (unsigned char)(PLS_ADDR >> 8);
+			
+			memcpy(PLS_DATA+PLS_ADDR, &spr->table, 0x10);
+			PLS_ADDR += 0x10;
+		}
 	}
 }
 
@@ -187,35 +200,65 @@ void clean_hack(ROM &rom){
       bool per_level_sprites_inserted = ((flags & 0x01) == 1) || (version < 2);
       
       // bit 0 = per level sprites inserted
-      if(per_level_sprites_inserted) {      
+      if(per_level_sprites_inserted) {
          //remove per level sprites
-         for(int bank = 0; bank < 4; bank++) {
-            int level_table_address = (rom.data[rom.snes_to_pc(0x02FFEA + bank)] << 16) + 0x8000;
-            if(level_table_address == 0xFF8000)
-               continue;
-            fprintf(clean_patch, ";Per Level sprites for levels %03X - %03X\n", (bank * 0x80), ((bank+1)*0x80)-1);
-            for(int table_offset = 11; table_offset < 0x8000; table_offset += 0x10)	{
-               pointer main_pointer = rom.pointer_snes(level_table_address + table_offset);
-               if(main_pointer.addr() == 0xFFFFFF) {
-                  fprintf(clean_patch, ";Encountered pointer to 0xFFFFFF, assuming there to be no sprites to clean!\n");
-                  break;
-               }
-               if(!main_pointer.is_empty()) {
-                  fprintf(clean_patch, "autoclean $%06X\n", main_pointer.addr());
-               }				
-            }
-            fprintf(clean_patch, "\n");
-         }
+			// version 1.30+
+			if(version >= 30) {
+				fprintf(clean_patch, ";Per-Level sprites\n");
+				int level_table_address = rom.pointer_snes(0x02FFF1).addr();
+				if(level_table_address != 0xFFFFFF && level_table_address != 0x000000) {
+					int pls_addr = rom.snes_to_pc(level_table_address);
+					for(int level = 0; level < 0x0400; level += 2) {
+						int pls_lv_addr = (rom.data[pls_addr + level] + (rom.data[pls_addr + level + 1] << 8));
+						if(pls_lv_addr == 0)
+							continue;
+						pls_lv_addr = rom.snes_to_pc(pls_lv_addr + level_table_address);
+						for(int i = 0; i < 0x20; i+= 2) {
+							int pls_data_addr = (rom.data[pls_lv_addr + i] + (rom.data[pls_lv_addr + i + 1] << 8));
+							if(pls_data_addr == 0)
+								continue;
+							pointer main_pointer = rom.pointer_snes(pls_data_addr + level_table_address + 0x0B);
+							if(main_pointer.addr() == 0xFFFFFF) {
+								//fprintf(clean_patch, ";Encountered pointer to 0xFFFFFF, assuming there to be no sprites to clean!\n");
+								continue;
+							}
+							if(!main_pointer.is_empty()) {
+								fprintf(clean_patch, "autoclean $%06X\t;%03X:%02X\n", main_pointer.addr(), level >> 1, 0xB0 + ( i >> 1));
+							}
+						}
+					}
+				}
+			// version 1.2x
+			} else {
+				for(int bank = 0; bank < 4; bank++) {
+					int level_table_address = (rom.data[rom.snes_to_pc(0x02FFEA + bank)] << 16) + 0x8000;
+					if(level_table_address == 0xFF8000)
+						continue;
+					fprintf(clean_patch, ";Per Level sprites for levels %03X - %03X\n", (bank * 0x80), ((bank+1)*0x80)-1);
+					for(int table_offset = 0x0B; table_offset < 0x8000; table_offset += 0x10)	{
+						pointer main_pointer = rom.pointer_snes(level_table_address + table_offset);
+						if(main_pointer.addr() == 0xFFFFFF) {
+							fprintf(clean_patch, ";Encountered pointer to 0xFFFFFF, assuming there to be no sprites to clean!\n");
+							break;
+						}
+						if(!main_pointer.is_empty()) {
+							fprintf(clean_patch, "autoclean $%06X\n", main_pointer.addr());
+						}				
+					}
+					fprintf(clean_patch, "\n");
+				}
+			}
       }
       
       //if per level sprites are inserted, we only have 0xF00 bytes of normal sprites
       //due to 10 bytes per sprite and B0-BF not being in the table.
-      const int limit = per_level_sprites_inserted ? 0xF00 : 0x1000;
+		//but if version is 1.30 or higher, we have 0x1000 bytes.
+      const int limit = version >= 30 ? 0x1000 : (per_level_sprites_inserted ? 0xF00 : 0x1000);
 		
 		//remove global sprites
 		fprintf(clean_patch, ";Global sprites: \n");
 		int global_table_address = rom.pointer_snes(0x02FFEE).addr();
-		for(int table_offset = 11; table_offset < limit; table_offset += 0x10)	{
+		for(int table_offset = 0x0B; table_offset < limit; table_offset += 0x10)	{
 			pointer main_pointer = rom.pointer_snes(global_table_address + table_offset);
 			if(!main_pointer.is_empty()) {
 				fprintf(clean_patch, "autoclean $%06X\n", main_pointer.addr());
@@ -433,20 +476,11 @@ bool populate_sprite_list(const char** paths, sprite** sprite_lists, const char 
          //verify sprite pointer and determine cause if invalid
 			if(!spr) {
 				if(sprite_id >= 0x100)
-				{
 					ERROR("Error on line %d: Sprite number must be less than 0x100");
-				}
-				if(level == 0x200 && sprite_id >= 0xB0 && sprite_id < 0xC0)
-				{
-					ERROR("Error on line %d: Sprite B0-BF must be assigned a level. Eg. 105:B0");
-				}
-				if(level > 0x200) {
+				if(level > 0x200)
 					ERROR("Error on line %d: Level must range from 000-1FF");
-				}
-				if(sprite_id < 0xB0 || sprite_id >= 0xC0)
-				{
+				if(sprite_id >= 0xB0 && sprite_id < 0xC0)
 					ERROR("Error on line %d: Only sprite B0-BF must be assigned a level.");
-				}
 			}
       } else {
 			if(sprite_id > SPRITE_COUNT)
@@ -814,14 +848,17 @@ int main(int argc, char* argv[]) {
    debug_print("Try create binary tables.\n");
 	write_all(versionflag, paths[ASM], "_versionflag.bin", 4);
    if(PER_LEVEL) {
-      write_long_table(sprite_list + 0x0000, paths[ASM], "_PerLevelT1.bin");
-      write_long_table(sprite_list + 0x0800, paths[ASM], "_PerLevelT2.bin");
-      write_long_table(sprite_list + 0x1000, paths[ASM], "_PerLevelT3.bin");
-      write_long_table(sprite_list + 0x1800, paths[ASM], "_PerLevelT4.bin");
-      write_long_table(sprite_list + 0x2000, paths[ASM], "_DefaultTables.bin", 0xF0);
-   } else {
-      write_long_table(sprite_list, paths[ASM], "_DefaultTables.bin", 0x100);
-   }
+		if(PLS_ADDR == 0x0400) {
+			unsigned char dummy[1] = {0xFF};
+			write_all(dummy, "_PerLevelT.bin", 1);
+		} else {
+			write_all(PLS_DATA, paths[ASM], "_PerLevelT.bin", PLS_ADDR);
+			debug_print("Per-level sprites data size : 0x%04X\n", PLS_ADDR);
+		}
+		write_long_table(sprite_list + 0x2000, paths[ASM], "_DefaultTables.bin", 0x100);
+	} else {
+		write_long_table(sprite_list, paths[ASM], "_DefaultTables.bin", 0x100);
+	}
       
 	
 	//cluster
@@ -872,12 +909,10 @@ int main(int argc, char* argv[]) {
 		sprite* spr = from_table<sprite>(sprite_list, 0x200, i);	
 		
       //sprite pointer being null indicates per-level sprite
-		if(!spr) {
+		if(!spr || (PER_LEVEL && i >= 0xB0 && i < 0xC0)) {
 			extra_bytes[i] = 7;
 			extra_bytes[i + 0x100] = 7;
-		}
-		else {
-      
+		} else {
          //line number within the list file indicates we've got a filled out sprite
 			if(spr->line) {
 				extra_bytes[i] = 3 + spr->byte_count;
@@ -976,15 +1011,11 @@ int main(int argc, char* argv[]) {
 		remove(paths[ASM], "_versionflag.bin");
 		
 		remove(paths[ASM], "_DefaultTables.bin");
-      if(PER_LEVEL) {
-         remove(paths[ASM], "_PerLevelT1.bin");
-         remove(paths[ASM], "_PerLevelT2.bin");
-         remove(paths[ASM], "_PerLevelT3.bin");
-         remove(paths[ASM], "_PerLevelT4.bin");
-      }
+      if(PER_LEVEL)
+         remove(paths[ASM], "_PerLevelT.bin");
 		
 		remove(paths[ASM], "_ClusterPtr.bin");
-		remove(paths[ASM], "_ExtendedPtr.bin");		
+		remove(paths[ASM], "_ExtendedPtr.bin");
 		//remove("asm/_OverworldMainPtr.bin");	
 		//remove("asm/_OverworldInitPtr.bin");	
 		
@@ -1001,7 +1032,6 @@ int main(int argc, char* argv[]) {
    
    for(int i = 0; i < 9; i++) {
       delete[] paths[i];
-   }
-   
+	}
 	return 0;
 }
