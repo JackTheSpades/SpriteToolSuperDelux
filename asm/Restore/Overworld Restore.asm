@@ -1,5 +1,7 @@
 
 
+incsrc "sa1def.asm"
+
 ; sort of main guard to check if OW sprites have even been patched.
 ; if not, well, no real reason to try and unpatch them
 ;   actually, since we'll try to unpatch all the sprites first by reading their pointers

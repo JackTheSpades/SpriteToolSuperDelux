@@ -33,15 +33,16 @@
 #define MAIN_PTR 0x0185CC   //guess what?
 
 #define TEMP_SPR_FILE "spr_temp.asm"
+#define TEMP_SHARE_FILE "__shared.asm"
+#define TEMP_CLEAN_FILE "__cleanup.asm"
+
 #define SPRITE_COUNT 0x80      //count for other sprites like cluster, extended
 
 
 //version 1.xx
 const char VERSION = 0x19;
 bool PER_LEVEL = false;
-const char* PATH_ASM_DIR = nullptr;
-
-const char* const PATHS[9];
+const char* const * PATHS = nullptr;
 
 void double_click_exit()
 {
@@ -84,6 +85,89 @@ T* from_table(T* table, int level, int number) {
    @return              true if patched successfully.
 */
 bool patch(const char* patch_name, ROM &rom) {
+   
+   
+#if 0
+
+   patchparams params;
+   params.structsize = (int)sizeof(patchparams);
+   
+	params.patchloc = patch_name;
+	params.romdata = (char *)rom.real_data;
+	params.buflen = MAX_ROM_SIZE;
+	params.romlen = &rom.size;
+   
+   params.numincludepaths = 0;
+   params.memory_file_count = 0;
+   params.warning_setting_count = 0;
+   
+   params.stddefinesfile = nullptr;
+   params.stdincludesfile = nullptr;
+   
+   const char* defines = nullptr;
+   
+   int additional_define_count = 1;       //at least 1 for tool defines
+   if(defines) {
+      for(int i = 0; i < strlen(defines); t++)
+         if(defines[i] == ';')
+            additional_define_count++;
+   }
+      
+   definedata additional_define* = new definedata[additional_define_count];   
+   additional_define[0] = { "__TOOL", "\"PIXI\"" };
+   
+   const char* current_define = defines;
+   for(int i = 1; i < additional_define_count; i++) {
+            
+      int split = strchr(current_define, '=');  // index of character where define name cuts of    
+      char* name = new char[split + 1];         // also equals to the length + 1 because null terminator.
+      strncpy(name, current_define, split);
+      name[split] = 0;
+      additional_define[i].name = name;
+      current_define += (split + 1);            //set pointer to after '='
+      
+      split = strchr(current_define, ';');
+      char* contents = new char[split + 1];
+      strncpy(contents, current_define, split);
+	  contents[split] = 0;
+      additional_define[i].contents = contents;
+      current_define += (split + 1);            //set pointer to after ';' (ready for next iteration)
+   }
+   
+   params.additional_defines = additional_define;
+   params.additional_define_count = additional_define;
+   
+   params.should_reset = true;
+
+
+   for (int i = 0; i < additional_define_count; i++) {
+	   debug_print("\t!%s = %s", additional_define[i].name, additional_define[i].content);
+   }
+   
+   bool result = asar_patch_ex(&params);
+
+   for (int i = 1; i < additional_define_count; i++) {
+	   delete[] additional_define[i].name;
+	   delete[] additional_define[i].content;
+   }
+   delete[] additional_define;
+
+
+
+   if(!result) {
+	   debug_print("Failure. Try fetch errors:\n");
+	   int error_count;
+	   const errordata *errors = asar_geterrors(&error_count);
+	   printf("An error has been detected:\n");
+	   for (int i = 0; i < error_count; i++)
+		   printf("%s\n", errors[i].fullerrdata);
+   }
+
+
+   
+#endif
+   
+   
    if(!asar_patch(patch_name, (char *)rom.real_data, MAX_ROM_SIZE, &rom.size)){
       debug_print("Failure. Try fetch errors:\n");
       int error_count;
@@ -93,7 +177,7 @@ bool patch(const char* patch_name, ROM &rom) {
          printf("%s\n", errors[i].fullerrdata);
       exit(-1);
    }
-   debug_print("Success\n");
+   debug_print("Success in patching %s\n", patch_name);
    return true;
 }
 /**
@@ -130,8 +214,8 @@ void patch_sprite(sprite* spr, ROM &rom, FILE* output) {
    FILE* sprite_patch = open(TEMP_SPR_FILE,"w");
    
    fprintf(sprite_patch, "namespace nested on\n");
-   fprintf(sprite_patch, "incsrc \"%ssa1def.asm\"\n", PATH_ASM_DIR);
-   fprintf(sprite_patch, "incsrc \"shared.asm\"\n");
+   fprintf(sprite_patch, "incsrc \"%ssa1def.asm\"\n", PATHS[PATH_ASM]);
+   fprintf(sprite_patch, "incsrc \"%s\"\n", TEMP_SHARE_FILE);
    fprintf(sprite_patch, "SPRITE_ENTRY_%d:\n", spr->number);
    fprintf(sprite_patch, "incsrc \"%s_header.asm\"\n", spr->directory);
    fprintf(sprite_patch, "freecode cleaned\n");
@@ -224,11 +308,7 @@ void patch_sprites(sprite* sprite_list, int size, ROM &rom, FILE* output) {
 void clean_hack(ROM &rom){
    if(!strncmp((char*)rom.data + rom.snes_to_pc(0x02FFE2), "STSD", 4)){      //already installed load old tables
 
-      char* path = new char[strlen(PATH_ASM_DIR) + strlen("_cleanup.asm") + 1];
-      path[0] = 0;
-      strcat(path, PATH_ASM_DIR);
-      strcat(path, "_cleanup.asm");   
-      FILE* clean_patch = open(path, "w");
+      FILE* clean_patch = open(TEMP_CLEAN_FILE, "w");
       
       int version = rom.data[rom.snes_to_pc(0x02FFE6)];
       int flags = rom.data[rom.snes_to_pc(0x02FFE7)];
@@ -319,8 +399,7 @@ void clean_hack(ROM &rom){
       
       //everything else is being cleaned by the main patch itself.
       fclose(clean_patch);
-      patch(path, rom);
-      delete[] path;
+      patch(TEMP_CLEAN_FILE, rom);
       
    }else{ //check for old sprite_tool code. (this is annoying)
       
@@ -380,7 +459,7 @@ void clean_hack(ROM &rom){
 }
 
 void create_shared_patch(const char *routine_path) {
-   FILE *shared_patch = open("shared.asm", "w");
+   FILE *shared_patch = open(TEMP_SHARE_FILE, "w");
    fprintf(shared_patch,    "macro include_once(target, base, offset)\n"
             "   if !<base> != 1\n"
             "      !<base> = 1\n"
@@ -690,6 +769,7 @@ int main(int argc, char* argv[]) {
    
    FILE* output = nullptr;
    bool keep_temp = false;
+   bool do_poison = false;
       
    //first is version 1.xx, others are preserved
    unsigned char versionflag[4] = { VERSION, 0x00, 0x00, 0x00 };
@@ -733,23 +813,22 @@ int main(int argc, char* argv[]) {
       if(!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help") ){
          printf("Version 1.%02d\n", VERSION);
          printf("Usage: pixi <options> <ROM>\nOptions are:\n");
-         printf("-d | --debug            Enable debug output\n");
-         printf("-k | --keep             Keep debug files\n");
-         printf("-l | --list <listpath>  Specify a custom list file (Default: %s)\n", paths[PATH_LIST]);
-         printf("-pl | --per-level       Per level sprites - will insert perlevel sprite code\n");
-         printf("-npl                    Default, no sprite per level, only for compatibility reasons\n");
+         printf("-d  | --debug            Enable debug output\n");
+         printf("-k  | --keep             Keep debug files\n");
+         printf("-l  | --list <listpath>  Specify a custom list file (Default: %s)\n", paths[PATH_LIST]);
+         printf("-pl | --per-level        Per level sprites - will insert perlevel sprite code\n");
+         printf("-npl                     Default, no sprite per level, only for compatibility reasons\n");
+         printf("-p  | --poison           Inserts the poison muchroom and adds it to the ssc/s16/mtw/mw2 files\n");
          printf("\n");
          
-         printf("-a | --asm <asm>                Specify a custom asm directory (Default %s)\n", paths[PATH_ASM]);
+         printf("-a  | --asm <asm>               Specify a custom asm directory (Default %s)\n", paths[PATH_ASM]);
          printf("-sp | --sprites <sprites>       Specify a custom sprites directory (Default %s)\n", paths[PATH_SPRITES]);
-         printf("-sh | --shooters<shooters>      Specify a custom shooters directory (Default %s)\n", paths[PATH_SHOOTERS]);
-         printf("-g | --generators <generators>  Specify a custom generators directory (Default %s)\n", paths[PATH_GENERATORS]);
-         printf("-e | --extended <extended>      Specify a custom extended sprites directory (Default %s)\n", paths[PATH_EXTENDED]);
-         printf("-c | --clusters <cluster>       Specify a custom cluster sprites directory (Default %s)\n", paths[PATH_CLUSTER]);         
+         printf("-sh | --shooters <shooters>     Specify a custom shooters directory (Default %s)\n", paths[PATH_SHOOTERS]);
+         printf("-g  | --generators <generators> Specify a custom generators directory (Default %s)\n", paths[PATH_GENERATORS]);
+         printf("-e  | --extended <extended>     Specify a custom extended sprites directory (Default %s)\n", paths[PATH_EXTENDED]);
+         printf("-c  | --clusters <cluster>      Specify a custom cluster sprites directory (Default %s)\n", paths[PATH_CLUSTER]);         
          printf("-ow | --overworld <overworld>   Specify a custom overworld sprites directory (Default %s)\n", paths[PATH_OVERWORLD]);
-         printf("\n");
-         
-         printf("-r | --routines <routines>      Specify a shared routine directory (Default %s)\n", paths[PATH_ROUTINES]);
+         printf("-r  | --routines <routines>     Specify a shared routine directory (Default %s)\n", paths[PATH_ROUTINES]);
          printf("\n");
          
          printf("-ssc <append ssc>     Specify ssc file to be copied into <romname>.ssc\n");
@@ -766,6 +845,8 @@ int main(int argc, char* argv[]) {
          output = stdout;
       } else if(!strcmp(argv[i], "-k") || !strcmp(argv[i], "--keep")) {
          keep_temp = true;
+      } else if(!strcmp(argv[i], "-p") || !strcmp(argv[i], "--poison")) {
+         do_poison = true;
       } else if(!strcmp(argv[i], "-pl") || !strcmp(argv[i], "--per-level")) {
          PER_LEVEL = true;
       } else if(!strcmp(argv[i], "-npl")){
@@ -849,13 +930,13 @@ int main(int argc, char* argv[]) {
          set_paths_relative_to(paths + i, argv[0]);   //all sprite folders are relative to program
       debug_print("paths[%d] = %s\n", i, paths[i]);
    }
-   PATH_ASM_DIR = paths[PATH_ASM];
+   PATHS = paths;
    
    //all of the Lunar Magic extension files used as basis for our own generated extension files
    //are also relative to the roms location... go figure.
    for(int i = 0; i < 6; i++) {
       set_paths_relative_to(extensions + i, rom.name);
-      debug_print("extensions[%d] = %s\n", i, paths[i]);
+      debug_print("extensions[%d] = %s\n", i, extensions[i]);
    }
    
    //------------------------------------------------------------------------------------------
@@ -896,8 +977,8 @@ int main(int argc, char* argv[]) {
    }
       
    
-   //bin file buffer (cluster/extended need 0x80*3 and ow-init/main need 0xA8*3)
-   unsigned char file[0x18 * 7 * 3];
+   //bin file buffer (cluster/extended/overworld need 0x80*3)
+   unsigned char file[0x80 * 3];
    
    //cluster
    for(int i = 0; i < SPRITE_COUNT; i++)
@@ -941,8 +1022,7 @@ int main(int argc, char* argv[]) {
    debug_print("Romname files opened.\n");
    
    fputc(0x00, mw2); //binary data starts with 0x00
-   
-   
+      
    //copy data from existing files if specified!
    if(extensions[EXT_S16])
       read_map16(map, extensions[EXT_S16]);
@@ -959,8 +1039,50 @@ int main(int argc, char* argv[]) {
    
    
    
+   //------------------------------------------------------------
+   // handle Poison Mushroom
+   //------------------------------------------------------------
+   if(do_poison) {
+      
+      patch(PATHS[PATH_ASM], "Poison.asm", rom);
+      int poison_print_count = 0;
+      const char * const * poison_prints = asar_getprints(&poison_print_count);
+      
+      debug_print("Poison.asm prints:\n");
+      for(int i = 0; i < poison_print_count; i++)
+         debug_print("\t%s\n", poison_prints[i]);
+      
+      unsigned char poison_map16_data[8];
+	  int poison_map16_tile = 0x400;
+
+      if(poison_print_count > 0)
+         fprintf(ssc, "%s\n", poison_prints[0]);
+      if(poison_print_count > 2) {
+         sscanf(poison_prints[2], "%hhx %hhx %hhx %hhx %hhx %hhx %hhx %hhx",
+            &poison_map16_data[0], &poison_map16_data[1], &poison_map16_data[2], &poison_map16_data[3],
+            &poison_map16_data[4], &poison_map16_data[5], &poison_map16_data[6], &poison_map16_data[7]);
+		 if (*(unsigned long*)poison_map16_data != 0xDEADBEEF) {
+			 poison_map16_tile = find_free_map(map, 1);
+			 memcpy(map + poison_map16_tile, poison_map16_data, 8);
+			 fprintf(ssc, "%X\n" poison_map16_tile);
+		 }
+      }
+	  if (poison_print_count > 1) {
+		  fprintf(ssc, poison_prints[1], poison_map16_tile);
+		  fprintf(ssc, "\n");
+	  }
+      if(poison_print_count > 3)
+         fprintf(mwt, "%s\n", poison_prints[3]);
+      if(poison_print_count > 4) {
+         sscanf(poison_prints[4], "%hhx %hhx %hhx",
+            &poison_map16_data[0], &poison_map16_data[1], &poison_map16_data[2]);   //repurpose map16 char array
+         fwrite(poison_map16_data, 1, 3, mw2);
+      }
+   }   
+   
+   
    for(int i = 0; i < 0x100; i++) {
-      sprite* spr = from_table<sprite>(sprite_list, 0x200, i);   
+      sprite* spr = from_table<sprite>(sprite_list, 0x200, i);
       
       //sprite pointer being null indicates per-level sprite
       if(!spr) {
@@ -1109,7 +1231,7 @@ int main(int argc, char* argv[]) {
       patch(paths[PATH_ASM], "main_npl.asm" , rom);
    patch(paths[PATH_ASM], "cluster.asm", rom);
    patch(paths[PATH_ASM], "extended.asm", rom);
-   patch(paths[PATH_ASM], "asm/overworld.asm", rom);
+   patch(paths[PATH_ASM], "overworld.asm", rom);
    
    //------------------------------------------------------------------------------------------
    // clean up (if necessary)
@@ -1134,8 +1256,7 @@ int main(int argc, char* argv[]) {
       remove(paths[PATH_ASM], "_CustomSize.bin");
       remove("shared.asm");
       remove(TEMP_SPR_FILE);
-      
-      remove(paths[PATH_ASM], "_cleanup.asm");
+	  remove(TEMP_CLEAN_FILE);
    }
    
    rom.close();

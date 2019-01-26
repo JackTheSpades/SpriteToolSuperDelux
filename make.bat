@@ -1,6 +1,6 @@
 @rem -----------------------------------
 @rem --- compile option
-@set CFLAGS=-O2 -s -ffunction-sections -fdata-sections -Wl,--gc-sections
+@set CFLAGS=-O2 -s -ffunction-sections -fdata-sections -Wl,--gc-sections -D _WIN32
 @rem -----------------------------------
 
 @rem compile

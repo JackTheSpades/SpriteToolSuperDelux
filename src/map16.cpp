@@ -1,5 +1,6 @@
 #include "map16.h"
 #include "file_io.h"
+#include <string.h>
 
 int find_free_map(map16* map, int count) {
    if(count == 0)
@@ -19,7 +20,8 @@ int find_free_map(map16* map, int count) {
 }
 
 void read_map16(map16* map, const char* file) {
-	map16* src = (map16*)read_all(file);
+   printf("Read map16 data from: %s\n", file);   
+	const map16* src = (map16*)read_all(file);
    memcpy(map, src, MAP16_SIZE * sizeof(map16));
    delete[] src;
 }

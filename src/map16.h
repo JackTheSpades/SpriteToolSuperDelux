@@ -3,14 +3,6 @@
 
 #define MAP16_SIZE 0x1000
 
-struct property {
-   char tileset : 1;
-   char palette : 3;
-   char priority : 2;
-   char x_flip : 1;
-   char y_flip : 1;
-}
-
 struct map8x8 {
 	char tile = 0;
 	char prop = 0;

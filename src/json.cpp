@@ -24,8 +24,15 @@ char* strcln(std::string const& str) {
 bool read_json_file(sprite* spr, FILE* output) {
 
    json j;
-   std::ifstream instr(spr->cfg_file);
-   instr >> j;
+   try {
+	   std::ifstream instr(spr->cfg_file);
+	   instr >> j;
+   }
+   catch (const std::exception &e) {
+	   if (output)
+		   fprintf(output, "Error, cannot open JSON file %s\n", spr->cfg_file);
+	   return false;
+   }
 
    #define CAP(x,y) x = (x < (y) ? x : (y))
    
@@ -125,11 +132,11 @@ bool read_json_file(sprite* spr, FILE* output) {
       return true;
    } catch( const std::domain_error& e) {
       if(output)
-         fprintf(output, "Error when parsing json: %s", e.what());
+         fprintf(output, "Error when parsing json: %s\n", e.what());
       return false;
    } catch( const std::out_of_range& e ) {
       if(output)
-         fprintf(output, "Error when parsing json: %s", e.what());
+         fprintf(output, "Error when parsing json: %s\n", e.what());
       return false;
    }   
    

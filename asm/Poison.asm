@@ -13,6 +13,7 @@
 
 assert !NUM < $C9
 
+
 org $01817D+(!NUM*2)   ;sprite init pointer
    dw $858B            ;power up init
 org $0185CC+(!NUM*2)   ;main pointer
@@ -39,6 +40,7 @@ org $01C6D6
    autoclean JSL PoisonGFX
    
 freecode                     
+   db !NUM             ; "Previous" inserted number.
 
 ;input:  A = sprite number
 PoisonHurt:            ; code JML's here
@@ -61,3 +63,27 @@ PoisonGFX:           ; code JSL's here
 +  TAX               ; \ retore code
    LDA $C609,x       ; / ROMMAP $01C609 (Tilemap powerups)
    RTL               ; retrum
+
+; Print Output for Pixi, if the sprite is inserted through it.
+; Contains the information for what's written to the ssc, s16, mwt and mw2 files.
+; Prints in order:
+;     Line 1 and 2 are pasted into the ssc as is.
+;            Of note, Line 2 has the placeholder %X which will be replaced with a free map 16 tile.
+;     Line 3 is the map16 data as a string. For example: C2 34 D2 34 C3 34 D3 34.
+;            This needs to be at least 8 numbers long. More will be ignored.
+;     Line 4 is the mwt data and much like ssc will be pasted as is.
+;     Line 5 is the mw2 data. Needs to be 3 numbers long. More will be ignored.
+   
+!P16 = hex((!Pal-8)<<2|!Sec|$20)
+   
+;lines for ssc
+print hex(!NUM)," 0 A poisonous Mushroom that will hurt Mario."
+print hex(!NUM)," 2 0,0,%X"
+;lines for s16
+print hex(!Tile)," ",!P16," ",hex(!Tile+$10)," ",!P16," ",hex(!Tile+$1)," ",!P16," ",hex(!Tile+$11)," ",!P16
+;lines for mwt
+print hex(!NUM)," Poison Mushroom"
+;line for mw2
+print "71 70 ",hex(!NUM)
+   
+   

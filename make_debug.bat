@@ -1,6 +1,6 @@
 @rem -----------------------------------
 @rem --- compile option
-@set CFLAGS=-g -O0
+@set CFLAGS=-g -O0 -D _WIN32
 @rem -----------------------------------
 
 @rem compile

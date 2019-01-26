@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include "file_io.h"
+#include "map16.h"
 
 
 //use 16MB ROM size to avoid asar malloc/memcpy on 8MB of data per block. 
