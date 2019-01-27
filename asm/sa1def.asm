@@ -158,9 +158,11 @@ endmacro
 %define_base2_address(ow_sprite_speed_x_acc, $17C8)
 %define_base2_address(ow_sprite_speed_y_acc, $17F8)
 %define_base2_address(ow_sprite_speed_z_acc, $1828)
+%define_base2_address(ow_sprite_init, $188C)
 ;   Flags
 %define_base2_address(ow_sprite_index, $1858)
 %define_base2_address(ow_sprite_oam, $185A)
+%define_base2_address(ow_sprite_oam_p, $185C)
 
 
 

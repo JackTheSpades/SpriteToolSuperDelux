@@ -17,6 +17,7 @@ incsrc "sa1def.asm"              ;  sa-1 defines
    
    !oam_start      = $00BC
    !oam_limit      = $01E8
+   !oam_start_p    = $0070
 
 assert read3($0EF55D) != $FFFFFF, "Please insert any custom overworld sprite with Lunar Magic first. (Press Insert when in sprite mode)"
 
@@ -116,11 +117,18 @@ run_ow_sprite:
    REP #$21                      ;
    LDA #!oam_start               ;
    STA !ow_sprite_oam            ;
+   LDA #!oam_start_p             ;
+   STA !ow_sprite_oam_p          ;
    
    LDX.b #!OwSprSize*2-2         ; \
 -  LDA !ow_sprite_num,x          ; | Main loop.
-   BEQ .no_sprite                ; | Call execute_ow_sprite for all sprites where 
-   JSR execute_ow_sprite         ; | !ow_sprite_num,x is not zero.
+   BEQ .no_sprite                ; | Call execute_ow_sprite for all sprites where    
+   LDA !ow_sprite_init,x         ; | !ow_sprite_num,x is not zero.
+   BNE +                         ; |
+   JSR execute_ow_sprite_init    ; | Or, in case !ow_sprite_init,x is still zero,
+   INC !ow_sprite_init,x         ; | call execute_ow_sprite_init and then INC it.
+   BRA .no_sprite                ; |
++  JSR execute_ow_sprite         ; |
 .no_sprite                       ; |
    DEX #2                        ; |
    BPL -                         ; /

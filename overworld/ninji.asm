@@ -28,7 +28,6 @@
 !animationframe = !ow_sprite_misc_1
 
 
-print "INIT ",pc
 init:
         JSR main_Randomize
         LDA !ow_sprite_x_pos,x
@@ -36,7 +35,6 @@ init:
         SBC #$0006
         STA !ow_sprite_x_pos,x
 
-print "MAIN ",pc
 main:
         JSR GFX
 
@@ -127,19 +125,20 @@ main:
         RTS
 
 GFX:
-; LDA.w !ow_sprite_extra,x
-; BEQ .noPriority
+        LDA.w !ow_sprite_extra_byte,x
+        BEQ .noPriority
 
-; LDA #$0001
-; JSR get_draw_info_priority
-; BRA .Draw
+        LDA #$0001
+        JSL get_draw_info_priority
+        BRA .Draw
 
-; .noPriority
+.noPriority
         LDA #$0001
         JSL get_draw_info
-        BCS OffScreen
 
 .Draw
+        BCS OffScreen
+
         LDA #$0000
         SEP #$21
 
@@ -183,12 +182,10 @@ GFX:
         LDX !ow_sprite_index
         STA $0202|!addr,y
 
-        ; LDA !ow_sprite_extra,x
-        ; TAX
-        ; LDA .props,x
-        LDA #!props
-        STA $0203|!addr,y
-        ; LDX !ow_sprite_index
+        LDA !ow_sprite_extra_byte,x
+        TAX
+        LDA .props,x
+        LDX !ow_sprite_index
         ORA !flip,x
         STA $0203|!addr,y       ;props
 
@@ -198,17 +195,17 @@ GFX:
         LSR #2
         TAY
         SEP #$20
-        LDA #$02      ;8x8
+        LDA #$02      ;16x16
         STA $0420|!addr,y
 
-OffScreen:
         REP #$20
         SEP #$10
+OffScreen:
         RTS
 
 GFX_NinjiFrames:
         db $84,$82
 
-.props
+GFX_props:
         db !props,!props+$20
 
