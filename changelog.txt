@@ -1,5 +1,9 @@
 Changelog
 
+Version 1.2.9 (Feb 17, 2019):
+  - (Tattletale) Fixed a bug with the Star.asm routine (provided by Blinddevil, reported by Darolac).
+  - (Tattletale) Fixed a bug with ExtendedGetDrawInfo.asm (reported by Darolac, I think it was Sonikku who fixed this (?)).
+
 Version 1.2.8 (Jan 20, 2019):
   -(Tattletale) Fixed a bug with sprite data in sa1 not being displaced correctly. This would cause random sprites to spawn when extension byte was used (didn't happen every time). Also added some doc/comments to main.asm while I was at it.
 
