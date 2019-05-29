@@ -30,94 +30,94 @@
 ;how many smw frames each sprite frame should show
 
 
-init:
+print "INIT ",pc
 ;set flip with RNG if it's not zzz or above
-        LDA.w !animation,x
+        LDA !animation,x
         CMP #$0003
         BCS .NoFlip
         SEP #$20
-        JSL $01ACF9|!bank       ;   RNG generator
+        JSL $01ACF9|!BankB       ;   RNG generator
         REP #$20
         AND #$0040
-        STA.w !flip,x
+        STA !flip,x
 
   .NoFlip
         JSR GFX
         RTL
 
-main:
+print "MAIN ",pc
 ;timer logic
-        LDA.w !animationtimer,x
+        LDA !animationtimer,x
         BNE .NoTimerSet
 
         LDA.w #!frametime
-        STA.w !animationtimer,x
+        STA !animationtimer,x
 
-        LDA.w !animationframe,x
+        LDA !animationframe,x
         INC
-        CMP #!frames
+        CMP.w #!frames
         BCS .Die
-        STA.w !animationframe,x
+        STA !animationframe,x
         CMP.w #!frames
         BCC .NoTimerSet
-        STZ.w !animationframe,x
+        STZ !animationframe,x
 
 .NoTimerSet
 ;draw graphics
         JSR GFX
 
-        LDA.w !ow_sprite_speed_x,x
-        ORA.w !ow_sprite_speed_y,x
-        ORA.w !ow_sprite_speed_z,x
+        LDA !ow_sprite_speed_x,x
+        ORA !ow_sprite_speed_y,x
+        ORA !ow_sprite_speed_z,x
         BEQ .NoUpdate
 
-        JSL update_x_pos
-        JSL update_y_pos
-        JSL update_z_pos
+        %OverworldXSpeed()
+        %OverworldYSpeed()
+        %OverworldZSpeed()
 .NoUpdate
 
 ;make sprite not drop through the floor ever
-        LDA.w !ow_sprite_z_pos,x
+        LDA !ow_sprite_z_pos,x
         BPL .NoCorrectZ
-        STZ.w !ow_sprite_z_pos,x
-        STZ.w !ow_sprite_speed_z,x
+        STZ !ow_sprite_z_pos,x
+        STZ !ow_sprite_speed_z,x
 .Die
-        STZ.w !ow_sprite_num,x
+        STZ !ow_sprite_num,x
 .NoCorrectZ
         RTL
 
 GFX:
         LDA #$0000
-        JSL get_draw_info_priority
+        %OverworldGetDrawInfoPriority()
         BCS .offscreen
         LDA #$0000
         SEP #$20
         LDA $00
-        STA $0200|!addr,y       ;   x pos
+        STA $0200|!Base2,y       ;   x pos
         LDA $02
-        STA $0201|!addr,y       ;   y pos
+        STA $0201|!Base2,y       ;   y pos
         LDA #!props
         ORA !flip,x
         STA $06                 ;   temp store props to add animation props later
 
 ;check which animation to run
-        LDA.w !animation,x
+        LDA !animation,x
         TAX
         LDA $06
         ORA .UniqueProps,x
-        STA $0203|!addr,y       ;   props
+        STA $0203|!Base2,y       ;   props
 
 
 ;reload animation index and do tiles
-        LDX.w !ow_sprite_index
-        LDA.w !animation,x
+        LDX !ow_sprite_index
+        LDA !animation,x
         ASL #2
         CLC
-        ADC.w !animationframe,x
+        ADC !animationframe,x
         TAX
         LDA .SmokeFrames,x
-        STA $0202|!addr,y
-        LDX.w !ow_sprite_index
+        STA $0202|!Base2,y
+        LDX !ow_sprite_index
 
 ;size table write
         REP #$20
@@ -126,7 +126,7 @@ GFX:
         TAY
         SEP #$20
         LDA #$00                ;   8x8
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
 
         REP #$20
         SEP #$10

@@ -31,14 +31,14 @@
 
 
 
-init:
+print "INIT ",pc
         DEC !ow_sprite_y_pos,x
         LDA #!WaitTime
         STA !timer,x
 NoGFX:
         RTL
 
-main:
+print "MAIN ",pc
         STX $06
         LDA !state,x
         ASL
@@ -125,7 +125,7 @@ In:
 
 GFX:
         LDA #$0001
-        JSL get_draw_info
+        %OverworldGetDrawInfo()
         BCS .offscreen
         LDA #$0000
 
@@ -136,21 +136,21 @@ GFX:
         LSR #2
         TAY
         LDA #$0202              ;   16x16
-        STA $041F|!addr,y
+        STA $041F|!Base2,y
         PLY
         SEP #$21
 
         LDA $02
         SBC !offset,x
-        STA $0201|!addr,y       ;   y pos
+        STA $0201|!Base2,y       ;   y pos
         LDA #!props
         ORA !flip,x
-        STA $0203|!addr,y       ;   props
+        STA $0203|!Base2,y       ;   props
         LDA !animationframe,x
         TAX
         LDA .Frames,x
         LDX !ow_sprite_index
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
 
 ;flip the offset depending on the current direction
         LDA !flip,x
@@ -167,18 +167,18 @@ GFX:
 .AddScreenPos
         CLC
         ADC $00
-        STA $0200|!addr,y       ;   x pos
+        STA $0200|!Base2,y       ;   x pos
         DEY #4
 
 ;GHOST HOUSE TILE FOR CLIP
         LDA $00
-        STA $0200|!addr,y
+        STA $0200|!Base2,y
         LDA $02
-        STA $0201|!addr,y
+        STA $0201|!Base2,y
         LDA #!ghosttile
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
         LDA #$00
-        STA $0203|!addr,y
+        STA $0203|!Base2,y
 
         REP #$20
         SEP #$10

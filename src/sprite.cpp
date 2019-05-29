@@ -26,8 +26,8 @@
 #define EXT_MWT 1
 #define EXT_MW2 2
 #define EXT_S16 3
-#define EXT_SSCOV 4
-#define EXT_S16OV 5
+// #define EXT_SSCOV 4
+// #define EXT_S16OV 5
 
 #define INIT_PTR 0x01817D   //snes address of default init pointers
 #define MAIN_PTR 0x0185CC   //guess what?
@@ -634,13 +634,13 @@ bool populate_sprite_list(const char** paths, sprite** sprite_lists, const char 
       
       //set filename to either cfg/json or asm file, depending on type.
       
-      if(type == Overworld) {
-         spr->cfg_file = file_name;
-         if(!dot || (strcmp(dot, ".json")))
-            ERROR("Error on line %d: Not an json file.");
-            if(!read_json_file(spr, output))
-               ERROR("Error on line %d: Cannot parse JSON file.");
-      }
+      // if(type == Overworld) {
+         // spr->cfg_file = file_name;
+         // if(!dot || (strcmp(dot, ".json")))
+            // ERROR("Error on line %d: Not an json file.");
+            // if(!read_json_file(spr, output))
+               // ERROR("Error on line %d: Cannot parse JSON file.");
+      // }
       if(type != Sprite) {      
          if(!dot || (strcmp(dot, ".asm") && strcmp(dot, ".PATH_ASM")))
             ERROR("Error on line %d: Not an asm file.");
@@ -791,7 +791,7 @@ int main(int argc, char* argv[]) {
    
    //map16 for sprite displays
    map16 map[MAP16_SIZE];
-   map16 map_ov[MAP16_SIZE];
+   // map16 map_ov[MAP16_SIZE];
    
    if(argc < 2){
       atexit(double_click_exit);
@@ -836,8 +836,8 @@ int main(int argc, char* argv[]) {
          printf("-mw2 <append mw2>     Specify mw2 file to be copied into <romname>.mw2\n");
          printf("                        Note that the first and last byte will not be copied\n");
          printf("-s16 <base s16>       Specify s16 file to be used as a base for <romname>.s16\n");
-         printf("-sscov <base sscov>   Specify sscov file to be used as a base for <romname>.sscov\n");
-         printf("-s16ov <base s16ov>   Specify s16ov file to be used as a base for <romname>.s16ov\n");
+         // printf("-sscov <base sscov>   Specify sscov file to be used as a base for <romname>.sscov\n");
+         // printf("-s16ov <base s16ov>   Specify s16ov file to be used as a base for <romname>.s16ov\n");
          printf("     Do not use <romname>.xxx as an argument as the file will be overwriten!\n");
          
          exit(0);
@@ -866,8 +866,8 @@ int main(int argc, char* argv[]) {
       SET_EXT("-mwt", EXT_MWT)
       SET_EXT("-mw2", EXT_MW2)
       SET_EXT("-s16", EXT_S16)
-      SET_EXT("-sscov", EXT_SSCOV)
-      SET_EXT("-s16ov", EXT_S16OV)
+      // SET_EXT("-sscov", EXT_SSCOV)
+      // SET_EXT("-s16ov", EXT_S16OV)
       else{
          if(i == argc-1){
             break;
@@ -1017,8 +1017,8 @@ int main(int argc, char* argv[]) {
    FILE* ssc = open_subfile(rom, "ssc", "w");
    FILE* mwt = open_subfile(rom, "mwt", "w");
    FILE* mw2 = open_subfile(rom, "mw2", "wb");
-   FILE* s16ov = open_subfile(rom, "s16ov", "wb");
-   FILE* sscov = open_subfile(rom, "sscov", "w");
+   // FILE* s16ov = open_subfile(rom, "s16ov", "wb");
+   // FILE* sscov = open_subfile(rom, "sscov", "w");
    debug_print("Romname files opened.\n");
    
    fputc(0x00, mw2); //binary data starts with 0x00
@@ -1026,12 +1026,12 @@ int main(int argc, char* argv[]) {
    //copy data from existing files if specified!
    if(extensions[EXT_S16])
       read_map16(map, extensions[EXT_S16]);
-   if(extensions[EXT_S16OV])
-      read_map16(map_ov, extensions[EXT_S16OV]);
+   // if(extensions[EXT_S16OV])
+      // read_map16(map_ov, extensions[EXT_S16OV]);
    if(extensions[EXT_SSC])
       copy_to(ssc, extensions[EXT_SSC], true);
-   if(extensions[EXT_SSCOV])
-      copy_to(sscov, extensions[EXT_SSCOV], true);
+   // if(extensions[EXT_SSCOV])
+      // copy_to(sscov, extensions[EXT_SSCOV], true);
    if(extensions[EXT_MWT])
       copy_to(mwt, extensions[EXT_MWT], true);
    if(extensions[EXT_MW2])
@@ -1061,11 +1061,14 @@ int main(int argc, char* argv[]) {
          sscanf(poison_prints[2], "%hhx %hhx %hhx %hhx %hhx %hhx %hhx %hhx",
             &poison_map16_data[0], &poison_map16_data[1], &poison_map16_data[2], &poison_map16_data[3],
             &poison_map16_data[4], &poison_map16_data[5], &poison_map16_data[6], &poison_map16_data[7]);
+            #pragma GCC diagnostic push
+            #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 		 if (*(unsigned long*)poison_map16_data != 0xDEADBEEF) {
 			 poison_map16_tile = find_free_map(map, 1);
 			 memcpy(map + poison_map16_tile, poison_map16_data, 8);
-			 fprintf(ssc, "%X\n" poison_map16_tile);
+			 fprintf(ssc, "%X\n", poison_map16_tile);
 		 }
+            #pragma GCC diagnostic pop
       }
 	  if (poison_print_count > 1) {
 		  fprintf(ssc, poison_prints[1], poison_map16_tile);
@@ -1169,60 +1172,60 @@ int main(int argc, char* argv[]) {
    
    
    //loop over OW sprites to fill out sscov and s16ov files.
-   for(int i = 0; i < SPRITE_COUNT; i++) {
-      sprite* spr = ow_list + i;
+   // for(int i = 0; i < SPRITE_COUNT; i++) {
+      // sprite* spr = ow_list + i;
       
-      //----- s16ov / Overworld map16 -------------------------------------------------
+      // //----- s16ov / Overworld map16 -------------------------------------------------
       
-      int map16_tile = find_free_map(map_ov, spr->map_block_count);
-      memcpy(map_ov + map16_tile, spr->map_data, spr->map_block_count * sizeof(map16));
+      // int map16_tile = find_free_map(map_ov, spr->map_block_count);
+      // memcpy(map_ov + map16_tile, spr->map_data, spr->map_block_count * sizeof(map16));
       
-      //----- sscov / Overworld display -----------------------------------------------
-      for(int j = 0; j < spr->display_count; j++) {
-         display* d = spr->displays + j;
+      // //----- sscov / Overworld display -----------------------------------------------
+      // for(int j = 0; j < spr->display_count; j++) {
+         // display* d = spr->displays + j;
       
-         //overworld doesn't support custom display based on x/y position.
-         if(d->y != 0 || d->x != 0)
-            continue;
+         // //overworld doesn't support custom display based on x/y position.
+         // if(d->y != 0 || d->x != 0)
+            // continue;
       
-         //4 digit hex value. First is Y pos (0-F) then X (0-F) then custom/extra bit combination
-         //here custom bit is always set (because why the fuck not?)
-         int ref = 0x20 + (d->extra_bit ? 0x10 : 0);
+         // //4 digit hex value. First is Y pos (0-F) then X (0-F) then custom/extra bit combination
+         // //here custom bit is always set (because why the fuck not?)
+         // int ref = 0x20 + (d->extra_bit ? 0x10 : 0);
          
-         //if no description (or empty) just asm filename instead.
-         if(d->description && strlen(d->description))
-            fprintf(sscov, "%02X %04X %s\n", i, ref, d->description);
-         else
-            fprintf(sscov, "%02X %04X %s\n", i, ref, spr->asm_file);
+         // //if no description (or empty) just asm filename instead.
+         // if(d->description && strlen(d->description))
+            // fprintf(sscov, "%02X %04X %s\n", i, ref, d->description);
+         // else
+            // fprintf(sscov, "%02X %04X %s\n", i, ref, spr->asm_file);
             
-         //loop over tiles and append them into the output.
-         fprintf(sscov, "%02X %04X", i, ref + 2);
-         for(int k = 0; k < d->tile_count; k++) {
-            tile* t = d->tiles + k;
-            if(t->text) {
-               fprintf(sscov, " 0,0,*%s*", t->text);
-               break;
-            } else {
-               //tile numbers > 0x300 indicates it's a "custom" map16 tile, so we add the offset we got earlier
-               //+0x100 because in LM these start at 0x400.
-               int tile_num = t->tile_number;
-               if(tile_num >= 0x300)
-                  tile_num += 0x100 + map16_tile;
-               //note we're using %d because x/y are signed integers here
-               fprintf(sscov, " %d,%d,%X", t->x_offset, t->y_offset, tile_num);
-            }
-         }
-         fprintf(sscov, "\n");
-      }
-   }   
+         // //loop over tiles and append them into the output.
+         // fprintf(sscov, "%02X %04X", i, ref + 2);
+         // for(int k = 0; k < d->tile_count; k++) {
+            // tile* t = d->tiles + k;
+            // if(t->text) {
+               // fprintf(sscov, " 0,0,*%s*", t->text);
+               // break;
+            // } else {
+               // //tile numbers > 0x300 indicates it's a "custom" map16 tile, so we add the offset we got earlier
+               // //+0x100 because in LM these start at 0x400.
+               // int tile_num = t->tile_number;
+               // if(tile_num >= 0x300)
+                  // tile_num += 0x100 + map16_tile;
+               // //note we're using %d because x/y are signed integers here
+               // fprintf(sscov, " %d,%d,%X", t->x_offset, t->y_offset, tile_num);
+            // }
+         // }
+         // fprintf(sscov, "\n");
+      // }
+   // }   
    
    write_all(extra_bytes, paths[PATH_ASM], "_CustomSize.bin", 0x200);
    fwrite(map, sizeof(map16), MAP16_SIZE, s16);
-   fwrite(map_ov, sizeof(map16), MAP16_SIZE, s16ov);
+   // fwrite(map_ov, sizeof(map16), MAP16_SIZE, s16ov);
    
    //close all the files.
    fclose(s16); fclose(ssc); fclose(mwt); fclose(mw2);
-   fclose(s16ov); fclose(sscov);
+   // fclose(s16ov); fclose(sscov);
    
    //apply the actual patches
    if(PER_LEVEL)
@@ -1250,8 +1253,8 @@ int main(int argc, char* argv[]) {
       
       remove(paths[PATH_ASM], "_ClusterPtr.bin");
       remove(paths[PATH_ASM], "_ExtendedPtr.bin");      
-      remove(paths[PATH_ASM], "_OverworldMainPtr.bin");
-      remove(paths[PATH_ASM], "_OverworldInitPtr.bin");
+      // remove(paths[PATH_ASM], "_OverworldMainPtr.bin");
+      // remove(paths[PATH_ASM], "_OverworldInitPtr.bin");
       
       remove(paths[PATH_ASM], "_CustomSize.bin");
       remove("shared.asm");

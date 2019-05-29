@@ -59,7 +59,10 @@ else
 	!SprSize = $0C
 endif
 
-!OwSprSize = $18         ;  Lunar Magic gives support for up to 0x18 (24) slots per submap
+!OwSprSize = $18         ;  Lunar Magic gives support for up to 0x18 (24) slots per submap   
+   !oam_start      = $00BC
+   !oam_limit      = $01E8
+   !oam_start_p    = $0070
 
 
 macro define_sprite_table(name, addr, addr_sa1)

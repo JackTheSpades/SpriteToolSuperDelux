@@ -2,7 +2,7 @@
 ; Gets the OAM index to be used, deletes when off screen, etc.
 
 
-   LDA.l .OAMPtr,x
+	LDA.l .OAMPtr,x
 	TAY
    
 .noIndex
@@ -18,7 +18,7 @@
 	LDA $1733|!Base2,x
 	SBC $1B
 	BNE .erasespr
-+	LDA $1715|!Base2,x
+	LDA $1715|!Base2,x
 	SEC
 	SBC $1C
 	STA $02
@@ -29,12 +29,13 @@
 	CMP #$F0
 	BCS .erasespr
 	RTL
-.neg	LDA $02
+.neg
+	LDA $02
 	CMP #$C0
 	BCC .erasespr
 	CMP #$E0
 	BCC .hidespr
-	RTS
+	RTL
 .erasespr
 	STZ $170B|!Base2,x	; delete sprite.
 .hidespr

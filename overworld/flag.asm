@@ -17,7 +17,7 @@
 ;how many smw frames each sprite frame should show
 
 
-init:
+print "INIT ",pc
         LDA !ow_sprite_x_pos,x
         CLC
         ADC #!XOff
@@ -29,7 +29,7 @@ init:
         STA !ow_sprite_y_pos,x
         RTL
 
-main:
+print "MAIN ",pc
         JSR GFX
 ;timer logic
         LDA !animationtimer,x
@@ -49,24 +49,24 @@ main:
 
 GFX:
         LDA #$0000
-        JSL get_draw_info
+        %OverworldGetDrawInfo()
         BCS .offscreen
 
         LDA #$0000
         SEP #$20
 
         LDA $00
-        STA $0200|!addr,y     ;   x pos
+        STA $0200|!Base2,y     ;   x pos
         LDA $02
-        STA $0201|!addr,y     ;   y pos
+        STA $0201|!Base2,y     ;   y pos
         LDA #!props
-        STA $0203|!addr,y     ;   props
+        STA $0203|!Base2,y     ;   props
 
         LDA !animationframe,x
         TAX
         LDA .FlagFrames,x
         LDX !ow_sprite_index
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
 
 ;size table write
         REP #$20
@@ -75,7 +75,7 @@ GFX:
         TAY
         SEP #$20
         LDA #$00        ;   8x8
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
 
         REP #$20
         SEP #$10

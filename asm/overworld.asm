@@ -14,13 +14,9 @@
 ;=========================================================
 
 incsrc "sa1def.asm"              ;  sa-1 defines
-   
-   !oam_start      = $00BC
-   !oam_limit      = $01E8
-   !oam_start_p    = $0070
+
 
 assert read3($0EF55D) != $FFFFFF, "Please insert any custom overworld sprite with Lunar Magic first. (Press Insert when in sprite mode)"
-
 
 org read3($0EF55D)
    map_offsets:
@@ -35,11 +31,21 @@ org $04F675                      ;   nuke original ow sprite load (which runs in
 
 ;   main hijack, within vanilla freespace
 org $04F675|!BankB
-   BRA ow_sprite_load               ; \
-   autoclean dl ow_sprite_main_ptrs ; | constant pointer to ow sprites main pointers for cleanup by tool.
-   autoclean dl spawn_sprite        ; / random pointer to freecode for cleanup.
-   
+   autoclean dl ow_sprite_main_ptrs ; \ constant pointer to ow sprites main pointers for cleanup by tool.
+   autoclean dl spawn_sprite        ; / random pointer to freecode for cleanup.   
 ow_sprite_load:
+   if !SA1
+      LDA.b #.main
+      STA $3180
+      LDA.b #.main>>8
+      STA $3181
+      LDA.b #.main>>16
+      STA $3182
+      JSR $1E80
+      JSL $04D6E9|!BankB
+      JML $00A169|!BankB
+   endif
+.main
    PHB
    LDX $0DB3|!Base2              ; \
    LDA $1F11|!Base2,x            ; | submap of current player (times 2) into X for index to offset table.
@@ -69,9 +75,6 @@ ow_sprite_load:
    LDA [$6B],y                   ; \ get 'middle' word of sprite data (zzzz zyyy  yyyx xxxx)
    AND #$07E0                    ; | mask out y bits:     -----yyy yyy-----
    LSR #2                        ; | shift y bits down by 2 (same as y multiplied by 8 to get pixels from 8x8)
-   ;ASL #3                        ; | shift to high byte:  --yyyyyy --------
-   ;XBA                           ; | swap bytes:          -------- --yyyyyy
-   ;ASL #3                        ; | multiple by 8 because y is in 8x8 blocks, not pixels.
    STA $04                       ; / store y position (in pixel) in $04
    
    LDA [$6B],y                   ; \ get 'middle' word of sprite data (zzzz zyyy  yyyx xxxx)
@@ -105,8 +108,12 @@ ow_sprite_load:
    ; STZ !ow_sprite_index
    SEP #$20
    PLB
-   JSL $04D6E9|!BankB
-   JML $00A169|!BankB
+   if !SA1 == 0
+      JSL $04D6E9|!BankB
+      JML $00A169|!BankB
+   else
+      RTL
+   endif
 warnpc $04F6F8|!BankB
 
 

@@ -20,14 +20,14 @@ Tiles:
 !animationframe = !ow_sprite_misc_1
 ;which frame to display right now, will be 0 for most of it until it fucks off
 
-init:
+print "INIT ",pc
         LDA #!yspeed
         STA !ow_sprite_speed_y,x
 
 reinit:
 ;set timer and position back to how it was so it can all start over
         LDA.w #!maxtime-!mintime+1
-        JSL get_rand_range
+        %GetRandomRange()
         CLC
         ADC #!mintime
         STA !waittimer,x
@@ -39,11 +39,11 @@ reinit:
         STA !ow_sprite_y_pos,x
         RTL
 
-KillThisGayEarth:
+KillThisEarth:
         STZ !ow_sprite_num,x
         RTL
 
-main:
+print "MAIN ",pc
 ;do nothing if the timer is ticking
         LDA !waittimer,x
         BNE GFX_offscreen
@@ -53,7 +53,7 @@ main:
         ADC #$002F
         CMP !ow_sprite_y_pos,x
         BMI +
-        JSL update_y_pos
+        %OverworldYSpeed()
         BRA GFX
 
 ;if timer is done and we're at the goal, display our animation and reinit if it's over
@@ -65,28 +65,28 @@ main:
         LDA !animationframe,x
         INC
         CMP #$0004
-        BCS KillThisGayEarth
+        BCS KillThisEarth
         ; BCS reinit            ;   uncomment this and delete the line above this one to make it reappear
         STA !animationframe,x
 
 GFX:
         LDA #$0000
-        JSL get_draw_info
+        %OverworldGetDrawInfo()
         BCS .offscreen
         LDA #$0000
         SEP #$20
 
         LDA $00
-        STA $0200|!addr,y       ;   x pos
+        STA $0200|!Base2,y       ;   x pos
         LDA $02
-        STA $0201|!addr,y       ;   y pos
+        STA $0201|!Base2,y       ;   y pos
         LDA #!props
-        STA $0203|!addr,y       ;   props
+        STA $0203|!Base2,y       ;   props
 
         LDA !animationframe,x
         TAX
         LDA Tiles,x
-        STA $0202|!addr,y       ;   tile
+        STA $0202|!Base2,y       ;   tile
 
         ;size table write
         REP #$20
@@ -95,7 +95,7 @@ GFX:
         TAY
         SEP #$20
         LDA #$02                ;   16x16
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
 
         LDX !ow_sprite_index
 

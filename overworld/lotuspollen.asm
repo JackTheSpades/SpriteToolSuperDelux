@@ -1,5 +1,7 @@
 ;pollen that rises and then falls down slowly, spawned by the lotus
 
+!smoke_id = $15
+
 !risetime = $0030
 ;how long to rise before falling
 
@@ -29,7 +31,7 @@
 ;if set to 01, use the priority get draw info
 
 
-init:
+print "INIT ",pc
         LDA #!risetime
         STA !risetimer,x
 
@@ -46,7 +48,7 @@ init:
         BMI .Nothing
         BRA .IncPriority
 
-main:
+print "MAIN ",pc
 ;animate pollen and store to $0A for later use
         LDA $14
         AND #$000C
@@ -135,9 +137,9 @@ main:
 
 .NoFall
 ;update position and kill sprite if it hits the floor
-        JSL update_x_pos
-        JSL update_y_pos
-        JSL update_z_pos
+        %OverworldXSpeed()
+        %OverworldYSpeed()
+        %OverworldZSpeed()
 
         LDA !ow_sprite_z_pos,x
         BEQ .KillPollen
@@ -146,7 +148,17 @@ main:
 
 .KillPollen
         STZ !ow_sprite_num,x
-        JML disappear_in_smoke
+        LDA.w #!smoke_id
+        STA $00
+        LDA !ow_sprite_x_pos,x
+        STA $02
+        LDA !ow_sprite_y_pos,x
+        STA $04
+        LDA !ow_sprite_z_pos,x
+        STA $06
+        STZ $08
+        %OverworldSpawnSprite()
+        RTL
 
 .PollenTiles
         db $F2,$E2
@@ -155,11 +167,11 @@ GFX:
         LDA !priority,x
         BEQ .normalinfo
         LDA #$0001
-        JSL get_draw_info_priority
+        %OverworldGetDrawInfoPriority()
         BRA .doneinfo
 .normalinfo
         LDA #$0001
-        JSL get_draw_info
+        %OverworldGetDrawInfo()
 .doneinfo
         BCS .offscreen
         LDA #$0000
@@ -167,16 +179,16 @@ GFX:
 
 ;SHADOW TILE
         LDA $00
-        STA $0200|!addr,y
+        STA $0200|!Base2,y
         LDA $02
         CLC
         ADC !ow_sprite_z_pos,x
         DEC
-        STA $0201|!addr,y
+        STA $0201|!Base2,y
         LDA #!shadowtile
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
         LDA #!shadowprops
-        STA $0203|!addr,y
+        STA $0203|!Base2,y
 
         PHY
         REP #$20
@@ -184,7 +196,7 @@ GFX:
         LSR #2
         TAY
         LDA #$0000              ;   8x8
-        STA $041F|!addr,y
+        STA $041F|!Base2,y
         PLY
         SEP #$20
 
@@ -192,13 +204,13 @@ GFX:
 
 ;POLLEN TILE
         LDA $00
-        STA $0200|!addr,y
+        STA $0200|!Base2,y
         LDA $02
-        STA $0201|!addr,y
+        STA $0201|!Base2,y
         LDA $0A
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
         LDA #!props
-        STA $0203|!addr,y
+        STA $0203|!Base2,y
 
         REP #$20
         SEP #$10

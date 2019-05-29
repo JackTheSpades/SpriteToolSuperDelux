@@ -27,9 +27,9 @@
 
 ;------------------------------------------------
 
-init:
+print "INIT ",pc
 	LDA #!max_idle_time-!min_idle_time+1
-	JSL get_rand_range
+	%GetRandomRange()
         AND #$0001
         STA !direction,x
 	CLC
@@ -38,10 +38,10 @@ init:
 
         ;randomize position
         LDA #$0004
-        JSL get_rand_range
+        %GetRandomRange()
         ASL
         STA $00
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         ASL #2
         CLC
         ADC $00
@@ -54,6 +54,7 @@ init:
 
 ;------------------------------------------------
 
+print "MAIN ",pc
 main:
 	JSR draw_gfx
 	
@@ -62,7 +63,7 @@ main:
 	BEQ .fly
 
         ;check if mario is close
-        JSL get_player_distance
+        %OverworldDistance()
         LDA $06
         CLC
         ADC $08
@@ -75,7 +76,7 @@ main:
         STA !state,x
 
         LDA #$0004
-        JSL get_rand_range
+        %GetRandomRange()
         STA !roost_index,x
         RTL
 
@@ -105,7 +106,7 @@ main:
         DEC !state,x
 
         LDA #!max_idle_time-!min_idle_time+1
-        JSL get_rand_range
+        %GetRandomRange()
         CLC
         ADC #!min_idle_time
         STA !timer,x
@@ -128,7 +129,7 @@ main:
 
 ;set up aiming routine
 ;figure out speeds to the tree
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         ASL #2
         CLC
         ADC !roost_index,x      ;get goal position
@@ -150,7 +151,7 @@ main:
         STA $02
 
         LDA #$0040
-        JSL aiming
+        %Aiming()
 ;x speed is now in $00
 ;y speed is now in $02
 
@@ -168,8 +169,9 @@ main:
         STA !ow_sprite_speed_y,x
 
 ;update x and y positions
-        JSL update_x_pos
-        JML update_y_pos
+        %OverworldXSpeed()
+        %OverworldYSpeed()
+        RTL
 
 	
 ;1D 04 small tree left
@@ -188,7 +190,7 @@ main:
 
 draw_gfx:
 	LDA #$0000
-	JSL get_draw_info_priority
+	%OverworldGetDrawInfoPriority()
         BCS .offscreen
 
         PHY
@@ -197,22 +199,22 @@ draw_gfx:
         TAY
         SEP #$20
         LDA #$00
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
         PLY
 
         LDA $00
-        STA $0200|!addr,y
+        STA $0200|!Base2,y
 
         LDA $02
-        STA $0201|!addr,y
+        STA $0201|!Base2,y
 
         LDA !animationframe,x
         TAX
         LDA .tilemap,x
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
 
         LDX !ow_sprite_index
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         TAX
         LDA .props,x
         STA $04
@@ -221,7 +223,7 @@ draw_gfx:
         TAX
         LDA .xflip,x
         ORA $04
-        STA $0203|!addr,y
+        STA $0203|!Base2,y
 
         REP #$20
         SEP #$10

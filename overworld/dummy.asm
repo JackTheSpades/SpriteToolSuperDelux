@@ -1,4 +1,3 @@
-;   each sprite is namespaced so your labels can be whatever :)
 
 !dummy_turn_timer = !ow_sprite_timer_1
 !dummy_anim_index = !ow_sprite_misc_1
@@ -6,14 +5,14 @@
 !dummy_time = $0090
 
 
-init:
+print "INIT ",pc
         LDA #!dummy_time
         STA !dummy_turn_timer,x
         LDA #$0170
         STA !ow_sprite_speed_x,x
         RTL
 
-main:
+print "MAIN ",pc
         JSR draw_gfx
         LDA $14
         AND #$0007
@@ -31,11 +30,12 @@ main:
         STA !ow_sprite_speed_x,x
         LDA #!dummy_time
         STA !dummy_turn_timer,x
-+       JML update_x_pos
++       %OverworldXSpeed()
+        RTL
 
 draw_gfx:
         LDA #$0001                      ;   draw 2
-        JSL get_draw_info
+        %OverworldGetDrawInfo()
         BCS .offscreen
 
         SEP #$20
@@ -48,19 +48,19 @@ draw_gfx:
         LDA $00                         ;   x pos
         CLC
         ADC .x_disp,x
-        STA $0200|!addr,y
+        STA $0200|!Base2,y
         LDA $02                         ;   y pos
-        STA $0201|!addr,y
+        STA $0201|!Base2,y
         PHX                             ;   tile
         TXA
         CLC
         ADC $04
         TAX
         LDA .tiles,x
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
         PLX
         LDA #$20
-        STA $0203|!addr,y
+        STA $0203|!Base2,y
         PHY                             ;   tile size
         REP #$20
         TYA
@@ -68,7 +68,7 @@ draw_gfx:
         TAY
         SEP #$20
         LDA #$00
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
         PLY
         DEY #4                          ;   YOU HAVE TO DEY, NOT INY
         DEX

@@ -1,0 +1,26 @@
+00	piranha_sideways.cfg
+
+OW:
+01	bird.asm
+02	burp.asm
+03	crow.asm
+04	dolphin.asm
+05	dummy.asm
+06	eerie.asm
+07	flag.asm
+08	koopaball.asm
+09	lantern.asm
+0A	lotus.asm
+0B	lotuspollen.asm
+0C	monty.asm
+0D	ninji.asm
+0E	piranha_plant.asm
+0F	planets.asm
+10	podoboo.asm
+11	puffer.asm
+12	rex.asm
+13	saws.asm
+14	shyplanet.asm
+15	smoke.asm
+16	spotlight.asm
+17	staticsprite.asm

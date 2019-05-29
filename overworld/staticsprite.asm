@@ -12,26 +12,26 @@ tiles:
 tile_sizes:
         db $00,$00,$00
 
-main:
+print "MAIN ",pc
         LDA #$0000
-        JSL get_draw_info
-        BCS init
+        %OverworldGetDrawInfo()
+        BCS return
         ; LDA #$0000
         SEP #$20
 
         LDA $00
-        STA $0200|!addr,y       ;   x pos
+        STA $0200|!Base2,y       ;   x pos
         LDA $02
-        STA $0201|!addr,y       ;   y pos
+        STA $0201|!Base2,y       ;   y pos
 
 
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         TAX
         LDA props,x
-        STA $0203|!addr,y       ;   props
+        STA $0203|!Base2,y       ;   props
 
         LDA tiles,x
-        STA $0202|!addr,y       ;   tile
+        STA $0202|!Base2,y       ;   tile
 
         REP #$20
         TYA
@@ -39,12 +39,13 @@ main:
         TAY
         SEP #$20
         LDA tile_sizes,x        ;   tile size
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
 
 
         LDX !ow_sprite_index
         REP #$20
         SEP #$10
-init:
+print "INIT ",pc
+return:
         RTL
 

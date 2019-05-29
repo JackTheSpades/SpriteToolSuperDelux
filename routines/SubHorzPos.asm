@@ -11,7 +11,6 @@
 ;        Some sprites use a version of this routine where only $0F is being stored to
 ;        as the low byte of the distance (here it is the high byte)
 
-SUB_HORZ_POS:
 	LDY #$00
 	LDA $94
 	SEC
@@ -20,7 +19,7 @@ SUB_HORZ_POS:
 	LDA $95
 	SBC !14E0,x
 	STA $0F
-	BPL LABEL16
+	BPL ?+
 	INY
-LABEL16:
+?+
 	RTL

@@ -19,46 +19,9 @@
 !frametime = $0006
 ;how many smw frames each sprite frame should show
 
-; ; ----------------------------------
+; ----------------------------------
 
-; ; Circle macros
-
-; macro cos()
-        ; PHX
-        ; REP #$11
-        ; ADC #$0080
-        ; BIT #$0100
-        ; PHP
-        ; AND #$00FF
-        ; ASL
-        ; TAX
-        ; LDA $07F7DB,x
-        ; PLP
-        ; SEP #$10
-        ; BEQ ?l1
-        ; EOR #$FFFF
-        ; INC
-; ?l1:    PLX
-; endmacro
-
-; macro sin()
-       ; PHX
-       ; REP #$10
-       ; BIT #$0100
-       ; PHP
-       ; AND #$00FF
-       ; ASL
-       ; TAX
-       ; LDA $07F7DB,x
-       ; PLP
-       ; SEP #$10
-       ; BEQ ?l1
-       ; EOR #$FFFF
-       ; INC
-; ?l1:   PLX
-; endmacro
-
-init:
+print "INIT ",pc
         LDA #!XMax
         STA !XOff,x
         STZ !YOff,x
@@ -78,7 +41,7 @@ SineTable10toA:
         db $00,$02,$04,$06,$07,$08,$09,$0A
         db $0B,$0A,$09,$08,$07,$06,$04,$02
 
-main:
+print "MAIN ",pc
 ;x pos
         LDA $14                 ;   frame counter
         AND #$00FF
@@ -135,7 +98,7 @@ main:
 
 GFX:
         LDA #$0000
-        JSL get_draw_info_priority
+        %OverworldGetDrawInfoPriority()
         BCS .offscreen
 
         LDA !XOff,x
@@ -157,7 +120,7 @@ GFX:
         ADC .INCtable,x
         CLC
         ADC $00
-        STA $0200|!addr,y       ;   x pos
+        STA $0200|!Base2,y       ;   x pos
 ;add y offset (negative or positive depending on index) to position and store
         LDA $06
         EOR .EORtable,x
@@ -165,10 +128,10 @@ GFX:
         ADC .INCtable,x
         CLC
         ADC $02
-        STA $0201|!addr,y       ;   y pos
+        STA $0201|!Base2,y       ;   y pos
 
         LDA #!props
-        STA $0203|!addr,y       ;   props
+        STA $0203|!Base2,y       ;   props
 
         TXA
         LDX !ow_sprite_index
@@ -176,7 +139,7 @@ GFX:
         TAX
         LDA .SawFrames,x
         LDX !ow_sprite_index
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
 
 ;size table write
         PHY
@@ -186,7 +149,7 @@ GFX:
         TAY
         SEP #$20
         LDA #$02                ;   16x16
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
         PLY
 
         ; DEY #4

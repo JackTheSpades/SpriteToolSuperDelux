@@ -25,8 +25,8 @@
 !XOff = $04
 !YOff = $05+$08
 
-init:
-        LDA !ow_sprite_extra_byte,x
+print "INIT ",pc
+        LDA !ow_sprite_extra_bits,x
         AND #$0004
         BEQ .NoOffset
 
@@ -38,7 +38,7 @@ init:
 offscreen:
         RTL
 
-main:
+print "MAIN ",pc
 ;timer logic
         LDA !animationtimer,x
         BNE GFX
@@ -55,7 +55,7 @@ main:
 
 GFX:
 ;decide whether to draw one or two tiles
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         AND #$0010
         BEQ .OneTile
         LDA #$0001
@@ -63,13 +63,13 @@ GFX:
 .OneTile
         LDA #$0000
 .Done
-        JSL get_draw_info
+        %OverworldGetDrawInfo()
         BCS offscreen
         LDA #$0000
         SEP #$20
 
 ;load flip from extra byte
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         LSR
         STZ $04
         BCC .DoneFlip
@@ -78,14 +78,14 @@ GFX:
 .DoneFlip
 
 ;SPOTLIGHT TILE
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         AND #$10
         BEQ .NoSpot
 
         LDA $02
         CLC
         ADC #!YOff
-        STA $0201|!addr,y               ;   y pos
+        STA $0201|!Base2,y               ;   y pos
 
 ;calculate x offset based on flip
         LDA $04
@@ -98,20 +98,20 @@ GFX:
 .DoneFlipX
         CLC
         ADC $00
-        STA $0200|!addr,y               ;   x pos
+        STA $0200|!Base2,y               ;   x pos
 
 ;props, also based on flip
         LDA #!spotprops
         CLC
         ADC $04
-        STA $0203|!addr,y               ;   props
+        STA $0203|!Base2,y               ;   props
 
 ;animation frame
         LDA !animationframe,x
         TAX
         LDA .SpotFrames,x
         LDX !ow_sprite_index
-        STA $0202|!addr,y               ;   tile
+        STA $0202|!Base2,y               ;   tile
 
 ;size table
         PHY
@@ -121,7 +121,7 @@ GFX:
         TAY
         SEP #$20
         LDA #$00                        ;   8x8
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
         PLY
 
         DEY #4
@@ -129,25 +129,25 @@ GFX:
 .NoSpot
 ;ACTUAL LIGHT BEAM TILES
         LDA $00
-        STA $0200|!addr,y               ;   x pos
+        STA $0200|!Base2,y               ;   x pos
         LDA $02
-        STA $0201|!addr,y               ;   y pos
+        STA $0201|!Base2,y               ;   y pos
 
 ;load frame based on animationtimer
         LDA !animationframe,x
         TAX
         LDA .LightFrames,x
         LDX !ow_sprite_index
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
 
 ;get extra priority bit
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         AND #$08
         ASL #2
         STA $05
 
 ;add together extra byte flip, extra byte palette bit and the props
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         AND #$02
         CLC
         ADC #!props
@@ -155,7 +155,7 @@ GFX:
         ADC $04
         CLC
         ADC $05
-        STA $0203|!addr,y
+        STA $0203|!Base2,y
 
 ;size table write
         PHY
@@ -165,7 +165,7 @@ GFX:
         TAY
         SEP #$20
         LDA #$02                        ;   16x16
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
         PLY
 
         REP #$20

@@ -35,52 +35,14 @@
 
 ; ----------------------------------
 
-; Circle macros
-
-macro cos()
-        PHX
-        REP #$11
-        ADC #$0080
-        BIT #$0100
-        PHP
-        AND #$00FF
-        ASL
-        TAX
-        LDA $07F7DB,x
-        PLP
-        SEP #$10
-        BEQ ?l1
-        EOR #$FFFF
-        INC
-?l1:    PLX
-endmacro
-
-macro sin()
-       PHX
-       REP #$10
-       BIT #$0100
-       PHP
-       AND #$00FF
-       ASL
-       TAX
-       LDA $07F7DB,x
-       PLP
-       SEP #$10
-       BEQ ?l1
-       EOR #$FFFF
-       INC
-?l1:   PLX
-endmacro
-
-
-init:
+print "INIT ",pc
         LDA #$00FF
-        JSL get_rand_range
+        %GetRandomRange()
         STA !wavetimer,x
 
 ;init waittimer
         LDA #!randtime
-        JSL get_rand_range
+        %GetRandomRange()
         CLC
         ADC #!mintime
         STA !waittimer,x
@@ -100,7 +62,7 @@ init:
         STA !animationtimer,x
         RTL
 
-main:
+print "MAIN ",pc
 ;warp eerie to the right just before timer ends
         LDA !waittimer,x
         DEC
@@ -111,7 +73,7 @@ main:
         STA !ow_sprite_x_pos,x
 
         LDA #!randY
-        JSL get_rand_range
+        %GetRandomRange()
         CLC
         ADC #$00B0
         STA !ow_sprite_y_pos,x
@@ -128,7 +90,7 @@ main:
 
 ;if eerie on left edge, reset
         LDA #!randtime
-        JSL get_rand_range
+        %GetRandomRange()
         CLC
         ADC #!mintime
         STA !waittimer,x
@@ -149,8 +111,8 @@ main:
 .DoneLSR
         STA !ow_sprite_speed_y,x
 
-        JSL update_x_pos
-        JSL update_y_pos
+        %OverworldXSpeed()
+        %OverworldYSpeed()
 
 
 ;timer logic
@@ -186,24 +148,24 @@ main:
 
 GFX:
         LDA #$0000
-        JSL get_draw_info_priority
+        %OverworldGetDrawInfoPriority()
         BCS .offscreen
 
         LDA #$0000
         SEP #$20
 
         LDA $00
-        STA $0200|!addr,y       ;   x pos
+        STA $0200|!Base2,y       ;   x pos
         LDA $02
-        STA $0201|!addr,y       ;   y pos
+        STA $0201|!Base2,y       ;   y pos
         LDA #!props
-        STA $0203|!addr,y       ;   props
+        STA $0203|!Base2,y       ;   props
 
         LDA !animationframe,x
         TAX
         LDA .EerieFrames,x
         LDX !ow_sprite_index
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
 
 ;size table write
         REP #$20
@@ -213,7 +175,7 @@ GFX:
         TAY
         SEP #$20
         LDA #$02      ;16x16
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
 
         REP #$20
         SEP #$10

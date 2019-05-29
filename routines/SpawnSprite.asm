@@ -20,7 +20,7 @@
 			DEX
 		BPL ?-
 		SEC
-		BRA no_slot
+		BRA .no_slot
 	?+
 	XBA
 	STA !9E,x
@@ -80,7 +80,7 @@
 	CLC
 	RTL	
 	
-no_slot:
+.no_slot:
 	TXY
 	PLX
 	RTL

@@ -50,7 +50,7 @@
 !xoff = $18
 ;off screen despawn protection
 
-init:
+print "INIT ",pc
         LDA !ow_sprite_x_pos,x
         SEC
         SBC #$0002
@@ -67,7 +67,7 @@ init:
 AnimationSpeeds:
         dw $0001,$0002,$0004,$0007,$000A,$00FF
 
-main:
+print "MAIN ",pc
         LDA !ow_sprite_x_pos,x
         PHA
         SEC
@@ -153,9 +153,9 @@ main:
         STA !ow_sprite_speed_z,x
 
 .NoMoreDec
-        JSL update_x_pos
-        JSL update_y_pos
-        JML update_z_pos
+        %OverworldXSpeed()
+        %OverworldYSpeed()
+        %OverworldZSpeed()
 
 .BallXSpeeds
         dw !ballxspd,-!ballxspd
@@ -164,7 +164,7 @@ main:
 
 GFX:
         LDA #$0002
-        JSL get_draw_info
+        %OverworldGetDrawInfo()
         BCC +
         SEP #$10
         REP #$20
@@ -189,26 +189,26 @@ GFX:
         LSR #2
         TAY
         LDA #$0202              ;   16x16 koopas
-        STA $041E|!addr,y
+        STA $041E|!Base2,y
         SEP #$20
         LDA #$00                ;   8x8
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
         PLY
 
 ;SHADOW TILE
         LDA $00
-        STA $0200|!addr,y
+        STA $0200|!Base2,y
 
         LDA $02
         CLC
         ADC !ow_sprite_z_pos,x
-        STA $0201|!addr,y
+        STA $0201|!Base2,y
 
         LDA #!shadowtile
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
 
         LDA #!shadowprops
-        STA $0203|!addr,y
+        STA $0203|!Base2,y
 
         DEY #4
 
@@ -235,10 +235,10 @@ GFX:
 
 ;actual drawing code starts here
         LDA #!props
-        STA $0203|!addr,y
+        STA $0203|!Base2,y
 
         LDA .KoopaTiles,x
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
 
         LDA .KoopaXOff,x
         BPL +
@@ -253,11 +253,11 @@ GFX:
         CMP #$0100
         SEP #$20
         BCS .koopa_offscreen
-        STA $0200|!addr,y
+        STA $0200|!Base2,y
         BRA +
 .koopa_offscreen
         LDA #$F0
-        STA $0201|!addr,y
+        STA $0201|!Base2,y
         BRA .next_koopa
 
 ;check if one of the koopas should be bouncing
@@ -290,7 +290,7 @@ GFX:
         ADC !ow_sprite_z_pos,x  ;   keep the koopas in the water
         SEC
         SBC $07                 ;   bounce koopa a little if needed
-        STA $0201|!addr,y
+        STA $0201|!Base2,y
 
 .next_koopa
         DEY #4
@@ -301,12 +301,12 @@ GFX:
         LDX !ow_sprite_index
 
         REP #$20
-        JSL is_offscreen
+        %OverworldOffScreen()
         SEP #$20
         BCC .ball_on_screen
 ; delete shadow
         LDA #$F0
-        STA $0201+12|!addr,y
+        STA $0201+12|!Base2,y
         REP #$20
         SEP #$10
 .offscreen
@@ -316,21 +316,21 @@ GFX:
 ;BALL TILE
         REP #$20
         LDA #$0000
-        JSL get_draw_info_priority
+        %OverworldGetDrawInfoPriority()
         BCS .offscreen
         SEP #$21
         LDA $00
         STA $0200,y
         LDA $02
         SBC #$06
-        STA $0201|!addr,y
+        STA $0201|!Base2,y
         LDA #!ballprops
-        STA $0203|!addr,y
+        STA $0203|!Base2,y
         LDA !ballframe,x
         TAX
         LDA .BallTiles,x
         LDX !ow_sprite_index
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
 
 ;size table
         PHY
@@ -341,7 +341,7 @@ GFX:
         TAY
         SEP #$20
         LDA #$00                ;   8x8
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
         PLY
 
         REP #$20

@@ -37,13 +37,13 @@
 !walklength = $0016
 ;how far to walk to the right
 
-init:
+print "INIT ",pc
 ;check if mario is on the level tile
-        LDY $0DD6|!addr
-        LDA $1F17|!addr,y       ;   mario x position
+        LDY $0DD6|!Base2
+        LDA $1F17|!Base2,y       ;   mario x position
         CMP.w #!levelX
         BNE .NoSquish
-        LDA $1F19|!addr,y       ;   mario y position
+        LDA $1F19|!Base2,y       ;   mario y position
         CMP.w #!levelY
         BNE .NoSquish
         INC !squished,x
@@ -73,7 +73,7 @@ YSpeeds:
         dw !YSquished^$FFFF,!YSquished
 ;normal, squished
 
-main:
+print "MAIN ",pc
 ;walk around
         LDA !squished,x
         ASL #2
@@ -92,8 +92,8 @@ main:
         PLA
         STA !ow_sprite_speed_x,x
 
-        JSL update_x_pos
-        JSL update_y_pos
+        %OverworldXSpeed()
+        %OverworldYSpeed()
 
 
 ;check if we hit a boundary, and if so, return the other direction
@@ -161,18 +161,18 @@ dw !frametime,!frametimesquish
 
 GFX:
         LDA #$0000
-        JSL get_draw_info
+        %OverworldGetDrawInfo()
         BCS .offscreen
         LDA #$0000
         SEP #$20
 
         LDA $00
-        STA $0200|!addr,y       ;   x pos
+        STA $0200|!Base2,y       ;   x pos
         LDA $02
-        STA $0201|!addr,y       ;   y pos
+        STA $0201|!Base2,y       ;   y pos
         LDA #!props
         ORA !flip,x
-        STA $0203|!addr,y       ;   props
+        STA $0203|!Base2,y       ;   props
 
         LDA !squished,x
         ASL
@@ -181,7 +181,7 @@ GFX:
         TAX
         LDA .Frames,x
         LDX !ow_sprite_index
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
 
 ;size table write
         REP #$20
@@ -190,7 +190,7 @@ GFX:
         TAY
         SEP #$20
         LDA #$02                ;   16x16
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
 
         REP #$20
         SEP #$10

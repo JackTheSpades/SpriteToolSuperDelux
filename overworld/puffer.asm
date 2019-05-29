@@ -7,8 +7,8 @@
 
 !dir = !ow_sprite_misc_1
 
-init:
-        JSL sub_horz_pos
+print "INIT ",pc
+        %OverworldHorzPos()
         TYA
         STA !dir,x
         LDA #$0010
@@ -18,7 +18,7 @@ init:
         STA !ow_sprite_y_pos,x
         RTL
 
-main:
+print "MAIN ",pc
         JSR Graphics
         LDA !dir,x
         ASL
@@ -27,7 +27,7 @@ main:
         BNE +
         LDA #$0010
         STA !ow_sprite_timer_1,x
-        JSL sub_horz_pos
+        %OverworldHorzPos()
         TYA
         STA !dir,x
         ASL
@@ -53,7 +53,7 @@ main:
         AND #$0003
         BNE ++
         PHY
-        JSL get_player_distance
+        %OverworldDistance()
         PLY
         LDA $06
         CMP #$0030
@@ -78,7 +78,7 @@ fuku:
         CLC : ADC accel,y
         STA !ow_sprite_speed_x,x
 
-++      JSL update_x_pos
+++      %OverworldXSpeed()
 
         LDY !ow_sprite_misc_2,x
         LDA !ow_sprite_speed_y,x
@@ -92,7 +92,8 @@ fuku:
 +       LDA !ow_sprite_speed_y,x
         CLC : ADC accely,y
         STA !ow_sprite_speed_y,x
-        JML update_y_pos
+        %OverworldYSpeed()
+        RTL
 
 accel:
         dw $0008,$FFF8,$FFF8,$0008
@@ -108,7 +109,7 @@ prop:
         db $62,$22
 
 Graphics:
-        JSL sub_horz_pos
+        %OverworldHorzPos()
         SEP #$20
         LDA prop,y
         XBA
@@ -122,23 +123,23 @@ Graphics:
         REP #$20
         STA $0A
         LDA #$0000
-        JSL get_draw_info
+        %OverworldGetDrawInfo()
         BCS .offscreen
 
         SEP #$20
         LDA $00
-        STA $0200|!addr,y
+        STA $0200|!Base2,y
         LDA $02
-        STA $0201|!addr,y
+        STA $0201|!Base2,y
         REP #$20
         LDA $0A
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
         TYA
         LSR #2
         TAY
         SEP #$20
         LDA #$02
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
         REP #$20
         SEP #$10
 .offscreen

@@ -21,32 +21,33 @@
 
 !tile1  = $2A
 !tile2  = $2C
-!props  = $34
+!props  = $32
 
-init:
-        LDA !ow_sprite_extra_byte,x
+; %OverworldOffScreen()
+print "INIT ",pc
+        LDA !ow_sprite_extra_bits,x
         BEQ .no_disappear
         TAY
         SEP #$20
-        LDA $1EA2|!addr,y
+        LDA $1EA2|!Base2,y
         BPL .no_disappear
         REP #$20
         STZ !ow_sprite_num,x
         RTL
 .no_disappear
         REP #$20
-main:
+print "MAIN ",pc
         LDA #$0000
-        JSL get_draw_info
+        %OverworldGetDrawInfo()
         BCS .offscreen
         SEP #$20
         LDA $00
-        ADC #$08
-        STA $0200|!addr,y
+        ; ADC #$08
+        STA $0200|!Base2,y
         LDA $02
-        CLC
-        ADC #$08
-        STA $0201|!addr,y
+        ; CLC
+        ADC #$04
+        STA $0201|!Base2,y
         PHY
         SEP #$10
         LDX #!tile1
@@ -58,16 +59,16 @@ main:
         REP #$10
         PLY
         LDX !ow_sprite_index
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
         LDA #!props
-        STA $0203|!addr,y
+        STA $0203|!Base2,y
         REP #$20
         TYA
         LSR #2
         TAY
         SEP #$20
         LDA #$02
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
 
         REP #$20
         SEP #$10

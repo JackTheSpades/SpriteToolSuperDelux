@@ -21,7 +21,7 @@
 ;(eg if it's $8x instead of $0x)
 
 
-init:
+print "INIT ",pc
 ;move right a bit
         LDA !ow_sprite_x_pos,x
         CLC
@@ -29,7 +29,7 @@ init:
         STA !ow_sprite_x_pos,x
 
 ;set flip if desired
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         AND #$0080
         BEQ .NoFlip
 
@@ -37,7 +37,7 @@ init:
         STA !flip,x
 
 .NoFlip
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         AND #$004F
         STA !animationframe,x
         RTL
@@ -67,6 +67,7 @@ AnimationSpeeds:
         dw $FFFF
 
 
+print "MAIN ",pc
 main:
 ;crow animation, edited from the lotus
         LDA !animationtimer,x
@@ -96,7 +97,7 @@ main:
 
 GFX:
         LDA #$0000
-        JSL get_draw_info
+        %OverworldGetDrawInfo()
         BCS .off_screen
 
         LDA #$0000
@@ -104,15 +105,15 @@ GFX:
 
 ;CROW TILE
         LDA $00
-        STA $0200|!addr,y       ;   x pos
+        STA $0200|!Base2,y       ;   x pos
         LDA $02
-        STA $0201|!addr,y       ;   y pos
+        STA $0201|!Base2,y       ;   y pos
         LDA #!props
         ORA !flip,x
-        STA $0203|!addr,y       ;   props
+        STA $0203|!Base2,y       ;   props
 
         LDA !frame,x
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
 
 ;size table write
         REP #$20
@@ -121,7 +122,7 @@ GFX:
         TAY
         SEP #$20
         LDA #$02                ;   16x16
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
 
         REP #$20
         SEP #$10

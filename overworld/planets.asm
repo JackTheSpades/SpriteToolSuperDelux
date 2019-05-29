@@ -24,7 +24,7 @@
 ;not used for anything by the sprite, might be useful to you though lui
 
 
-init:
+print "INIT ",pc
 ;preserve y position (-0003 so the planet y offsets center it)
 ;(this doesn't waste processing cause we'd have to -0002 anyway to center it)
         LDA !ow_sprite_y_pos,x
@@ -35,7 +35,7 @@ init:
 
 ;set initial position
         SEP #$20
-        JSL $01ACF9|!bank       ;   RNG generator
+        JSL $01ACF9|!BankB       ;   RNG generator
         REP #$20
         AND #$000F
         CMP #$000F
@@ -46,7 +46,7 @@ init:
 
 ;set initial direction (0001 or FFFF)
         SEP #$20
-        JSL $01ACF9|!bank       ;   RNG generator
+        JSL $01ACF9|!BankB       ;   RNG generator
         REP #$20
         AND #$0001
         BNE .Not0
@@ -55,7 +55,7 @@ init:
         STA !animationdir,x
         RTL
 
-main:
+print "MAIN ",pc
 ;reset y position before applying offset later
         LDA !spawny,x
         STA !ow_sprite_y_pos,x
@@ -99,11 +99,11 @@ main:
         STA !ow_sprite_y_pos,x
 
 ;before calling gfx, check and save which planet this is
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         STA $0A
 
         LDA #$0003
-        JSL get_draw_info
+        %OverworldGetDrawInfo()
         BCS .offscreen
         LDA #$0000
         SEP #$20
@@ -117,13 +117,13 @@ main:
         CLC
         ADC .XOff,x
         DEC                     ;   move one left to center graphics
-        STA $0200|!addr,y       ;   x pos
+        STA $0200|!Base2,y       ;   x pos
         LDA $02
         CLC
         ADC .YOff,x
-        STA $0201|!addr,y       ;   y pos
+        STA $0201|!Base2,y       ;   y pos
         LDA #!props
-        STA $0203|!addr,y       ;   props
+        STA $0203|!Base2,y       ;   props
 
         STX $04
         LDA $0A
@@ -134,7 +134,7 @@ main:
         TAX
         LDA .Tiles,x
         PLX
-        STA $0202|!addr,y       ;   tile
+        STA $0202|!Base2,y       ;   tile
 
 ;size table write
         PHY
@@ -144,7 +144,7 @@ main:
         TAY
         SEP #$20
         LDA #$02                ;   16x16
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
         PLY
 
         DEY #4

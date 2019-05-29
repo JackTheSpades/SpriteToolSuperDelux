@@ -28,13 +28,14 @@
 !animationframe = !ow_sprite_misc_1
 
 
-init:
+print "INIT ",pc
         JSR main_Randomize
         LDA !ow_sprite_x_pos,x
         SEC
         SBC #$0006
         STA !ow_sprite_x_pos,x
 
+print "MAIN ",pc
 main:
         JSR GFX
 
@@ -45,7 +46,7 @@ main:
         ADC #$0006
         STA !ow_sprite_x_pos,x
 
-        JSL sub_horz_pos
+        %OverworldHorzPos()
         LDA #$0000
         TYA
         BEQ .StoreFlip
@@ -95,7 +96,7 @@ main:
         STA.w !ow_sprite_speed_z,x
 
         ;update z position when it's done
-        JSL update_z_pos
+        %OverworldZSpeed()
 
         ;make the ninji sit still when it lands
         LDA.w !ow_sprite_z_pos,x
@@ -115,8 +116,8 @@ main:
 .Randomize
         LDA #$0000
         SEP #$20
-        JSL $01ACF9|!bank       ;RNG generator
-        LDA $148D|!addr         ;load RNG result
+        JSL $01ACF9|!BankB       ;RNG generator
+        LDA $148D|!Base2         ;load RNG result
         AND #!rngAND
         REP #$21
         ADC #!basetime
@@ -125,17 +126,16 @@ main:
         RTS
 
 GFX:
-        LDA.w !ow_sprite_extra_byte,x
+        LDA.w !ow_sprite_extra_bits,x
         BEQ .noPriority
 
         LDA #$0001
-        JSL get_draw_info_priority
+        %OverworldGetDrawInfoPriority()
         BRA .Draw
 
 .noPriority
         LDA #$0001
-        JSL get_draw_info
-
+        %OverworldGetDrawInfoPriority()
 .Draw
         BCS OffScreen
 
@@ -145,18 +145,18 @@ GFX:
         ;SHADOW TILE
         LDA $00
         ADC #$03
-        STA $0200|!addr,y
+        STA $0200|!Base2,y
         LDA $02
         CLC
         ADC !ow_sprite_z_pos,x
         CLC
         ADC #$09
-        STA $0201|!addr,y
+        STA $0201|!Base2,y
         LDA #!shadowtile
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
 
         LDA #!props
-        STA $0203|!addr,y
+        STA $0203|!Base2,y
 
         PHY
         REP #$20
@@ -165,29 +165,29 @@ GFX:
         TAY
         SEP #$20
         LDA #$00                ;8x8
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
         PLY
 
         DEY #4
 
         ;NINJI TILE
         LDA $00
-        STA $0200|!addr,y       ;x pos
+        STA $0200|!Base2,y       ;x pos
         LDA $02
-        STA $0201|!addr,y       ;y pos
+        STA $0201|!Base2,y       ;y pos
 
         LDA !animationframe,x
         TAX
         LDA .NinjiFrames,x
         LDX !ow_sprite_index
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
 
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         TAX
         LDA .props,x
         LDX !ow_sprite_index
         ORA !flip,x
-        STA $0203|!addr,y       ;props
+        STA $0203|!Base2,y       ;props
 
         ;size table write
         REP #$20
@@ -196,7 +196,7 @@ GFX:
         TAY
         SEP #$20
         LDA #$02      ;16x16
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
 
         REP #$20
         SEP #$10

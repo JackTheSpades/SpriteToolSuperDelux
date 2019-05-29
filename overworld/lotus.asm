@@ -4,7 +4,7 @@
 !PollenSpd = !PollenZ-$0020
 ;pollen speeds
 
-!lotuspollen_id = $69
+!lotuspollen_id = $0B
 
 !props = $36
 ;yxPPcCCt of the lotus
@@ -13,11 +13,14 @@
 ;timer used for the animation
 !animationframe = !ow_sprite_misc_1
 ;which frame to display right now
+!animationspeed = !ow_sprite_misc_5
+;how often the frame changed in this toss, used cause it's supposed to rotate slower as time goes on
+
 
 !bulletpattern = !ow_sprite_misc_2
 ;which table to read the "bullet pattern" from
 
-init:
+print "INIT ",pc
         LDA !ow_sprite_y_pos,x
         SEC
         SBC #$0002
@@ -33,7 +36,7 @@ init:
 AnimationSpeeds:
         dw $00B8,$000B,$000B,$000B,$000B,$000B,$000B,$000B,$000B,$0028,$FFFF
 
-main:
+print "MAIN ",pc
 ;lotus animations
         LDA !animationtimer,x
         BNE .NoNewFrame
@@ -93,7 +96,7 @@ main:
         ADC #$0006
         STA $06
         STZ $08
-        JSL spawn_sprite
+        %OverworldSpawnSprite()
         LDA $01,s
         ASL
         STA $04
@@ -121,24 +124,24 @@ main:
 
 GFX:
         LDA #$0000
-        JSL get_draw_info
+        %OverworldGetDrawInfo()
         BCS .offscreen
         LDA #$0000
         SEP #$20
 
 ;LOTUS TILE
         LDA $00
-        STA $0200|!addr,y       ;   x pos
+        STA $0200|!Base2,y       ;   x pos
         LDA $02
-        STA $0201|!addr,y       ;   y pos
+        STA $0201|!Base2,y       ;   y pos
         LDA #!props
-        STA $0203|!addr,y       ;   props
+        STA $0203|!Base2,y       ;   props
 
         LDA !animationframe,x
         TAX
         LDA .LotusTiles,x
         LDX !ow_sprite_index
-        STA $0202|!addr,y
+        STA $0202|!Base2,y
 
 ;size table write
         REP #$20
@@ -147,7 +150,7 @@ GFX:
         TAY
         SEP #$20
         LDA #$02                ;   16x16
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
 
         REP #$20
         SEP #$10

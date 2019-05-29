@@ -17,11 +17,12 @@
 ;tile for the ropes
 
 
+print "INIT ",pc
 init:
         RTL
-main:
+print "MAIN ",pc
 ;decide whether the lamp is on or off
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         AND #$0080
         BNE .Skip4Tiles
 
@@ -34,17 +35,17 @@ main:
         STA $00
 
 .AddTiles
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         AND #$007F
         CLC
         ADC $00        ;rope tiles + 2 lantern tiles + 4 cone tiles
-        JSL get_draw_info
+        %OverworldGetDrawInfo()
         BCS init
         LDA #$0000
         SEP #$20
 
 ;don't render lantern if last extra bit is set
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         BMI .NoLight
 
 ;CONE TILES
@@ -57,18 +58,18 @@ main:
         ADC .ConeXOff,x
         SEC
         SBC #$08
-        STA $0200|!addr,y       ;   x pos
+        STA $0200|!Base2,y       ;   x pos
         LDA $02
         CLC
         ADC .ConeYOff,x
         CLC
         ADC #$04
-        STA $0201|!addr,y       ;   y pos
+        STA $0201|!Base2,y       ;   y pos
         LDA #!lightprops
         ORA .ConeFlip,x
-        STA $0203|!addr,y       ;   props
+        STA $0203|!Base2,y       ;   props
         LDA .ConeTiles,x
-        STA $0202|!addr,y       ;   tiles
+        STA $0202|!Base2,y       ;   tiles
 
 ;size table write
         PHY
@@ -78,7 +79,7 @@ main:
         TAY
         SEP #$20
         LDA #$02                ;   16x16
-        STA $0420|!addr,y
+        STA $0420|!Base2,y
         PLY
 
         DEY #4
@@ -104,12 +105,12 @@ main:
         STA $0203,y             ;   props
 
         LDX !ow_sprite_index
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         ROL #2
         AND #$01
         CLC
         ADC #!LanternTile
-        STA $0202|!addr,y       ;   tiles
+        STA $0202|!Base2,y       ;   tiles
 
 ;size table write
         PHY
@@ -130,7 +131,7 @@ main:
 
 ;ROPE TILES
         LDX !ow_sprite_index
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         AND #$7F
         TAX
 .RopeLoop
@@ -139,11 +140,11 @@ main:
         LDA $00
         CLC
         ADC #$04
-        STA $0200|!addr,y       ;   x pos
+        STA $0200|!Base2,y       ;   x pos
         LDA #!props
-        STA $0203|!addr,y       ;   props
+        STA $0203|!Base2,y       ;   props
         LDA #!RopeTile
-        STA $0202|!addr,y       ;   tiles
+        STA $0202|!Base2,y       ;   tiles
 
         TXA
         ASL #3                  ;   current index (which is !ow_sprite_extra) * 8
@@ -154,7 +155,7 @@ main:
         SBC $08                 ;   use the index * 8 and move this rope that many pixels up
         SEC
         SBC #$08
-        STA $0201|!addr,y       ;   y pos
+        STA $0201|!Base2,y       ;   y pos
 
 ;size table write
         PHY

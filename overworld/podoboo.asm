@@ -2,6 +2,8 @@
 ;leaves flame trail
 ;extra byte 00-7F = height the podoboo jumps
 
+!smoke_id = $15
+
 !wait = $0080
 ;time to wait until next hop
 
@@ -49,29 +51,29 @@
 ;how high the podoboo flies, set by the first 7 bits of the extra byte
 
 
-init:
+print "INIT ",pc
         SEP #$20
 ;set random timer for the flashing
-        JSL $01ACF9|!bank       ;   RNG generator
+        JSL $01ACF9|!BankB       ;   RNG generator
         AND #$FE
         INC
         LDX !ow_sprite_index
         STA !flashtimer,x
 
 ;set random timer for the waiting
-        JSL $01ACF9|!bank       ;   RNG generator
+        JSL $01ACF9|!BankB       ;   RNG generator
         AND #$3F
         LDX !ow_sprite_index
         STA !jumptimer,x
         REP #$20
         STZ !ow_sprite_z_pos,x
 
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         AND #$007F
         STA !peak,x
         RTL
 
-main:
+print "MAIN ",pc
 ;if it shouldn't show, don't and wait for jump timer instead
         LDA !direction,x
         BEQ .Wait
@@ -132,14 +134,14 @@ main:
 ;play fire sfx
         ; SEP #$20
         ; LDA #$27
-        ; STA $1DFC|!addr
+        ; STA $1DFC|!Base2
         ; REP #$20
 
 .DontJump
         RTL
 
 .Rise
-        JSL update_z_pos
+        %OverworldZSpeed()
 
 ;check if we've reached the peak set in the extra byte yet and if so, set position to peak for that perfect pizza
         LDA !ow_sprite_z_pos,x
@@ -162,7 +164,7 @@ main:
         LDA !ow_sprite_z_pos,x
         STA $06
         STZ $08
-        JSL spawn_sprite
+        %OverworldSpawnSprite()
 ;make it use the lava animation
         LDA #$0001
         STA !ow_sprite_misc_2,x
@@ -200,7 +202,7 @@ main:
 
 .Downwards
 ;update position and kill sprite if it hits the floor
-        JSL update_z_pos
+        %OverworldZSpeed()
 
         LDA !ow_sprite_z_pos,x
         BPL .NoHide
@@ -231,7 +233,7 @@ main:
         LDA #$0000
         STA $06
         STZ $08
-        JSL spawn_sprite
+        %OverworldSpawnSprite()
 ;make it use the lava animation
         LDA #$0001
         STA !ow_sprite_misc_2,x
@@ -265,18 +267,18 @@ main:
 
 GFX:
 ;load mario's y position and if it's above the podoboo, priority
-        LDY $0DD6|!addr
-        LDA $1F19|!addr,y
+        LDY $0DD6|!Base2
+        LDA $1F19|!Base2,y
         CMP !ow_sprite_y_pos,x
         BCS .normalinfo
 
         LDA #$0001
-        JSL get_draw_info_priority
+        %OverworldGetDrawInfoPriority()
         BRA .doneinfo
 
 .normalinfo
         LDA #$0001
-        JSL get_draw_info
+        %OverworldGetDrawInfo()
 .doneinfo
         BCS .offscreen
         LDA #$0000

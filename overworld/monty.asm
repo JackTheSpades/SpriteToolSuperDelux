@@ -1,6 +1,8 @@
 ;monty mole hill that shimmies and then fucking explodes when mario walks over a certain spot, like the cheep cheep in vanilla
 ;edit the TriggerX and TriggerY tables to change the position they jump out at. index to the table is the extra byte
 
+!smoke_id = $15
+
 !showmole = !ow_sprite_misc_1
 ;whether or not the mole tile displays (only does if the mole is above ground basically)
 ;can be used to determine if the jumping is going on
@@ -34,7 +36,7 @@
 ;yxppccct of mole and hill
 ;y and x flip added with code when needed
 
-main:
+print "MAIN ",pc
 ;if timer is ticking, AND #$40 of it and store to flip to make the hill flip
         LDA !shimmietimer,x
         ASL #3
@@ -74,6 +76,7 @@ main:
         BEQ init_CheckForTrigger
         DEC
         BEQ init_Jump
+print "INIT ",pc
 init:
         RTL
 
@@ -87,14 +90,14 @@ init:
 
 .CheckForTrigger
 ;prepare mario positions to compare them to the mole triggers
-        LDY $0DD6|!addr
-        LDA $1F17|!addr,y       ;   mario x position
+        LDY $0DD6|!Base2
+        LDA $1F17|!Base2,y       ;   mario x position
         STA $00
-        LDA $1F19|!addr,y       ;   mario y position
+        LDA $1F19|!Base2,y       ;   mario y position
         STA $02
 
 ;compare trigger positions to mario positions, if not the same dont jump
-        LDA !ow_sprite_extra_byte,x
+        LDA !ow_sprite_extra_bits,x
         ASL
         TAX
         LDA .TriggerX,x
@@ -121,11 +124,11 @@ init:
         STA !ow_sprite_speed_z,x
 
 ;sfx
-        JSL is_offscreen
+        %OverworldOffScreen()
         BCS .nosound
         SEP #$20
         LDA #$07
-        STA $1DFC|!addr
+        STA $1DFC|!Base2
         REP #$20
 
   .nosound
@@ -147,7 +150,7 @@ init:
         STA $04
         STZ $06
         STZ $08
-        JSL spawn_sprite
+        %OverworldSpawnSprite()
 
 ;make it use the rock animation
         LDA #$0002
@@ -191,11 +194,12 @@ init:
         STA !ow_sprite_speed_z,x
 
 .NoMoreDec
-        JML update_z_pos
+        %OverworldZSpeed()
+        RTL
 
 GFX:
         LDA #$0001
-        JSL get_draw_info
+        %OverworldGetDrawInfo()
         BCS .offscreen
 
 ;set size to 16x16 for both slots
@@ -204,7 +208,7 @@ GFX:
         LSR #2
         TAY
         LDA #$0202              ;   16x16
-        STA $041F|!addr,y
+        STA $041F|!Base2,y
         SEP #$20
         PLY
 
@@ -217,29 +221,29 @@ GFX:
 
 .DrawMoleTile
         LDA #!moletile
-        STA $0202|!addr,y       ;   mole tile
+        STA $0202|!Base2,y       ;   mole tile
         LDA #!props
-        STA $0203|!addr,y       ;   props
+        STA $0203|!Base2,y       ;   props
         LDA $00
-        STA $0200|!addr,y       ;   x pos
+        STA $0200|!Base2,y       ;   x pos
         LDA $02
-        STA $0201|!addr,y       ;   y pos
+        STA $0201|!Base2,y       ;   y pos
 
 ;MOLE HILL TILE
 .HillTile
         LDA #!hilltile
-        STA $01FE|!addr,y       ;   mole hill tile, one slot earlier
+        STA $01FE|!Base2,y       ;   mole hill tile, one slot earlier
         LDA !hillflip,x         ;   !hillflip is either 00 or 40 (to flip on x), so just add the props
         CLC
         ADC #!props
-        STA $01FF|!addr,y       ;   props, one slot earlier
+        STA $01FF|!Base2,y       ;   props, one slot earlier
         LDA $00
-        STA $01FC|!addr,y       ;   x pos, one slot earlier
+        STA $01FC|!Base2,y       ;   x pos, one slot earlier
         LDA $02
         CLC
         ADC !ow_sprite_z_pos,x
         INC
-        STA $01FD|!addr,y       ;y pos, one slot earlier, adjusted for z position
+        STA $01FD|!Base2,y       ;y pos, one slot earlier, adjusted for z position
 
         REP #$20
         SEP #$10
