@@ -15,15 +15,14 @@
 
 incsrc "sa1def.asm"              ;  sa-1 defines
 
-
-assert read3($0EF55D) != $FFFFFF, "Please insert any custom overworld sprite with Lunar Magic first. (Press Insert when in sprite mode)"
-
 org read3($0EF55D)
    map_offsets:
 
 
 org $00A165                      ;   jump to new ow sprite load (this one will run in gamemode $0C)
-   JML ow_sprite_load
+   JML ow_sprite_load_gm
+org $04DBA3                      ;   jump to new ow sprite load (this one will run in map transitions)
+   JMP.w ow_sprite_load_sm
 org $009AA4                      ;   nuke jump to original ow sprite load
    BRA $02 : NOP #2
 org $04F675                      ;   nuke original ow sprite load (which runs in gamemode $05)
@@ -34,6 +33,22 @@ org $04F675|!BankB
    autoclean dl ow_sprite_main_ptrs ; \ constant pointer to ow sprites main pointers for cleanup by tool.
    autoclean dl spawn_sprite        ; / random pointer to freecode for cleanup.   
 ow_sprite_load:
+.gm
+   JSR ow_sprite_load_main
+   JSL $04D6E9|!BankB
+   JML $00A169|!BankB
+.sm
+   ; LDA $1DE8|!Base2                 ; \
+   ; CMP #$07                         ; | i'm going to execute kipernal
+   ; BNE ..return                     ; /
+   PHX
+   JSR clear_ram
+   JSR ow_sprite_load_main
+   PLX
+   LDA $1F11|!Base2,x
+   JMP $DBA6
+
+ow_sprite_load_main:
    if !SA1
       LDA.b #.main
       STA $3180
@@ -42,11 +57,12 @@ ow_sprite_load:
       LDA.b #.main>>16
       STA $3182
       JSR $1E80
-      JSL $04D6E9|!BankB
-      JML $00A169|!BankB
+      RTS
    endif
 .main
    PHB
+   LDA.l $0EF55E                 ; you wouldn't put this table in WRAM
+   BEQ .end_spawning
    LDX $0DB3|!Base2              ; \
    LDA $1F11|!Base2,x            ; | submap of current player (times 2) into X for index to offset table.
    ASL                           ; |
@@ -105,18 +121,11 @@ ow_sprite_load:
    BRA .sprite_load_loop
 
 .end_spawning
-   ; STZ !ow_sprite_index
    SEP #$20
    PLB
-   if !SA1 == 0
-      JSL $04D6E9|!BankB
-      JML $00A169|!BankB
-   else
-      RTL
-   endif
+   RTS
+
 warnpc $04F6F8|!BankB
-
-
 
 org $04F76E|!BankB
 run_ow_sprite:
@@ -221,6 +230,19 @@ execute_ow_sprite_init:
    JML.w [!Base1]                ; | workaround for JSL [$0000]
 .return_execute                  ; |
    RTS                           ; /
+
+;---
+
+math pri off
+
+clear_ram:
+   REP #$30
+   LDX.w #$18*2*21+4
+-  STZ !ow_sprite_num,x
+   DEX #2
+   BPL -
+   SEP #$30
+   RTS
 
 warnpc $04F8A6|!BankB
 
