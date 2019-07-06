@@ -1,5 +1,41 @@
 Changelog
 
+Version 1.2.10 (July 6, 2019):
+  - (Tattletale) sa1convert officially removed from pixi.
+  - (Tattletale) trashkas officially removed from pixi.
+  - (Tattletale) donutblk gps block removed from pixi.
+  - (Tattletale) poison.asm patch removed from pixi.
+  - (Tattletale) level_ender sprite remove from pixi.
+  - (Tattletale) donut_lift sprite remove from pixi.
+  - (Tattletale) piranha_sideways sprite remove from pixi.
+  - (Tattletale) roto_disc sprite remove from pixi.
+  - (Tattletale) thwomp_left sprite remove from pixi.
+  - (Tattletale) thwomp_right sprite remove from pixi.
+  - (Tattletale) base_bro sprite remove from pixi.
+  - (Tattletale) shell_bro sprite remove from pixi.
+  - (Tattletale) bomb_bro sprite remove from pixi.
+  - (Tattletale) boomerang sprite remove from pixi.
+  - (Tattletale) boomerang_bro sprite remove from pixi.
+  - (Tattletale) hammer_bro sprite remove from pixi.
+  - (Tattletale) clusterspawn sprite remove from pixi.
+  - (Tattletale) fishspawn sprite remove from pixi.
+  - (Tattletale) flowerspawn sprite remove from pixi.
+  - (Tattletale) rainspawn sprite remove from pixi.
+  - (Tattletale) sandstormspawn sprite remove from pixi.
+  - (Tattletale) diag_down_bill shooter remove from pixi.
+  - (Tattletale) diag_up_bill shooter remove from pixi.
+  - (Tattletale) vertical_bill shooter remove from pixi.
+  - (Tattletale) fish cluster sprite remove from pixi.
+  - (Tattletale) flowers cluster sprite remove from pixi.
+  - (Tattletale) rain cluster sprite remove from pixi.
+  - (Tattletale) sandstorm cluster sprite remove from pixi.
+  - (Tattletale) boomerang extended sprite remove from pixi.
+  - (Tattletale) hammer extended sprite remove from pixi.
+  - (Tattletale) src.zip is not packed anymore. If you want the source, get it in github.
+  - (Tattletale) Graphic for Included Sprites has been removed.
+  - (Tattletale) Added a file called removedResources.txt so you can get back these resources from elsewhere.
+  
+
 Version 1.2.9 (Feb 17, 2019):
   - (Tattletale) Fixed a bug with the Star.asm routine (provided by Blinddevil, reported by Darolac).
   - (Tattletale) Fixed a bug with ExtendedGetDrawInfo.asm (reported by Darolac, I think it was Sonikku who fixed this (?)).
