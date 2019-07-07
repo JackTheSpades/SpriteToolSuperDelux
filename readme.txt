@@ -233,6 +233,12 @@ If you are used to using Romi's SpriteTool, here is a quick rundown of everythin
 	!extra_byte_2
 	!extra_byte_3
 	!extra_byte_4
+	
+	As of version 1.2.10, we now have 3 extra bytes for shooters. Everything that applies for normal sprite extra bytes applies for this.
+	
+	!shooter_extra_byte_1
+	!shooter_extra_byte_2
+	!shooter_extra_byte_3
 		
 		
 - Common Errors
