@@ -34,7 +34,12 @@ Version 1.2.10 (July 6, 2019):
   - (Tattletale) src.zip is not packed anymore. If you want the source, get it in github.
   - (Tattletale) Graphic for Included Sprites has been removed.
   - (Tattletale) Added a file called removedResources.txt so you can get back these resources from elsewhere.
-  
+  - (Tattletale) Table 1938 has been moved to 7FAF00, it also now uses 256 bytes. So 7E1938 is now free.
+  - (Tattletale) Added 3 extra bytes for shooters at 7FAC00|4000F1, 7FAC08|400030 and 7FAC10|400038 - 8 bytes each.
+  - (Tattletale) Added !addr, !dp, !bank, !sa1, !shooter_extra_byte_1, !shooter_extra_byte_2, !shooter_extra_byte_3 and !7FAF00 as defines. !1938 is now the same as !7FAF00, so be careful, it's not 16bits anymore for fastROM.
+  - (Tattletale) SubOffScreen edited to explicitly use .L and the new table's macro.
+  - (Tattletale) Pixi now handles the sprite status table just like sa1 does (256 bytes). Now it's safe to disable LM's warning for sprite count when using fastROM. This is also technically a bug fix.
+  - (Tattletale) Some minor optimizations to main.asm
 
 Version 1.2.9 (Feb 17, 2019):
   - (Tattletale) Fixed a bug with the Star.asm routine (provided by Blinddevil, reported by Darolac).

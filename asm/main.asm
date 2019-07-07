@@ -103,10 +103,10 @@ org $01D43E|!BankB
 
 ; store extra bits separate from $14D4
 org $02A963|!BankB
-	JSL SubLoadHack
+	JML SubLoadHack
 	NOP
 org $02A94B|!BankB
-	JSL SubLoadHack2
+	JML SubLoadHack2
 	NOP
 
 ; sprite init call subroutine
@@ -121,25 +121,26 @@ org $0185C3|!BankB
 
 ; clear init bit when changing sprites
 org $07F785|!BankB
-	JSL EraserHack
+	JML EraserHack
 	NOP
 
 org $018151|!BankB
-	JSL EraserHack2
+	JML EraserHack2
 	NOP
-	
 	
 org $02A866|!BankB
 	JML SubGenLoad
 
 if !SA1 = 0
 	org $02ABA0|!BankB
-		JSL SubShootLoad
+		JML SubShootLoad
 		NOP
+	SubShootLoadReturn:
 else
 	org $02ABA2
-		JSL SubShootLoad
+		JML SubShootLoad
 		NOP #2
+	SubShootLoadReturn:
 endif
 
 org $02B395|!BankB
@@ -157,10 +158,10 @@ org $018127|!BankB
 	JML SubHandleStatus
 	
 org $02A9C9|!BankB
-	JSL InitKeepextra_bits
+	JML InitKeepextra_bits
 	
 org $02A9A6|!BankB
-	JSL TestSilverCoinBit
+	JML TestSilverCoinBit
 	NOP
 ; ---------------------------------------------------
 ; dev stuff / LM Hijacks
@@ -193,7 +194,7 @@ org $02A846|!BankB
 ; stuff by Telinc1, Super Maks 64 and boldowa
 if !SA1 == 0
 	org $028B1D|!BankB
-		JSR LoadSpriteInLevel
+		JMP LoadSpriteInLevel
 
 	; From Giepy
 	org $02AC7A|!BankB
@@ -224,13 +225,15 @@ if !SA1 == 0
 		STA $CE
 		PLA
 		STA $CF
-		RTS
+		; return
+		JMP $8B20
+
 	DisplaceIndex:
 		DEX
 		DEY
 		DEY
 		JML SprtOffset
-	warnpc $02B60B|!BankB
+	warnpc $02B60E|!BankB
 
 	org $02ABEF|!BankB
 		JMP DisplaceIndex
@@ -238,10 +241,46 @@ if !SA1 == 0
 	org $02A9DB|!BankB
 		JMP DisplaceIndex
 		
-	if !EXLEVEL == 0		
-		org $02ABF3|!BankB
-			db $7F	;be able to load 128 sprites without issue
-	endif
+	;if !EXLEVEL == 0		
+	;	org $02ABF3|!BankB
+	;		db $7F	;be able to load 128 sprites without issue
+	;endif
+
+	; sa1 already fixes these
+	macro remap1938(addr, nop_count)
+		l_<addr>:
+			pushpc
+			
+			org $<addr>
+				JML .remap
+				rep <nop_count> : NOP
+				.back
+			pullpc
+			
+			.remap
+				PHX
+				TYX
+				LDA #$00
+				STA.l !7FAF00,x
+				PLX
+				JML .back
+	endmacro
+		
+	org $02A856|!BankB
+		autoclean JML CODE_02A856
+		NOP #6
+	
+	org $02A936|!BankB
+		autoclean JML NSprite_FixY2 : NOP
+	
+	org $02A8BB|!BankB
+		autoclean JML CODE_02A8BB : NOp
+		
+	org $02FAE9|!BankB
+		autoclean JML CODE_02FAE9
+		
+	org $02ABF2|!BankB
+		autoclean JML ClearIt
 else
 	; I could fit this inside the sa1 hijack, but I don't think that's a good idea
 	; So I got a few bytes more to fix this in and left that untouched
@@ -280,6 +319,51 @@ endif
 freecode
 	print "Freecode at ",pc	
 
+if !SA1 == 0
+	%remap1938(01AC9C,1)
+	%remap1938(02AB99,1)
+	%remap1938(02D088,1)
+	%remap1938(02FF15,1)
+	%remap1938(038712,1)
+	%remap1938(03B8BA,1)
+
+	NSprite_FixY2:
+		LDX $02
+		LDA #$00
+		STA.l !7FAF00,x
+		JML $02A93B|!BankB ; rts
+
+	ClearIt:
+		LDX #$FF
+		LDA #$00
+		STA.l !7FAF00,x
+	-	STA.l !7FAF00-1,x
+		DEX
+		BNE -
+		JML $02ABFA|!BankB
+
+	CODE_02FAE9:
+		LDA #$00
+		STA.l !7FAF00,x
+		PLX
+		JML $02FAED|!BankB
+
+	CODE_02A856:
+		LDA.l !7FAF00,x
+		BNE +
+		INC
+		STA.l !7FAF00,x
+		STX $02
+		JML $02A860|!BankB
+	+
+		BRA SprtOffset
+	
+	CODE_02A8BB:
+		LDA #$00
+		STA.l !7FAF00,x
+		;BRA SprtOffset
+endif
+
 SprtOffset:
 	DEY						; move index to sprite data byte 0
 	LDA [$CE],y				; format: YYYYEEsy, EE = Extra bits
@@ -289,7 +373,6 @@ SprtOffset:
 	INY #2					; \
 	LDA [$CE],y				; / sprite data byte 2 (sprite number)
 	DEY #2					; back to start of sprite
-	
 	;A = 000000EE NNNNNNNN (index to size table)
 
 	PHP
@@ -309,38 +392,30 @@ endif
 	CLC						; | Y += Size table
 	ADC.l Size,x			; |
 	; | still better than REP #$20 : AND #$00FF : SEP #$20
+if !SA1
 	XBA
-if !SA1
 	ADC #$00
-else
-	LDA #$00
-endif
-	XBA 
-
-if !SA1
+	XBA
 	REP #$30
-	TAY
-	PLX
-	SEP #$20	; XY has to be 16bit in SA1
 else	
-	CMP #$F9
 	BCC +
 	CLC
 	ADC $CE
 	STA $CE
 	LDA #$00
+	XBA
+	LDA #$00
 	BCC +
 	INC $CF
 +
+endif
 	TAY
 	PLX
-	SEP #$10
-endif
 	PLP
-
-	INX               ; restore code
+	
+	; restore code
+	INX
 	JML $02A82E|!BankB			; return to loop
-   
    
 SubLoadHack:
 	%debugmsg("SubLoadHack")
@@ -365,8 +440,7 @@ SubLoadHack:
 	PLY   
    
 	PLA
-   
-	RTL
+	JML $02A968|!BankB
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; convert regular sprite to custom sprite and call initialization
@@ -552,7 +626,7 @@ EraserHack2:
 	STA !161A,x
 	INC A
 	STA !extra_bits,x
-	RTL
+	JML $018156|!BankB
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -583,7 +657,7 @@ SubLoadHack2:
 	PLY
    
 	PLA
-	RTL
+	JML $02A950|!BankB
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; hijack main sprite loader to handle custom gens and shooters
@@ -613,7 +687,7 @@ SubGenLoad:
 	AND #$0C
 	ASL #$04
 	STA !new_code_flag
-   INY
+	INY
 
 	LDA $05
 	CMP #!GenStart
@@ -656,7 +730,7 @@ SubShootLoad:
 	if !SA1
 		STA $7783,x
 	endif	
-	RTL
+	JML SubShootLoadReturn
 .IsCustom
 	STA $1783|!Base2,x
 	LDA $04
@@ -664,7 +738,20 @@ SubShootLoad:
 	SBC #$BF
 	ORA $1783|!Base2,x
 	STA $1783|!Base2,x
-	RTL
+	
+	PHA
+	PHY
+	INY : INY : INY
+	LDA [$CE],y
+	STA !shooter_extra_byte_1,x
+	INY : LDA [$CE],y
+	STA !shooter_extra_byte_2,x
+	INY : LDA [$CE],y
+	STA !shooter_extra_byte_3,x
+	PLY
+
+	PLA
+	JML SubShootLoadReturn
    
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -955,7 +1042,7 @@ InitKeepextra_bits:
 	
 	PLA
 	STA !extra_bits,x
-	RTL
+	JML $02A9CD|!BankB
 			
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Test a custom sprite's an ACTUAL bit so that the sprite ALWAYS won't be
@@ -978,7 +1065,7 @@ TestSilverCoinBit:
 	endif
 	
 	LDA $07F659|!BankB,x	;SMW sprite's $190F,x table
-	RTL
+	JML $02A9AB|!BankB
 
 .Custom
 	PLA
@@ -1001,7 +1088,7 @@ TestSilverCoinBit:
 	TAX
 	LDA.l TableStart+$07,x
 	PLP
-	RTL
+	JML $02A9AB|!BankB
 	
    if !PerLevel = 1
    .perlevel
@@ -1009,7 +1096,7 @@ TestSilverCoinBit:
       JSR GetPerLevelAddr
       LDA [$00]
       PLP
-      RTL
+      JML $02A9AB|!BankB
    endif
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

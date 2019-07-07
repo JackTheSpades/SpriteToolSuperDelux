@@ -3,7 +3,7 @@ All the sprites, blocks and other asm that didn't belong in pixi were removed fr
 ---------
 Sprites
 ---------
-donut_lift - It's not packed inside the donut block. Here's the link: https://www.smwcentral.net/?p=section&a=details&id=20418
+donut_lift - It's now packed inside the donut block. Here's the link: https://www.smwcentral.net/?p=section&a=details&id=20418
 level_ender - https://www.smwcentral.net/?p=section&a=details&id=20419
 piranha_sideways - https://www.smwcentral.net/?p=section&a=details&id=20420
 roto_disc - https://www.smwcentral.net/?p=section&a=details&id=20421
@@ -60,3 +60,6 @@ trashkas - https://www.smwcentral.net/?p=section&a=details&id=4632
 
 If, for any reason, those links aren't working for you, all the old files are still inside pixi's github for testing purposes. They will never be packed along with pixi again, so long I am responsible for the releases. Here's the link: https://github.com/JackTheSpades/SpriteToolSuperDelux
 The tools are not inside the github repository though.
+
+- Why did you remove it all tho?
+Because I don't want to update pixi to update resources of any kind. It doesn't make sense to do that.
