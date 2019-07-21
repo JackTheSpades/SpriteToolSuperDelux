@@ -39,14 +39,15 @@
    STZ !ow_sprite_speed_y_acc,x  ; |
    STZ !ow_sprite_speed_z,x      ; |
    STZ !ow_sprite_speed_z_acc,x  ; |
-   STZ !ow_sprite_timer_1,x      ; | Clear other tables
-   STZ !ow_sprite_timer_2,x      ; |
+   STZ !ow_sprite_timer_1,x      ; |
+   STZ !ow_sprite_timer_2,x      ; | Clear other tables
    STZ !ow_sprite_timer_3,x      ; |
    STZ !ow_sprite_misc_1,x       ; |
    STZ !ow_sprite_misc_2,x       ; |
    STZ !ow_sprite_misc_3,x       ; |
    STZ !ow_sprite_misc_4,x       ; |
-   STZ !ow_sprite_misc_5,x       ; /
+   STZ !ow_sprite_misc_5,x       ; |
+   STZ !ow_sprite_init,x         ; /
    SEC                           ; Set Carry to indicate we found a slot
    RTL
 

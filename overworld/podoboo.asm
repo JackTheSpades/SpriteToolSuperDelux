@@ -2,7 +2,7 @@
 ;leaves flame trail
 ;extra byte 00-7F = height the podoboo jumps
 
-!smoke_id = $15
+!smoke_id = $03
 
 !wait = $0080
 ;time to wait until next hop
@@ -132,10 +132,10 @@ print "MAIN ",pc
         STA !ow_sprite_speed_z,x
 
 ;play fire sfx
-        ; SEP #$20
-        ; LDA #$27
-        ; STA $1DFC|!Base2
-        ; REP #$20
+        SEP #$20
+        LDA #$27
+        STA $1DFC|!Base2
+        REP #$20
 
 .DontJump
         RTL
@@ -206,7 +206,7 @@ print "MAIN ",pc
 
         LDA !ow_sprite_z_pos,x
         BPL .NoHide
-        CMP #$FFF8
+        CMP #$FFFC
         BCC .HideBoo
 .NoHide
         RTL

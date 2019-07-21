@@ -1,6 +1,6 @@
 ;pollen that rises and then falls down slowly, spawned by the lotus
 
-!smoke_id = $15
+!smoke_id = $03
 
 !risetime = $0030
 ;how long to rise before falling
@@ -20,7 +20,7 @@
 !props = $32
 ;yxPPccCt of the pollen
 
-!shadowprops = $36
+!shadowprops = $34
 
 !behaviour = !ow_sprite_misc_2
 ;behaviour while falling

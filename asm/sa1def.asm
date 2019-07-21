@@ -89,27 +89,27 @@ endmacro
 
 
 ;sprite tool / pixi defines
-%define_sprite_table("7FAB10",$7FAB10,$400040)
-%define_sprite_table("7FAB1C",$7FAB1C,$400056)
-%define_sprite_table("7FAB28",$7FAB28,$400057)
-%define_sprite_table("7FAB34",$7FAB34,$40006D)
-%define_sprite_table("7FAB9E",$7FAB9E,$400083)
-%define_sprite_table("7FAB40",$7FAB40,$400099)
-%define_sprite_table("7FAB4C",$7FAB4C,$4000AF)
-%define_sprite_table("7FAB58",$7FAB58,$4000C5)
-%define_sprite_table("7FAB64",$7FAB64,$4000DB)
+%define_sprite_table("7FAB10",$7FAB10,$6040)
+%define_sprite_table("7FAB1C",$7FAB1C,$6056)
+%define_sprite_table("7FAB28",$7FAB28,$6057)
+%define_sprite_table("7FAB34",$7FAB34,$606D)
+%define_sprite_table("7FAB9E",$7FAB9E,$6083)
+%define_sprite_table("7FAB40",$7FAB40,$6099)
+%define_sprite_table("7FAB4C",$7FAB4C,$60AF)
+%define_sprite_table("7FAB58",$7FAB58,$60C5)
+%define_sprite_table("7FAB64",$7FAB64,$60DB)
 
-%define_sprite_table("extra_bits",$7FAB10,$400040)
-%define_sprite_table("new_code_flag",$7FAB1C,$400056)
-%define_sprite_table("extra_prop_1",$7FAB28,$400057)
-%define_sprite_table("extra_prop_2",$7FAB34,$40006D)
-%define_sprite_table("new_sprite_num",$7FAB9E,$400083)
-%define_sprite_table("extra_byte_1",$7FAB40,$400099)
-%define_sprite_table("extra_byte_2",$7FAB4C,$4000AF)
-%define_sprite_table("extra_byte_3",$7FAB58,$4000C5)
-%define_sprite_table("extra_byte_4",$7FAB64,$4000DB)
+%define_sprite_table("extra_bits",$7FAB10,$6040)
+%define_sprite_table("new_code_flag",$7FAB1C,$6056)
+%define_sprite_table("extra_prop_1",$7FAB28,$6057)
+%define_sprite_table("extra_prop_2",$7FAB34,$606D)
+%define_sprite_table("new_sprite_num",$7FAB9E,$6083)
+%define_sprite_table("extra_byte_1",$7FAB40,$6099)
+%define_sprite_table("extra_byte_2",$7FAB4C,$60AF)
+%define_sprite_table("extra_byte_3",$7FAB58,$60C5)
+%define_sprite_table("extra_byte_4",$7FAB64,$60DB)
 
-;%define_sprite_table(shoot_misc,$7FAB64,$4000DB)
+;%define_sprite_table(shoot_misc,$7FAB64,$60DB)
 
 ;shooter defines
 %define_base2_address(shoot_num,$1783)		; shooter number -#$BC, also has the extra bit in #$40

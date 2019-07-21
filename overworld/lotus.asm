@@ -1,10 +1,10 @@
 ;volcano lotus that spits 4 pollen diagonally
 
-!PollenZ = $0060
+!PollenZ = $0080
 !PollenSpd = !PollenZ-$0020
 ;pollen speeds
 
-!lotuspollen_id = $0B
+!lotuspollen_id = $06
 
 !props = $36
 ;yxPPcCCt of the lotus
@@ -77,6 +77,7 @@ print "MAIN ",pc
 ;pollen spit code here
         LDX #$03
 .SpitLoop
+        wdm
         PHX
         LDX !ow_sprite_index
 
@@ -97,6 +98,7 @@ print "MAIN ",pc
         STA $06
         STZ $08
         %OverworldSpawnSprite()
+        BCC .full
         LDA $01,s
         ASL
         STA $04
@@ -114,8 +116,9 @@ print "MAIN ",pc
         STA !ow_sprite_speed_x,x
         LDA .PollenY,y
         STA !ow_sprite_speed_y,x
-        LDA #!PollenZ
+        LDA.w #!PollenZ
         STA !ow_sprite_speed_z,x
+.full
         PLX
         DEX
         BPL .SpitLoop

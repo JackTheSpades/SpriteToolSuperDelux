@@ -307,43 +307,30 @@ spawn_sprite:
    SEC                           ; Set Carry to indicate we found a slot
    RTL
 
+pushpc                           ; Move these OAM mirrors somewhere else; fixes the overworld border sometimes breaking
+   org $0485F5                   ; Too lazy to fix the OAM routine itself :shrug:
+      STA $0210|!Base2,x
+   org $0485FF
+      STA $0211|!Base2,x
+   org $048604
+      STA $0212|!Base2,x
+   org $048609
+      STA $0213|!Base2,x
+   org $048610
+      STA $0424|!Base2,x
 
-;   lm disassembly stuff below:
-;
-; org $0EF55D
-;         autoclean dl ow_spr_table     ;   this corresponds to sprite_data in luiz's patch
-;
-; freecode                              ;   org $12AB6C
-;
-; ow_spr_table:                         ;   here, these are offsets instead of rom addresses
-;         dw main_map                   ;   dw $000E ($12AB7A-$12AB6C)
-;         dw yoshis_island              ;   dw $0010 ($12AB7C-$12AB6C)
-;         dw vanilla_dome               ;\
-;         dw forest_of_illusion         ; |
-;         dw bowsers_valley             ; | dw $0014 ($12AB80-$12AB6C)
-;         dw special_world              ; |
-;         dw star_world                 ;/
-;
-; main_map:                             ;   org $12AB7A
-;         dw $0000                      ;   data end
-; yoshis_island:
-;         db $01,$E3,$01,$02            ;   format below
-; vanilla_dome:
-; forest_of_illusion:
-; bowsers_valley:
-; special_world:
-; star_world:
-;         dw $0000
-;
-; ;   info ripped from luiz
-; ;   sprite data format
-; ;   eeee eeee  zzzz zyyy  yyyx xxxx  xnnn nnnn (big endian)
-; ;
-; ;   -nnn nnnn	sprite id
-; ;   --xx xxxx	x pos, in 8x8s, get the values from lm
-; ;   --yy yyyy	y pos etc
-; ;   ---z zzzz	z pos etc
-; ;   eeee eeee	extra byte
-; ;
-; ;   0 means data end (duh)
+   org $04EC3A
+      STA $0200|!Base2,y
+   org $04EC43
+      STA $0201|!Base2,y
+   org $04EC48
+      STA $0202|!Base2,y
+   org $04EC4E
+      STA $0203|!Base2,y
+   org $04EC5A
+      STZ $0420|!Base2
+      STZ $0421|!Base2
+      STZ $0422|!Base2
+      STZ $0423|!Base2
+pullpc
 

@@ -2,7 +2,7 @@
 
 	TXA
 	CLC
-	ADC #!OwSprSize*2
+	ADC.w #!OwSprSize*2
 	TAX
         %OverworldXSpeed()
 	LDX !ow_sprite_index
