@@ -237,7 +237,7 @@ math pri off
 
 clear_ram:
    REP #$30
-   LDX.w #$18*2*21+4
+   LDX.w #!OwSprSize*2*21+4
 -  STZ !ow_sprite_num,x
    DEX #2
    BPL -
