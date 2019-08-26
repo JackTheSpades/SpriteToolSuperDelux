@@ -138,7 +138,7 @@ ReadMe Contents:
 		-meimei-off		Shuts down MeiMei completely
 		-meimei-a		Enables always remap sprite data
 		-meimei-k		Enables keep temp patches files
-		-meimei-d		Enables debug for MeiMei patches
+		-meimei-d		Enables debug for MeiMei patches - I recommend you turn this on if you wanna know what levels were edited and how.
 		
 		They are all still considered pixi options by the way, so you would them the as any of ther other options above the MeiMei section.
 
