@@ -424,21 +424,73 @@ SubLoadHack:
 	STA !extra_bits,x
 	AND #$01
 	STA !14D4,x
+	; extra bits parts, format: YYYYEEsy, EE = Extra bits
+	; loaded for Size table indexing format
+	LDA $01,s
+	LSR #2
+	AND #$03
+	XBA
+	; A = 000000EE NNNNNNNN (index to size table)
+	; EE = extra bits
+	; NNNNNNNN = sprite num
 	LDA $05
 	STA !new_sprite_num,x
-   
+	
+	; if size >= 8 (3 usual bytes + 5 extra bytes) then it should the new extra byte system
+	; processor flag X untoggled here (16bits mode) for sa1
+if !SA1 == 0
+	REP #$10
+endif
+	PHX
+	TAX
+	LDA.l Size,x
+	PLX
+if !SA1 == 0
+	SEP #$10
+endif
+	; < 4 no extra byte
+	CMP #$04
+	BCC .skipExtraByte
+	CMP #$08
+	BCS .setSpriteDataPointer
+	
 	PHY
-	INY : INY : INY            ; move sprie data pointer to extra bytes
+	; move sprite data pointer to extra bytes
+	INY #3
 	LDA [$CE],y
 	STA !extra_byte_1,x
-	INY : LDA [$CE],y
+	INY
+	LDA [$CE],y
 	STA !extra_byte_2,x
-	INY : LDA [$CE],y
+	INY
+	LDA [$CE],y
 	STA !extra_byte_3,x
-	INY : LDA [$CE],y
-	STA !extra_byte_4,x   
-	PLY   
-   
+	INY
+	LDA [$CE],y
+	STA !extra_byte_4,x
+	; move sprite data pointer back to the start
+	PLY
+	PLA
+	JML $02A968|!BankB
+.setSpriteDataPointer
+	PHY
+	
+	; move to sprite data's extra byte portion
+	INY #3
+	TYA
+	CLC
+	ADC $CE
+	STA !extra_byte_1,x
+	LDA #$00
+	ADC $CF
+	STA !extra_byte_2,x
+	; bank
+	LDA #$00
+	ADC $D0
+	STA !extra_byte_3,x
+	
+	PLY
+.skipExtraByte 
 	PLA
 	JML $02A968|!BankB
 
@@ -640,24 +692,78 @@ SubLoadHack2:
 	AND #$0D
 	STA !extra_bits,x
 	AND #$01
+	; vanilla extra bit
 	STA !14E0,x
+	; extra bits parts, format: YYYYEEsy, EE = Extra bits
+	; loaded for Size table indexing format
+	LDA $01,s
+	LSR #2
+	AND #$03
+	XBA
+	; A = 000000EE NNNNNNNN (index to size table)
+	; EE = extra bits
+	; NNNNNNNN = sprite num
 	LDA $05
 	STA !new_sprite_num,x
-   
+	
+	; if size >= 8 (3 usual bytes + 5 extra bytes) then it should the new extra byte system
+	; processor flag X untoggled here (16bits mode) for sa1
+if !SA1 == 0
+	REP #$10
+endif
+	PHX
+	TAX
+	LDA.l Size,x
+	PLX
+if !SA1 == 0
+	SEP #$10
+endif
+	; < 4 no extra byte
+	CMP #$04
+	BCC .skipExtraByte
+	CMP #$08
+	BCS .setSpriteDataPointer
+	
 	PHY
-	INY : INY : INY            ; move sprie data pointer to extra bytes
+	; move sprite data pointer to extra bytes
+	INY #3
 	LDA [$CE],y
 	STA !extra_byte_1,x
-	INY : LDA [$CE],y
+	INY
+	LDA [$CE],y
 	STA !extra_byte_2,x
-	INY : LDA [$CE],y
+	INY
+	LDA [$CE],y
 	STA !extra_byte_3,x
-	INY : LDA [$CE],y
-	STA !extra_byte_4,x   
+	INY
+	LDA [$CE],y
+	STA !extra_byte_4,x
+	; move sprite data pointer back to the start
 	PLY
-   
 	PLA
 	JML $02A950|!BankB
+.setSpriteDataPointer
+	PHY
+	
+	; move to sprite data's extra byte portion
+	INY #3
+	TYA
+	CLC
+	ADC $CE
+	STA !extra_byte_1,x
+	LDA #$00
+	ADC $CF
+	STA !extra_byte_2,x
+	; bank
+	LDA #$00
+	ADC $D0
+	STA !extra_byte_3,x
+	
+	PLY
+.skipExtraByte 
+	PLA
+	JML $02A950|!BankB
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; hijack main sprite loader to handle custom gens and shooters
@@ -738,18 +844,69 @@ SubShootLoad:
 	SBC #$BF
 	ORA $1783|!Base2,x
 	STA $1783|!Base2,x
-	
 	PHA
+	
+	; A = 000000EE NNNNNNNN (index to size table)
+	; EE = extra bits
+	; NNNNNNNN = sprite num
+	LDA [$CE],y
+	LSR #2
+	AND #$03
+	XBA
+	LDA $04
+	
+	; if size >= 7 (3 usual bytes + 4 extra bytes) then it should the new extra byte system
+	; processor flag X untoggled here (16bits mode) for sa1
+if !SA1 == 0
+	REP #$10
+endif
+	PHX
+	TAX
+	LDA.l Size,x
+	PLX
+if !SA1 == 0
+	SEP #$10
+endif
+	; < 4 no extra byte
+	CMP #$04
+	BCC .skipExtraByte
+	CMP #$07
+	BCS .setSpriteDataPointer
+	
 	PHY
-	INY : INY : INY
+	; move sprite data pointer to extra bytes
+	INY #3
 	LDA [$CE],y
 	STA !shooter_extra_byte_1,x
-	INY : LDA [$CE],y
+	INY
+	LDA [$CE],y
 	STA !shooter_extra_byte_2,x
-	INY : LDA [$CE],y
+	INY
+	LDA [$CE],y
 	STA !shooter_extra_byte_3,x
+	; moves sprite data pointer back to the start
 	PLY
-
+	PLA
+	JML SubShootLoadReturn
+.setSpriteDataPointer
+	PHY
+	
+	; move to sprite data's extra byte portion
+	INY #3
+	TYA
+	CLC
+	ADC $CE
+	STA !shooter_extra_byte_1,x
+	LDA #$00
+	ADC $CF
+	STA !shooter_extra_byte_2,x
+	; bank
+	LDA #$00
+	ADC $D0
+	STA !shooter_extra_byte_3,x
+	
+	PLY
+.skipExtraByte
 	PLA
 	JML SubShootLoadReturn
    
