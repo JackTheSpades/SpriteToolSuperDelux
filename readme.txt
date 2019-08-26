@@ -133,8 +133,7 @@ ReadMe Contents:
 		-s16 <base s16>         Specify s16 file to be used as a base for <romname>.s16
 		                        Do not use <romname>.xxx as an argument as the file will be overwriten
 		
-		MeiMei: meimei is an embedded tool pixi uses to fix sprite data for levels when sprite data size is changed for sprites already in use. That happens
-		when you have a level that already uses a certain sprite and you change the amount of extra bytes said sprite uses.
+		MeiMei: meimei is an embedded tool pixi uses to fix sprite data for levels when sprite data size is changed for sprites already in use. That happens when you have a level that already uses a certain sprite and you change the amount of extra bytes said sprite uses.
 		Options are:
 		-meimei-off		Shuts down MeiMei completely
 		-meimei-a		Enables always remap sprite data
@@ -263,7 +262,7 @@ If you are used to using Romi's SpriteTool, here is a quick rundown of everythin
 	Be careful when declaring 10+ extra bytes in the cfg/json format. Cfg format will expect hex numbers, json will expect decimal.
 
 	Exemple for sprites:
-		    LDA !extra_byte_1,x
+			LDA !extra_byte_1,x
 			STA $00
 			LDA !extra_byte_2,x
 			STA $01
@@ -288,13 +287,11 @@ If you are used to using Romi's SpriteTool, here is a quick rundown of everythin
 	The code above would read the 8th extra byte for a shooter.
 
 
-	So you could say that in this model, extra_byte_4 for sprites is a free table that won't get cleanups. I didn't add more ram for this feature
-	because sprites already have a whole load of RAM reserved and they are mostly unused all the time.
+	So you could say that in this model, extra_byte_4 for sprites is a free table that won't get cleanups. I didn't add more ram for this feature because sprites already have a whole load of RAM reserved and they are mostly unused all the time.
 	If you in turn think you need more RAM, just extend pixi. Check the section right below this one to see how to do that.
 	
 	It can potentially be harmful for shooters, since shooters do not possess the same amount of free ram tables as sprites do.
-	But honestly, I think you should consider if it's really an issue (performance-wise), since to begin with shooters don't even have init
-	pointers, they only have mains.
+	But honestly, I think you should consider if it's really an issue (performance-wise), since to begin with shooters don't even have init pointers, they only have mains.
 	If even then you think it is a performance issue, extend pixi, add your own reserved RAMs for shooters, add a hijack for cleaning up the tables and be happy.
 	Check the Extend pixi section right below this to see how to do that.
 
