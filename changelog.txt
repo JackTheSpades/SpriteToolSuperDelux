@@ -1,6 +1,6 @@
 Changelog
 
-Version 1.2.11 (August 13, 2019):
+Version 1.2.11 (August 26, 2019):
   - (Tattletale) n extra byte support for both shooters and sprites. Goes up to 12 because LM only supports up to 12. Read the readme.txt for further info.
   - (Tattletale) added two secret folders called ./asm/ExtraDefines and ./asm/ExtraHijacks. Now you can ship your own defines and hijacks along with your resources, just be very very careful with that. Read the readme for further info.
   - (Tattletale) added Akaginite's MeiMei to pixi. This will sort out your sprite data when inserting or modifying sprites' extra byte configuration, when said sprites are already used in levels. Before this, you would just get a crash / corrupted sprite data. Special thanks to Akaginite (I would say 95% of the code is from MeiMei), Vitor Vilela, Randomdude999, Alcaro, they helped me deal with asar / sa1 address conversions. For further information read the readme - several flags were added as config for MeiMei, check the readme.
