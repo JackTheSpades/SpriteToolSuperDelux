@@ -19,3 +19,5 @@ overworld/**
 **/sysLMRestore/**
 asm/uninstall.asm
 asm/overworld.asm
+pixi*.zip
+.vscode

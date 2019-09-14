@@ -19,50 +19,40 @@ def zipdir(path, ziph, excludes=None):
          if False == isExcludeFile(os.path.join(root, file), excludes):
             ziph.write(os.path.join(root, file))
 
-def asm(path):
+def to_asm_folder(path):
    return os.path.join('asm', path);
 
-if os.path.exists('src.zip'):
-   os.remove('src.zip')
 if os.path.exists('pixi.zip'):
    os.remove('pixi.zip')
-   
-# *** This is the file list that excludes from src.zip 
-src_excludes = [
-        r"src/CFG Editor/.vs/.*",
-        r"src/CFG Editor/.*/bin/.*",
-        r"src/CFG Editor/.*/obj/.*",
-        r".*\.gitignore\Z",
-        r".*\.suo\Z",
-        r".*\.user\Z"
-        ]
 
 # *** what to exclude from routines (files starting with period)
-routine_excludes = [
-        r"^routines/\."
-        ]
-        
-with zipfile.ZipFile('src.zip', 'w', zipfile.ZIP_DEFLATED) as srczip:
-   zipdir('src', srczip, src_excludes)
-   srczip.write('make.sh')
-   srczip.write('make.bat')
-   srczip.write('make_debug.bat')
-print("src.zip created")
+def exclude_hidden(folder_name):
+	return [r"^" + folder_name + r"/\."]
+
+def keep_header_filter(folder_name):
+	return [r"^" + folder_name + r"/(?!_header\.asm).+$"]
+	
+def keep_header_and_routine_filter(folder_name):
+	return [r"^" + folder_name + r"/(?!(?:routines|_header)\.asm).+$"]
+
+folder_filter_map = {
+	'routines': exclude_hidden,
+	'extended': keep_header_and_routine_filter,
+}
+
+# default filter = keep_header
+def filter_for(folder_name):
+	return folder_filter_map.get(folder_name, keep_header_filter)(folder_name)
 
 cfgexe = "src/CFG Editor/CFG Editor/bin/Release/CFG Editor.exe"
 
 with zipfile.ZipFile('pixi.zip', 'w', zipfile.ZIP_DEFLATED) as pixizip:
 
-   #sprite dirs
-   zipdir('sprites', pixizip)
-   zipdir('shooters', pixizip)
-   zipdir('generators', pixizip)
-   zipdir('cluster', pixizip)
-   zipdir('extended', pixizip)
-   zipdir('routines', pixizip, routine_excludes)
+   for folder_name in ['sprites', 'shooters', 'generators', 'cluster', 'extended', 'routines']:
+      zipdir(folder_name, pixizip, filter_for(folder_name))
 
    #exe
-   pixizip.write(cfgexe.replace('/', os.sep), 'CFG Editor.exe');
+   pixizip.write(cfgexe.replace('/', os.sep), 'CFG Editor.exe')
    pixizip.write(
       os.path.join(
          os.path.dirname(cfgexe.replace('/', os.sep)),
@@ -72,27 +62,14 @@ with zipfile.ZipFile('pixi.zip', 'w', zipfile.ZIP_DEFLATED) as pixizip:
    pixizip.write('asar.dll')
    
    #asm
-   pixizip.write(asm('main.asm'))
-   pixizip.write(asm('main_npl.asm'))
-   pixizip.write(asm('sa1def.asm'))
-   
-   pixizip.write(asm('cluster.asm'))
-   pixizip.write(asm('extended.asm'))
-   pixizip.write(asm('pointer_caller.asm'))
-      
-   pixizip.write(asm('DefaultSize.bin'))
-   
-   zipdir(asm('Blocks'), pixizip)
-   zipdir(asm('Converter Tools'), pixizip)
-   pixizip.write(asm('Poison.asm'))
+   for asm_folder_file in ['main.asm', 'main_npl.asm', 'sa1def.asm', 'cluster.asm', 'extended.asm', 'pointer_caller.asm', 'DefaultSize.bin']:
+      pixizip.write(to_asm_folder(asm_folder_file))
    
    #misc
-   pixizip.write('src.zip')
-   zipdir('Graphics for Included Sprites', pixizip)
    pixizip.write('readme.txt')
    pixizip.write('changelog.txt')
+   pixizip.write('removedResources.txt')
 
 print("pixi.zip created")
-os.remove('src.zip')
 
             

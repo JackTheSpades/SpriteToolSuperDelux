@@ -20,6 +20,7 @@ ReadMe Contents:
 -- Shared Routines
 -- Header Files
 -- Extra Bytes
+-- Extend PIXI (extra defines and hijacks)
 
 - Common Errors
 -- JMP (label,x) or JSR (label,x)
@@ -132,6 +133,15 @@ ReadMe Contents:
 		-s16 <base s16>         Specify s16 file to be used as a base for <romname>.s16
 		                        Do not use <romname>.xxx as an argument as the file will be overwriten
 		
+		MeiMei: meimei is an embedded tool pixi uses to fix sprite data for levels when sprite data size is changed for sprites already in use. That happens when you have a level that already uses a certain sprite and you change the amount of extra bytes said sprite uses.
+		Options are:
+		-meimei-off		Shuts down MeiMei completely
+		-meimei-a		Enables always remap sprite data
+		-meimei-k		Enables keep temp patches files
+		-meimei-d		Enables debug for MeiMei patches - I recommend you turn this on if you wanna know what levels were edited and how.
+		
+		They are all still considered pixi options by the way, so you would them the as any of ther other options above the MeiMei section.
+
 	Example:
 		
 		pixi.exe -l differentlistfile.txt rom.smc
@@ -233,7 +243,80 @@ If you are used to using Romi's SpriteTool, here is a quick rundown of everythin
 	!extra_byte_2
 	!extra_byte_3
 	!extra_byte_4
-		
+	
+	As of version 1.2.10, we now have 3 extra bytes for shooters. Everything that applies for normal sprite extra bytes applies for this.
+	
+	!shooter_extra_byte_1
+	!shooter_extra_byte_2
+	!shooter_extra_byte_3
+	
+
+	Indirect data pointer:
+	From pixi 1.2.11 onwards, you are allowed to use n extra bytes, both for shooters and sprites - however limited at 12 (not in hex)
+	extra bytes, because lunar magic only allows us to go that far with the input box.
+	No additional RAM is reserved for this model.
+
+	So for sprites from 5 onwards extra bytes, the first 3 extra bytes will be used as an indirect pointer to the sprite data, starting at 1.
+	For shooters, from 4 onwards, same rule.
+
+	Be careful when declaring 10+ extra bytes in the cfg/json format. Cfg format will expect hex numbers, json will expect decimal.
+
+	Exemple for sprites:
+			LDA !extra_byte_1,x
+			STA $00
+			LDA !extra_byte_2,x
+			STA $01
+			LDA !extra_byte_3,x
+			STA $02
+			LDY #$0B
+			LDA [$00],y
+	
+	The code above would read the 12th extra byte for a sprite.
+
+	
+	Exemplo for shooters:
+			LDA !shooter_extra_byte_1,x
+			STA $00
+			LDA !shooter_extra_byte_2,x
+			STA $01
+			LDA !shooter_extra_byte_3,x
+			STA $02
+			LDY #$07
+			LDA [$00],y
+
+	The code above would read the 8th extra byte for a shooter.
+
+
+	So you could say that in this model, extra_byte_4 for sprites is a free table that won't get cleanups. I didn't add more ram for this feature because sprites already have a whole load of RAM reserved and they are mostly unused all the time.
+	If you in turn think you need more RAM, just extend pixi. Check the section right below this one to see how to do that.
+	
+	It can potentially be harmful for shooters, since shooters do not possess the same amount of free ram tables as sprites do.
+	But honestly, I think you should consider if it's really an issue (performance-wise), since to begin with shooters don't even have init pointers, they only have mains.
+	If even then you think it is a performance issue, extend pixi, add your own reserved RAMs for shooters, add a hijack for cleaning up the tables and be happy.
+	Check the Extend pixi section right below this to see how to do that.
+
+
+-- Extend PIXI (extra defines and hijacks)
+	From pixi 1.2.11+ we have two 'secret' folders called ExtraDefines and ExtraHijacks. They do not come in with pixi by default, they have to be created.
+
+	Folder structure:
+		./asm/ExtraDefines
+		./asm/ExtraHijacks
+
+	They each have their own unique behavior.
+
+	For ExtraDefines, whatever .asm files you put in there, will be included in every single sprite as valid defines/macros. So be sure to only use these as defines
+	and macros.
+
+	For ExtraHijacks, before MeiMei runs, this is the last thing inserted to the rom, right after all pixi asms. All .asm files inside this folder will be inserted then.
+	So be careful with cleaning up stuff, overwriting stuff, clashing with other hijacks and so on.
+
+	Combaning those two things you could set up your own sprite/shooters/whatever tables and clean them up wherever you want - so they can be used with your resources.
+	And a lot more.
+	Essentially, there's no difference from adding a patch to be inserted with your sprite and adding something to the ExtraHijacks folder, except for the
+	convinience, of course. Please do not abuse this feature.
+	Since pixi does not touch .asm files, you will have to include sa1def or whatever else defines you defined at ExtraDefines inside your patch, if you wanna use them.
+
 		
 - Common Errors
 The vast majority of the time, xkas code will work just fine with Asar, the assembler that PIXI uses exclusively.

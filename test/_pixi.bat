@@ -1,2 +1,2 @@
-..\pixi.exe -d -k test.smc
+..\pixi.exe -d -pl -k test.smc
 @pause

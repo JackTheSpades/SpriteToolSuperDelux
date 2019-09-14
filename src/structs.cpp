@@ -42,8 +42,6 @@ pointer ROM::pointer_pc(int address, int size, int bank)
 	return pointer(::get_pointer(data, address, size, bank));
 }
 
-
-
 void set_pointer(pointer* p, int address) {
 	p->lowbyte = (char)(address & 0xFF);
 	p->highbyte = (char)((address >> 8) & 0xFF);

@@ -1,0 +1,65 @@
+All the sprites, blocks and other asm that didn't belong in pixi were removed from pixi. This file will instruct you on where you could obtain each of these back.
+
+---------
+Sprites
+---------
+donut_lift - It's now packed inside the donut block. Here's the link: https://www.smwcentral.net/?p=section&a=details&id=20418
+level_ender - https://www.smwcentral.net/?p=section&a=details&id=20419
+piranha_sideways - https://www.smwcentral.net/?p=section&a=details&id=20420
+roto_disc - https://www.smwcentral.net/?p=section&a=details&id=20421
+base_bro - https://www.smwcentral.net/?p=section&a=details&id=20424
+shell_bro -https://www.smwcentral.net/?p=section&a=details&id=20424
+bomb_bro - https://www.smwcentral.net/?p=section&a=details&id=20424
+boomerang_bro - https://www.smwcentral.net/?p=section&a=details&id=20422
+boomerang - https://www.smwcentral.net/?p=section&a=details&id=20422
+hammer_bro - https://www.smwcentral.net/?p=section&a=details&id=20423
+clusterspawn - https://www.smwcentral.net/?p=section&a=details&id=3770
+fishspawn - https://www.smwcentral.net/?p=section&a=details&id=3770
+flowerspawn - https://www.smwcentral.net/?p=section&a=details&id=3770
+rainspawn - https://www.smwcentral.net/?p=section&a=details&id=3770
+sandstormspawn - https://www.smwcentral.net/?p=section&a=details&id=3770
+thwomp_left - https://www.smwcentral.net/?p=section&a=details&id=20430
+thwomp_right - https://www.smwcentral.net/?p=section&a=details&id=20431
+
+
+---------
+Shooter
+---------
+diag_down_bill - https://www.smwcentral.net/?p=section&a=details&id=12085
+diag_up_bill - https://www.smwcentral.net/?p=section&a=details&id=12085
+vertical_bill - https://www.smwcentral.net/?p=section&a=details&id=12085
+
+
+---------
+Cluster
+---------
+fish - https://www.smwcentral.net/?p=section&a=details&id=3770
+flowers - https://www.smwcentral.net/?p=section&a=details&id=3770
+rain - https://www.smwcentral.net/?p=section&a=details&id=3770
+sandstorm - https://www.smwcentral.net/?p=section&a=details&id=3770
+
+
+---------
+Block
+---------
+donutblk - https://www.smwcentral.net/?p=section&a=details&id=20418
+
+
+---------
+Patch
+---------
+Poison - https://www.smwcentral.net/?p=section&a=details&id=20440
+
+
+---------
+Tools
+---------
+sa1convert - https://www.smwcentral.net/?p=section&a=details&id=6853
+trashkas - https://www.smwcentral.net/?p=section&a=details&id=4632
+
+
+If, for any reason, those links aren't working for you, all the old files are still inside pixi's github for testing purposes. They will never be packed along with pixi again, so long I am responsible for the releases. Here's the link: https://github.com/JackTheSpades/SpriteToolSuperDelux
+The tools are not inside the github repository though.
+
+- Why did you remove it all tho?
+Because I don't want to update pixi to update resources of any kind. It doesn't make sense to do that.
