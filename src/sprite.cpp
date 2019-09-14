@@ -42,7 +42,7 @@
 #define SPRITE_COUNT 0x80 //count for other sprites like cluster, ow, extended
 
 //version 1.xx
-const char VERSION = 0x1F;
+const char VERSION = 0x20;
 bool PER_LEVEL = false;
 const char *ASM_DIR = nullptr;
 std::string ASM_DIR_PATH;
@@ -300,13 +300,14 @@ void clean_hack(ROM &rom)
 				}
 
 			//remove overworld sprites
-			// fprintf(clean_patch, "\n\n;Overworld:\n");
-			// int ow_table = rom.pointer_snes(0x048633).addr();
-			// for(int i = 0; i < SPRITE_COUNT; i++) {
-			// pointer ow_pointer = rom.pointer_snes(ow_table + 3 * i);
-			// if(!ow_pointer.is_empty())
-			// fprintf(clean_patch, "autoclean $%06X\n", ow_pointer.addr());
-			// }
+			fprintf(clean_patch, "\n\n;Overworld:\n");
+			int ow_table = rom.pointer_snes(0x048633).addr();
+			for(int i = 0; i < SPRITE_COUNT; i++)
+			{
+				pointer ow_pointer = rom.pointer_snes(ow_table + 3 * i);
+				if(!ow_pointer.is_empty())
+					fprintf(clean_patch, "autoclean $%06X\n", ow_pointer.addr());
+			}
 		}
 
 		//everything else is being cleaned by the main patch itself.
@@ -520,8 +521,8 @@ bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 			SETTYPE(Extended)
 		if (!strcmp(current_line.data, "CLUSTER:"))
 			SETTYPE(Cluster)
-		//if(!strcmp(current_line.data, "OW:"))
-		//	SETTYPE(Overworld)
+		if(!strcmp(current_line.data, "OW:"))
+			SETTYPE(Overworld)
 
 		//read sprite number
 		if (!sscanf(current_line.data, "%x%n", &sprite_id, &bytes_read))
@@ -558,8 +559,13 @@ bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 					ERROR("Error on line %d: Only sprite B0-BF must be assigned a level.");
 				}
 			}
-		}
-		else
+	} else if (type == Overworld)
+		{
+			if(sprite_id >= SPRITE_COUNT || sprite_id == 0)
+				ERROR("Error on line %d: Sprite number must be less than 0x80 and not be 0 for OW sprites.");
+			sprite_id--;
+			spr = sprite_list + sprite_id;
+	} else
 		{
 			if (sprite_id > SPRITE_COUNT)
 				ERROR("Error on line %d: Sprite number must be less than 0x80");
@@ -829,7 +835,7 @@ int main(int argc, char *argv[])
 			printf("-g  <generators>\tSpecify a custom generators directory (Default %s)\n", paths[GENERATORS]);
 			printf("-e  <extended>\tSpecify a custom extended sprites directory (Default %s)\n", paths[EXTENDED]);
 			printf("-c  <cluster>\tSpecify a custom cluster sprites directory (Default %s)\n", paths[CLUSTER]);
-			//printf("-ow <cluster>\tSpecify a custom overworld sprites directory (Default %s)\n", paths[OVERWORLD]);
+			printf("-ow <overworld>\tSpecify a custom overworld sprites directory (Default %s)\n", paths[OVERWORLD]);
 			printf("\n");
 
 			printf("-r   <routines>\tSpecify a shared routine directory (Default %s)\n", paths[ROUTINES]);
@@ -889,6 +895,7 @@ int main(int argc, char *argv[])
 		SET_PATH("-l", LIST)
 		SET_PATH("-e", EXTENDED)
 		SET_PATH("-c", CLUSTER)
+		SET_PATH("-ow", OVERWORLD)
 
 		SET_EXT("-ssc", EXT_SSC)
 		SET_EXT("-mwt", EXT_MWT)
@@ -991,7 +998,7 @@ int main(int argc, char *argv[])
 	patch_sprites(extraDefines, sprite_list, size, rom, output);
 	patch_sprites(extraDefines, cluster_list, SPRITE_COUNT, rom, output);
 	patch_sprites(extraDefines, extended_list, SPRITE_COUNT, rom, output);
-	//patch_sprites(extraDefines, ow_list, SPRITE_COUNT, rom, output);
+	patch_sprites(extraDefines, ow_list, SPRITE_COUNT, rom, output);
 
 	debug_print("Sprites successfully patched.\n");
 
@@ -1027,12 +1034,12 @@ int main(int argc, char *argv[])
 	write_all(file, paths[ASM], "_ExtendedPtr.bin", SPRITE_COUNT * 3);
 
 	//overworld
-	// for(int i = 0; i < SPRITE_COUNT; i++)
-	// memcpy(file + (i * 3), &ow_list[i].table.main, 3);
-	// write_all(file, paths[ASM], "_OverworldMainPtr.bin", SPRITE_COUNT * 3);
-	// for(int i = 0; i < SPRITE_COUNT; i++)
-	// memcpy(file + (i * 3), &ow_list[i].table.init, 3);
-	// write_all(file, paths[ASM], "_OverworldInitPtr.bin", SPRITE_COUNT * 3);
+	for(int i = 0; i < SPRITE_COUNT; i++)
+		memcpy(file + (i * 3), &ow_list[i].table.main, 3);
+	write_all(file, paths[ASM], "_OverworldMainPtr.bin", SPRITE_COUNT * 3);
+	for(int i = 0; i < SPRITE_COUNT; i++)
+		memcpy(file + (i * 3), &ow_list[i].table.init, 3);
+	write_all(file, paths[ASM], "_OverworldInitPtr.bin", SPRITE_COUNT * 3);
 
 	//more?
 	debug_print("Binary tables created.\n");
@@ -1174,6 +1181,7 @@ int main(int argc, char *argv[])
 		patch(paths[ASM], "main_npl.asm", rom);
 	patch(paths[ASM], "cluster.asm", rom);
 	patch(paths[ASM], "extended.asm", rom);
+	patch(paths[ASM], "overworld.asm", rom);
 
 	std::list<std::string> extraHijacks = listExtraAsm(ASM_DIR_PATH + "/ExtraHijacks");
 	for (std::string patchUri : extraHijacks)
@@ -1181,7 +1189,6 @@ int main(int argc, char *argv[])
 		patch(patchUri.c_str(), rom);
 	}
 
-	//patch(paths[ASM], "asm/overworld.asm", rom);
 
 	//------------------------------------------------------------------------------------------
 	// clean up (if necessary)
@@ -1202,8 +1209,8 @@ int main(int argc, char *argv[])
 
 		remove(paths[ASM], "_ClusterPtr.bin");
 		remove(paths[ASM], "_ExtendedPtr.bin");
-		//remove("asm/_OverworldMainPtr.bin");
-		//remove("asm/_OverworldInitPtr.bin");
+		remove("asm/_OverworldMainPtr.bin");
+		remove("asm/_OverworldInitPtr.bin");
 
 		remove(paths[ASM], "_CustomSize.bin");
 		remove("shared.asm");
