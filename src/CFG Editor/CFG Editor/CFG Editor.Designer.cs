@@ -339,7 +339,7 @@
             // testToolStripMenuItem
             // 
             this.testToolStripMenuItem.Name = "testToolStripMenuItem";
-            this.testToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
+            this.testToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
             this.testToolStripMenuItem.Text = "Test";
             this.testToolStripMenuItem.Visible = false;
             this.testToolStripMenuItem.Click += new System.EventHandler(this.testToolStripMenuItem_Click);
@@ -418,24 +418,24 @@
             // 
             this.nudExtra.Location = new System.Drawing.Point(190, 14);
             this.nudExtra.Maximum = new decimal(new int[] {
-            4,
+            12,
             0,
             0,
             0});
             this.nudExtra.Name = "nudExtra";
-            this.nudExtra.Size = new System.Drawing.Size(30, 20);
+            this.nudExtra.Size = new System.Drawing.Size(35, 20);
             this.nudExtra.TabIndex = 16;
             // 
             // nudNormal
             // 
             this.nudNormal.Location = new System.Drawing.Point(86, 15);
             this.nudNormal.Maximum = new decimal(new int[] {
-            4,
+            12,
             0,
             0,
             0});
             this.nudNormal.Name = "nudNormal";
-            this.nudNormal.Size = new System.Drawing.Size(30, 20);
+            this.nudNormal.Size = new System.Drawing.Size(35, 20);
             this.nudNormal.TabIndex = 15;
             // 
             // label26

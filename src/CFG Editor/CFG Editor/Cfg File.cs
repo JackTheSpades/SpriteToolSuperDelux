@@ -188,8 +188,8 @@ namespace CFG
             TrySet(lines, currentLine++, str =>
             {
                 byte[] count = BytesFromStringLine(lines[5], ':');
-                ByteCount = Math.Min(count[0], (byte)4);
-                ExByteCount = Math.Min(count[1], (byte)4);
+                ByteCount = Math.Min(count[0], (byte)12);
+                ExByteCount = Math.Min(count[1], (byte)12);
             }, () => { ByteCount = ExByteCount = 0; });
 
             ////line 7 (map16)
