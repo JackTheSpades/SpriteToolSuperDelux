@@ -638,10 +638,10 @@ bool populate_sprite_list(const char** paths, sprite** sprite_lists, const char 
          spr->cfg_file = file_name;
          if(!dot || (strcmp(dot, ".json")))
             ERROR("Error on line %d: Not an json file.");
-            if(!read_json_file(spr, output))
-               ERROR("Error on line %d: Cannot parse JSON file.");
+         if(!read_json_file(spr, output))
+            ERROR("Error on line %d: Cannot parse JSON file.");
       }
-      if(type != Sprite) {      
+      else if(type != Sprite) {
          if(!dot || (strcmp(dot, ".asm") && strcmp(dot, ".PATH_ASM")))
             ERROR("Error on line %d: Not an asm file.");
          spr->asm_file = file_name;
