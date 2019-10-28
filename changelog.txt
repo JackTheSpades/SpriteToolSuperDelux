@@ -1,5 +1,8 @@
 Changelog
 
+Version 1.2.12 (October 28, 2019):
+  - (dtothefourth) Fixed the cfg editor to work properly with n extra bytes (actually only up to 12). Disclaimer, the cfg editor will be removed from pixi packaging starting from the next update! It will be submitted as a standalone resource.
+
 Version 1.2.11 (August 26, 2019):
   - (Tattletale) n extra byte support for both shooters and sprites. Goes up to 12 because LM only supports up to 12. Read the readme.txt for further info.
   - (Tattletale) added two secret folders called ./asm/ExtraDefines and ./asm/ExtraHijacks. Now you can ship your own defines and hijacks along with your resources, just be very very careful with that. Read the readme for further info.

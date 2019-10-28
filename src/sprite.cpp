@@ -42,7 +42,7 @@
 #define SPRITE_COUNT 0x80 //count for other sprites like cluster, ow, extended
 
 //version 1.xx
-const char VERSION = 0x1F;
+const char VERSION = 0x20;
 bool PER_LEVEL = false;
 const char *ASM_DIR = nullptr;
 std::string ASM_DIR_PATH;
