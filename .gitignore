@@ -1,7 +1,12 @@
 **/*.smc
 *.srm
 *.zst
+*.bst
 *.exe
+*.mw2
+*.mwt
+*.s16
+*.ssc
 **/*.bin
 */tweak/*
 !asm/DefaultSize.bin
@@ -15,9 +20,7 @@ HxD.ini
 spr_temp.asm
 pixi.zip
 LM/*
-overworld/**
 **/sysLMRestore/**
 asm/uninstall.asm
-asm/overworld.asm
 pixi*.zip
 .vscode

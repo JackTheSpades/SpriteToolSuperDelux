@@ -5,7 +5,7 @@ ReadMe Contents:
 - The List File
 -- Normal Sprites
 -- Per-Level Sprites
--- Other sprite types (cluster/extended)
+-- Other sprite types (cluster/extended/overworld)
 
 - Sprite Insertion
 -- Opening pixi.exe
@@ -75,7 +75,7 @@ ReadMe Contents:
 	PIXI also has the ability to insert other types of sprites, such as cluster or extended sprites.
 	To insert these other types, you just have to change the list type within your list file. This is simply done by a
 	type of headline with the all caps type followed by a colon. Valid headlines are: "SPRITE:" (default), "EXTENDED:",
-	"CLUSTER:", all without quotes. You probably won't need the SPRITE: header, since it's the default but it's there
+	"CLUSTER:", "OW:" all without quotes. You probably won't need the SPRITE: header, since it's the default but it's there
 	anyway.
 	After that header, you can proceed to place sprites just like before, except they are taken from their respective
 	directories. An example:
@@ -90,7 +90,11 @@ ReadMe Contents:
 		EXTENDED:
 		00 hammer.asm
 
-	Note that cluster and extended sprites use the .asm extension, while normal sprites have .cfg.
+		OW:
+		01 piranha_plant.asm
+
+	Note that cluster, extended and overworld sprites use the .asm extension, while normal sprites have .cfg.
+	Additionally, overworld sprites start from slot 01, not 00.
 	Also keep in mind that shooters and generators are part of the SPRITE: group and are seperated by their slot.
 
 	
@@ -124,6 +128,7 @@ ReadMe Contents:
 		-g  <generators>        Specify a custom generators directory (Default generators/)
 		-e  <extended>  Specify a custom extended sprites directory (Default extended/)
 		-c  <cluster>   Specify a custom cluster sprites directory (Default cluster/)
+		-ow <overworld> Specify a custom overworld sprites directory (Default overworld/)
 
 		-r  <sharedpath>        Specify a shared routine directory (Default routines/)
 
