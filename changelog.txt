@@ -1,5 +1,12 @@
 Changelog
 
+Version 1.2.13 (January 09, 2019):
+  - (Tattletale) Fixed a bug with sprite data displacement introduced in 1.2.10. LM3 cache would cover this up in most cases, except for reeeeeally tall levels.
+  - (Tattletale) Added a compatibility flag to disable 255 sprites per level support on fastROM -d255spl, check the readme for more info.
+  - (Tattletale) Removed main_npl.asm, now there's an optional config file included in sa1def.asm that's generated on every run. Eventually this file will actually become a config file. Special thanks to randomdude999 for giving me the code to check for files in asar.
+  - (Tattletale) SubOffScreen edited to include a check for -d255spl flag.
+  - (Tattletale) sa1def.asm edited to include checks for -d255spl flag. All defines that were in main.asm before were moved to sa1def.asm.
+
 Version 1.2.12 (October 28, 2019):
   - (dtothefourth) Fixed the cfg editor to work properly with n extra bytes (actually only up to 12). Disclaimer, the cfg editor will be removed from pixi packaging starting from the next update! It will be submitted as a standalone resource.
 

@@ -93,7 +93,11 @@
 			PHY			;preserve Y
 			TYX			;transfer Y to X
 			LDA #$00                ;A:FF08 X:0007 Y:0000 D:0000 DB:01 S:01F3 P:envMXdizcHC:1172 VC:059 00 FL:2878
+		if !Disable255SpritesPerLevel
+			STA !1938,x
+		else
 			STA.L !7FAF00,x             ;$41A800 in SA-1 ROM, so it can't be Y indexed!
+		endif			
 			PLY			;restore Y
 			PLX			;BlindEdit: alright back to the planning phase (restore X)
 

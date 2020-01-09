@@ -1,3 +1,10 @@
+if canreadfile1("config.asm",0) != 0
+	incsrc "config.asm"
+endif
+
+!PerLevel ?= 0
+!Disable255SpritesPerLevel ?= 0
+
 ;only works for SA-1 version 1.10+
 
 !CustomBit		= $08
@@ -104,6 +111,7 @@ macro define_base2_address(name, addr)
 	endif
 endmacro
 
+!GenStart = $D0
 !ClusterOffset  = $09
 !ExtendedOffset = $13
 
@@ -295,8 +303,14 @@ endmacro
 %define_sprite_table("187B", $187B, $3410)
 %define_sprite_table("190F", $190F, $7658)
 
-%define_sprite_table("1938", $7FAF00, $418A00)
-%define_sprite_table("7FAF00", $7FAF00, $418A00)
+if !Disable255SpritesPerLevel
+	%define_sprite_table("1938", $1938, $418A00)
+	%define_sprite_table(sprite_load_table, $1938, $418A00)
+else
+	%define_sprite_table("1938", $7FAF00, $418A00)
+	%define_sprite_table("7FAF00", $7FAF00, $418A00)
+	%define_sprite_table(sprite_load_table, $7FAF00, $418A00)
+endif
 
 %define_sprite_table("1FD6", $1FD6, $766E)
 %define_sprite_table("1FE2", $1FE2, $7FD6)

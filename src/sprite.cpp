@@ -42,8 +42,9 @@
 #define SPRITE_COUNT 0x80 //count for other sprites like cluster, ow, extended
 
 //version 1.xx
-const char VERSION = 0x20;
+const char VERSION = 0x21;
 bool PER_LEVEL = false;
+bool DISABLE_255_SPRITE_PER_LEVEL = false;
 const char *ASM_DIR = nullptr;
 std::string ASM_DIR_PATH;
 bool disableMeiMei = false;
@@ -383,6 +384,24 @@ bool nameEndWithAsmExtension(const char *name)
 bool isAsmFile(const struct dirent *file)
 {
 	return nameEndWithAsmExtension(file->d_name);
+}
+
+bool areConfigFlagsToggled()
+{
+	return PER_LEVEL == true ||
+			DISABLE_255_SPRITE_PER_LEVEL == true ||
+			true; // for now config is recreated on all runs
+}
+
+void create_config_file(const std::string path)
+{
+	if (areConfigFlagsToggled())
+	{
+		FILE *config = open(path.c_str(), "w");
+		fprintf(config, "!PerLevel = %d\n", (int) PER_LEVEL);
+		fprintf(config, "!Disable255SpritesPerLevel = %d", (int) DISABLE_255_SPRITE_PER_LEVEL);
+		fclose(config);
+	}
 }
 
 std::list<std::string> listExtraAsm(const std::string path)
@@ -865,6 +884,10 @@ int main(int argc, char *argv[])
 		{
 			PER_LEVEL = false;
 		}
+		else if (!strcmp(argv[i], "-d255spl"))
+		{
+			DISABLE_255_SPRITE_PER_LEVEL = true;
+		}
 		else if (!strcmp(argv[i], "-meimei-a"))
 		{
 			MeiMei::setAlwaysRemap();
@@ -980,6 +1003,7 @@ int main(int argc, char *argv[])
 	//------------------------------------------------------------------------------------------
 	// regular stuff
 	//------------------------------------------------------------------------------------------
+	create_config_file(ASM_DIR_PATH + "/config.asm");
 	std::list<std::string> extraDefines = listExtraAsm(ASM_DIR_PATH + "/ExtraDefines");
 	populate_sprite_list(paths, sprites_list_list, (char *)read_all(paths[LIST], true), output);
 
@@ -1168,10 +1192,7 @@ int main(int argc, char *argv[])
 	fclose(mw2);
 
 	//apply the actual patches
-	if (PER_LEVEL)
-		patch(paths[ASM], "main.asm", rom);
-	else
-		patch(paths[ASM], "main_npl.asm", rom);
+	patch(paths[ASM], "main.asm", rom);
 	patch(paths[ASM], "cluster.asm", rom);
 	patch(paths[ASM], "extended.asm", rom);
 

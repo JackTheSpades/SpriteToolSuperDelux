@@ -62,7 +62,7 @@ with zipfile.ZipFile('pixi.zip', 'w', zipfile.ZIP_DEFLATED) as pixizip:
    pixizip.write('asar.dll')
    
    #asm
-   for asm_folder_file in ['main.asm', 'main_npl.asm', 'sa1def.asm', 'cluster.asm', 'extended.asm', 'pointer_caller.asm', 'DefaultSize.bin']:
+   for asm_folder_file in ['main.asm', 'sa1def.asm', 'cluster.asm', 'extended.asm', 'pointer_caller.asm', 'DefaultSize.bin']:
       pixizip.write(to_asm_folder(asm_folder_file))
    
    #misc

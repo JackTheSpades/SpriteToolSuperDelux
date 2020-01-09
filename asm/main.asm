@@ -1,7 +1,3 @@
-!GenStart = $D0
-!PerLevel ?= 1
-
-!__debug = 0
 incsrc "sa1def.asm"		;sa-1 defines
 
 ; ---------------------------------------------------
@@ -241,46 +237,48 @@ if !SA1 == 0
 	org $02A9DB|!BankB
 		JMP DisplaceIndex
 		
-	;if !EXLEVEL == 0		
-	;	org $02ABF3|!BankB
-	;		db $7F	;be able to load 128 sprites without issue
-	;endif
+	if !EXLEVEL == 0		
+		org $02ABF3|!BankB
+			db $7F	;be able to load 128 sprites without issue
+	endif
 
-	; sa1 already fixes these
-	macro remap1938(addr, nop_count)
-		l_<addr>:
-			pushpc
+	if !Disable255SpritesPerLevel == 0
+		; sa1 already fixes these
+		macro remap1938(addr, nop_count)
+			l_<addr>:
+				pushpc
+				
+				org $<addr>
+					JML .remap
+					rep <nop_count> : NOP
+					.back
+				pullpc
+				
+				.remap
+					PHX
+					TYX
+					LDA #$00
+					STA.l !7FAF00,x
+					PLX
+					JML .back
+		endmacro
 			
-			org $<addr>
-				JML .remap
-				rep <nop_count> : NOP
-				.back
-			pullpc
+		org $02A856|!BankB
+			autoclean JML CODE_02A856
+			NOP #6
+		
+		org $02A936|!BankB
+			autoclean JML NSprite_FixY2 : NOP
+		
+		org $02A8BB|!BankB
+			autoclean JML CODE_02A8BB : NOP
 			
-			.remap
-				PHX
-				TYX
-				LDA #$00
-				STA.l !7FAF00,x
-				PLX
-				JML .back
-	endmacro
-		
-	org $02A856|!BankB
-		autoclean JML CODE_02A856
-		NOP #6
-	
-	org $02A936|!BankB
-		autoclean JML NSprite_FixY2 : NOP
-	
-	org $02A8BB|!BankB
-		autoclean JML CODE_02A8BB : NOp
-		
-	org $02FAE9|!BankB
-		autoclean JML CODE_02FAE9
-		
-	org $02ABF2|!BankB
-		autoclean JML ClearIt
+		org $02FAE9|!BankB
+			autoclean JML CODE_02FAE9
+			
+		org $02ABF2|!BankB
+			autoclean JML ClearIt
+	endif
 else
 	; I could fit this inside the sa1 hijack, but I don't think that's a good idea
 	; So I got a few bytes more to fix this in and left that untouched
@@ -319,7 +317,7 @@ endif
 freecode
 	print "Freecode at ",pc	
 
-if !SA1 == 0
+if !SA1 == 0 && !Disable255SpritesPerLevel == 0
 	%remap1938(01AC9C,1)
 	%remap1938(02AB99,1)
 	%remap1938(02D088,1)
@@ -365,15 +363,19 @@ if !SA1 == 0
 endif
 
 SprtOffset:
-	DEY						; move index to sprite data byte 0
-	LDA [$CE],y				; format: YYYYEEsy, EE = Extra bits
+	; move index to sprite data 0
+	; builds size index as 000000EE NNNNNNNN
+	DEY
+	; byte 0 format YYYYEEsy, EE = Extra Bits
+	LDA [$CE],y
 	LSR #2
-	AND #$03					; \ EE bits into A high byte
-	XBA						; /
-	INY #2					; \
-	LDA [$CE],y				; / sprite data byte 2 (sprite number)
-	DEY #2					; back to start of sprite
-	;A = 000000EE NNNNNNNN (index to size table)
+	AND #$03
+	XBA
+	; sprite number byte shift
+	INY #2
+	LDA [$CE],y
+	; restore
+	DEY #2
 
 	PHP
 if !SA1
@@ -383,30 +385,37 @@ else
 endif
 	PHX
 	TAX
-	
 	TYA
+	; size table is 8-bits
+	; basically sprite data index + Size shift
+	; then shifts 24bit pointers at CE, so y is always 0
 if !SA1
 	SEP #$20
 endif
-	
-	CLC						; | Y += Size table
-	ADC.l Size,x			; |
-	; | still better than REP #$20 : AND #$00FF : SEP #$20
+	CLC
+	ADC.L Size,x
 if !SA1
 	XBA
 	ADC #$00
 	XBA
 	REP #$30
-else	
-	BCC +
+else
+	; pagination at 80 so we don't have to deal with
+	; in place shifts like iny / etc on the rest of the code
+	; could be higher than 80, could be FF-(max LM supported sprite data)
+	; but it doesn't matter and dealing with 80 is easier because N flag
+	BPL +
 	CLC
 	ADC $CE
 	STA $CE
+	
+	LDA #$00
+	ADC $CF
+	STA $CF
+	
 	LDA #$00
 	XBA
 	LDA #$00
-	BCC +
-	INC $CF
 +
 endif
 	TAY
@@ -1000,7 +1009,6 @@ SetSpriteTables:
       BCC .normal	
       CMP #$00C0
       BCC .perlevel
-      
       SBC #$0010	; carry already set, sub 0x10
    .normal
    endif
