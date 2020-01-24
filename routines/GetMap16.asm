@@ -53,10 +53,12 @@ endif
 	CMP #$02
 .check
 	BCC .noEnd
+	REP #$20		; \ load return value for call in 16bit mode
+	LDA #$FFFF		; /
 	PLB
 	PLP
 	PLX
-	LDA #$FF
+	TAY			; load high byte of return value for 8bit mode and fix N and Z flags
 	RTL
 	
 .noEnd
