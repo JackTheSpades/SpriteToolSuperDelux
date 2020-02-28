@@ -21,7 +21,7 @@ unsigned char* read_all(const char *file_name, bool text_mode, unsigned int mini
 	FILE *file = open(file_name, "rb");
 	unsigned int size = file_size(file);
 	unsigned char *file_data = new unsigned char[(size < minimum_size ? minimum_size : size) + (text_mode * 2)]();
-	if (file_size == 0) {
+	if (size == 0) {
 		error("%s was empty",file_name); 					//if file is empty, don't bother doing anything to the rom
 	}
 	if(fread(file_data, 1, size, file) != size){
