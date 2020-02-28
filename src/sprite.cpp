@@ -502,7 +502,9 @@ bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 	{
 		level = 0x200;
 		sprite_list = sprite_lists[type];
-
+		if (line_number == 1 && type != Sprite)
+			ERROR("List file doesn't contain any normal sprites, aborting insertion...\n");
+		//maybe this will fix? if on the first line and type isn't normal sprites, just abort
 		//read line from list_data
 		current_line = static_cast<simple_string &&>(get_line(list_data, i));
 		i += current_line.length;
@@ -519,9 +521,8 @@ bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 			SETTYPE(Extended)
 		if (!strcmp(current_line.data, "CLUSTER:"))
 			SETTYPE(Cluster)
-		if (line_number == 1 && type != Sprite)
-			ERROR("No normal sprites in the list, aborting insertion.\n");
-		//maybe this will fix? if on the first line and type isn't normal sprites, just abort
+
+		
 		//if(!strcmp(current_line.data, "OW:"))
 		//	SETTYPE(Overworld)
 
