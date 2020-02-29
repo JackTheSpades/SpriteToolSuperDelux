@@ -984,7 +984,7 @@ int main(int argc, char *argv[])
 	// regular stuff
 	//------------------------------------------------------------------------------------------
 	std::list<std::string> extraDefines = listExtraAsm(ASM_DIR_PATH + "/ExtraDefines");
-	populate_sprite_list(paths, sprites_list_list, (char *)read_all(paths[LIST], true), output);
+	populate_sprite_list(paths, sprites_list_list, (char *)read_all(paths[LIST], true,0,output), output);
 
 	clean_hack(rom);
 

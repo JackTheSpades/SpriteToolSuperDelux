@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "file_io.h"
-
 FILE *open(const char *name, const char *mode) {
 	FILE *file = fopen(name, mode);
 	if(!file){
@@ -17,10 +16,13 @@ int file_size(FILE *file) {
 	return size;
 }
 
-unsigned char* read_all(const char *file_name, bool text_mode, unsigned int minimum_size) {
+unsigned char* read_all(const char *file_name, bool text_mode, unsigned int minimum_size, FILE *output) {
 	FILE *file = open(file_name, "rb");
 	unsigned int size = file_size(file);
-	unsigned char *file_data = new unsigned char[(size < minimum_size ? minimum_size : size) + (text_mode * 2)]();
+	int size_used = (size < minimum_size ? minimum_size : size);
+	unsigned char *file_data = new unsigned char[size_used + (text_mode * 2)]();
+	if (strstr(file_name,"list.txt")!=nullptr && output == stdout)
+		fprintf(output,"Opened file list.txt\nminimum size is: %d\n%d size of array file_data\n",minimum_size,size_used);
 	if (size == 0) {
 		error("%s was empty.\n",file_name); 					//if file is empty, don't bother doing anything to the rom
 	}
