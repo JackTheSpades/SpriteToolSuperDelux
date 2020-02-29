@@ -250,16 +250,22 @@ void clean_hack(ROM &rom)
 
 		//remove global sprites
 		fprintf(clean_patch, ";Global sprites: \n");
-		int global_table_address = rom.pointer_snes(0x02FFEE).addr();
-		for (int table_offset = 11; table_offset < limit; table_offset += 0x10)
-		{
-			pointer main_pointer = rom.pointer_snes(global_table_address + table_offset);
-			if (!main_pointer.is_empty())
+		pointer global_table_pointer = rom.pointer_snes(0x02FFEE);
+		int global_table_address = global_table_pointer.addr();
+		// FILE *debug_out = fopen("debug_out.txt","w+");
+		// fprintf(debug_out,"Global table pointer: $%06X\n",global_table_address);
+		// fprintf(debug_out,"%d %d %d\n",global_table_pointer.bankbyte,global_table_pointer.highbyte,global_table_pointer.lowbyte);
+		// fprintf(debug_out,"$%06X\n",rom.pointer_snes(global_table_address).addr());
+		if (rom.pointer_snes(global_table_address).addr() != 0xFFFFFF) {
+			for (int table_offset = 11; table_offset < limit; table_offset += 0x10)
 			{
+				pointer main_pointer = rom.pointer_snes(global_table_address + table_offset);
+				if (!main_pointer.is_empty())
+				{
 				fprintf(clean_patch, "autoclean $%06X\n", main_pointer.addr());
+				}
 			}
 		}
-
 		//shared routines
 		fprintf(clean_patch, "\n\n;Routines:\n");
 		for (int i = 0; i < 100; i++)
@@ -502,9 +508,7 @@ bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 	{
 		level = 0x200;
 		sprite_list = sprite_lists[type];
-		if (line_number == 1 && type != Sprite)
-			ERROR("List file doesn't contain any normal sprites, aborting insertion...\n");
-		//maybe this will fix? if on the first line and type isn't normal sprites, just abort
+
 		//read line from list_data
 		current_line = static_cast<simple_string &&>(get_line(list_data, i));
 		i += current_line.length;

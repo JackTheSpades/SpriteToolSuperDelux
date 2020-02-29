@@ -23,9 +23,6 @@ unsigned char* read_all(const char *file_name, bool text_mode, unsigned int mini
 	unsigned char *file_data = new unsigned char[size_used + (text_mode * 2)]();
 	if (strstr(file_name,"list.txt")!=nullptr && output == stdout)
 		fprintf(output,"Opened file list.txt\nminimum size is: %d\n%d size of array file_data\n",minimum_size,size_used);
-	if (size == 0) {
-		error("%s was empty.\n",file_name); 					//if file is empty, don't bother doing anything to the rom
-	}
 	if(fread(file_data, 1, size, file) != size){
 		error("%s could not be fully read.  Please check file permissions.", file_name);
 	}
