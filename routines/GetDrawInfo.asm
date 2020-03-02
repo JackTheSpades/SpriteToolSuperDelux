@@ -32,7 +32,7 @@
 
    LDA !14D4,x
    XBA
-   LDA !1662,x
+   LDA !190F,x
    AND #$20
    BEQ .CheckOnce
 .CheckTwice

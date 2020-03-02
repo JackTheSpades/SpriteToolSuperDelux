@@ -24,6 +24,7 @@
 	BEQ ?+						; /
 	DEY						; \
 	BPL .loop				; | if not, decrease Y and continue with loop
+.ret
 	SEC						; | set carry if none is spawned
 	RTL						; /
 ?+
@@ -56,7 +57,6 @@
 	LDA $03					; \ store y speed
 	STA $173D|!Base2,y	; /
 	
-.ret
 	CLC
 	RTL
 	
