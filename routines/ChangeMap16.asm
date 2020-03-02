@@ -63,6 +63,7 @@ endif
 	PLB
 	PLP
 	PLX
+	SEC
 	RTL
 	
 .noEnd
@@ -175,4 +176,5 @@ endif
 	PLB
 	PLP
 	PLX
+	CLC
 	RTL

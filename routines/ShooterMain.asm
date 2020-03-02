@@ -35,8 +35,8 @@
 	SBC $1B                 ;  |
 	BNE .Return             ; / 
 	
-	LDA !shoot_x_low,x      ; \ ?? something else related to x position of generator??
-	SEC                     ;  | 
+	LDA !shoot_x_low,x      ; \ don't generate if close to right edge of screen
+	SEC                     ;  | probably so generated sprite is fully on screen
 	SBC $1A                 ;  |
 	CLC                     ;  |
 	ADC #$10                ;  |
