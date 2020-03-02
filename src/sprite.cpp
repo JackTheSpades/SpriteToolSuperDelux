@@ -6,6 +6,7 @@
 
 #include <list>
 #include <iostream>
+#include <fstream>
 #include <iterator>
 #include <regex>
 #include <exception>
@@ -857,7 +858,7 @@ int main(int argc, char *argv[])
 			printf("-r   <routines>\tSpecify a shared routine directory (Default %s)\n", paths[ROUTINES]);
 			printf("\n");
 
-			printf("-ssc <append ssc>\tSpecify ssc file to be copied into <romname>.ssc (this feature is currently not implemented)\n");
+			printf("-ssc <append ssc>\tSpecify ssc file to be copied into <romname>.ssc\n");
 			printf("-mwt <append mwt>\tSpecify mwt file to be copied into <romname>.mwt\n");
 			printf("-mw2 <append mw2>\tSpecify mw2 file to be copied into <romname>.mw2\n");
 			printf("-s16 <base s16>\tSpecify s16 file to be used as a base for <romname>.s16\n");
@@ -1080,6 +1081,17 @@ int main(int argc, char *argv[])
 	FILE *mwt = open_subfile(rom, "mwt", "w");
 	FILE *mw2 = open_subfile(rom, "mw2", "wb");
 	debug_print("Romname files opened.\n");
+
+	if (extensions[EXT_SSC])
+	{
+		std::ifstream fin(extensions[EXT_SSC]);
+		std::string line;
+		while (std::getline(fin, line))
+		{
+			fprintf(ssc, "%s\n", line.c_str());
+		}
+		fin.close();
+	}
 
 	if (extensions[EXT_S16])
 		read_map16(map, extensions[EXT_S16]);

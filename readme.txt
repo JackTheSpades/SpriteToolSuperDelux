@@ -128,7 +128,7 @@ ReadMe Contents:
 
 		-r  <sharedpath>        Specify a shared routine directory (Default routines/)
 		
-		-ssc <append ssc>       Specify ssc file to be copied into <romname>.ssc (this is actually not implemented!)
+		-ssc <append ssc>       Specify ssc file to be copied into <romname>.ssc
 		-mwt <append mwt>       Specify mwt file to be copied into <romname>.mwt
 		-mw2 <append mw2>       Specify mw2 file to be copied into <romname>.mw2
 		-s16 <base s16>         Specify s16 file to be used as a base for <romname>.s16

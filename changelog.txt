@@ -1,6 +1,20 @@
 Changelog
 
-Version 1.2.13 (January 09, 2019):
+Version 1.2.14 (March 02, 2020):
+  - (Atari2.0) Fixed a bug which caused pixi to cleanup stuff wrong if you ran it with an empty list.
+  - (Sillymel) Fixed a bug in GetDrawInfo which caused it to consider clippings from 20+ instead of two-tiles death animation flags. This is actually a bug in the Vanilla game as well (see $01A365 and $02D378).
+  - (Sillymel) Fixed comments on ShooterMain.
+  - (Sillymel) Fixed a bug which caused SpawnExtended to return the wrong carry flag when signalling it failed to spawn a sprite due to the sprite being offscreen.
+  - (Sillymel) Fixed carry return of GetMap16 so it actually returns the flags like it says it should.
+  - (Sillymel) Fixed ChangeMap16 return so it returns #$FFFF instead of #$00FF.
+  - (Sillymel) Fixed a bug which caused ChangeMap16 to break the stack due to it mishandling 16 bit mode.
+  - (Tattletale) Added proper documentation to -d255spl.
+  - (Tattletale) Added a comment about x/y offset in SpawnSprite, basically it substracts them if they are negative.
+  - (Tattletale) Added a comment about TDC usage in GetDrawInfo.
+  - (Tattletale) Fixed a slight overlook in GetDrawInfo which would cause it to keep the vertical offscreen flag's state if the sprite is offscreen horizontally. Reported by Super Maks 64.
+  - (Tattletale) -ssc is now properly implemented, reported by Shiny Ninetales, quite possibly imamelia had issues with this too.
+
+Version 1.2.13 (January 09, 2020):
   - (Tattletale) Fixed a bug with sprite data displacement introduced in 1.2.10. LM3 cache would cover this up in most cases, except for reeeeeally tall levels.
   - (Tattletale) Added a compatibility flag to disable 255 sprites per level support on fastROM -d255spl, check the readme for more info.
   - (Tattletale) Removed main_npl.asm, now there's an optional config file included in sa1def.asm that's generated on every run. Eventually this file will actually become a config file. Special thanks to randomdude999 for giving me the code to check for files in asar.
