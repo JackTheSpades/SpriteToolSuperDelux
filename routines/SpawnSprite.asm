@@ -8,6 +8,8 @@
 ;        $02 = x speed   | using the returned Y.
 ;        $03 = y speed   /
 ;
+;		 if x and y are negative, those will be subtracted instead of added
+;
 ;Output: Y   = index to spawned sprite (#$FF means no sprite spawned)
 ;        C   = Carry Set = spawn failed, Carry Clear = spawn successful.
 
