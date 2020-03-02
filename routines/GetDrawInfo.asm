@@ -10,6 +10,7 @@
 ; It is adapted from the subroutine at $03B760
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+   STZ !186C,x
    LDA !14E0,x
    XBA
    LDA !E4,x
@@ -25,6 +26,9 @@
      LDA #$01
    ?+
    STA !15A0,x
+   ; in sa-1, this isn't #$000
+   ; this actually doesn't matter
+   ; because we change A and B to different stuff
    TDC
    ROL A
    STA !15C4,x
