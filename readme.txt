@@ -116,6 +116,7 @@ ReadMe Contents:
 		-l  <listpath>  Specify a custom list file (Default: list.txt)
 		-pl				Per level sprites - will insert perlevel sprite code
 		-npl            Same as the current default, no sprite per level will be inserted, left dangling for compatibility reasons
+		-d255spl		disables 255 sprite per level support (won't do the 1938 remap)
 
 		-a  <asm>       Specify a custom asm directory (Default asm/)
 		
@@ -126,8 +127,8 @@ ReadMe Contents:
 		-c  <cluster>   Specify a custom cluster sprites directory (Default cluster/)
 
 		-r  <sharedpath>        Specify a shared routine directory (Default routines/)
-
-		-ssc <append ssc>       Specify ssc file to be copied into <romname>.ssc
+		
+		-ssc <append ssc>       Specify ssc file to be copied into <romname>.ssc (this is actually not implemented!)
 		-mwt <append mwt>       Specify mwt file to be copied into <romname>.mwt
 		-mw2 <append mw2>       Specify mw2 file to be copied into <romname>.mw2
 		-s16 <base s16>         Specify s16 file to be used as a base for <romname>.s16

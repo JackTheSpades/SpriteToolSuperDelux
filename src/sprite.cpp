@@ -42,7 +42,7 @@
 #define SPRITE_COUNT 0x80 //count for other sprites like cluster, ow, extended
 
 //version 1.xx
-const char VERSION = 0x21;
+const char VERSION = 0x22;
 bool PER_LEVEL = false;
 bool DISABLE_255_SPRITE_PER_LEVEL = false;
 const char *ASM_DIR = nullptr;
@@ -842,6 +842,7 @@ int main(int argc, char *argv[])
 			printf("-l  <listpath>\tSpecify a custom list file (Default: %s)\n", paths[LIST]);
 			printf("-pl\t\tPer level sprites - will insert perlevel sprite code\n");
 			printf("-npl\t\tSame as the current default, no sprite per level will be inserted, left dangling for compatibility reasons\n");
+			printf("-d255spl\t\tDisable 255 sprite per level support (won't do the 1938 remap)\n");
 			printf("\n");
 
 			printf("-a  <asm>\tSpecify a custom asm directory (Default %s)\n", paths[ASM]);
@@ -856,7 +857,7 @@ int main(int argc, char *argv[])
 			printf("-r   <routines>\tSpecify a shared routine directory (Default %s)\n", paths[ROUTINES]);
 			printf("\n");
 
-			printf("-ssc <append ssc>\tSpecify ssc file to be copied into <romname>.ssc\n");
+			printf("-ssc <append ssc>\tSpecify ssc file to be copied into <romname>.ssc (this feature is currently not implemented)\n");
 			printf("-mwt <append mwt>\tSpecify mwt file to be copied into <romname>.mwt\n");
 			printf("-mw2 <append mw2>\tSpecify mw2 file to be copied into <romname>.mw2\n");
 			printf("-s16 <base s16>\tSpecify s16 file to be used as a base for <romname>.s16\n");
