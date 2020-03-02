@@ -251,12 +251,14 @@ void clean_hack(ROM &rom)
 		//remove global sprites
 		fprintf(clean_patch, ";Global sprites: \n");
 		int global_table_address = rom.pointer_snes(0x02FFEE).addr();
-		for (int table_offset = 11; table_offset < limit; table_offset += 0x10)
-		{
-			pointer main_pointer = rom.pointer_snes(global_table_address + table_offset);
-			if (!main_pointer.is_empty())
+		if (rom.pointer_snes(global_table_address).addr() != 0xFFFFFF) {
+			for (int table_offset = 11; table_offset < limit; table_offset += 0x10)
 			{
-				fprintf(clean_patch, "autoclean $%06X\n", main_pointer.addr());
+				pointer main_pointer = rom.pointer_snes(global_table_address + table_offset);
+				if (!main_pointer.is_empty())
+				{
+					fprintf(clean_patch, "autoclean $%06X\n", main_pointer.addr());
+				}
 			}
 		}
 
