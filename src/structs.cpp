@@ -79,7 +79,7 @@ char* trim(char *text) {
 		text++;
 	}
 	for(int i = strlen(text); isspace(text[i-1]); i--){	//trim back
-		text[i] = 0;
+		text[i-1] = 0;
 	}
 	return text; 
 }
