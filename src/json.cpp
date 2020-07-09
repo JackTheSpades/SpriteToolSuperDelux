@@ -27,8 +27,21 @@ bool read_json_file(sprite *spr, FILE *output)
 {
 
    json j;
-   std::ifstream instr(spr->cfg_file);
-   instr >> j;
+   try {
+      std::ifstream instr(spr->cfg_file);
+      instr >> j;
+   }
+   catch (const std::exception &e) {
+      if (output)
+         fprintf(output, "Json file with name %s wasn't found, exiting with exception: %s\n", spr->cfg_file, e.what());
+      char *filename = new char[strlen(spr->cfg_file) + 1];
+      char *folder = new char[strlen(spr->cfg_file) + 1];
+      strcpy(filename, strrchr(spr->cfg_file, '/') + 1);
+      strcpy(folder, strchr(spr->cfg_file, '/') + 1);
+      strchr(folder, '/')[0] = '\0';
+      printf("\"%s\" wasn't found in \"%s\", make sure to have the correct filenames in your list file\n", filename, folder);
+      exit(-1);
+   }
 
 #define CAP(x, y) x = (x < (y) ? x : (y))
 
