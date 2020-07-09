@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
-#include <cctype>
+#include <cctype> 
 
 #include <list>
 #include <iostream>
@@ -43,7 +43,7 @@
 #define SPRITE_COUNT 0x80 //count for other sprites like cluster, ow, extended
 
 //version 1.xx
-const char VERSION = 0x22;
+const char VERSION = 0x23;
 bool PER_LEVEL = false;
 bool DISABLE_255_SPRITE_PER_LEVEL = false;
 const char *ASM_DIR = nullptr;
@@ -117,6 +117,32 @@ void addIncScrToFile(FILE *file, const std::list<std::string>& toInclude)
 {
 	for (std::string const& incPath : toInclude) {
     	fprintf(file, ("incsrc \"" + incPath + "\"\n").c_str());
+	}
+}
+
+FILE* get_debug_output(int argc, char* argv[], int* i) {
+	
+	if (!strcmp(argv[(*i) + 1], "-out") && (*i) < argc - 3) {
+		const std::string& name = argv[(*i)+2];
+		(*i)+=2; 
+		if (name.find(".smc")!=std::string::npos || name.find("-")==0) {  		// failsafe in case the user forgets to specify the debug output file (we check if it's a rom or another cmd line option)
+			(*i)--;																// fallback to stdout and decrement i to keep reading the rest of the cmd line options
+			printf("Output debug file specified was invalid or missing, printing to screen...\n");
+			return stdout;
+		}
+		else {
+			FILE *fp = fopen(name.c_str(), "w");							// try opening the file, in case of failure we just fallback to stdout
+			if (fp == nullptr) {
+				printf("Couldn't open or create the output file, printing to screen...\n");
+				return stdout;
+			}
+			else {
+				return fp;													// everything went smoothly, return proper file handler
+			}
+		}
+	}
+	else {
+		return stdout;														// -out wasn't used, just default to stdout
 	}
 }
 
@@ -838,7 +864,8 @@ int main(int argc, char *argv[])
 		{
 			printf("Version 1.%02d\n", VERSION);
 			printf("Usage: pixi <options> <ROM>\nOptions are:\n");
-			printf("-d\t\tEnable debug output\n");
+			printf("-d\t\tEnable debug output, the following flag <-out> only works when this is set\n");
+			printf("-out <filename>\t\tTo be used IMMEDIATELY after -d, will redirect the debug output to the specified file, if omitted, the output will default to prompt\n");
 			printf("-k\t\tKeep debug files\n");
 			printf("-l  <listpath>\tSpecify a custom list file (Default: %s)\n", paths[LIST]);
 			printf("-pl\t\tPer level sprites - will insert perlevel sprite code\n");
@@ -874,7 +901,7 @@ int main(int argc, char *argv[])
 		}
 		else if (!strcmp(argv[i], "-d") || !strcmp(argv[i], "--debug"))
 		{
-			output = stdout;
+			output = get_debug_output(argc, argv, &i);
 		}
 		else if (!strcmp(argv[i], "-k"))
 		{
@@ -927,7 +954,10 @@ int main(int argc, char *argv[])
 			{
 				break;
 			}
-			error("ERROR: Invalid command line option \"%s\".\n", argv[i]);
+			if (strcmp(argv[i], "-out") == 0)
+				error("ERROR: \"%s\" command line option used without having the \"-d\" command line option active.\n", argv[i]);
+			else
+				error("ERROR: Invalid command line option \"%s\".\n", argv[i]);
 		}
 	}
 
@@ -975,6 +1005,20 @@ int main(int argc, char *argv[])
 		rom.close();
 		asar_close();
 		exit(-1);
+	}
+
+	int lm_edit_ptr = get_pointer(rom.data, rom.snes_to_pc(0x06F624));			// thanks p4plus2
+	if (lm_edit_ptr == 0xFFFFFF) {
+		printf("You're inserting Pixi without having modified a level in Lunar Magic, this will cause bugs\nDo you want to abort insertion now [y/n]?\nIf you choose 'n', to fix the bugs just reapply Pixi after having modified a level\n");
+		char c = getchar();
+		if (tolower(c) == 'y') {
+			rom.close();
+			asar_close();
+			printf("Insertion was stopped, press any button to exit...\n");
+			getchar();
+			exit(-1);
+		}
+		fflush(stdin); // uff 
 	}
 
 	// Initialize MeiMei
