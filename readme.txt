@@ -112,6 +112,7 @@ ReadMe Contents:
 		Usage: pixi <options> <ROM>
 		Options are:
 		-d              Enable debug output
+		-out <filename>	This can be placed after "-d" and with it you can define a file to redirect the debug output instead of the prompt. This flag only works if the debug output flag is enabled.
 		-k              Keep debug files
 		-l  <listpath>  Specify a custom list file (Default: list.txt)
 		-pl				Per level sprites - will insert perlevel sprite code
@@ -143,9 +144,11 @@ ReadMe Contents:
 		
 		They are all still considered pixi options by the way, so you would them the as any of ther other options above the MeiMei section.
 
-	Example:
+	Examples:
 		
-		pixi.exe -l differentlistfile.txt rom.smc
+		pixi.exe -l differentlistfile.txt rom.smc							-> will use "differentlistfile.txt" instead of "list.txt"
+
+		pixi.exe -d -out debug_out.txt -k -l differentlistfile.txt rom.smc	-> will print debug output to "debug_out.txt", keep debug files and use "differentlistfile.txt"
 		
 		
 		

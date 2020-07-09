@@ -1,5 +1,11 @@
 Changelog
-
+Version 1.2.15 (July 10, 2020):
+  - (Atari2.0) Removed unnecessary waiting (BRA $00/NOPs) in SA-1 version of various routines (Aiming, CircleX, CircleY, Random)
+  - (Atari2.0) Added exception control for missing .json files. Now it will output exactly what json file was not found instead of printing the stacktrace.
+  - (Atari2.0) Added a command line option "-out" that can be added after "-d" to redirect debug output to a file instead of the prompt/stdout.
+  - (Atari2.0) Fixed trimming of filenames causing bug with trailing whitespaces in .cfg/.json names in list.txt
+  - (Atari2.0) Added a warning in case the user is inserting Pixi into a rom without having modified any level in Lunar Magic, causing various bugs (like goal posts not working).
+  
 Version 1.2.14 (March 02, 2020):
   - (Atari2.0) Fixed a bug which caused pixi to cleanup stuff wrong if you ran it with an empty list.
   - (Sillymel) Fixed a bug in GetDrawInfo which caused it to consider clippings from 20+ instead of two-tiles death animation flags. This is actually a bug in the Vanilla game as well (see $01A365 and $02D378).
