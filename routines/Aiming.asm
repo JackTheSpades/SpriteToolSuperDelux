@@ -47,7 +47,6 @@
 			STA $2253
 			
 			NOP
-			BRA $00
 			
 			LDA $2306
 			
@@ -55,7 +54,6 @@
 			STX $2251
 			STX $2253
 
-			BRA $00
 			CLC
 
 			ADC $2306
@@ -165,7 +163,6 @@
 			;BCS ..x_plus
 			
 			NOP
-			BRA $00
 			
 			LDA $2307
 			LDX $06

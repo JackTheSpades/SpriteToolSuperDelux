@@ -27,7 +27,7 @@
         STZ $2252
         STX $2253               ; Write second multiplicand.
         STZ $2254
-        NOP : BRA $00           ; Wait 5 cycles.
+        NOP                     ; Wait 2 cycles, which is enough according to SnesLab docs about sa-1 registers.
         LDA $2307               ; Read multiplication product.
     endif
 .end

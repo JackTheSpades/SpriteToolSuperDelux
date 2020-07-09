@@ -1,7 +1,7 @@
 ;Routine that gets the x distance when given an angle and a radius. For sprites
 ;That move in circles. 
 
-;Input:  $04 = angle (16 bit) actually only 9 bit are used 000-1FF = 0°-359°
+;Input:  $04 = angle (16 bit) actually only 9 bit are used 000-1FF = 0Â°-359Â°
 ;        $06 = radius (8 bit)
 ;
 ;Output: $07 = X displacement (16 bit)
@@ -27,8 +27,6 @@ else
 	lda $06
 	sta $2253
 	stz $2254
-	nop 
-	bra $00
 	rep #$20
 	lda $2307
 endif
