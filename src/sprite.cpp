@@ -161,7 +161,12 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 	fclose(sprite_patch);
 
 	patch(TEMP_SPR_FILE, rom);
-
+	bool extended = (strstr(spr->directory, "extended") != nullptr);
+	bool normal_sprite = (strstr(spr->directory, "sprites") != nullptr);
+	int cape_ptr = 0x018021;
+	int kicked_ptr = 0x01D43E;		// these point to the hjiacked vanilla routine
+	int carriable_ptr = 0x01D43E;
+	int carried_ptr = 0x01D43E;
 	int print_count = 0;
 	const char *const *prints = asar_getprints(&print_count);
 	int addr = 0xFFFFFF;
@@ -174,11 +179,22 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 
 	for (int i = 0; i < print_count; i++)
 	{
-		sscanf(prints[i], "%4s%x", buf, &addr);
-		if (!strcmp(buf, "INIT"))
-			set_pointer(&spr->table.init, addr);
-		else if (!strcmp(buf, "MAIN"))
-			set_pointer(&spr->table.main, addr);
+		if (!strncmp(prints[i], "INIT", 4))
+			set_pointer(&spr->table.init, strtol(prints[i]+4, NULL, 16));
+		else if (!strncmp(prints[i], "MAIN", 4))
+			set_pointer(&spr->table.main, strtol(prints[i]+4, NULL, 16));
+		else if (!strncmp(prints[i], "CAPE", 4) && extended) {
+			cape_ptr = strtol(prints[i]+4, NULL, 16);
+		}
+		else if (!strncmp(prints[i], "CARRIABLE", 9) && normal_sprite) {
+			carriable_ptr = strtol(prints[i]+9, NULL, 16);
+		}
+		else if (!strncmp(prints[i], "CARRIED", 7) && normal_sprite) {
+			carried_ptr = strtol(prints[i]+7, NULL, 16);
+		}
+		else if (!strncmp(prints[i], "KICKED", 6) && normal_sprite) {
+			kicked_ptr = strtol(prints[i]+6, NULL, 16);
+		}
 		else if (!strcmp(buf, "VERG"))
 		{
 			if (VERSION < addr)
@@ -190,12 +206,22 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 		else if (output)
 			fprintf(output, "\t%s\n", prints[i]);
 	}
-
+	if (extended) {
+		set_pointer(&spr->table.cape, cape_ptr);	// 0x018021 is RTL
+	}
+	else if (normal_sprite) {
+		set_pointer(&spr->table.carried, carried_ptr);
+		set_pointer(&spr->table.carriable, carriable_ptr);
+		set_pointer(&spr->table.kicked, kicked_ptr);
+	}
 	if (output)
 	{
-		fprintf(output, "\tINIT: $%06X\n\tMAIN: $%06X"
+		fprintf(output, "\tINIT: $%06X\n\tMAIN: $%06X\n"
+						"\tCARRIABLE: $%06X\n\tCARRIED: $%06X\n\tKICKED: $%06X"
 						"\n__________________________________\n",
-				spr->table.init.addr(), spr->table.main.addr());
+				spr->table.init.addr(), spr->table.main.addr(),
+				spr->table.carriable.addr(), spr->table.carried.addr(),
+				spr->table.kicked.addr());
 	}
 }
 
@@ -216,6 +242,10 @@ void patch_sprites(std::list<std::string>& extraDefines, sprite *sprite_list, in
 				{
 					spr->table.init = sprite_list[j].table.init;
 					spr->table.main = sprite_list[j].table.main;
+					spr->table.cape = sprite_list[j].table.cape;
+					spr->table.carried = sprite_list[j].table.carried;
+					spr->table.carriable = sprite_list[j].table.carriable;
+					spr->table.kicked = sprite_list[j].table.kicked;
 					duplicate = true;
 					break;
 				}
@@ -1085,6 +1115,13 @@ int main(int argc, char *argv[])
 	else
 	{
 		write_long_table(sprite_list, paths[ASM], "_DefaultTables.bin", 0x100);
+		unsigned char customstatusptrs[SPRITE_COUNT*9];
+		for (int i = 0, j = 0; i < SPRITE_COUNT*3; i+=3, j++) {
+			memcpy(customstatusptrs + (i * 3), &sprite_list[j].table.carriable, 3);
+			memcpy(customstatusptrs + (i * 3) + 3, &sprite_list[j].table.kicked, 3);
+			memcpy(customstatusptrs + (i * 3) + 6, &sprite_list[j].table.carried, 3);
+		}
+		write_all(customstatusptrs, paths[ASM], "_CustomStatusPtr.bin", SPRITE_COUNT * 9);
 	}
 
 	//cluster
@@ -1097,6 +1134,9 @@ int main(int argc, char *argv[])
 	for (int i = 0; i < SPRITE_COUNT; i++)
 		memcpy(file + (i * 3), &extended_list[i].table.main, 3);
 	write_all(file, paths[ASM], "_ExtendedPtr.bin", SPRITE_COUNT * 3);
+	for (int i = 0; i < SPRITE_COUNT; i++)
+		memcpy(file + (i * 3), &extended_list[i].table.cape, 3);
+	write_all(file, paths[ASM], "_ExtendedCapePtr.bin", SPRITE_COUNT * 3);
 
 	//overworld
 	// for(int i = 0; i < SPRITE_COUNT; i++)
@@ -1272,6 +1312,7 @@ int main(int argc, char *argv[])
 		remove(paths[ASM], "_versionflag.bin");
 
 		remove(paths[ASM], "_DefaultTables.bin");
+		remove(paths[ASM], "_CustomStatusPtr.bin");
 		if (PER_LEVEL)
 		{
 			remove(paths[ASM], "_PerLevelT1.bin");
@@ -1282,6 +1323,7 @@ int main(int argc, char *argv[])
 
 		remove(paths[ASM], "_ClusterPtr.bin");
 		remove(paths[ASM], "_ExtendedPtr.bin");
+		remove(paths[ASM], "_ExtendedCapePtr.bin");
 		//remove("asm/_OverworldMainPtr.bin");
 		//remove("asm/_OverworldInitPtr.bin");
 

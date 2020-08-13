@@ -1,5 +1,5 @@
 incsrc "sa1def.asm"		;sa-1 defines
-
+incsrc "pointer_caller.asm"
 ; ---------------------------------------------------
 ; tool relevant information.
 ; I'd advice against changing stuff in this hijack unless
@@ -40,8 +40,8 @@ TableLoc:
       dl $FFFFFF
    endif
 	
-	;3 bytes left over in bank... possible future use?
-	dl $FFFFFF
+	; Use this for custom status pointer tables
+	autoclean dl CustomStatusPtr
 	
 ;I think asar warns you for bank crossing anyway, but no harm done.
 warnpc $038000
@@ -94,7 +94,7 @@ if read2($0182B3) == $87A7
 endif
 ;status routine wrapper
 org $01D43E|!BankB
-	JSR $8133		;goto exucute pointer for sprite status ($14C8)
+	JSR $8133		;goto execute pointer for sprite status ($14C8)
 	RTL
 
 ; store extra bits separate from $14D4
@@ -1159,7 +1159,8 @@ SubHandleStatus:
 	BMI .CallMain				;check bit 7, if set call main
 	PHA
 	LDA $02,s					;load sprite status
-	JSL $01D43E|!BankB		;execute default status of sprite
+	JSR ExecuteCustomPtr		;execute custom ptr for states 09-0A-0B
+	JSL $01D43E|!BankB			;run vanilla code for states > 0B
 	PLA							;extra_prop_2
 	ASL A							;\ check bit 6
 	BMI .CallMain				;/
@@ -1181,6 +1182,19 @@ SubHandleStatus:
 	PEA $85C1					;/
 	JML [!Base1]				; goto sprite main code.
 
+ExecuteCustomPtr:
+.sub
+	CMP #$0C
+	BCC .CustomStatus		; if < #$0C run custom status 
+	RTS
+	.CustomStatus
+	STA $03					; load status in $03 and number in A
+	LDA !new_sprite_num,x
+	%CallStatusPtr(CustomStatusPtr)
+	PLA : PLA 		; destroy the RTS
+	PLA : PLA		; destroy the previous 2 PHAs
+	JML $0185C2|!BankB		; goto RTL
+	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Keep extra bits around when setting the sprite tables during
 ; level loading
@@ -1270,7 +1284,9 @@ TestSilverCoinBit:
 TableStart:
 	print "Global Table at ",pc
 	incbin "_DefaultTables.bin"
-  
+CustomStatusPtr:
+	print "Custom status pointers at", pc
+	incbin "_CustomStatusPtr.bin"
 
 ; ---------------------------------------------------
 ; per-level tables for sprite B0-BF 0x8000 bytes each.

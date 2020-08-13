@@ -115,6 +115,10 @@ struct sprite_table {
 	unsigned char tweak[6] = {0};
 	pointer init;
 	pointer main;
+	pointer cape;
+	pointer carriable;
+	pointer kicked;
+	pointer carried;
 	unsigned char extra[2] = {0};
    
 };
