@@ -216,12 +216,21 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 	}
 	if (output)
 	{
-		fprintf(output, "\tINIT: $%06X\n\tMAIN: $%06X\n"
+		if (normal_sprite)
+			fprintf(output, "\tINIT: $%06X\n\tMAIN: $%06X\n"
 						"\tCARRIABLE: $%06X\n\tCARRIED: $%06X\n\tKICKED: $%06X"
 						"\n__________________________________\n",
-				spr->table.init.addr(), spr->table.main.addr(),
-				spr->table.carriable.addr(), spr->table.carried.addr(),
-				spr->table.kicked.addr());
+					spr->table.init.addr(), spr->table.main.addr(),
+					spr->table.carriable.addr(), spr->table.carried.addr(),
+					spr->table.kicked.addr());
+		else if (extended)
+			fprintf(output, "\tINIT: $%06X\n\tMAIN: $%06X\n\tCAPE: $%06X"
+						"\n__________________________________\n",
+					spr->table.init.addr(), spr->table.main.addr(), spr->table.cape.addr());			
+		else 
+			fprintf(output, "\tINIT: $%06X\n\tMAIN: $%06X\n"
+						"\n__________________________________\n",
+					spr->table.init.addr(), spr->table.main.addr());
 	}
 }
 
