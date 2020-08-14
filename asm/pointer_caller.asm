@@ -43,20 +43,20 @@ endmacro
 macro CallStatusPtr(label)
 	PHX                   ; \ Preserve X and Y.
 	PHY                   ; /
-	PHA
+	PHA					  ; preserve custom sprite number
 	LDA $03
-	SEC : SBC #$09	  ; sub status in 09
+	ASL : ADC $03
+	SBC #$1A
 	STA $03
-	ASL : CLC : ADC $03	  ; status * 3
-	STA $03 			  
-	PLA
+	; $09 => 00, $0A => 03, $0B => 06
+	PLA					  ; 
 	TXY                   ; save x in y	
 	REP #$30              ; \ 16 bit indexing and math
 	AND #$00FF            ; / clear high byte
 	
 	STA $00               ; \
 	ASL #3		          ; |
-	CLC : ADC $00         ; | x = A*9 + (status - 9 * 3)
+	ADC $00         	  ; | x = A*9 + (status - 9 * 3)
 	SEP #$30
 	CLC : ADC $03
 	REP #$30
@@ -79,4 +79,6 @@ macro CallStatusPtr(label)
 	
 	PLY                   ; \ 
 	PLX                   ; / Pull everything back and return.
+
+
 endmacro
