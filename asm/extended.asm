@@ -9,7 +9,26 @@ org $029B1B|!BankB
 	autoclean JML Main
 	autoclean dl Ptr      ; org $029B1F, default $176FBC
 	
+org $029633|!BankB
+	autoclean JML CapeInteract
+	autoclean dl CapePtr
+
+
 freecode
+
+CapeInteract:
+.sub
+	STX.w $15E9|!addr
+	LDA $170B|!addr,x		; restore vanilla code
+	CMP #!ExtendedOffset
+	BCC .NotCustom
+	SEC : SBC #!ExtendedOffset
+	AND #$7F
+	%CallSprite(CapePtr)
+	JML $029656|!BankB
+	.NotCustom
+	CMP #$02			; restore vanilla code and jml back
+	JML $02963B|!BankB		
 Main:
 .sub
 	LDY $9D               ; \
@@ -33,3 +52,6 @@ Main:
 ;tool generated pointer table
 Ptr:
 	incbin "_ExtendedPtr.bin"
+
+CapePtr:
+	incbin "_ExtendedCapePtr.bin"
