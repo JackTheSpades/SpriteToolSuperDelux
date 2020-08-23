@@ -765,8 +765,10 @@ void write_long_table(sprite *spr, const char *dir, const char *filename, int si
 		write_all(dummy, dir, filename, 0x10);
 	else
 	{
-		for (int i = 0; i < size; i++)
-			memcpy(file + (i * 0x10), &spr[i].table, 0x10);
+		for (int i = 0; i < size; i++) {
+			memcpy(file + (i * 0x10), &spr[i].table, 14);		// copy the first 14 bytes (1 type, 1 actlike, 6 tweak, 3 init, 3 main)
+			memcpy(file + (i * 0x10) + 14, &spr[i].table.extra, 2);  // copy the last 2 bytes (2 extra_prop)
+		}
 		write_all(file, dir, filename, size * 0x10);
 	}
 }

@@ -1159,8 +1159,11 @@ SubHandleStatus:
 	BMI .CallMain				;check bit 7, if set call main
 	PHA
 	LDA $02,s					;load sprite status
+	CMP #$09
+	BCC .runVanillaHandler
 	JSR ExecuteCustomPtr		;execute custom ptr for states 09-0A-0B
-	JSL $01D43E|!BankB			;run vanilla code for states > 0B
+	.runVanillaHandler
+	JSL $01D43E|!BankB			;run vanilla code for states > 0B and < 09
 	PLA							;extra_prop_2
 	ASL A							;\ check bit 6
 	BMI .CallMain				;/
