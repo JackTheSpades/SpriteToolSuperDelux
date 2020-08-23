@@ -159,7 +159,9 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 	fprintf(sprite_patch, "\tincsrc \"%s\"", spr->asm_file);
 	fprintf(sprite_patch, "\nnamespace nested off\n");
 	fclose(sprite_patch);
-
+	
+	// I really, really need to find a better way to do this instead of just having a list of ints to store all the pointers...
+	// it just feels dirty and cheap. Also I don't like the booleans and the way I use to check if it's a normal or extended sprite. Bleh.
 	patch(TEMP_SPR_FILE, rom);
 	bool extended = (strstr(spr->directory, "extended") != nullptr);
 	bool normal_sprite = (strstr(spr->directory, "sprites") != nullptr);
