@@ -10,6 +10,8 @@
 #include <iterator>
 #include <regex>
 #include <exception>
+#include <string>
+#include <map>
 
 #include "asar/asardll.h"
 #include "cfg.h"
@@ -160,19 +162,15 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 	fprintf(sprite_patch, "\nnamespace nested off\n");
 	fclose(sprite_patch);
 	
-	// I really, really need to find a better way to do this instead of just having a list of ints to store all the pointers...
-	// it just feels dirty and cheap. Also I don't like the booleans and the way I use to check if it's a normal or extended sprite. Bleh.
 	patch(TEMP_SPR_FILE, rom);
-	bool extended = (strstr(spr->directory, "extended") != nullptr);
-	bool normal_sprite = (strstr(spr->directory, "sprites") != nullptr);
-	int cape_ptr = 0x018021;
-	int kicked_ptr = 0x01D43E;		// these point to the hjiacked vanilla routine
-	int carriable_ptr = 0x01D43E;
-	int carried_ptr = 0x01D43E;
+	std::map<std::string, int> ptr_map = {
+		std::pair<std::string, int>("cape", 0x018021),	// 0x018021 is RTL
+		std::pair<std::string, int>("kicked", 0x01D43E),	// these point to the hjiacked vanilla routine (check main.asm)
+		std::pair<std::string, int>("carriable", 0x01D43E),
+		std::pair<std::string, int>("carried", 0x01D43E)
+	};
 	int print_count = 0;
 	const char *const *prints = asar_getprints(&print_count);
-	int addr = 0xFFFFFF;
-	char buf[5];
 
 	if (output)
 		fprintf(output, "%s\n", spr->asm_file);
@@ -185,21 +183,21 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 			set_pointer(&spr->table.init, strtol(prints[i]+4, NULL, 16));
 		else if (!strncmp(prints[i], "MAIN", 4))
 			set_pointer(&spr->table.main, strtol(prints[i]+4, NULL, 16));
-		else if (!strncmp(prints[i], "CAPE", 4) && extended) {
-			cape_ptr = strtol(prints[i]+4, NULL, 16);
+		else if (!strncmp(prints[i], "CAPE", 4) && spr->sprite_type == 1) {
+			ptr_map["cape"] = strtol(prints[i]+4, NULL, 16);
 		}
-		else if (!strncmp(prints[i], "CARRIABLE", 9) && normal_sprite) {
-			carriable_ptr = strtol(prints[i]+9, NULL, 16);
+		else if (!strncmp(prints[i], "CARRIABLE", 9) && spr->sprite_type == 0) {
+			ptr_map["carriable"] = strtol(prints[i]+9, NULL, 16);
 		}
-		else if (!strncmp(prints[i], "CARRIED", 7) && normal_sprite) {
-			carried_ptr = strtol(prints[i]+7, NULL, 16);
+		else if (!strncmp(prints[i], "CARRIED", 7) && spr->sprite_type == 0) {
+			ptr_map["carried"] = strtol(prints[i]+7, NULL, 16);
 		}
-		else if (!strncmp(prints[i], "KICKED", 6) && normal_sprite) {
-			kicked_ptr = strtol(prints[i]+6, NULL, 16);
+		else if (!strncmp(prints[i], "KICKED", 6) && spr->sprite_type == 0) {
+			ptr_map["kicked"] = strtol(prints[i]+6, NULL, 16);
 		}
-		else if (!strcmp(buf, "VERG"))
+		else if (!strncmp(prints[i], "VERG", 4))
 		{
-			if (VERSION < addr)
+			if (VERSION < strtol(prints[i]+4, NULL, 16))
 			{
 				printf("Version Guard failed on %s.\n", spr->asm_file);
 				exit(-1);
@@ -208,24 +206,24 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 		else if (output)
 			fprintf(output, "\t%s\n", prints[i]);
 	}
-	if (extended) {
-		set_pointer(&spr->table.cape, cape_ptr);	// 0x018021 is RTL
+	if (spr->sprite_type == 1) {
+		set_pointer(&spr->table.cape, ptr_map["cape"]);	
 	}
-	else if (normal_sprite) {
-		set_pointer(&spr->table.carried, carried_ptr);
-		set_pointer(&spr->table.carriable, carriable_ptr);
-		set_pointer(&spr->table.kicked, kicked_ptr);
+	else if (spr->sprite_type == 0) {
+		set_pointer(&spr->table.carried, ptr_map["carried"]);
+		set_pointer(&spr->table.carriable, ptr_map["carriable"]);
+		set_pointer(&spr->table.kicked, ptr_map["kicked"]);
 	}
 	if (output)
 	{
-		if (normal_sprite)
+		if (spr->sprite_type == 0)
 			fprintf(output, "\tINIT: $%06X\n\tMAIN: $%06X\n"
 						"\tCARRIABLE: $%06X\n\tCARRIED: $%06X\n\tKICKED: $%06X"
 						"\n__________________________________\n",
 					spr->table.init.addr(), spr->table.main.addr(),
 					spr->table.carriable.addr(), spr->table.carried.addr(),
 					spr->table.kicked.addr());
-		else if (extended)
+		else if (spr->sprite_type == 1)
 			fprintf(output, "\tINIT: $%06X\n\tMAIN: $%06X\n\tCAPE: $%06X"
 						"\n__________________________________\n",
 					spr->table.init.addr(), spr->table.main.addr(), spr->table.cape.addr());			
@@ -663,6 +661,7 @@ bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 		spr->line = line_number;
 		spr->level = level;
 		spr->number = sprite_id;
+		spr->sprite_type = type;
 
 		//set the directory for the desired type
 		if (type != Sprite)
@@ -766,8 +765,9 @@ void write_long_table(sprite *spr, const char *dir, const char *filename, int si
 	else
 	{
 		for (int i = 0; i < size; i++) {
-			memcpy(file + (i * 0x10), &spr[i].table, 14);		// copy the first 14 bytes (1 type, 1 actlike, 6 tweak, 3 init, 3 main)
-			memcpy(file + (i * 0x10) + 14, &spr[i].table.extra, 2);  // copy the last 2 bytes (2 extra_prop)
+			spr[i].table.cpy_spr_table_data(file + (i * 0x10));
+			// memcpy(file + (i * 0x10), &spr[i].table, 14);		// copy the first 14 bytes (1 type, 1 actlike, 6 tweak, 3 init, 3 main)
+			// memcpy(file + (i * 0x10) + 14, &spr[i].table.extra, 2);  // copy the last 2 bytes (2 extra_prop)
 		}
 		write_all(file, dir, filename, size * 0x10);
 	}

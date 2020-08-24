@@ -107,8 +107,12 @@ struct map16 {
 // 02-07: tweaker bytes
 // 08-10: init pointer
 // 11-13: main pointer
-// 14: extra property byte 1
-// 15: extra property byte 2
+// 14-16: extended sprite cape interaction pointer
+// 17-19: carriable state pointer
+// 20-22: kicked state pointer
+// 23-25: carried state pointer
+// 26: extra property byte 1
+// 27: extra property byte 2
 struct sprite_table {
 	unsigned char type = 0;
 	unsigned char actlike = 0;
@@ -120,7 +124,11 @@ struct sprite_table {
 	pointer kicked;
 	pointer carried;
 	unsigned char extra[2] = {0};
-   
+	
+	void cpy_spr_table_data(unsigned char* dest) {
+		memcpy(dest, this, 14);
+		memcpy(dest+14, extra, 2);
+	}
 };
 
 struct sprite {
@@ -144,7 +152,8 @@ struct sprite {
    
    int collection_count = 0;
    collection* collections = nullptr;
-		
+	
+   int sprite_type = 0; // 0 = Normal custom sprite, 1 = Extended custom sprite, 2 = Cluster custom sprite, 3 = Overworld custom sprite
 	~sprite();
    void print(FILE* stream);
 };
