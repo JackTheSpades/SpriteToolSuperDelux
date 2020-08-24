@@ -164,6 +164,8 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 	
 	patch(TEMP_SPR_FILE, rom);
 	std::map<std::string, int> ptr_map = {
+		std::pair<std::string, int>("init", 0x018021),
+		std::pair<std::string, int>("main", 0x018021),
 		std::pair<std::string, int>("cape", 0x018021),	// 0x018021 is RTL
 		std::pair<std::string, int>("kicked", 0x01D43E),	// these point to the hjiacked vanilla routine (check main.asm)
 		std::pair<std::string, int>("carriable", 0x01D43E),
@@ -180,21 +182,17 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 	for (int i = 0; i < print_count; i++)
 	{
 		if (!strncmp(prints[i], "INIT", 4))
-			set_pointer(&spr->table.init, strtol(prints[i]+4, NULL, 16));
+			ptr_map["init"] = strtol(prints[i]+4, NULL, 16);
 		else if (!strncmp(prints[i], "MAIN", 4))
-			set_pointer(&spr->table.main, strtol(prints[i]+4, NULL, 16));
-		else if (!strncmp(prints[i], "CAPE", 4) && spr->sprite_type == 1) {
+			ptr_map["main"] = strtol(prints[i]+4, NULL, 16);
+		else if (!strncmp(prints[i], "CAPE", 4) && spr->sprite_type == 1)
 			ptr_map["cape"] = strtol(prints[i]+4, NULL, 16);
-		}
-		else if (!strncmp(prints[i], "CARRIABLE", 9) && spr->sprite_type == 0) {
+		else if (!strncmp(prints[i], "CARRIABLE", 9) && spr->sprite_type == 0)
 			ptr_map["carriable"] = strtol(prints[i]+9, NULL, 16);
-		}
-		else if (!strncmp(prints[i], "CARRIED", 7) && spr->sprite_type == 0) {
+		else if (!strncmp(prints[i], "CARRIED", 7) && spr->sprite_type == 0)
 			ptr_map["carried"] = strtol(prints[i]+7, NULL, 16);
-		}
-		else if (!strncmp(prints[i], "KICKED", 6) && spr->sprite_type == 0) {
+		else if (!strncmp(prints[i], "KICKED", 6) && spr->sprite_type == 0)
 			ptr_map["kicked"] = strtol(prints[i]+6, NULL, 16);
-		}
 		else if (!strncmp(prints[i], "VERG", 4))
 		{
 			if (VERSION < strtol(prints[i]+4, NULL, 16))
@@ -206,6 +204,8 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 		else if (output)
 			fprintf(output, "\t%s\n", prints[i]);
 	}
+	set_pointer(&spr->table.init, ptr_map["init"]);
+	set_pointer(&spr->table.main, ptr_map["main"]);
 	if (spr->sprite_type == 1) {
 		set_pointer(&spr->table.cape, ptr_map["cape"]);	
 	}
