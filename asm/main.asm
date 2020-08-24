@@ -1159,18 +1159,16 @@ SubHandleStatus:
 	BMI .CallMain				;check bit 7, if set call main
 	PHA
 	LDA $02,s					;load sprite status
-	CMP #$09
-	BCC .runVanillaHandler
-	JSR ExecuteCustomPtr		;execute custom ptr for states 09-0A-0B
-	.runVanillaHandler
-	JSL $01D43E|!BankB			;run vanilla code for states > 0B and < 09
+	CMP #$07
+	BCC .vanillaHandler
+	JMP ExecuteCustomPtr		;execute custom ptr for states 07-09-0A-0B-0C
+	.vanillaHandler
+	JSL $01D43E|!BankB			;run vanilla code for states 02-06
 	PLA							;extra_prop_2
-	ASL A							;\ check bit 6
+	ASL A						;\ check bit 6
 	BMI .CallMain				;/
 	PLA							;sprite status
-	CMP #$09
-	BCS .CallMain2
-	CMP #$03
+	CMP #$03					;run main for state 03 (smushed)
 	BEQ .CallMain2
 	JML $0185C2|!BankB		;goto RTL
 .CallMain2
@@ -1186,15 +1184,10 @@ SubHandleStatus:
 	JML [!Base1]				; goto sprite main code.
 
 ExecuteCustomPtr:
-.sub
-	CMP #$0C
-	BCC .CustomStatus		; if < #$0C run custom status 
-	RTS
-	.CustomStatus
+.CustomStatus
 	STA $03					; load status in $03 and number in A
 	LDA !new_sprite_num,x
 	%CallStatusPtr(CustomStatusPtr)
-	PLA : PLA 		; destroy the RTS
 	PLA : PLA		; destroy the previous 2 PHAs
 	JML $0185C2|!BankB		; goto RTL
 	

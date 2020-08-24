@@ -12,6 +12,7 @@ ReadMe Contents:
 -- Using the Command Prompt
 
 - New Additions and Changes
+-- Custom status handling and extra property bytes
 -- Softcoding
 -- Per-Level Sprites
 -- SA-1 Detection and Default Labels
@@ -156,6 +157,21 @@ ReadMe Contents:
 - New Additions and Changes
 If you are used to using Romi's SpriteTool, here is a quick rundown of everything new added in PIXI:
 
+-- Custom status handling and extra property bytes:
+  As most people know, Pixi relies on 2 print statements to tell the game what code to run in which state of the sprite.
+  Most importantly, state 08 will run whatever code is under the "MAIN" print statement and state 01 will run whatever code is under 
+  the "INIT" print statement.
+  All the other states will run the corresponding vanilla code, however, some bits in !extra_prop_2 can be set to activate certain functions. Setting bit 7 of that byte will make the sprite run its MAIN code in any state and it won't run the vanilla code, setting bit 6 will make it run both vanilla code and the custom MAIN.
+  Since Pixi 1.2.16 you can have more control over other states that are not 08 and 01 by using new print statements crafted just for the occasion, valid print statements FOR NORMAL CUSTOM SPRITES are:
+      > print "CARRIABLE", pc  which will run in state 09
+	  > print "KICKED", pc  which will run in state 0A
+	  > print "CARRIED", pc which will run in state 0B
+	  > print "MOUTH", pc which will run in state 07
+	  > print "GOAL", pc which will run in state 0C
+  If you don't use these print statement your sprite will just run the respective state's vanilla code, just as normal, for retro-compatibility purposes.
+  There's also another special print statement that works only for EXTENDED sprites, which is print "CAPE", pc and its purpose is to fix a bug with cape interaction with custom extended sprites. You can use it to define the behavior of your extended sprite with cape twirl,
+  not using it will default cape interaction of the extended sprite to do nothing.
+ 
 -- Softcoding
   All the ASM code inserted by the tool is available to be edited by hand in the asm/ folder, namely main.asm.
   This means that if you need to hijack or change some code PIXI inserts, you can do it just like you would with

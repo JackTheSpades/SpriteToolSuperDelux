@@ -120,9 +120,11 @@ struct sprite_table {
 	pointer init;
 	pointer main;
 	pointer cape;
+	pointer mouth;
 	pointer carriable;
 	pointer kicked;
 	pointer carried;
+	pointer goal;
 	unsigned char extra[2] = {0};
 	
 	void cpy_spr_table_data(unsigned char* dest) {

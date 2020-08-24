@@ -167,9 +167,11 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 		std::pair<std::string, int>("init", 0x018021),
 		std::pair<std::string, int>("main", 0x018021),
 		std::pair<std::string, int>("cape", 0x018021),	// 0x018021 is RTL
+		std::pair<std::string, int>("mouth", 0x01D43E),
 		std::pair<std::string, int>("kicked", 0x01D43E),	// these point to the hjiacked vanilla routine (check main.asm)
 		std::pair<std::string, int>("carriable", 0x01D43E),
-		std::pair<std::string, int>("carried", 0x01D43E)
+		std::pair<std::string, int>("carried", 0x01D43E),
+		std::pair<std::string, int>("goal", 0x01D43E)
 	};
 	int print_count = 0;
 	const char *const *prints = asar_getprints(&print_count);
@@ -193,6 +195,10 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 			ptr_map["carried"] = strtol(prints[i]+7, NULL, 16);
 		else if (!strncmp(prints[i], "KICKED", 6) && spr->sprite_type == 0)
 			ptr_map["kicked"] = strtol(prints[i]+6, NULL, 16);
+		else if (!strncmp(prints[i], "MOUTH", 5) && spr->sprite_type == 0)
+			ptr_map["mouth"] = strtol(prints[i]+5, NULL, 16);
+		else if (!strncmp(prints[i], "GOAL", 4) && spr->sprite_type == 0)
+			ptr_map["goal"] = strtol(prints[i]+4, NULL, 16);
 		else if (!strncmp(prints[i], "VERG", 4))
 		{
 			if (VERSION < strtol(prints[i]+4, NULL, 16))
@@ -213,16 +219,19 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 		set_pointer(&spr->table.carried, ptr_map["carried"]);
 		set_pointer(&spr->table.carriable, ptr_map["carriable"]);
 		set_pointer(&spr->table.kicked, ptr_map["kicked"]);
+		set_pointer(&spr->table.mouth, ptr_map["mouth"]);
+		set_pointer(&spr->table.goal, ptr_map["goal"]);
 	}
 	if (output)
 	{
 		if (spr->sprite_type == 0)
 			fprintf(output, "\tINIT: $%06X\n\tMAIN: $%06X\n"
-						"\tCARRIABLE: $%06X\n\tCARRIED: $%06X\n\tKICKED: $%06X"
+						"\tCARRIABLE: $%06X\n\tCARRIED: $%06X\n\tKICKED: $%06X\n"
+						"\tMOUTH: $%06X\n\tGOAL: $%06X"
 						"\n__________________________________\n",
 					spr->table.init.addr(), spr->table.main.addr(),
 					spr->table.carriable.addr(), spr->table.carried.addr(),
-					spr->table.kicked.addr());
+					spr->table.kicked.addr(), spr->table.mouth.addr(), spr->table.goal.addr());
 		else if (spr->sprite_type == 1)
 			fprintf(output, "\tINIT: $%06X\n\tMAIN: $%06X\n\tCAPE: $%06X"
 						"\n__________________________________\n",
@@ -1128,13 +1137,15 @@ int main(int argc, char *argv[])
 	else
 	{
 		write_long_table(sprite_list, paths[ASM], "_DefaultTables.bin", 0x100);
-		unsigned char customstatusptrs[SPRITE_COUNT*9];
-		for (int i = 0, j = 0; i < SPRITE_COUNT*3; i+=3, j++) {
+		unsigned char customstatusptrs[SPRITE_COUNT*15];
+		for (int i = 0, j = 0; i < SPRITE_COUNT*5; i+=5, j++) {
 			memcpy(customstatusptrs + (i * 3), &sprite_list[j].table.carriable, 3);
 			memcpy(customstatusptrs + (i * 3) + 3, &sprite_list[j].table.kicked, 3);
 			memcpy(customstatusptrs + (i * 3) + 6, &sprite_list[j].table.carried, 3);
+			memcpy(customstatusptrs + (i * 3) + 9, &sprite_list[j].table.mouth, 3);
+			memcpy(customstatusptrs + (i * 3) + 12, &sprite_list[j].table.goal, 3);
 		}
-		write_all(customstatusptrs, paths[ASM], "_CustomStatusPtr.bin", SPRITE_COUNT * 9);
+		write_all(customstatusptrs, paths[ASM], "_CustomStatusPtr.bin", SPRITE_COUNT * 15);
 	}
 
 	//cluster
