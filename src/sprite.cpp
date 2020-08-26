@@ -213,14 +213,14 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 	set_pointer(&spr->table.init, ptr_map["init"]);
 	set_pointer(&spr->table.main, ptr_map["main"]);
 	if (spr->sprite_type == 1) {
-		set_pointer(&spr->table.cape, ptr_map["cape"]);	
+		set_pointer(&spr->extended_cape_ptr, ptr_map["cape"]);	
 	}
 	else if (spr->sprite_type == 0) {
-		set_pointer(&spr->table.carried, ptr_map["carried"]);
-		set_pointer(&spr->table.carriable, ptr_map["carriable"]);
-		set_pointer(&spr->table.kicked, ptr_map["kicked"]);
-		set_pointer(&spr->table.mouth, ptr_map["mouth"]);
-		set_pointer(&spr->table.goal, ptr_map["goal"]);
+		set_pointer(&spr->ptrs.carried, ptr_map["carried"]);
+		set_pointer(&spr->ptrs.carriable, ptr_map["carriable"]);
+		set_pointer(&spr->ptrs.kicked, ptr_map["kicked"]);
+		set_pointer(&spr->ptrs.mouth, ptr_map["mouth"]);
+		set_pointer(&spr->ptrs.goal, ptr_map["goal"]);
 	}
 	if (output)
 	{
@@ -230,12 +230,12 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 						"\tMOUTH: $%06X\n\tGOAL: $%06X"
 						"\n__________________________________\n",
 					spr->table.init.addr(), spr->table.main.addr(),
-					spr->table.carriable.addr(), spr->table.carried.addr(),
-					spr->table.kicked.addr(), spr->table.mouth.addr(), spr->table.goal.addr());
+					spr->ptrs.carriable.addr(), spr->ptrs.carried.addr(),
+					spr->ptrs.kicked.addr(), spr->ptrs.mouth.addr(), spr->ptrs.goal.addr());
 		else if (spr->sprite_type == 1)
 			fprintf(output, "\tINIT: $%06X\n\tMAIN: $%06X\n\tCAPE: $%06X"
 						"\n__________________________________\n",
-					spr->table.init.addr(), spr->table.main.addr(), spr->table.cape.addr());			
+					spr->table.init.addr(), spr->table.main.addr(), spr->extended_cape_ptr.addr());			
 		else 
 			fprintf(output, "\tINIT: $%06X\n\tMAIN: $%06X\n"
 						"\n__________________________________\n",
@@ -260,10 +260,8 @@ void patch_sprites(std::list<std::string>& extraDefines, sprite *sprite_list, in
 				{
 					spr->table.init = sprite_list[j].table.init;
 					spr->table.main = sprite_list[j].table.main;
-					spr->table.cape = sprite_list[j].table.cape;
-					spr->table.carried = sprite_list[j].table.carried;
-					spr->table.carriable = sprite_list[j].table.carriable;
-					spr->table.kicked = sprite_list[j].table.kicked;
+					spr->extended_cape_ptr = sprite_list[j].extended_cape_ptr;
+					spr->ptrs = sprite_list[j].ptrs;
 					duplicate = true;
 					break;
 				}
@@ -774,9 +772,7 @@ void write_long_table(sprite *spr, const char *dir, const char *filename, int si
 	else
 	{
 		for (int i = 0; i < size; i++) {
-			spr[i].table.cpy_spr_table_data(file + (i * 0x10));
-			// memcpy(file + (i * 0x10), &spr[i].table, 14);		// copy the first 14 bytes (1 type, 1 actlike, 6 tweak, 3 init, 3 main)
-			// memcpy(file + (i * 0x10) + 14, &spr[i].table.extra, 2);  // copy the last 2 bytes (2 extra_prop)
+			memcpy(file + (i * 0x10), &spr[i].table, 0x10);
 		}
 		write_all(file, dir, filename, size * 0x10);
 	}
@@ -1139,11 +1135,7 @@ int main(int argc, char *argv[])
 		write_long_table(sprite_list, paths[ASM], "_DefaultTables.bin", 0x100);
 		unsigned char customstatusptrs[SPRITE_COUNT*15];
 		for (int i = 0, j = 0; i < SPRITE_COUNT*5; i+=5, j++) {
-			memcpy(customstatusptrs + (i * 3), &sprite_list[j].table.carriable, 3);
-			memcpy(customstatusptrs + (i * 3) + 3, &sprite_list[j].table.kicked, 3);
-			memcpy(customstatusptrs + (i * 3) + 6, &sprite_list[j].table.carried, 3);
-			memcpy(customstatusptrs + (i * 3) + 9, &sprite_list[j].table.mouth, 3);
-			memcpy(customstatusptrs + (i * 3) + 12, &sprite_list[j].table.goal, 3);
+            memcpy(customstatusptrs + (i *3), &sprite_list[j].ptrs, 15);
 		}
 		write_all(customstatusptrs, paths[ASM], "_CustomStatusPtr.bin", SPRITE_COUNT * 15);
 	}
@@ -1159,7 +1151,7 @@ int main(int argc, char *argv[])
 		memcpy(file + (i * 3), &extended_list[i].table.main, 3);
 	write_all(file, paths[ASM], "_ExtendedPtr.bin", SPRITE_COUNT * 3);
 	for (int i = 0; i < SPRITE_COUNT; i++)
-		memcpy(file + (i * 3), &extended_list[i].table.cape, 3);
+		memcpy(file + (i * 3), &extended_list[i].extended_cape_ptr, 3);
 	write_all(file, paths[ASM], "_ExtendedCapePtr.bin", SPRITE_COUNT * 3);
 
 	//overworld

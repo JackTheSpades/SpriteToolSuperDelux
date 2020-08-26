@@ -37,7 +37,7 @@ struct simple_string{
 
 
 struct pointer {
-	unsigned char lowbyte = RTL_LOW;		//point to RTL
+    unsigned char lowbyte = RTL_LOW;	//point to RTL
 	unsigned char highbyte = RTL_HIGH;	//
 	unsigned char bankbyte = RTL_BANK;	//
 	
@@ -101,36 +101,28 @@ struct map16 {
 	map8x8 bottom_right;
 };
 
+struct status_pointers {        // the order of these actually matters
+    pointer carriable;
+    pointer kicked;
+    pointer carried;
+    pointer mouth;
+    pointer goal;
+};
 
 // 00: type {0=tweak,1=custom,3=generator/shooter}
 // 01: "acts like"
 // 02-07: tweaker bytes
 // 08-10: init pointer
 // 11-13: main pointer
-// 14-16: extended sprite cape interaction pointer
-// 17-19: carriable state pointer
-// 20-22: kicked state pointer
-// 23-25: carried state pointer
-// 26: extra property byte 1
-// 27: extra property byte 2
+// 14: extra property byte 1
+// 15: extra property byte 2
 struct sprite_table {
 	unsigned char type = 0;
 	unsigned char actlike = 0;
 	unsigned char tweak[6] = {0};
 	pointer init;
 	pointer main;
-	pointer cape;
-	pointer mouth;
-	pointer carriable;
-	pointer kicked;
-	pointer carried;
-	pointer goal;
 	unsigned char extra[2] = {0};
-	
-	void cpy_spr_table_data(unsigned char* dest) {
-		memcpy(dest, this, 14);
-		memcpy(dest+14, extra, 2);
-	}
 };
 
 struct sprite {
@@ -138,7 +130,8 @@ struct sprite {
 	int number = 0;
 	int level = 0x200;
 	sprite_table table;
-	
+	status_pointers ptrs;
+    pointer extended_cape_ptr;
 	int byte_count = 0;
 	int extra_byte_count = 0;
 	
