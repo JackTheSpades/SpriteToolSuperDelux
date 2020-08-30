@@ -22,8 +22,8 @@ TableLoc:
 	; yeah, kinda wasting 4 byte here by having the tables twice.
 	; but the above makes access easier and these are for cleanup.
    if !PerLevel = 1
-        autoclean dl PerLevelTable
-		autoclean dl PerLevelCustomPtrTable
+        autoclean dl PerLevelLvlPtrs
+		dl $FFFFFF
 		dl $FFFFFF
 		dl $FFFFFF
    else
@@ -419,7 +419,7 @@ endif
 	; restore code
 	INX
 	JML $02A82E|!BankB			; return to loop
-   
+
 SubLoadHack:
 	%debugmsg("SubLoadHack")
 	PHA
@@ -602,7 +602,10 @@ GetMainPtr:
 		PLB
 		LDA $00
 		BRA -
-	+	LDA.w PerLevelTable+$0B,y			; load low-high byte of pointer
+	+	PEA.w PerLevelTable>>8
+		PLB
+		PLB
+		LDA.w PerLevelTable+$0B,y			; load low-high byte of pointer
 		STA $00									; 00=low, 01=high, 02=x
 		LDA.w PerLevelTable+$0C,y			; load high-bank byte of pointer
 		STA $01									; 00=low, 01=high, 02=bank
@@ -621,15 +624,20 @@ if !PerLevel = 1
 		LDA $010B|!Base2
 		ASL
 		TAY
-		PEA.w PerLevelTable>>8
+		PEA.w ((PerLevelLvlPtrs>>16)<<8)|(PerLevelSprPtrs>>16)
 		PLB
-		PLB
-		LDA.w PerLevelTable,y
+		; now in PerLevelLvlPtrs bank
+		LDA.w PerLevelLvlPtrs,y
 		BEQ .return
-		ADC $00
+		PLB
+		; now in PerLevelSprPtrs bank
+		ADC $00 ; carry cleared by ASL earlier
 		TAY
-		LDA.w PerLevelTable-($B0*2),y
+		LDA.w PerLevelSprPtrs-($B0*2),y
+		TAY
+		RTS
 	.return
+		PLB
 		TAY
 		RTS
 endif
@@ -1044,7 +1052,10 @@ SetSpriteTables:
 		PLB
 		LDA $00
 		BRA -
-	+	SEP #$20
+	+	PEA.w PerLevelTable>>8
+		PLB
+		PLB
+		SEP #$20
 		LDA.w PerLevelTable+$01,y
 		STA !9E,x
 		LDA.w PerLevelTable+$02,y
@@ -1265,11 +1276,32 @@ CustomStatusPtr:
 
 if !PerLevel = 1
 	freedata
+	prot PerLevelSprPtrs_data
+	prot PerLevelTable_data
+	prot PerLevelCustomPtrTable_data
+	PerLevelLvlPtrs:
+		print "Per-level sprite level pointers at ", pc
+		incbin "_PerLevelLvlPtrs.bin"
+	freedata
+        ; i have no idea how to explain why i did it like this but trust me it works, and it's necessary to allow the full 0x800 per-level sprites
+        skip -1
 	PerLevelTable:
+        skip 1
+        .data:
 		print "Level Table at ", pc
 		incbin "_PerLevelT.bin"
 	freedata
+        skip -1
 	PerLevelCustomPtrTable:
+        skip 1
+        .data:
 		print "Level Pointers Table at ", pc
 		incbin "_PerLevelCustomPtrTable.bin"
+	freedata
+        skip -1
+	PerLevelSprPtrs:
+        skip 1
+        .data:
+		print "Per-level sprite pointers at ", pc
+		incbin "_PerLevelSprPtrs.bin"
 endif
