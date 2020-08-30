@@ -14,7 +14,7 @@ org $02FFE2
                               
 ;$02FFEA
 TableLoc:
-   db $FF,$FF,$FF,$FF
+   	db $FF,$FF,$FF,$FF
 	                    
 ;$02FFEE
 	autoclean dl TableStart
@@ -22,12 +22,12 @@ TableLoc:
 	; yeah, kinda wasting 4 byte here by having the tables twice.
 	; but the above makes access easier and these are for cleanup.
    if !PerLevel = 1
-      autoclean dl PerLevelTable
-		dl $FFFFFF
+        autoclean dl PerLevelTable
+		autoclean dl PerLevelCustomPtrTable
 		dl $FFFFFF
 		dl $FFFFFF
    else
-      dl $FFFFFF
+        dl $FFFFFF
 		dl $FFFFFF
 		dl $FFFFFF
 		dl $FFFFFF
@@ -1129,12 +1129,35 @@ SubHandleStatus:
 
 ExecuteCustomPtr:
 .CustomStatus
+	WDM
 	STA $03					; load status in $03 and number in A
 	LDA !new_sprite_num,x
-	%CallStatusPtr(CustomStatusPtr)
+	if !PerLevel = 1
+		REP #$30
+		AND #$00FF
+		CMP #$00B0
+        BCC .normal	
+        CMP #$00BF
+        BCS .normal
+		JSR GetPerLevelAddr
+		BNE +
+		PHK : PLB
+		SEP #$30
+		LDA !new_sprite_num,x
+		BRA .normal
+	+	; execute per-level custom pointers here
+		%CallPerLevelStatusPtr(PerLevelCustomPtrTable, IndexPtrTable)
+		SEP #$30
+		BRA .return			; once done with per-level custom pointers, just return
+		.normal
+	endif
+	%CallStatusPtr(CustomStatusPtr, IndexPtrTable)
+	.return
 	PLA : PLA		; destroy the previous 2 PHAs
 	JML $0185C2|!BankB		; goto RTL
 	
+	IndexPtrTable:
+		db $09, $FF, $00, $03, $06, $0C
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Keep extra bits around when setting the sprite tables during
 ; level loading
@@ -1198,12 +1221,12 @@ TestSilverCoinBit:
       CMP #$00B0
       BCC .normal
       CMP #$00C0
-      BCC .perlevel
-      SBC #$0010	
+      BCC .perlevel	
    .normal
    endif
 
-	ASL #$04
+	ASL A
+-	ASL #3
 	TAX
 	LDA.l TableStart+$07,x
 	PLP
@@ -1211,9 +1234,14 @@ TestSilverCoinBit:
 	
    if !PerLevel = 1
    .perlevel
-      LDY #$0007
       JSR GetPerLevelAddr
-      LDA [$00]
+	  BNE +
+	  PHK
+	  PLB
+	  LDA $00
+	  BRA -
+	+ SEP #$20
+      LDA.l PerLevelTable+$07,y
       PLP
       JML $02A9AB|!BankB
    endif
@@ -1237,4 +1265,8 @@ if !PerLevel = 1
 	PerLevelTable:
 		print "Level Table at ", pc
 		incbin "_PerLevelT.bin"
+	freedata
+	PerLevelCustomPtrTable:
+		print "Level Pointers Table at ", pc
+		incbin "_PerLevelCustomPtrTable.bin"
 endif

@@ -51,6 +51,7 @@ bool DISABLE_255_SPRITE_PER_LEVEL = false;
 const char *ASM_DIR = nullptr;
 int PLS_ADDR = 0x0400;
 unsigned char PLS_DATA[0x8000];
+unsigned char PLS_POINTERS[0x8000];
 std::string ASM_DIR_PATH;
 bool disableMeiMei = false;
 
@@ -282,6 +283,8 @@ void patch_sprites(std::list<std::string>& extraDefines, sprite *sprite_list, in
 			PLS_DATA[pls_lv_addr+1] = (unsigned char)(PLS_ADDR >> 8);
 			
 			memcpy(PLS_DATA+PLS_ADDR, &spr->table, 0x10);
+			memcpy(PLS_POINTERS+PLS_ADDR, &spr->ptrs, 15);
+			PLS_POINTERS[PLS_ADDR+0x0F] = 0xFF;
 			PLS_ADDR += 0x10;
 		}
 	}
@@ -1150,19 +1153,21 @@ int main(int argc, char *argv[])
 		if(PLS_ADDR == 0x0400) {
 			unsigned char dummy[1] = {0xFF};
 			write_all(dummy, "_PerLevelT.bin", 1);
+			write_all(dummy, "_PerLevelCustomPtrTable.bin", 1);
 		} else {
 			write_all(PLS_DATA, paths[ASM], "_PerLevelT.bin", PLS_ADDR);
+			write_all(PLS_POINTERS, paths[ASM], "_PerLevelCustomPtrTable.bin", PLS_ADDR);
 			debug_print("Per-level sprites data size : 0x%04X\n", PLS_ADDR);
 		}
 		write_long_table(sprite_list + 0x2000, paths[ASM], "_DefaultTables.bin", 0x100);
-	} else {
+   } else {
 		write_long_table(sprite_list, paths[ASM], "_DefaultTables.bin", 0x100);
-		unsigned char customstatusptrs[0x100*15];
-		for (int i = 0, j = 0; i < 0x100*5; i+=5, j++) {
-            memcpy(customstatusptrs + (i *3), &sprite_list[j].ptrs, 15);
-		}
-		write_all(customstatusptrs, paths[ASM], "_CustomStatusPtr.bin", 0x100 * 15);
+   }
+	unsigned char customstatusptrs[0x100*15];
+	for (int i = 0, j = PER_LEVEL ? 0x2000 : 0; i < 0x100*5; i+=5, j++) {
+        memcpy(customstatusptrs + (i *3), &sprite_list[j].ptrs, 15);
 	}
+	write_all(customstatusptrs, paths[ASM], "_CustomStatusPtr.bin", 0x100 * 15);
       
 	
 	//cluster
@@ -1347,8 +1352,10 @@ int main(int argc, char *argv[])
 
 		remove(paths[ASM], "_DefaultTables.bin");
       	remove(paths[ASM], "_CustomStatusPtr.bin");
-	  if(PER_LEVEL)
-         remove(paths[ASM], "_PerLevelT.bin");
+	  	if(PER_LEVEL) {
+         	remove(paths[ASM], "_PerLevelT.bin");
+			remove(paths[ASM], "_PerLevelCustomPtrTable.bin");
+		}
 		
 		remove(paths[ASM], "_ClusterPtr.bin");
 		remove(paths[ASM], "_ExtendedPtr.bin");
