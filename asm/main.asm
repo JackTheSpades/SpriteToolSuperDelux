@@ -1241,7 +1241,10 @@ TestSilverCoinBit:
 	  LDA $00
 	  BRA -
 	+ SEP #$20
-      LDA.l PerLevelTable+$07,y
+	  PHX
+	  TYX
+      LDA.l PerLevelTable+$07,x
+	  PLX
       PLP
       JML $02A9AB|!BankB
    endif
