@@ -285,7 +285,7 @@ void patch_sprites(std::list<std::string>& extraDefines, sprite *sprite_list, in
 				error("Too many Per-Level sprites.  Please remove some.\n", "");
 			
 			PLS_SPRITE_PTRS[pls_lv_addr] = (unsigned char)(PLS_DATA_ADDR+1);
-			PLS_SPRITE_PTRS[pls_lv_addr+1] = (unsigned char)(PLS_DATA_ADDR+1 >> 8);
+			PLS_SPRITE_PTRS[pls_lv_addr+1] = (unsigned char)((PLS_DATA_ADDR+1) >> 8);
 			
 			memcpy(PLS_DATA+PLS_DATA_ADDR, &spr->table, 0x10);
 			memcpy(PLS_POINTERS+PLS_DATA_ADDR, &spr->ptrs, 15);
