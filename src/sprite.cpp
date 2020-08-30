@@ -54,7 +54,8 @@ unsigned char PLS_SPRITE_PTRS[0x4000];
 int PLS_SPRITE_PTRS_ADDR = 0;
 unsigned char PLS_DATA[0x8000];
 unsigned char PLS_POINTERS[0x8000];
-int PLS_DATA_ADDR = 0; // index into both PLS_DATA and PLS_POINTERS
+// index into both PLS_DATA and PLS_POINTERS
+int PLS_DATA_ADDR = 0;
 
 std::string ASM_DIR_PATH;
 bool disableMeiMei = false;
@@ -272,18 +273,19 @@ void patch_sprites(std::list<std::string>& extraDefines, sprite *sprite_list, in
 		if(spr->level < 0x200 && spr->number >= 0xB0 && spr->number < 0xC0) {
 			int pls_lv_addr = PLS_LEVEL_PTRS[spr -> level * 2] + (PLS_LEVEL_PTRS[spr -> level * 2 + 1] << 8);
 			if(pls_lv_addr == 0x0000) {
-				pls_lv_addr = PLS_SPRITE_PTRS_ADDR;
+				pls_lv_addr = PLS_SPRITE_PTRS_ADDR+1;
 				PLS_LEVEL_PTRS[spr -> level * 2] = (unsigned char)pls_lv_addr;
 				PLS_LEVEL_PTRS[spr -> level * 2 + 1] = (unsigned char)(pls_lv_addr >> 8);
 				PLS_SPRITE_PTRS_ADDR += 0x20;
 			}
+			pls_lv_addr--;
 			pls_lv_addr += (spr -> number - 0xB0) * 2;
 
 			if(PLS_DATA_ADDR >= 0x8000)
 				error("Too many Per-Level sprites.  Please remove some.\n", "");
 			
-			PLS_SPRITE_PTRS[pls_lv_addr] = (unsigned char)PLS_DATA_ADDR;
-			PLS_SPRITE_PTRS[pls_lv_addr+1] = (unsigned char)(PLS_DATA_ADDR >> 8);
+			PLS_SPRITE_PTRS[pls_lv_addr] = (unsigned char)(PLS_DATA_ADDR+1);
+			PLS_SPRITE_PTRS[pls_lv_addr+1] = (unsigned char)(PLS_DATA_ADDR+1 >> 8);
 			
 			memcpy(PLS_DATA+PLS_DATA_ADDR, &spr->table, 0x10);
 			memcpy(PLS_POINTERS+PLS_DATA_ADDR, &spr->ptrs, 15);
@@ -1154,7 +1156,7 @@ int main(int argc, char *argv[])
 	write_all(versionflag, paths[ASM], "_versionflag.bin", 4);
    if(PER_LEVEL) {
 		write_all(PLS_LEVEL_PTRS, paths[ASM], "_PerLevelLvlPtrs.bin", 0x400);
-		if(PLS_DATA_ADDR) {
+		if(PLS_DATA_ADDR == 0) {
 			unsigned char dummy[1] = {0xFF};
 			write_all(dummy, paths[ASM], "_PerLevelSprPtrs.bin", 1);
 			write_all(dummy, paths[ASM], "_PerLevelT.bin", 1);

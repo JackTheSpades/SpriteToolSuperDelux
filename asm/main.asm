@@ -1276,22 +1276,32 @@ CustomStatusPtr:
 
 if !PerLevel = 1
 	freedata
-	prot PerLevelSprPtrs
-	prot PerLevelTable
-	prot PerLevelCustomPtrTable
+	prot PerLevelSprPtrs_data
+	prot PerLevelTable_data
+	prot PerLevelCustomPtrTable_data
 	PerLevelLvlPtrs:
 		print "Per-level sprite level pointers at ", pc
 		incbin "_PerLevelLvlPtrs.bin"
 	freedata
-	PerLevelSprPtrs:
-		print "Per-level sprite pointers at ", pc
-		incbin "_PerLevelSprPtrs.bin"
-	freedata
+        ; i have no idea how to explain why i did it like this but trust me it works, and it's necessary to allow the full 0x800 per-level sprites
+        skip -1
 	PerLevelTable:
+        skip 1
+        .data:
 		print "Level Table at ", pc
 		incbin "_PerLevelT.bin"
 	freedata
+        skip -1
 	PerLevelCustomPtrTable:
+        skip 1
+        .data:
 		print "Level Pointers Table at ", pc
 		incbin "_PerLevelCustomPtrTable.bin"
+	freedata
+        skip -1
+	PerLevelSprPtrs:
+        skip 1
+        .data:
+		print "Per-level sprite pointers at ", pc
+		incbin "_PerLevelSprPtrs.bin"
 endif
