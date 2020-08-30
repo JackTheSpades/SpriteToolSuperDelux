@@ -12,8 +12,8 @@
 #define RTL_HIGH 0x80
 #define RTL_LOW 0x21
 
-//10 per leve, 200 level + F0 global
-#define MAX_SPRITE_COUNT 0x20F0
+//10 per leve, 200 level + 100 global
+#define MAX_SPRITE_COUNT 0x2100
 
 struct simple_string{
 	int length = 0;

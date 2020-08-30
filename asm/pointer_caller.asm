@@ -40,12 +40,7 @@ endmacro
 ;		 $03   = Status
 ;        label = 3 byte Pointer label
 
-macro CallStatusPtr(label)
-	BRA ?skipTable
-	IndexPtrTable:
-		db $09, $FF, $00, $03, $06, $0C
-; states   $07, $08, $09, $0A, $0B, $0C
-	?skipTable
+macro CallStatusPtr(label, indextable)
 	PHX                   ; \ Preserve X and Y.
 	PHY                   ; /
 	PHA					  ; preserve custom sprite number
@@ -53,7 +48,7 @@ macro CallStatusPtr(label)
 	LDA $03
 	SEC : SBC #$07
 	TAX
-	LDA.l IndexPtrTable, x
+	LDA.l <indextable>, x
 	STA $03
 	; $09 => 00, $0A => 03, $0B => 06, $0C => 12, $07 => 09
 	PLA					  ; 
@@ -87,4 +82,41 @@ macro CallStatusPtr(label)
 	PLX                   ; / Pull everything back and return.
 
 
+endmacro
+
+
+macro CallPerLevelStatusPtr(label, indextable)
+	PHX
+	PHY
+
+	SEP #$30
+	LDA $03
+	SEC : SBC #$07
+	TAX
+	LDA.l <indextable>,x
+	REP #$30
+	AND #$00FF
+	STA $03
+
+	LDA $01, s			; load Y from stack
+	CLC : ADC $03
+	TAX
+
+	LDA.l <label>+0,x : STA $00
+	SEP #$20
+	LDA.l <label>+2,x : STA $02
+	SEP #$10
+
+	LDA $03, s			; get x back from stack
+	TAX
+
+	PHB : PHA : PLB
+	PHK 
+	PEA ?return-1
+	JML [!Base1]
+?return
+	PLB
+	REP #$30
+	PLY
+	PLX
 endmacro
