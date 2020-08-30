@@ -1140,7 +1140,6 @@ SubHandleStatus:
 
 ExecuteCustomPtr:
 .CustomStatus
-	WDM
 	STA $03					; load status in $03 and number in A
 	LDA !new_sprite_num,x
 	if !PerLevel = 1
