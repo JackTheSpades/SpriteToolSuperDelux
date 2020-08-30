@@ -1133,11 +1133,11 @@ int main(int argc, char *argv[])
 	else
 	{
 		write_long_table(sprite_list, paths[ASM], "_DefaultTables.bin", 0x100);
-		unsigned char customstatusptrs[SPRITE_COUNT*15];
-		for (int i = 0, j = 0; i < SPRITE_COUNT*5; i+=5, j++) {
+		unsigned char customstatusptrs[0x100*15];
+		for (int i = 0, j = 0; i < 0x100*5; i+=5, j++) {
             memcpy(customstatusptrs + (i *3), &sprite_list[j].ptrs, 15);
 		}
-		write_all(customstatusptrs, paths[ASM], "_CustomStatusPtr.bin", SPRITE_COUNT * 15);
+		write_all(customstatusptrs, paths[ASM], "_CustomStatusPtr.bin", 0x100 * 15);
 	}
 
 	//cluster
