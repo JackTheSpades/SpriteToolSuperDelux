@@ -74,6 +74,7 @@ macro CallStatusPtr(label, indextable)
 	PHB : PHA : PLB       ; set bank to cluster sprite bank	
 	PHK                   ; \
 	PEA ?return-1        ; | because there is no JSL [$xxxx]
+	LDA !14C8,x			 ; load in sprite status, just in case we're running the vanilla handler
 	JML [!Base1]          ; |
 ?return                 ; /	
 	PLB
@@ -113,6 +114,7 @@ macro CallPerLevelStatusPtr(label, indextable)
 	PHB : PHA : PLB
 	PHK 
 	PEA ?return-1
+	LDA !14C8,x			; load in sprite status, just in case we're running the vanilla handler
 	JML [!Base1]
 ?return
 	PLB
