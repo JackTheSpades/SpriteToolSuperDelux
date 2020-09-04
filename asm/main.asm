@@ -1162,6 +1162,7 @@ ExecuteCustomPtr:
 		SEP #$30
 		BRA .return			; once done with per-level custom pointers, just return
 		.normal
+		SEP #$30
 	endif
 	%CallStatusPtr(CustomStatusPtr, IndexPtrTable, vanillaHandler)
 	.return
