@@ -28,12 +28,50 @@ macro CallSprite(label)
 	PHK                   ; \
 	PEA ..return-1        ; | because there is no JSL [$xxxx]
 	JML [!Base1]          ; |
-..return                 ; /	
+..return                  ; /	
 	PLB
 	
 	PLY                   ; \ 
 	PLX                   ; / Pull everything back and return.
 endmacro
+
+macro CallExtCape(label)
+	PHX
+	PHY
+
+	TXY
+	REP #$30
+	AND #$00FF
+
+	STA $00
+	ASL A
+	CLC : ADC $00
+	TAX
+
+	LDA.l <label>+0,x : STA $00
+	SEP #$20
+	LDA.l <label>+2,x : STA $02
+	SEP #$10
+
+	CMP #$FF
+	BNE ?runCustom
+	PLY : PLX
+	LDA $170B|!addr,x
+	JML $02963D|!BankB	 ; if custom but without pointer, run vanilla code for backwards compatibility (it will have the old bug but eh)
+	?runCustom
+
+	TYX
+	PHB : PHA : PLB       ; set bank to cluster sprite bank	
+	PHK                   ; \
+	PEA ?return-1        ; | because there is no JSL [$xxxx]
+	JML [!Base1]          ; |
+?return                  ; /	
+	PLB
+	
+	PLY                   ; \ 
+	PLX                   ; / Pull everything back and return.
+endmacro
+
 
 ;input:  A     = Custom Sprite Number
 ;        X     = Sprite RAM Index

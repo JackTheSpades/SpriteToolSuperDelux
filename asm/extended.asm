@@ -24,7 +24,7 @@ CapeInteract:
 	BCC .NotCustom
 	SEC : SBC #!ExtendedOffset
 	AND #$7F
-	%CallSprite(CapePtr)
+	%CallExtCape(CapePtr)
 	JML $029656|!BankB
 	.NotCustom
 	CMP #$02			; restore vanilla code and jml back

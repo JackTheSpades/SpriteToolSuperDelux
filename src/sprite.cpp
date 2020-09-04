@@ -165,9 +165,9 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 	std::map<std::string, int> ptr_map = {
 		std::pair<std::string, int>("init", 0x018021),
 		std::pair<std::string, int>("main", 0x018021),
-		std::pair<std::string, int>("cape", 0x018021),	// 0x018021 is RTL
+		std::pair<std::string, int>("cape", 0xFFFFFF),
 		std::pair<std::string, int>("mouth", 0xFFFFFF),
-		std::pair<std::string, int>("kicked", 0xFFFFFF),	// these point to the hjiacked vanilla routine (check main.asm)
+		std::pair<std::string, int>("kicked", 0xFFFFFF),	// null pointers
 		std::pair<std::string, int>("carriable", 0xFFFFFF),
 		std::pair<std::string, int>("carried", 0xFFFFFF),
 		std::pair<std::string, int>("goal", 0xFFFFFF)
