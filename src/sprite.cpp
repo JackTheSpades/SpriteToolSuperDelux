@@ -166,11 +166,11 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 		std::pair<std::string, int>("init", 0x018021),
 		std::pair<std::string, int>("main", 0x018021),
 		std::pair<std::string, int>("cape", 0x018021),	// 0x018021 is RTL
-		std::pair<std::string, int>("mouth", 0x01D43E),
-		std::pair<std::string, int>("kicked", 0x01D43E),	// these point to the hjiacked vanilla routine (check main.asm)
-		std::pair<std::string, int>("carriable", 0x01D43E),
-		std::pair<std::string, int>("carried", 0x01D43E),
-		std::pair<std::string, int>("goal", 0x01D43E)
+		std::pair<std::string, int>("mouth", 0xFFFFFF),
+		std::pair<std::string, int>("kicked", 0xFFFFFF),	// these point to the hjiacked vanilla routine (check main.asm)
+		std::pair<std::string, int>("carriable", 0xFFFFFF),
+		std::pair<std::string, int>("carried", 0xFFFFFF),
+		std::pair<std::string, int>("goal", 0xFFFFFF)
 	};
 	int print_count = 0;
 	const char *const *prints = asar_getprints(&print_count);

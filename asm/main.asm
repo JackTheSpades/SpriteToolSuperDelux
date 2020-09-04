@@ -1111,24 +1111,26 @@ SubHandleStatus:
 
 .HandleCustomSprite
 	LDA !extra_prop_2,x
-	BMI .CallMain				;check bit 7, if set call main
+	BMI CallMain				;check bit 7, if set call main
 	PHA
 	LDA $02,s					;load sprite status
 	CMP #$07
-	BCC .vanillaHandler
+	BCC vanillaHandler
 	JMP ExecuteCustomPtr		;execute custom ptr for states 07-09-0A-0B-0C
-	.vanillaHandler
+	vanillaHandler:
 	JSL $01D43E|!BankB			;run vanilla code for states 02-06
 	PLA							;extra_prop_2
 	ASL A						;\ check bit 6
-	BMI .CallMain				;/
+	BMI CallMain				;/
 	PLA							;sprite status
+	CMP #$09
+	BCS CallMain2				;restored for backwards compatibility with sprites
 	CMP #$03					;run main for state 03 (smushed)
-	BEQ .CallMain2
+	BEQ CallMain
 	JML $0185C2|!BankB		;goto RTL
-.CallMain2
+CallMain2:
 	PHA
-.CallMain
+CallMain:
 	LDA !new_sprite_num,x
 	JSR GetMainPtr
 	PLA
@@ -1156,12 +1158,12 @@ ExecuteCustomPtr:
 		LDA !new_sprite_num,x
 		BRA .normal
 	+	; execute per-level custom pointers here
-		%CallPerLevelStatusPtr(PerLevelCustomPtrTable, IndexPtrTable)
+		%CallPerLevelStatusPtr(PerLevelCustomPtrTable, IndexPtrTable, vanillaHandler)
 		SEP #$30
 		BRA .return			; once done with per-level custom pointers, just return
 		.normal
 	endif
-	%CallStatusPtr(CustomStatusPtr, IndexPtrTable)
+	%CallStatusPtr(CustomStatusPtr, IndexPtrTable, vanillaHandler)
 	.return
 	PLA : PLA		; destroy the previous 2 PHAs
 	JML $0185C2|!BankB		; goto RTL

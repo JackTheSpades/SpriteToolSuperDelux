@@ -40,9 +40,10 @@ endmacro
 ;		 $03   = Status
 ;        label = 3 byte Pointer label
 
-macro CallStatusPtr(label, indextable)
+macro CallStatusPtr(label, indextable, vanillaroutine)
 	PHX                   ; \ Preserve X and Y.
 	PHY                   ; /
+
 	PHA					  ; preserve custom sprite number
 	TXY                   ; save x in y	
 	LDA $03
@@ -68,25 +69,28 @@ macro CallStatusPtr(label, indextable)
 	SEP #$20
 	LDA.l <label>+2,x : STA $02
 	SEP #$10
-		
+
+	CMP #$FF
+	BNE ?continue
+	PLY : PLX
+	LDA !14C8,x
+	JMP <vanillaroutine>
+	?continue
+
 	TYX	                ; put y back in x
 		
 	PHB : PHA : PLB       ; set bank to cluster sprite bank	
 	PHK                   ; \
 	PEA ?return-1        ; | because there is no JSL [$xxxx]
-	LDA !14C8,x			 ; load in sprite status, just in case we're running the vanilla handler
 	JML [!Base1]          ; |
 ?return                 ; /	
 	PLB
-	
 	PLY                   ; \ 
 	PLX                   ; / Pull everything back and return.
-
-
 endmacro
 
 
-macro CallPerLevelStatusPtr(label, indextable)
+macro CallPerLevelStatusPtr(label, indextable, vanillaroutine)
 	PHX
 	PHY
 
@@ -108,13 +112,19 @@ macro CallPerLevelStatusPtr(label, indextable)
 	LDA.l <label>+2,x : STA $02
 	SEP #$10
 
+	CMP #$FF
+	BNE ?continue
+	PLY : PLX
+	LDA !14C8,x
+	JMP <vanillaroutine> 	; if the bank if FF, (aka invalid, just go back to running old main.asm code)
+	?continue
+
 	LDA $03, s			; get x back from stack
 	TAX
 
 	PHB : PHA : PLB
 	PHK 
 	PEA ?return-1
-	LDA !14C8,x			; load in sprite status, just in case we're running the vanilla handler
 	JML [!Base1]
 ?return
 	PLB
