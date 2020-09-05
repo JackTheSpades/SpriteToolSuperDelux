@@ -1153,8 +1153,9 @@ ExecuteCustomPtr:
         BCS .normal
 		JSR GetPerLevelAddr
 		BNE +
-		PHK : PLB
 		SEP #$30
+		LDA #$01
+		PHA : PLB 		; restore bank that got destroyed by GetPerLevelAddr
 		LDA !new_sprite_num,x
 		BRA .normal
 	+	; execute per-level custom pointers here

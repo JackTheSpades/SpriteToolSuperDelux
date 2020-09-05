@@ -53,7 +53,6 @@ macro CallExtCape(label)
 	LDA.l <label>+2,x : STA $02
 	SEP #$10
 
-	CMP #$FF
 	BNE ?runCustom
 	PLY : PLX
 	LDA $170B|!addr,x
@@ -108,7 +107,6 @@ macro CallStatusPtr(label, indextable, vanillaroutine)
 	LDA.l <label>+2,x : STA $02
 	SEP #$10
 
-	CMP #$FF
 	BNE ?continue
 	PLY : PLX
 	LDA !14C8,x
@@ -150,11 +148,13 @@ macro CallPerLevelStatusPtr(label, indextable, vanillaroutine)
 	LDA.l <label>+2,x : STA $02
 	SEP #$10
 
-	CMP #$FF
 	BNE ?continue
+	REP #$30
 	PLY : PLX
+	SEP #$30
+	LDA #$01 : PHB : PLB 	; restore bank that got destroyed by GetPerLevelAddr
 	LDA !14C8,x
-	JMP <vanillaroutine> 	; if the bank if FF, (aka invalid, just go back to running old main.asm code)
+	JMP <vanillaroutine> 	; if the bank if 00, (aka invalid, just go back to running old main.asm code)
 	?continue
 
 	LDA $03, s			; get x back from stack
