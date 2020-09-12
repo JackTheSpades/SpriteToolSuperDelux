@@ -65,14 +65,19 @@ if !EXLEVEL
 		LDA !extra_bits,x
 		STA !187B,x
 		LDA !14D4,x
-		NOP
+		if !SA1
+			NOP #2		; extra_bits should use absolute addressing instead of long if on sa-1, therefore 1 more NOP is needed
+		else
+			NOP			
+		endif
 else
 	org $01C089|!BankB
 		LDA !extra_bits,x
-		NOP
-		NOP
-		NOP
-		NOP
+		if !SA1
+			BRA + : NOP #3 : +		; same as above
+		else
+			BRA + : NOP #2 : +
+		endif
 		STA !187B,x
 endif
 
