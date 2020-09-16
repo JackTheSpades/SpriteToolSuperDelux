@@ -55,7 +55,7 @@ ReadMe Contents:
 		
 
 -- Per-Level Sprites (has to be enabled with -pl)
-	The slots B0 to BF are special, in that you have to assign a level to them. The sprite will only use
+	The slots B0 to BF are special, in that if you assign a level to them, they will become per-level sprites. The sprite will only use
 	the sprite slot between B0 and BF in that one specified level. Meaning you can assign sprite slot B0 of level 105
 	to a Thwomp and B0 of level 106 to a Hammer Bro if you wanted. Keep in mind this only holds true for slots B0 to BF.
 	The format for per-level sprites looks as follows:
@@ -71,6 +71,14 @@ ReadMe Contents:
 		105:B0 Red.cfg
 		105:B1 Yellow.cfg
 		106:B0 Boo.cfg
+
+		or 
+
+		B0 Blue.cfg 
+		105:B0 Red.cfg
+
+		Note that the above is still perfectly valid, sprite B0 will behave like Blue.asm in any level except for 105, where it will take Red.asm properties and code instead.
+		This is because since Pixi 1.2.16, slots B0-BF are not exclusive to per-level sprites anymore but they can be used by normal sprites aswell instead
 
 -- Other sprite types
 	PIXI also has the ability to insert other types of sprites, such as cluster or extended sprites.
@@ -159,8 +167,7 @@ If you are used to using Romi's SpriteTool, here is a quick rundown of everythin
 
 -- Custom status handling and extra property bytes:
   As most people know, Pixi relies on 2 print statements to tell the game what code to run in which state of the sprite.
-  Most importantly, state 08 will run whatever code is under the "MAIN" print statement and state 01 will run whatever code is under 
-  the "INIT" print statement.
+  Most importantly, state 08 will run whatever code is under the "MAIN" print statement and state 01 will run whatever code is under the "INIT" print statement.
   All the other states will run the corresponding vanilla code, however, some bits in !extra_prop_2 can be set to activate certain functions. Setting bit 7 of that byte will make the sprite run its MAIN code in any state and it won't run the vanilla code, setting bit 6 will make it run both vanilla code and the custom MAIN.
   Since Pixi 1.2.16 you can have more control over other states that are not 08 and 01 by using new print statements crafted just for the occasion, valid print statements FOR NORMAL CUSTOM SPRITES are:
       > print "CARRIABLE", pc  which will run in state 09
@@ -168,6 +175,8 @@ If you are used to using Romi's SpriteTool, here is a quick rundown of everythin
 	  > print "CARRIED", pc which will run in state 0B
 	  > print "MOUTH", pc which will run in state 07
 	  > print "GOAL", pc which will run in state 0C
+  Please be aware that the use of these labels completely and totally overrides ANY vanilla code that would run in the respective states (unless you set the aforementioned bits in the property bytes), 
+  so if you use them you have to code all of the wanted behaviors yourself, this is done on purpose so the code has complete control and they won't have unwanted side-effects due to vanilla code.
   If you don't use these print statement your sprite will just run the respective state's vanilla code, just as normal, for retro-compatibility purposes.
   There's also another special print statement that works only for EXTENDED sprites, which is print "CAPE", pc and its purpose is to fix a bug with cape interaction with custom extended sprites. You can use it to define the behavior of your extended sprite with cape twirl,
   not using it will default cape interaction of the extended sprite to do nothing.
