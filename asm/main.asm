@@ -42,6 +42,15 @@ warnpc $038000
 
 InitSpriteTables = $07F7D2|!BankB
 
+org $0FFFE0|!BankB
+!SprCountWarnMsg = read1($0FFFE0)
+	if !Disable255SpritesPerLevel == 0
+		db !SprCountWarnMsg&$FE		;clear the lowest bit at PC 0x801E0 to disable the sprite count warning message as per LM's help file
+	elseif !SprCountWarnMsg&$01 == $00
+		db !SprCountWarnMsg|$01		;or set it if it was unset before and we're disabling 255 sprites per level
+	endif
+
+
 ; make it so the full level number can be read from $010B
 ; this part will not be removed on cleanup since other
 ; level based tools may also use this hijack
