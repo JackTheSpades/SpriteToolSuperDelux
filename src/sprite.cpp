@@ -211,6 +211,9 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 	}
 	set_pointer(&spr->table.init, ptr_map["init"]);
 	set_pointer(&spr->table.main, ptr_map["main"]);
+	if (spr->table.init.is_empty() && spr->table.main.is_empty()) {
+		error("Sprite %s had neither INIT nor MAIN defined in its file, insertion has been aborted.", spr->asm_file);
+	}
 	if (spr->sprite_type == 1) {
 		set_pointer(&spr->extended_cape_ptr, ptr_map["cape"]);	
 	}

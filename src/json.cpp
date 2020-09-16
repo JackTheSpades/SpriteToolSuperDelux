@@ -135,10 +135,9 @@ bool read_json_file(sprite *spr, FILE *output)
          collection *col = spr->collections + counter;
          col->name = strcln(jCollection.at("Name"));
          col->extra_bit = jCollection.at("ExtraBit");
-         col->prop[0] = jCollection.at("Extra Property Byte 1");
-         col->prop[1] = jCollection.at("Extra Property Byte 2");
-         col->prop[2] = jCollection.at("Extra Property Byte 3");
-         col->prop[3] = jCollection.at("Extra Property Byte 4");
+         for (int i = 1; i <= (col->extra_bit ? spr->extra_byte_count : spr->byte_count); i++) {
+            col->prop[i-1] = jCollection.at("Extra Property Byte " + std::to_string(i));
+         }
          counter++;
       }
 
