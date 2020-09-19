@@ -1,5 +1,5 @@
 incsrc "sa1def.asm"		;sa-1 defines
-
+incsrc "pointer_caller.asm"
 ; ---------------------------------------------------
 ; tool relevant information.
 ; I'd advice against changing stuff in this hijack unless
@@ -14,14 +14,7 @@ org $02FFE2
                               
 ;$02FFEA
 TableLoc:
-   if !PerLevel = 1
-      db table1>>16	;bank bytes only. (for easier access later)
-      db table2>>16	;since they all fill the whole bank, they start at xx8000
-      db table3>>16
-      db table4>>16
-   else
-      db $FF,$FF,$FF,$FF
-   endif
+   	db $FF,$FF,$FF,$FF
 	                    
 ;$02FFEE
 	autoclean dl TableStart
@@ -29,24 +22,34 @@ TableLoc:
 	; yeah, kinda wasting 4 byte here by having the tables twice.
 	; but the above makes access easier and these are for cleanup.
    if !PerLevel = 1
-      autoclean dl table1
-      autoclean dl table2
-      autoclean dl table3
-      autoclean dl table4
+        autoclean dl PerLevelLvlPtrs
+		dl $FFFFFF
+		dl $FFFFFF
+		dl $FFFFFF
    else
-      dl $FFFFFF
-      dl $FFFFFF
-      dl $FFFFFF
-      dl $FFFFFF
+        dl $FFFFFF
+		dl $FFFFFF
+		dl $FFFFFF
+		dl $FFFFFF
    endif
+
 	
-	;3 bytes left over in bank... possible future use?
-	dl $FFFFFF
+	; Use this for custom status pointer tables
+	autoclean dl CustomStatusPtr
 	
 ;I think asar warns you for bank crossing anyway, but no harm done.
 warnpc $038000
 
 InitSpriteTables = $07F7D2|!BankB
+
+org $0FFFE0|!BankB
+!SprCountWarnMsg = read1($0FFFE0)
+	if !Disable255SpritesPerLevel == 0
+		db !SprCountWarnMsg&$FE		;clear the lowest bit at PC 0x801E0 to disable the sprite count warning message as per LM's help file
+	elseif !SprCountWarnMsg&$01 == $00
+		db !SprCountWarnMsg|$01		;or set it if it was unset before and we're disabling 255 sprites per level
+	endif
+
 
 ; make it so the full level number can be read from $010B
 ; this part will not be removed on cleanup since other
@@ -71,14 +74,19 @@ if !EXLEVEL
 		LDA !extra_bits,x
 		STA !187B,x
 		LDA !14D4,x
-		NOP
+		if !SA1
+			NOP #2		; extra_bits should use absolute addressing instead of long if on sa-1, therefore 1 more NOP is needed
+		else
+			NOP			
+		endif
 else
 	org $01C089|!BankB
 		LDA !extra_bits,x
-		NOP
-		NOP
-		NOP
-		NOP
+		if !SA1
+			BRA + : NOP #3 : +		; same as above
+		else
+			BRA + : NOP #2 : +
+		endif
 		STA !187B,x
 endif
 
@@ -94,7 +102,7 @@ if read2($0182B3) == $87A7
 endif
 ;status routine wrapper
 org $01D43E|!BankB
-	JSR $8133		;goto exucute pointer for sprite status ($14C8)
+	JSR $8133		;goto execute pointer for sprite status ($14C8)
 	RTL
 
 ; store extra bits separate from $14D4
@@ -425,7 +433,7 @@ endif
 	; restore code
 	INX
 	JML $02A82E|!BankB			; return to loop
-   
+
 SubLoadHack:
 	%debugmsg("SubLoadHack")
 	PHA
@@ -583,12 +591,12 @@ GetMainPtr:
       CMP #$00B0
       BCC .normal
       CMP #$00C0
-      BCC .perlevel	
-      SBC #$0010	;carry already set
+      BCC .perlevel
    .normal
    endif
    
-	ASL #$04
+	ASL A
+-	ASL #3
 	TAY
 
 	LDA TableStart+$0B,y
@@ -601,67 +609,51 @@ GetMainPtr:
 
 	
    if !PerLevel = 1
-   .perlevel
-      LDY #$000B
-      JSR GetPerLevelPtr
-      PLP
-      PLB
-      RTS
+	.perlevel
+		JSR GetPerLevelAddr
+		BNE +
+		PHK
+		PLB
+		LDA $00
+		BRA -
+	+	PEA.w PerLevelTable>>8
+		PLB
+		PLB
+		LDA.w PerLevelTable+$0B,y			; load low-high byte of pointer
+		STA $00									; 00=low, 01=high, 02=x
+		LDA.w PerLevelTable+$0C,y			; load high-bank byte of pointer
+		STA $01									; 00=low, 01=high, 02=bank
+		PLP
+		PLB
+		RTS
    endif
 
 	
    
 if !PerLevel = 1
-   ; Input, Y for in table offset
-   ;        A=Sprite number (inbetween B0-BF)
-   ;        Y=08 -> init
-   ;        Y=0B -> main
-   GetPerLevelPtr:
-      JSR GetPerLevelAddr
-      LDA [$00]			; load low-high byte of pointer
-      PHA					; save
-      INC $00				; inc offset
-      LDA [$00]			; load high-bank byte of pointer
-      STA $01				; 00=x, 01=high, 02=bank
-      PLA					; load
-      STA $00				; 00=low, 01=high, 02=bank
-      
-      RTS
-      
-   ; Input, Y for in table offset
-   ;        A=Sprite number (inbetween B0-BF)
-   GetPerLevelAddr:
-      SEC
-      SBC #$00B0	;carry already set
-      PHX
-      
-      ASL #4		; sprite number * 0x10
-      CLC			; +
-      ADC #$8000	; high-low byte of table
-      STA $00		; table always takes full bank and starts at $8000
-      
-      LDA $010B|!Base2	; level number
-      AND #$007F			; table stretches accross 4 banks, so only get in table bits
-      XBA					; times 0x100
-      ADC $00				; carry has to be clear because of ASL
-      STA $00
-      
-      TYA				; add Y for in table offset
-      AND #$00FF		;
-      CLC : ADC $00	;
-      STA $00			;
-      
-      
-      LDA $010B|!Base2	; \	
-      ASL					; | two high bits of level number
-      XBA					; |
-      AND #$00FF			; /
-      TAX 
-      
-      LDA.l TableLoc,x	; bank byte of table
-      STA $02
-      PLX
-      RTS
+	; Input, A=Sprite number (inbetween B0-BF)
+	GetPerLevelAddr:
+		ASL
+		STA $00
+		LDA $010B|!Base2
+		ASL
+		TAY
+		PEA.w ((PerLevelLvlPtrs>>16)<<8)|(PerLevelSprPtrs>>16)
+		PLB
+		; now in PerLevelLvlPtrs bank
+		LDA.w PerLevelLvlPtrs,y
+		BEQ .return
+		PLB
+		; now in PerLevelSprPtrs bank
+		ADC $00 ; carry cleared by ASL earlier
+		TAY
+		LDA.w PerLevelSprPtrs-($B0*2),y
+		TAY
+		RTS
+	.return
+		PLB
+		TAY
+		RTS
 endif
 	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1009,11 +1001,11 @@ SetSpriteTables:
       BCC .normal	
       CMP #$00C0
       BCC .perlevel
-      SBC #$0010	; carry already set, sub 0x10
    .normal
    endif
 	
-	ASL #$04
+	ASL A
+-	ASL #3
 	TAY
 	SEP #$20
 
@@ -1067,69 +1059,46 @@ SetSpriteTables:
 	RTL
 	
    if !PerLevel = 1
-   .perlevel	
-      LDY #$0000
-      JSR GetPerLevelAddr	
-      SEP #$20
-
-      LDA [$00]				;0
-      STA !new_code_flag
-      INC $00					;1 no need for 16bit check, since table always starts at $xx:xxx0
-      LDA [$00]
-      STA !9E,x
-      INC $00					;2
-      LDA [$00]
-      STA !1656,x
-      INC $00					;3
-      LDA [$00]
-      STA !1662,x
-      INC $00					;4
-      LDA [$00]
-      STA !166E,x
-      AND #$0F
-      STA !15F6,x
-      INC $00					;5
-      LDA [$00]
-      STA !167A,x
-      INC $00					;6
-      LDA [$00]
-      STA !1686,x
-      INC $00					;7
-      LDA [$00]
-      STA !190F,x
-      INC $00					;8
-
-      LDA !new_code_flag
-      BEQ .notCustom
-         
-      REP #$20
-      LDA [$00]
-      PHA
-      INC $00					;9
-      LDA [$00]
-      PHA						;INIT pointer on stack
-      
-      LDA #$0005
-      CLC : ADC $00
-      STA $00
-      
-      ;INC $00					;A 
-      ;INC $00					;B 
-      ;INC $00					;C
-      ;INC $00					;D
-      ;INC $00					;E
-      
-      SEP #$20
-      LDA [$00]
-      STA !extra_prop_1,x
-      INC $00						;F
-      LDA [$00]
-      STA !extra_prop_2,x
-      REP #$20
-
-      PLA : STA $01
-      PLA : STA $00				;init pointer to [$00]
-      BRA .ret
+	.perlevel
+		JSR GetPerLevelAddr
+		BNE +
+		PHK
+		PLB
+		LDA $00
+		BRA -
+	+	PEA.w PerLevelTable>>8
+		PLB
+		PLB
+		SEP #$20
+		LDA.w PerLevelTable+$01,y
+		STA !9E,x
+		LDA.w PerLevelTable+$02,y
+		STA !1656,x
+		LDA.w PerLevelTable+$03,y
+		STA !1662,x
+		LDA.w PerLevelTable+$04,y
+		STA !166E,x
+		AND #$0F
+		STA !15F6,x
+		LDA.w PerLevelTable+$05,y
+		STA !167A,x
+		LDA.w PerLevelTable+$06,y
+		STA !1686,x
+		LDA.w PerLevelTable+$07,y
+		STA !190F,x
+		LDA.w PerLevelTable+$00,y
+		STA !new_code_flag
+		BEQ .notCustom
+		LDA.w PerLevelTable+$0E,y
+		STA !extra_prop_1,x
+		LDA.w PerLevelTable+$0F,y
+		STA !extra_prop_2,x
+		LDA.w PerLevelTable+$0A,y
+		STA $02
+		REP #$20
+		LDA.w PerLevelTable+$08,y
+		STA $00					; INIT pointer to [$00]
+		BRA .ret
    endif
 	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1156,22 +1125,26 @@ SubHandleStatus:
 
 .HandleCustomSprite
 	LDA !extra_prop_2,x
-	BMI .CallMain				;check bit 7, if set call main
+	BMI CallMain				;check bit 7, if set call main
 	PHA
 	LDA $02,s					;load sprite status
-	JSL $01D43E|!BankB		;execute default status of sprite
+	CMP #$07
+	BCC vanillaHandler
+	JMP ExecuteCustomPtr		;execute custom ptr for states 07-09-0A-0B-0C
+	vanillaHandler:
+	JSL $01D43E|!BankB			;run vanilla code for states 02-06
 	PLA							;extra_prop_2
-	ASL A							;\ check bit 6
-	BMI .CallMain				;/
+	ASL A						;\ check bit 6
+	BMI CallMain				;/
 	PLA							;sprite status
 	CMP #$09
-	BCS .CallMain2
-	CMP #$03
-	BEQ .CallMain2
+	BCS CallMain2				;restored for backwards compatibility with sprites
+	CMP #$03					;run main for state 03 (smushed)
+	BEQ CallMain
 	JML $0185C2|!BankB		;goto RTL
-.CallMain2
+CallMain2:
 	PHA
-.CallMain
+CallMain:
 	LDA !new_sprite_num,x
 	JSR GetMainPtr
 	PLA
@@ -1181,6 +1154,38 @@ SubHandleStatus:
 	PEA $85C1					;/
 	JML [!Base1]				; goto sprite main code.
 
+ExecuteCustomPtr:
+.CustomStatus
+	STA $03					; load status in $03 and number in A
+	LDA !new_sprite_num,x
+	if !PerLevel = 1
+		REP #$30
+		AND #$00FF
+		CMP #$00B0
+        BCC .normal	
+        CMP #$00BF
+        BCS .normal
+		JSR GetPerLevelAddr
+		BNE +
+		SEP #$30
+		LDA #$01
+		PHA : PLB 		; restore bank that got destroyed by GetPerLevelAddr
+		LDA !new_sprite_num,x
+		BRA .normal
+	+	; execute per-level custom pointers here
+		%CallPerLevelStatusPtr(PerLevelCustomPtrTable, IndexPtrTable, vanillaHandler)
+		SEP #$30
+		BRA .return			; once done with per-level custom pointers, just return
+		.normal
+		SEP #$30
+	endif
+	%CallStatusPtr(CustomStatusPtr, IndexPtrTable, vanillaHandler)
+	.return
+	PLA : PLA		; destroy the previous 2 PHAs
+	JML $0185C2|!BankB		; goto RTL
+	
+	IndexPtrTable:
+		db $09, $FF, $00, $03, $06, $0C
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Keep extra bits around when setting the sprite tables during
 ; level loading
@@ -1244,12 +1249,12 @@ TestSilverCoinBit:
       CMP #$00B0
       BCC .normal
       CMP #$00C0
-      BCC .perlevel
-      SBC #$0010	
+      BCC .perlevel	
    .normal
    endif
 
-	ASL #$04
+	ASL A
+-	ASL #3
 	TAX
 	LDA.l TableStart+$07,x
 	PLP
@@ -1257,9 +1262,17 @@ TestSilverCoinBit:
 	
    if !PerLevel = 1
    .perlevel
-      LDY #$0007
       JSR GetPerLevelAddr
-      LDA [$00]
+	  BNE +
+	  PHK
+	  PLB
+	  LDA $00
+	  BRA -
+	+ SEP #$20
+	  PHX
+	  TYX
+      LDA.l PerLevelTable+$07,x
+	  PLX
       PLP
       JML $02A9AB|!BankB
    endif
@@ -1270,27 +1283,42 @@ TestSilverCoinBit:
 TableStart:
 	print "Global Table at ",pc
 	incbin "_DefaultTables.bin"
-  
+CustomStatusPtr:
+	print "Custom status pointers at", pc
+	incbin "_CustomStatusPtr.bin"
 
 ; ---------------------------------------------------
 ; per-level tables for sprite B0-BF 0x8000 bytes each.
 ; ---------------------------------------------------
 
 if !PerLevel = 1
-   freedata align
-   table1:
-      print "Level Table 1 at ",pc
-      incbin "_PerLevelT1.bin"
-   freedata align
-   table2:
-      print "Level Table 2 at ",pc
-      incbin "_PerLevelT2.bin"
-   freedata align
-   table3:
-      print "Level Table 3 at ",pc
-      incbin "_PerLevelT3.bin"
-   freedata align
-   table4:
-      print "Level Table 4 at ",pc
-      incbin "_PerLevelT4.bin"
+	freedata
+	prot PerLevelSprPtrs_data
+	prot PerLevelTable_data
+	prot PerLevelCustomPtrTable_data
+	PerLevelLvlPtrs:
+		print "Per-level sprite level pointers at ", pc
+		incbin "_PerLevelLvlPtrs.bin"
+	freedata
+        ; i have no idea how to explain why i did it like this but trust me it works, and it's necessary to allow the full 0x800 per-level sprites
+        skip -1
+	PerLevelTable:
+        skip 1
+        .data:
+		print "Level Table at ", pc
+		incbin "_PerLevelT.bin"
+	freedata
+        skip -1
+	PerLevelCustomPtrTable:
+        skip 1
+        .data:
+		print "Level Pointers Table at ", pc
+		incbin "_PerLevelCustomPtrTable.bin"
+	freedata
+        skip -1
+	PerLevelSprPtrs:
+        skip 1
+        .data:
+		print "Per-level sprite pointers at ", pc
+		incbin "_PerLevelSprPtrs.bin"
 endif

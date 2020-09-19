@@ -6,7 +6,6 @@
 #include <sstream>
 #include <stdio.h>
 
-#include "windows.h"
 #include "Rom.h"
 
 #include "MeiMei.h"

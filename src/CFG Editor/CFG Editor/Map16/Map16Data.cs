@@ -187,12 +187,11 @@ namespace CFG.Map16
 		{
 			if (object.ReferenceEquals(obj, this))
 				return true;
-			if ((object)this == null)
+			if (this is null)
 				return false;
 
-			Map16Tile8x8 m = obj as Map16Tile8x8;
-			if ((object)m == null)
-				return false;
+            if (!(obj is Map16Tile8x8 m))
+                return false;
 
             return Data[0] == m.Data[0] && Data[1] == m.Data[1];
 		}
@@ -215,8 +214,8 @@ namespace CFG.Map16
         
         protected void SetPropertyValue<T>(ref T priv, T val, [CallerMemberName] string caller = "")
         {
-            bool pn = ReferenceEquals(priv, null);
-            bool vn = ReferenceEquals(val, null);
+            bool pn = priv == null;
+            bool vn = val == null;
 
             if (pn && vn)
                 return;
@@ -359,9 +358,8 @@ namespace CFG.Map16
 			if (object.ReferenceEquals(obj, this))
 				return true;
 
-			Map16Tile16x16 m = obj as Map16Tile16x16;
-			if ((object)m == null)
-				return false;
+            if (!(obj is Map16Tile16x16 m))
+                return false;
 
             for (int i = 0; i < 4; i++)
                 if (m.SubTiles[i] != SubTiles[i])

@@ -1,35 +1,43 @@
 ﻿namespace CFG
 {
-	partial class CFG_Editor
-	{
-		/// <summary>
-		/// Erforderliche Designervariable.
-		/// </summary>
-		private System.ComponentModel.IContainer components = null;
+    partial class CFG_Editor
+    {
+        /// <summary>
+        /// Erforderliche Designervariable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
 
-		/// <summary>
-		/// Verwendete Ressourcen bereinigen.
-		/// </summary>
-		/// <param name="disposing">True, wenn verwaltete Ressourcen gelöscht werden sollen; andernfalls False.</param>
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing && (components != null))
-			{
-				components.Dispose();
-			}
-			base.Dispose(disposing);
-		}
+        /// <summary>
+        /// Verwendete Ressourcen bereinigen.
+        /// </summary>
+        /// <param name="disposing">True, wenn verwaltete Ressourcen gelöscht werden sollen; andernfalls False.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
 
-		#region Vom Windows Form-Designer generierter Code
+        #region Vom Windows Form-Designer generierter Code
 
-		/// <summary>
-		/// Erforderliche Methode für die Designerunterstützung.
-		/// Der Inhalt der Methode darf nicht mit dem Code-Editor geändert werden.
-		/// </summary>
-		private void InitializeComponent()
-		{
+        /// <summary>
+        /// Erforderliche Methode für die Designerunterstützung.
+        /// Der Inhalt der Methode darf nicht mit dem Code-Editor geändert werden.
+        /// </summary>
+        private void InitializeComponent()
+        {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CFG_Editor));
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle11 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle12 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
@@ -168,7 +176,31 @@
             this.btnColClone = new System.Windows.Forms.Button();
             this.btnColNew = new System.Windows.Forms.Button();
             this.dgvList = new System.Windows.Forms.DataGridView();
+            this.extraPropertyByte5DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.extraPropertyByte6DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.extraPropertyByte7DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.extraPropertyByte8DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.extraPropertyByte9DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.extraPropertyByte10DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.extraPropertyByte11DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.extraPropertyByte12DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.txtListExProp10 = new System.Windows.Forms.TextBox();
+            this.txtListExProp12 = new System.Windows.Forms.TextBox();
+            this.txtListExProp11 = new System.Windows.Forms.TextBox();
+            this.label19 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
+            this.txtListExProp9 = new System.Windows.Forms.TextBox();
+            this.txtListExProp5 = new System.Windows.Forms.TextBox();
+            this.label20 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
+            this.txtListExProp6 = new System.Windows.Forms.TextBox();
+            this.txtListExProp8 = new System.Windows.Forms.TextBox();
+            this.label21 = new System.Windows.Forms.Label();
+            this.label22 = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.label18 = new System.Windows.Forms.Label();
+            this.txtListExProp7 = new System.Windows.Forms.TextBox();
             this.lblName = new System.Windows.Forms.Label();
             this.chbListExtraBit = new System.Windows.Forms.CheckBox();
             this.txtListName = new System.Windows.Forms.TextBox();
@@ -267,7 +299,7 @@
             this.newToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
             this.newToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.newToolStripMenuItem.Text = "New";
-            this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
+            this.newToolStripMenuItem.Click += new System.EventHandler(this.NewToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
@@ -280,7 +312,7 @@
             this.loadToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
             this.loadToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.loadToolStripMenuItem.Text = "Open File";
-            this.loadToolStripMenuItem.Click += new System.EventHandler(this.loadToolStripMenuItem_Click);
+            this.loadToolStripMenuItem.Click += new System.EventHandler(this.LoadToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
@@ -288,16 +320,16 @@
             this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
             this.saveToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.saveToolStripMenuItem.Text = "Save";
-            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
+            this.saveToolStripMenuItem.Click += new System.EventHandler(this.SaveToolStripMenuItem_Click);
             // 
             // saveAsToolStripMenuItem
             // 
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Alt) 
+            this.saveAsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Alt)
             | System.Windows.Forms.Keys.S)));
             this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.saveAsToolStripMenuItem.Text = "Save As...";
-            this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
+            this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.SaveAsToolStripMenuItem_Click);
             // 
             // optionsToolStripMenuItem
             // 
@@ -327,22 +359,22 @@
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(181, 22);
             this.toolStripMenuItem1.Text = "Palette";
-            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
+            this.toolStripMenuItem1.Click += new System.EventHandler(this.ToolStripMenuItem1_Click);
             // 
             // viewTile8x8ToolStripMenuItem
             // 
             this.viewTile8x8ToolStripMenuItem.Name = "viewTile8x8ToolStripMenuItem";
             this.viewTile8x8ToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
             this.viewTile8x8ToolStripMenuItem.Text = "8x8 Tile Selector";
-            this.viewTile8x8ToolStripMenuItem.Click += new System.EventHandler(this.viewTile8x8ToolStripMenuItem_Click);
+            this.viewTile8x8ToolStripMenuItem.Click += new System.EventHandler(this.ViewTile8x8ToolStripMenuItem_Click);
             // 
             // testToolStripMenuItem
             // 
             this.testToolStripMenuItem.Name = "testToolStripMenuItem";
-            this.testToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
+            this.testToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.testToolStripMenuItem.Text = "Test";
             this.testToolStripMenuItem.Visible = false;
-            this.testToolStripMenuItem.Click += new System.EventHandler(this.testToolStripMenuItem_Click);
+            this.testToolStripMenuItem.Click += new System.EventHandler(this.TestToolStripMenuItem_Click);
             // 
             // tpgDefault
             // 
@@ -379,7 +411,7 @@
             this.grpActLike.Location = new System.Drawing.Point(341, 376);
             this.grpActLike.Name = "grpActLike";
             this.grpActLike.Size = new System.Drawing.Size(91, 38);
-            this.grpActLike.TabIndex = 21;
+            this.grpActLike.TabIndex = 15;
             this.grpActLike.TabStop = false;
             // 
             // txtActLike
@@ -388,9 +420,9 @@
             this.txtActLike.MaxLength = 2;
             this.txtActLike.Name = "txtActLike";
             this.txtActLike.Size = new System.Drawing.Size(24, 20);
-            this.txtActLike.TabIndex = 12;
+            this.txtActLike.TabIndex = 1;
             this.txtActLike.Text = "00";
-            this.txtActLike.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
+            this.txtActLike.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Txt_Hex_KeyPress);
             // 
             // label15
             // 
@@ -398,7 +430,7 @@
             this.label15.Location = new System.Drawing.Point(6, 16);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(49, 13);
-            this.label15.TabIndex = 14;
+            this.label15.TabIndex = 1;
             this.label15.Text = "Act Like:";
             // 
             // grpExtraByteCount
@@ -410,7 +442,7 @@
             this.grpExtraByteCount.Location = new System.Drawing.Point(438, 376);
             this.grpExtraByteCount.Name = "grpExtraByteCount";
             this.grpExtraByteCount.Size = new System.Drawing.Size(228, 38);
-            this.grpExtraByteCount.TabIndex = 20;
+            this.grpExtraByteCount.TabIndex = 16;
             this.grpExtraByteCount.TabStop = false;
             this.grpExtraByteCount.Text = "Extra Bytes Count:";
             // 
@@ -424,7 +456,7 @@
             0});
             this.nudExtra.Name = "nudExtra";
             this.nudExtra.Size = new System.Drawing.Size(35, 20);
-            this.nudExtra.TabIndex = 16;
+            this.nudExtra.TabIndex = 3;
             // 
             // nudNormal
             // 
@@ -436,7 +468,7 @@
             0});
             this.nudNormal.Name = "nudNormal";
             this.nudNormal.Size = new System.Drawing.Size(35, 20);
-            this.nudNormal.TabIndex = 15;
+            this.nudNormal.TabIndex = 1;
             // 
             // label26
             // 
@@ -444,7 +476,7 @@
             this.label26.Location = new System.Drawing.Point(122, 18);
             this.label26.Name = "label26";
             this.label26.Size = new System.Drawing.Size(65, 13);
-            this.label26.TabIndex = 14;
+            this.label26.TabIndex = 2;
             this.label26.Text = "Extra bit set:";
             // 
             // label27
@@ -453,7 +485,7 @@
             this.label27.Location = new System.Drawing.Point(6, 18);
             this.label27.Name = "label27";
             this.label27.Size = new System.Drawing.Size(74, 13);
-            this.label27.TabIndex = 14;
+            this.label27.TabIndex = 0;
             this.label27.Text = "Extra bit clear:";
             // 
             // grpType
@@ -462,7 +494,7 @@
             this.grpType.Location = new System.Drawing.Point(6, 332);
             this.grpType.Name = "grpType";
             this.grpType.Size = new System.Drawing.Size(270, 38);
-            this.grpType.TabIndex = 19;
+            this.grpType.TabIndex = 12;
             this.grpType.TabStop = false;
             // 
             // cmbType
@@ -473,7 +505,7 @@
             this.cmbType.Name = "cmbType";
             this.cmbType.Size = new System.Drawing.Size(258, 21);
             this.cmbType.TabIndex = 0;
-            this.cmbType.SelectedIndexChanged += new System.EventHandler(this.cmbType_SelectedIndexChanged);
+            this.cmbType.SelectedIndexChanged += new System.EventHandler(this.CmbType_SelectedIndexChanged);
             // 
             // txt_1656
             // 
@@ -481,9 +513,9 @@
             this.txt_1656.MaxLength = 2;
             this.txt_1656.Name = "txt_1656";
             this.txt_1656.Size = new System.Drawing.Size(24, 20);
-            this.txt_1656.TabIndex = 18;
+            this.txt_1656.TabIndex = 0;
             this.txt_1656.Text = "00";
-            this.txt_1656.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
+            this.txt_1656.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Txt_Hex_KeyPress);
             // 
             // txt_166E
             // 
@@ -491,9 +523,9 @@
             this.txt_166E.MaxLength = 2;
             this.txt_166E.Name = "txt_166E";
             this.txt_166E.Size = new System.Drawing.Size(24, 20);
-            this.txt_166E.TabIndex = 17;
+            this.txt_166E.TabIndex = 5;
             this.txt_166E.Text = "00";
-            this.txt_166E.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
+            this.txt_166E.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Txt_Hex_KeyPress);
             // 
             // txt_1662
             // 
@@ -501,9 +533,9 @@
             this.txt_1662.MaxLength = 2;
             this.txt_1662.Name = "txt_1662";
             this.txt_1662.Size = new System.Drawing.Size(24, 20);
-            this.txt_1662.TabIndex = 16;
+            this.txt_1662.TabIndex = 2;
             this.txt_1662.Text = "00";
-            this.txt_1662.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
+            this.txt_1662.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Txt_Hex_KeyPress);
             // 
             // txt_190F
             // 
@@ -511,9 +543,9 @@
             this.txt_190F.MaxLength = 2;
             this.txt_190F.Name = "txt_190F";
             this.txt_190F.Size = new System.Drawing.Size(24, 20);
-            this.txt_190F.TabIndex = 13;
+            this.txt_190F.TabIndex = 11;
             this.txt_190F.Text = "00";
-            this.txt_190F.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
+            this.txt_190F.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Txt_Hex_KeyPress);
             // 
             // txt_1686
             // 
@@ -521,9 +553,9 @@
             this.txt_1686.MaxLength = 2;
             this.txt_1686.Name = "txt_1686";
             this.txt_1686.Size = new System.Drawing.Size(24, 20);
-            this.txt_1686.TabIndex = 12;
+            this.txt_1686.TabIndex = 9;
             this.txt_1686.Text = "00";
-            this.txt_1686.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
+            this.txt_1686.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Txt_Hex_KeyPress);
             // 
             // txt_167A
             // 
@@ -531,9 +563,9 @@
             this.txt_167A.MaxLength = 2;
             this.txt_167A.Name = "txt_167A";
             this.txt_167A.Size = new System.Drawing.Size(24, 20);
-            this.txt_167A.TabIndex = 11;
+            this.txt_167A.TabIndex = 7;
             this.txt_167A.Text = "00";
-            this.txt_167A.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
+            this.txt_167A.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Txt_Hex_KeyPress);
             // 
             // grp_1656
             // 
@@ -547,7 +579,7 @@
             this.grp_1656.Location = new System.Drawing.Point(6, 6);
             this.grp_1656.Name = "grp_1656";
             this.grp_1656.Size = new System.Drawing.Size(187, 120);
-            this.grp_1656.TabIndex = 4;
+            this.grp_1656.TabIndex = 0;
             this.grp_1656.TabStop = false;
             this.grp_1656.Text = "1656";
             // 
@@ -559,7 +591,7 @@
             this.lblObjBroke.Location = new System.Drawing.Point(85, 21);
             this.lblObjBroke.Name = "lblObjBroke";
             this.lblObjBroke.Size = new System.Drawing.Size(44, 13);
-            this.lblObjBroke.TabIndex = 2;
+            this.lblObjBroke.TabIndex = 1;
             this.lblObjBroke.Text = "BROKE";
             // 
             // label1
@@ -568,7 +600,7 @@
             this.label1.Location = new System.Drawing.Point(6, 21);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(81, 13);
-            this.label1.TabIndex = 2;
+            this.label1.TabIndex = 0;
             this.label1.Text = "Object Clipping:";
             // 
             // cmb_1656_0F
@@ -579,8 +611,8 @@
             this.cmb_1656_0F.Location = new System.Drawing.Point(132, 18);
             this.cmb_1656_0F.Name = "cmb_1656_0F";
             this.cmb_1656_0F.Size = new System.Drawing.Size(46, 21);
-            this.cmb_1656_0F.TabIndex = 1;
-            this.cmb_1656_0F.SelectedIndexChanged += new System.EventHandler(this.cmb_1656_0F_SelectedIndexChanged);
+            this.cmb_1656_0F.TabIndex = 2;
+            this.cmb_1656_0F.SelectedIndexChanged += new System.EventHandler(this.Cmb_1656_0F_SelectedIndexChanged);
             // 
             // chb_1656_80
             // 
@@ -588,7 +620,7 @@
             this.chb_1656_80.Location = new System.Drawing.Point(9, 98);
             this.chb_1656_80.Name = "chb_1656_80";
             this.chb_1656_80.Size = new System.Drawing.Size(169, 17);
-            this.chb_1656_80.TabIndex = 0;
+            this.chb_1656_80.TabIndex = 6;
             this.chb_1656_80.Text = "Disappear in a cloud of smoke";
             this.chb_1656_80.UseVisualStyleBackColor = true;
             // 
@@ -598,7 +630,7 @@
             this.chb_1656_40.Location = new System.Drawing.Point(9, 79);
             this.chb_1656_40.Name = "chb_1656_40";
             this.chb_1656_40.Size = new System.Drawing.Size(111, 17);
-            this.chb_1656_40.TabIndex = 0;
+            this.chb_1656_40.TabIndex = 5;
             this.chb_1656_40.Text = "Hop in/kick shells";
             this.chb_1656_40.UseVisualStyleBackColor = true;
             // 
@@ -608,7 +640,7 @@
             this.chb_1656_20.Location = new System.Drawing.Point(9, 60);
             this.chb_1656_20.Name = "chb_1656_20";
             this.chb_1656_20.Size = new System.Drawing.Size(128, 17);
-            this.chb_1656_20.TabIndex = 0;
+            this.chb_1656_20.TabIndex = 4;
             this.chb_1656_20.Text = "Dies when jumped on";
             this.chb_1656_20.UseVisualStyleBackColor = true;
             // 
@@ -618,7 +650,7 @@
             this.chb_1656_10.Location = new System.Drawing.Point(9, 41);
             this.chb_1656_10.Name = "chb_1656_10";
             this.chb_1656_10.Size = new System.Drawing.Size(112, 17);
-            this.chb_1656_10.TabIndex = 0;
+            this.chb_1656_10.TabIndex = 3;
             this.chb_1656_10.Text = "Can be jumped on";
             this.chb_1656_10.UseVisualStyleBackColor = true;
             // 
@@ -629,7 +661,7 @@
             this.grpAsmActLike.Location = new System.Drawing.Point(6, 376);
             this.grpAsmActLike.Name = "grpAsmActLike";
             this.grpAsmActLike.Size = new System.Drawing.Size(329, 38);
-            this.grpAsmActLike.TabIndex = 15;
+            this.grpAsmActLike.TabIndex = 14;
             this.grpAsmActLike.TabStop = false;
             this.grpAsmActLike.Text = "File Pointer:";
             // 
@@ -639,7 +671,7 @@
             this.label7.Location = new System.Drawing.Point(6, 18);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(52, 13);
-            this.label7.TabIndex = 14;
+            this.label7.TabIndex = 0;
             this.label7.Text = "ASM File:";
             // 
             // txtASMFile
@@ -648,7 +680,7 @@
             this.txtASMFile.MaxLength = 100;
             this.txtASMFile.Name = "txtASMFile";
             this.txtASMFile.Size = new System.Drawing.Size(258, 20);
-            this.txtASMFile.TabIndex = 13;
+            this.txtASMFile.TabIndex = 1;
             // 
             // grpExtraPropByte
             // 
@@ -659,7 +691,7 @@
             this.grpExtraPropByte.Location = new System.Drawing.Point(282, 332);
             this.grpExtraPropByte.Name = "grpExtraPropByte";
             this.grpExtraPropByte.Size = new System.Drawing.Size(150, 38);
-            this.grpExtraPropByte.TabIndex = 15;
+            this.grpExtraPropByte.TabIndex = 13;
             this.grpExtraPropByte.TabStop = false;
             this.grpExtraPropByte.Text = "Extra Property Bytes:";
             // 
@@ -669,7 +701,7 @@
             this.label5.Location = new System.Drawing.Point(76, 18);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(40, 13);
-            this.label5.TabIndex = 14;
+            this.label5.TabIndex = 2;
             this.label5.Text = "Byte 2:";
             // 
             // label4
@@ -678,7 +710,7 @@
             this.label4.Location = new System.Drawing.Point(6, 18);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(40, 13);
-            this.label4.TabIndex = 14;
+            this.label4.TabIndex = 0;
             this.label4.Text = "Byte 1:";
             // 
             // txt_0002
@@ -687,9 +719,9 @@
             this.txt_0002.MaxLength = 2;
             this.txt_0002.Name = "txt_0002";
             this.txt_0002.Size = new System.Drawing.Size(24, 20);
-            this.txt_0002.TabIndex = 13;
+            this.txt_0002.TabIndex = 3;
             this.txt_0002.Text = "00";
-            this.txt_0002.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
+            this.txt_0002.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Txt_Hex_KeyPress);
             // 
             // txt_0001
             // 
@@ -697,9 +729,9 @@
             this.txt_0001.MaxLength = 2;
             this.txt_0001.Name = "txt_0001";
             this.txt_0001.Size = new System.Drawing.Size(24, 20);
-            this.txt_0001.TabIndex = 12;
+            this.txt_0001.TabIndex = 1;
             this.txt_0001.Text = "00";
-            this.txt_0001.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
+            this.txt_0001.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Txt_Hex_KeyPress);
             // 
             // grp_1662
             // 
@@ -711,7 +743,7 @@
             this.grp_1662.Location = new System.Drawing.Point(6, 132);
             this.grp_1662.Name = "grp_1662";
             this.grp_1662.Size = new System.Drawing.Size(186, 83);
-            this.grp_1662.TabIndex = 5;
+            this.grp_1662.TabIndex = 2;
             this.grp_1662.TabStop = false;
             this.grp_1662.Text = "1662";
             // 
@@ -723,7 +755,7 @@
             this.lblSprBroke.Location = new System.Drawing.Point(85, 21);
             this.lblSprBroke.Name = "lblSprBroke";
             this.lblSprBroke.Size = new System.Drawing.Size(44, 13);
-            this.lblSprBroke.TabIndex = 2;
+            this.lblSprBroke.TabIndex = 1;
             this.lblSprBroke.Text = "BROKE";
             // 
             // cmb_1662_3F
@@ -733,8 +765,8 @@
             this.cmb_1662_3F.Location = new System.Drawing.Point(132, 18);
             this.cmb_1662_3F.Name = "cmb_1662_3F";
             this.cmb_1662_3F.Size = new System.Drawing.Size(46, 21);
-            this.cmb_1662_3F.TabIndex = 1;
-            this.cmb_1662_3F.SelectedIndexChanged += new System.EventHandler(this.cmb_1662_3F_SelectedIndexChanged);
+            this.cmb_1662_3F.TabIndex = 2;
+            this.cmb_1662_3F.SelectedIndexChanged += new System.EventHandler(this.Cmb_1662_3F_SelectedIndexChanged);
             // 
             // chb_1662_40
             // 
@@ -742,7 +774,7 @@
             this.chb_1662_40.Location = new System.Drawing.Point(9, 41);
             this.chb_1662_40.Name = "chb_1662_40";
             this.chb_1662_40.Size = new System.Drawing.Size(142, 17);
-            this.chb_1662_40.TabIndex = 0;
+            this.chb_1662_40.TabIndex = 3;
             this.chb_1662_40.Text = "Use shell as death frame";
             this.chb_1662_40.UseVisualStyleBackColor = true;
             // 
@@ -752,7 +784,7 @@
             this.chb_1662_80.Location = new System.Drawing.Point(9, 60);
             this.chb_1662_80.Name = "chb_1662_80";
             this.chb_1662_80.Size = new System.Drawing.Size(169, 17);
-            this.chb_1662_80.TabIndex = 0;
+            this.chb_1662_80.TabIndex = 4;
             this.chb_1662_80.Text = "Falls straight down when killed";
             this.chb_1662_80.UseVisualStyleBackColor = true;
             // 
@@ -762,7 +794,7 @@
             this.label2.Location = new System.Drawing.Point(6, 21);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(77, 13);
-            this.label2.TabIndex = 2;
+            this.label2.TabIndex = 0;
             this.label2.Text = "Sprite Clipping:";
             // 
             // grp_166E
@@ -778,7 +810,7 @@
             this.grp_166E.Location = new System.Drawing.Point(199, 6);
             this.grp_166E.Name = "grp_166E";
             this.grp_166E.Size = new System.Drawing.Size(233, 137);
-            this.grp_166E.TabIndex = 6;
+            this.grp_166E.TabIndex = 5;
             this.grp_166E.TabStop = false;
             this.grp_166E.Text = "166E";
             // 
@@ -807,7 +839,7 @@
             this.label3.Location = new System.Drawing.Point(3, 39);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(43, 13);
-            this.label3.TabIndex = 2;
+            this.label3.TabIndex = 1;
             this.label3.Text = "Palette:";
             // 
             // chb_166E_10
@@ -816,7 +848,7 @@
             this.chb_166E_10.Location = new System.Drawing.Point(6, 59);
             this.chb_166E_10.Name = "chb_166E_10";
             this.chb_166E_10.Size = new System.Drawing.Size(123, 17);
-            this.chb_166E_10.TabIndex = 0;
+            this.chb_166E_10.TabIndex = 3;
             this.chb_166E_10.Text = "Disable fireball killing";
             this.chb_166E_10.UseVisualStyleBackColor = true;
             // 
@@ -837,8 +869,8 @@
             this.cmb_166E_0E.Location = new System.Drawing.Point(52, 36);
             this.cmb_166E_0E.Name = "cmb_166E_0E";
             this.cmb_166E_0E.Size = new System.Drawing.Size(39, 21);
-            this.cmb_166E_0E.TabIndex = 1;
-            this.cmb_166E_0E.SelectedIndexChanged += new System.EventHandler(this.cmb_166E_0E_SelectedIndexChanged);
+            this.cmb_166E_0E.TabIndex = 2;
+            this.cmb_166E_0E.SelectedIndexChanged += new System.EventHandler(this.Cmb_166E_0E_SelectedIndexChanged);
             // 
             // chb_166E_20
             // 
@@ -846,7 +878,7 @@
             this.chb_166E_20.Location = new System.Drawing.Point(6, 78);
             this.chb_166E_20.Name = "chb_166E_20";
             this.chb_166E_20.Size = new System.Drawing.Size(117, 17);
-            this.chb_166E_20.TabIndex = 0;
+            this.chb_166E_20.TabIndex = 4;
             this.chb_166E_20.Text = "Disable cape killing";
             this.chb_166E_20.UseVisualStyleBackColor = true;
             // 
@@ -856,7 +888,7 @@
             this.chb_166E_80.Location = new System.Drawing.Point(6, 116);
             this.chb_166E_80.Name = "chb_166E_80";
             this.chb_166E_80.Size = new System.Drawing.Size(149, 17);
-            this.chb_166E_80.TabIndex = 0;
+            this.chb_166E_80.TabIndex = 6;
             this.chb_166E_80.Text = "Don\'t interact with Layer 2";
             this.chb_166E_80.UseVisualStyleBackColor = true;
             // 
@@ -866,7 +898,7 @@
             this.chb_166E_40.Location = new System.Drawing.Point(6, 97);
             this.chb_166E_40.Name = "chb_166E_40";
             this.chb_166E_40.Size = new System.Drawing.Size(123, 17);
-            this.chb_166E_40.TabIndex = 0;
+            this.chb_166E_40.TabIndex = 5;
             this.chb_166E_40.Text = "Disable water splash";
             this.chb_166E_40.UseVisualStyleBackColor = true;
             // 
@@ -877,7 +909,7 @@
             this.groupBox4.Location = new System.Drawing.Point(6, 221);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(187, 107);
-            this.groupBox4.TabIndex = 7;
+            this.groupBox4.TabIndex = 4;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Clipping Visualized";
             // 
@@ -912,7 +944,7 @@
             this.grp_167A.Location = new System.Drawing.Point(199, 149);
             this.grp_167A.Name = "grp_167A";
             this.grp_167A.Size = new System.Drawing.Size(233, 179);
-            this.grp_167A.TabIndex = 8;
+            this.grp_167A.TabIndex = 7;
             this.grp_167A.TabStop = false;
             this.grp_167A.Text = "167A";
             // 
@@ -922,7 +954,7 @@
             this.chb_167A_80.Location = new System.Drawing.Point(6, 152);
             this.chb_167A_80.Name = "chb_167A_80";
             this.chb_167A_80.Size = new System.Drawing.Size(209, 17);
-            this.chb_167A_80.TabIndex = 0;
+            this.chb_167A_80.TabIndex = 7;
             this.chb_167A_80.Text = "Don\'t use default interaction with Mario";
             this.chb_167A_80.UseVisualStyleBackColor = true;
             // 
@@ -932,7 +964,7 @@
             this.chb_167A_40.Location = new System.Drawing.Point(6, 133);
             this.chb_167A_40.Name = "chb_167A_40";
             this.chb_167A_40.Size = new System.Drawing.Size(202, 17);
-            this.chb_167A_40.TabIndex = 0;
+            this.chb_167A_40.TabIndex = 6;
             this.chb_167A_40.Text = "Gives power-up when eaten by Yoshi";
             this.chb_167A_40.UseVisualStyleBackColor = true;
             // 
@@ -942,7 +974,7 @@
             this.chb_167A_20.Location = new System.Drawing.Point(6, 114);
             this.chb_167A_20.Name = "chb_167A_20";
             this.chb_167A_20.Size = new System.Drawing.Size(225, 17);
-            this.chb_167A_20.TabIndex = 0;
+            this.chb_167A_20.TabIndex = 5;
             this.chb_167A_20.Text = "Process interaction with Mario every frame";
             this.chb_167A_20.UseVisualStyleBackColor = true;
             // 
@@ -952,7 +984,7 @@
             this.chb_167A_10.Location = new System.Drawing.Point(6, 95);
             this.chb_167A_10.Name = "chb_167A_10";
             this.chb_167A_10.Size = new System.Drawing.Size(152, 17);
-            this.chb_167A_10.TabIndex = 0;
+            this.chb_167A_10.TabIndex = 4;
             this.chb_167A_10.Text = "Can\'t be kicked like a shell";
             this.chb_167A_10.UseVisualStyleBackColor = true;
             // 
@@ -962,7 +994,7 @@
             this.chb_167A_08.Location = new System.Drawing.Point(6, 76);
             this.chb_167A_08.Name = "chb_167A_08";
             this.chb_167A_08.Size = new System.Drawing.Size(213, 17);
-            this.chb_167A_08.TabIndex = 0;
+            this.chb_167A_08.TabIndex = 3;
             this.chb_167A_08.Text = "Don\'t change into a shell when stunned";
             this.chb_167A_08.UseVisualStyleBackColor = true;
             // 
@@ -972,7 +1004,7 @@
             this.chb_167A_04.Location = new System.Drawing.Point(6, 57);
             this.chb_167A_04.Name = "chb_167A_04";
             this.chb_167A_04.Size = new System.Drawing.Size(143, 17);
-            this.chb_167A_04.TabIndex = 0;
+            this.chb_167A_04.TabIndex = 2;
             this.chb_167A_04.Text = "Process when off screen";
             this.chb_167A_04.UseVisualStyleBackColor = true;
             // 
@@ -982,7 +1014,7 @@
             this.chb_167A_02.Location = new System.Drawing.Point(6, 38);
             this.chb_167A_02.Name = "chb_167A_02";
             this.chb_167A_02.Size = new System.Drawing.Size(220, 17);
-            this.chb_167A_02.TabIndex = 0;
+            this.chb_167A_02.TabIndex = 1;
             this.chb_167A_02.Text = "Invincible to star/cape/fire/bouncing blk.";
             this.chb_167A_02.UseVisualStyleBackColor = true;
             // 
@@ -1009,7 +1041,7 @@
             this.grp_1686.Location = new System.Drawing.Point(438, 6);
             this.grp_1686.Name = "grp_1686";
             this.grp_1686.Size = new System.Drawing.Size(228, 179);
-            this.grp_1686.TabIndex = 8;
+            this.grp_1686.TabIndex = 9;
             this.grp_1686.TabStop = false;
             this.grp_1686.Text = "1686";
             // 
@@ -1019,7 +1051,7 @@
             this.chb_1686_80.Location = new System.Drawing.Point(6, 152);
             this.chb_1686_80.Name = "chb_1686_80";
             this.chb_1686_80.Size = new System.Drawing.Size(148, 17);
-            this.chb_1686_80.TabIndex = 0;
+            this.chb_1686_80.TabIndex = 7;
             this.chb_1686_80.Text = "Don\'t interact with objects";
             this.chb_1686_80.UseVisualStyleBackColor = true;
             // 
@@ -1029,7 +1061,7 @@
             this.chb_1686_40.Location = new System.Drawing.Point(6, 133);
             this.chb_1686_40.Name = "chb_1686_40";
             this.chb_1686_40.Size = new System.Drawing.Size(124, 17);
-            this.chb_1686_40.TabIndex = 0;
+            this.chb_1686_40.TabIndex = 6;
             this.chb_1686_40.Text = "Spawns a new sprite";
             this.chb_1686_40.UseVisualStyleBackColor = true;
             // 
@@ -1039,7 +1071,7 @@
             this.chb_1686_20.Location = new System.Drawing.Point(6, 114);
             this.chb_1686_20.Name = "chb_1686_20";
             this.chb_1686_20.Size = new System.Drawing.Size(204, 17);
-            this.chb_1686_20.TabIndex = 0;
+            this.chb_1686_20.TabIndex = 5;
             this.chb_1686_20.Text = "Don\'t turn into coin when goal passed";
             this.chb_1686_20.UseVisualStyleBackColor = true;
             // 
@@ -1049,7 +1081,7 @@
             this.chb_1686_10.Location = new System.Drawing.Point(6, 95);
             this.chb_1686_10.Name = "chb_1686_10";
             this.chb_1686_10.Size = new System.Drawing.Size(183, 17);
-            this.chb_1686_10.TabIndex = 0;
+            this.chb_1686_10.TabIndex = 4;
             this.chb_1686_10.Text = "Don\'t change direction if touched";
             this.chb_1686_10.UseVisualStyleBackColor = true;
             // 
@@ -1059,7 +1091,7 @@
             this.chb_1686_08.Location = new System.Drawing.Point(6, 76);
             this.chb_1686_08.Name = "chb_1686_08";
             this.chb_1686_08.Size = new System.Drawing.Size(171, 17);
-            this.chb_1686_08.TabIndex = 0;
+            this.chb_1686_08.TabIndex = 3;
             this.chb_1686_08.Text = "Don\'t interact with other sprites";
             this.chb_1686_08.UseVisualStyleBackColor = true;
             // 
@@ -1069,7 +1101,7 @@
             this.chb_1686_04.Location = new System.Drawing.Point(6, 57);
             this.chb_1686_04.Name = "chb_1686_04";
             this.chb_1686_04.Size = new System.Drawing.Size(140, 17);
-            this.chb_1686_04.TabIndex = 0;
+            this.chb_1686_04.TabIndex = 2;
             this.chb_1686_04.Text = "Weird ground behaviour";
             this.chb_1686_04.UseVisualStyleBackColor = true;
             // 
@@ -1079,7 +1111,7 @@
             this.chb_1686_02.Location = new System.Drawing.Point(6, 38);
             this.chb_1686_02.Name = "chb_1686_02";
             this.chb_1686_02.Size = new System.Drawing.Size(126, 17);
-            this.chb_1686_02.TabIndex = 0;
+            this.chb_1686_02.TabIndex = 1;
             this.chb_1686_02.Text = "Stay in Yoshi\'s mouth";
             this.chb_1686_02.UseVisualStyleBackColor = true;
             // 
@@ -1106,7 +1138,7 @@
             this.grp_190F.Location = new System.Drawing.Point(438, 191);
             this.grp_190F.Name = "grp_190F";
             this.grp_190F.Size = new System.Drawing.Size(228, 179);
-            this.grp_190F.TabIndex = 8;
+            this.grp_190F.TabIndex = 11;
             this.grp_190F.TabStop = false;
             this.grp_190F.Text = "190F";
             // 
@@ -1116,7 +1148,7 @@
             this.chb_190F_80.Location = new System.Drawing.Point(6, 152);
             this.chb_190F_80.Name = "chb_190F_80";
             this.chb_190F_80.Size = new System.Drawing.Size(220, 17);
-            this.chb_190F_80.TabIndex = 0;
+            this.chb_190F_80.TabIndex = 7;
             this.chb_190F_80.Text = "Don\'t get stuck in walls (carryable sprites)";
             this.chb_190F_80.UseVisualStyleBackColor = true;
             // 
@@ -1126,7 +1158,7 @@
             this.chb_190F_40.Location = new System.Drawing.Point(6, 133);
             this.chb_190F_40.Name = "chb_190F_40";
             this.chb_190F_40.Size = new System.Drawing.Size(202, 17);
-            this.chb_190F_40.TabIndex = 0;
+            this.chb_190F_40.TabIndex = 6;
             this.chb_190F_40.Text = "Don\'t turn into a coin with silver POW";
             this.chb_190F_40.UseVisualStyleBackColor = true;
             // 
@@ -1136,7 +1168,7 @@
             this.chb_190F_20.Location = new System.Drawing.Point(6, 114);
             this.chb_190F_20.Name = "chb_190F_20";
             this.chb_190F_20.Size = new System.Drawing.Size(137, 17);
-            this.chb_190F_20.TabIndex = 0;
+            this.chb_190F_20.TabIndex = 5;
             this.chb_190F_20.Text = "Death frame 2 tiles high";
             this.chb_190F_20.UseVisualStyleBackColor = true;
             // 
@@ -1146,7 +1178,7 @@
             this.chb_190F_10.Location = new System.Drawing.Point(6, 95);
             this.chb_190F_10.Name = "chb_190F_10";
             this.chb_190F_10.Size = new System.Drawing.Size(214, 17);
-            this.chb_190F_10.TabIndex = 0;
+            this.chb_190F_10.TabIndex = 4;
             this.chb_190F_10.Text = "Can be jumped on with upward Y speed";
             this.chb_190F_10.UseVisualStyleBackColor = true;
             // 
@@ -1156,7 +1188,7 @@
             this.chb_190F_08.Location = new System.Drawing.Point(6, 76);
             this.chb_190F_08.Name = "chb_190F_08";
             this.chb_190F_08.Size = new System.Drawing.Size(130, 17);
-            this.chb_190F_08.TabIndex = 0;
+            this.chb_190F_08.TabIndex = 3;
             this.chb_190F_08.Text = "Takes 5 fireballs to kill";
             this.chb_190F_08.UseVisualStyleBackColor = true;
             // 
@@ -1166,7 +1198,7 @@
             this.chb_190F_04.Location = new System.Drawing.Point(6, 57);
             this.chb_190F_04.Name = "chb_190F_04";
             this.chb_190F_04.Size = new System.Drawing.Size(138, 17);
-            this.chb_190F_04.TabIndex = 0;
+            this.chb_190F_04.TabIndex = 2;
             this.chb_190F_04.Text = "Can\'t be killed by sliding";
             this.chb_190F_04.UseVisualStyleBackColor = true;
             // 
@@ -1176,7 +1208,7 @@
             this.chb_190F_02.Location = new System.Drawing.Point(6, 38);
             this.chb_190F_02.Name = "chb_190F_02";
             this.chb_190F_02.Size = new System.Drawing.Size(169, 17);
-            this.chb_190F_02.TabIndex = 0;
+            this.chb_190F_02.TabIndex = 1;
             this.chb_190F_02.Text = "Don\'t erase when goal passed";
             this.chb_190F_02.UseVisualStyleBackColor = true;
             // 
@@ -1341,7 +1373,7 @@
             this.tsb8x8Editor.Name = "tsb8x8Editor";
             this.tsb8x8Editor.Size = new System.Drawing.Size(27, 26);
             this.tsb8x8Editor.Text = "toolStripButton1";
-            this.tsb8x8Editor.Click += new System.EventHandler(this.tsb8x8Editor_Click);
+            this.tsb8x8Editor.Click += new System.EventHandler(this.Tsb8x8Editor_Click);
             // 
             // tsbGrid
             // 
@@ -1374,7 +1406,7 @@
             this.tsbPalette.Name = "tsbPalette";
             this.tsbPalette.Size = new System.Drawing.Size(27, 26);
             this.tsbPalette.Text = "toolStripButton1";
-            this.tsbPalette.Click += new System.EventHandler(this.tsbPalette_Click);
+            this.tsbPalette.Click += new System.EventHandler(this.TsbPalette_Click);
             // 
             // groupBox2
             // 
@@ -1626,10 +1658,10 @@
             this.groupBox6.Controls.Add(this.btnColRemove);
             this.groupBox6.Controls.Add(this.btnColClone);
             this.groupBox6.Controls.Add(this.btnColNew);
-            this.groupBox6.Location = new System.Drawing.Point(8, 54);
+            this.groupBox6.Location = new System.Drawing.Point(8, 96);
             this.groupBox6.Name = "groupBox6";
             this.groupBox6.Size = new System.Drawing.Size(252, 49);
-            this.groupBox6.TabIndex = 12;
+            this.groupBox6.TabIndex = 1;
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Controlls";
             // 
@@ -1638,7 +1670,7 @@
             this.btnColRemove.Location = new System.Drawing.Point(171, 19);
             this.btnColRemove.Name = "btnColRemove";
             this.btnColRemove.Size = new System.Drawing.Size(75, 23);
-            this.btnColRemove.TabIndex = 11;
+            this.btnColRemove.TabIndex = 2;
             this.btnColRemove.Text = "Remove";
             this.btnColRemove.UseVisualStyleBackColor = true;
             // 
@@ -1647,7 +1679,7 @@
             this.btnColClone.Location = new System.Drawing.Point(90, 20);
             this.btnColClone.Name = "btnColClone";
             this.btnColClone.Size = new System.Drawing.Size(75, 23);
-            this.btnColClone.TabIndex = 11;
+            this.btnColClone.TabIndex = 1;
             this.btnColClone.Text = "Clone";
             this.btnColClone.UseVisualStyleBackColor = true;
             // 
@@ -1656,7 +1688,7 @@
             this.btnColNew.Location = new System.Drawing.Point(9, 19);
             this.btnColNew.Name = "btnColNew";
             this.btnColNew.Size = new System.Drawing.Size(75, 23);
-            this.btnColNew.TabIndex = 11;
+            this.btnColNew.TabIndex = 0;
             this.btnColNew.Text = "New";
             this.btnColNew.UseVisualStyleBackColor = true;
             // 
@@ -1665,23 +1697,119 @@
             this.dgvList.AllowUserToAddRows = false;
             this.dgvList.AutoGenerateColumns = false;
             this.dgvList.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dgvList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dgvList.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.dataGridViewTextBoxColumn1,
             this.extraBitDataGridViewCheckBoxColumn1,
             this.extraPropertyByte1DataGridViewTextBoxColumn,
             this.extraPropertyByte2DataGridViewTextBoxColumn,
             this.extraPropertyByte3DataGridViewTextBoxColumn,
-            this.extraPropertyByte4DataGridViewTextBoxColumn});
+            this.extraPropertyByte4DataGridViewTextBoxColumn,
+            this.extraPropertyByte5DataGridViewTextBoxColumn,
+            this.extraPropertyByte6DataGridViewTextBoxColumn,
+            this.extraPropertyByte7DataGridViewTextBoxColumn,
+            this.extraPropertyByte8DataGridViewTextBoxColumn,
+            this.extraPropertyByte9DataGridViewTextBoxColumn,
+            this.extraPropertyByte10DataGridViewTextBoxColumn,
+            this.extraPropertyByte11DataGridViewTextBoxColumn,
+            this.extraPropertyByte12DataGridViewTextBoxColumn});
             this.dgvList.DataSource = this.collectionSpriteBindingSource;
-            this.dgvList.Location = new System.Drawing.Point(8, 109);
+            this.dgvList.Location = new System.Drawing.Point(8, 151);
             this.dgvList.Name = "dgvList";
             this.dgvList.RowHeadersVisible = false;
-            this.dgvList.Size = new System.Drawing.Size(661, 232);
-            this.dgvList.TabIndex = 10;
+            this.dgvList.Size = new System.Drawing.Size(661, 263);
+            this.dgvList.TabIndex = 2;
+            // 
+            // extraPropertyByte5DataGridViewTextBoxColumn
+            // 
+            this.extraPropertyByte5DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte5";
+            dataGridViewCellStyle5.Format = "X2";
+            this.extraPropertyByte5DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle5;
+            this.extraPropertyByte5DataGridViewTextBoxColumn.FillWeight = 50F;
+            this.extraPropertyByte5DataGridViewTextBoxColumn.HeaderText = "Ex5";
+            this.extraPropertyByte5DataGridViewTextBoxColumn.Name = "extraPropertyByte5DataGridViewTextBoxColumn";
+            // 
+            // extraPropertyByte6DataGridViewTextBoxColumn
+            // 
+            this.extraPropertyByte6DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte6";
+            dataGridViewCellStyle6.Format = "X2";
+            this.extraPropertyByte6DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle6;
+            this.extraPropertyByte6DataGridViewTextBoxColumn.FillWeight = 50F;
+            this.extraPropertyByte6DataGridViewTextBoxColumn.HeaderText = "Ex6";
+            this.extraPropertyByte6DataGridViewTextBoxColumn.Name = "extraPropertyByte6DataGridViewTextBoxColumn";
+            // 
+            // extraPropertyByte7DataGridViewTextBoxColumn
+            // 
+            this.extraPropertyByte7DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte7";
+            dataGridViewCellStyle7.Format = "X2";
+            this.extraPropertyByte7DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle7;
+            this.extraPropertyByte7DataGridViewTextBoxColumn.FillWeight = 50F;
+            this.extraPropertyByte7DataGridViewTextBoxColumn.HeaderText = "Ex7";
+            this.extraPropertyByte7DataGridViewTextBoxColumn.Name = "extraPropertyByte7DataGridViewTextBoxColumn";
+            // 
+            // extraPropertyByte8DataGridViewTextBoxColumn
+            // 
+            this.extraPropertyByte8DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte8";
+            dataGridViewCellStyle8.Format = "X2";
+            this.extraPropertyByte8DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle8;
+            this.extraPropertyByte8DataGridViewTextBoxColumn.FillWeight = 50F;
+            this.extraPropertyByte8DataGridViewTextBoxColumn.HeaderText = "Ex8";
+            this.extraPropertyByte8DataGridViewTextBoxColumn.Name = "extraPropertyByte8DataGridViewTextBoxColumn";
+            // 
+            // extraPropertyByte9DataGridViewTextBoxColumn
+            // 
+            this.extraPropertyByte9DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte9";
+            dataGridViewCellStyle9.Format = "X2";
+            this.extraPropertyByte9DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle9;
+            this.extraPropertyByte9DataGridViewTextBoxColumn.FillWeight = 50F;
+            this.extraPropertyByte9DataGridViewTextBoxColumn.HeaderText = "Ex9";
+            this.extraPropertyByte9DataGridViewTextBoxColumn.Name = "extraPropertyByte9DataGridViewTextBoxColumn";
+            // 
+            // extraPropertyByte10DataGridViewTextBoxColumn
+            // 
+            this.extraPropertyByte10DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte10";
+            dataGridViewCellStyle10.Format = "X2";
+            this.extraPropertyByte10DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle10;
+            this.extraPropertyByte10DataGridViewTextBoxColumn.FillWeight = 50F;
+            this.extraPropertyByte10DataGridViewTextBoxColumn.HeaderText = "Ex10";
+            this.extraPropertyByte10DataGridViewTextBoxColumn.Name = "extraPropertyByte10DataGridViewTextBoxColumn";
+            // 
+            // extraPropertyByte11DataGridViewTextBoxColumn
+            // 
+            this.extraPropertyByte11DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte11";
+            dataGridViewCellStyle11.Format = "X2";
+            this.extraPropertyByte11DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle11;
+            this.extraPropertyByte11DataGridViewTextBoxColumn.FillWeight = 50F;
+            this.extraPropertyByte11DataGridViewTextBoxColumn.HeaderText = "Ex11";
+            this.extraPropertyByte11DataGridViewTextBoxColumn.Name = "extraPropertyByte11DataGridViewTextBoxColumn";
+            // 
+            // extraPropertyByte12DataGridViewTextBoxColumn
+            // 
+            this.extraPropertyByte12DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte12";
+            dataGridViewCellStyle12.Format = "X2";
+            this.extraPropertyByte12DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle12;
+            this.extraPropertyByte12DataGridViewTextBoxColumn.FillWeight = 50F;
+            this.extraPropertyByte12DataGridViewTextBoxColumn.HeaderText = "Ex12";
+            this.extraPropertyByte12DataGridViewTextBoxColumn.Name = "extraPropertyByte12DataGridViewTextBoxColumn";
             // 
             // groupBox5
             // 
+            this.groupBox5.Controls.Add(this.txtListExProp10);
+            this.groupBox5.Controls.Add(this.txtListExProp12);
+            this.groupBox5.Controls.Add(this.txtListExProp11);
+            this.groupBox5.Controls.Add(this.label19);
+            this.groupBox5.Controls.Add(this.label14);
+            this.groupBox5.Controls.Add(this.txtListExProp9);
+            this.groupBox5.Controls.Add(this.txtListExProp5);
+            this.groupBox5.Controls.Add(this.label20);
+            this.groupBox5.Controls.Add(this.label16);
+            this.groupBox5.Controls.Add(this.txtListExProp6);
+            this.groupBox5.Controls.Add(this.txtListExProp8);
+            this.groupBox5.Controls.Add(this.label21);
+            this.groupBox5.Controls.Add(this.label22);
+            this.groupBox5.Controls.Add(this.label17);
+            this.groupBox5.Controls.Add(this.label18);
+            this.groupBox5.Controls.Add(this.txtListExProp7);
             this.groupBox5.Controls.Add(this.lblName);
             this.groupBox5.Controls.Add(this.chbListExtraBit);
             this.groupBox5.Controls.Add(this.txtListName);
@@ -1695,45 +1823,189 @@
             this.groupBox5.Controls.Add(this.txtListExProp3);
             this.groupBox5.Location = new System.Drawing.Point(8, 3);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(661, 45);
-            this.groupBox5.TabIndex = 9;
+            this.groupBox5.Size = new System.Drawing.Size(661, 87);
+            this.groupBox5.TabIndex = 0;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Entry";
+            // 
+            // txtListExProp10
+            // 
+            this.txtListExProp10.Location = new System.Drawing.Point(448, 53);
+            this.txtListExProp10.MaxLength = 2;
+            this.txtListExProp10.Name = "txtListExProp10";
+            this.txtListExProp10.Size = new System.Drawing.Size(24, 20);
+            this.txtListExProp10.TabIndex = 22;
+            this.txtListExProp10.Text = "FF";
+            // 
+            // txtListExProp12
+            // 
+            this.txtListExProp12.Location = new System.Drawing.Point(631, 53);
+            this.txtListExProp12.MaxLength = 2;
+            this.txtListExProp12.Name = "txtListExProp12";
+            this.txtListExProp12.Size = new System.Drawing.Size(24, 20);
+            this.txtListExProp12.TabIndex = 26;
+            this.txtListExProp12.Text = "FF";
+            // 
+            // txtListExProp11
+            // 
+            this.txtListExProp11.Location = new System.Drawing.Point(540, 53);
+            this.txtListExProp11.MaxLength = 2;
+            this.txtListExProp11.Name = "txtListExProp11";
+            this.txtListExProp11.Size = new System.Drawing.Size(24, 20);
+            this.txtListExProp11.TabIndex = 24;
+            this.txtListExProp11.Text = "FF";
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(575, 56);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(58, 13);
+            this.label19.TabIndex = 25;
+            this.label19.Text = "Ex Byte 12";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(575, 36);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(52, 13);
+            this.label14.TabIndex = 17;
+            this.label14.Text = "Ex Byte 8";
+            // 
+            // txtListExProp9
+            // 
+            this.txtListExProp9.Location = new System.Drawing.Point(358, 53);
+            this.txtListExProp9.MaxLength = 2;
+            this.txtListExProp9.Name = "txtListExProp9";
+            this.txtListExProp9.Size = new System.Drawing.Size(24, 20);
+            this.txtListExProp9.TabIndex = 20;
+            this.txtListExProp9.Text = "FF";
+            // 
+            // txtListExProp5
+            // 
+            this.txtListExProp5.Location = new System.Drawing.Point(358, 33);
+            this.txtListExProp5.MaxLength = 2;
+            this.txtListExProp5.Name = "txtListExProp5";
+            this.txtListExProp5.Size = new System.Drawing.Size(24, 20);
+            this.txtListExProp5.TabIndex = 12;
+            this.txtListExProp5.Text = "FF";
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(484, 56);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(58, 13);
+            this.label20.TabIndex = 23;
+            this.label20.Text = "Ex Byte 11";
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(484, 36);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(52, 13);
+            this.label16.TabIndex = 15;
+            this.label16.Text = "Ex Byte 7";
+            // 
+            // txtListExProp6
+            // 
+            this.txtListExProp6.Location = new System.Drawing.Point(448, 33);
+            this.txtListExProp6.MaxLength = 2;
+            this.txtListExProp6.Name = "txtListExProp6";
+            this.txtListExProp6.Size = new System.Drawing.Size(24, 20);
+            this.txtListExProp6.TabIndex = 14;
+            this.txtListExProp6.Text = "FF";
+            // 
+            // txtListExProp8
+            // 
+            this.txtListExProp8.Location = new System.Drawing.Point(631, 33);
+            this.txtListExProp8.MaxLength = 2;
+            this.txtListExProp8.Name = "txtListExProp8";
+            this.txtListExProp8.Size = new System.Drawing.Size(24, 20);
+            this.txtListExProp8.TabIndex = 18;
+            this.txtListExProp8.Text = "FF";
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(302, 56);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(52, 13);
+            this.label21.TabIndex = 19;
+            this.label21.Text = "Ex Byte 9";
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(393, 56);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(58, 13);
+            this.label22.TabIndex = 21;
+            this.label22.Text = "Ex Byte 10";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(302, 36);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(52, 13);
+            this.label17.TabIndex = 11;
+            this.label17.Text = "Ex Byte 5";
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(393, 36);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(52, 13);
+            this.label18.TabIndex = 13;
+            this.label18.Text = "Ex Byte 6";
+            // 
+            // txtListExProp7
+            // 
+            this.txtListExProp7.Location = new System.Drawing.Point(540, 33);
+            this.txtListExProp7.MaxLength = 2;
+            this.txtListExProp7.Name = "txtListExProp7";
+            this.txtListExProp7.Size = new System.Drawing.Size(24, 20);
+            this.txtListExProp7.TabIndex = 16;
+            this.txtListExProp7.Text = "FF";
             // 
             // lblName
             // 
             this.lblName.AutoSize = true;
-            this.lblName.Location = new System.Drawing.Point(6, 16);
+            this.lblName.Location = new System.Drawing.Point(6, 33);
             this.lblName.Name = "lblName";
             this.lblName.Size = new System.Drawing.Size(38, 13);
-            this.lblName.TabIndex = 7;
+            this.lblName.TabIndex = 0;
             this.lblName.Text = "Name:";
             // 
             // chbListExtraBit
             // 
             this.chbListExtraBit.AutoSize = true;
-            this.chbListExtraBit.Location = new System.Drawing.Point(231, 15);
+            this.chbListExtraBit.Location = new System.Drawing.Point(231, 32);
             this.chbListExtraBit.Name = "chbListExtraBit";
             this.chbListExtraBit.Size = new System.Drawing.Size(65, 17);
-            this.chbListExtraBit.TabIndex = 8;
+            this.chbListExtraBit.TabIndex = 2;
             this.chbListExtraBit.Text = "Extra Bit";
             this.chbListExtraBit.UseVisualStyleBackColor = true;
             // 
             // txtListName
             // 
-            this.txtListName.Location = new System.Drawing.Point(50, 13);
+            this.txtListName.Location = new System.Drawing.Point(50, 30);
             this.txtListName.Name = "txtListName";
             this.txtListName.Size = new System.Drawing.Size(175, 20);
-            this.txtListName.TabIndex = 6;
+            this.txtListName.TabIndex = 1;
             // 
             // label13
             // 
             this.label13.AutoSize = true;
             this.label13.Location = new System.Drawing.Point(575, 16);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(55, 13);
-            this.label13.TabIndex = 7;
-            this.label13.Text = "Ex Byte 4:";
+            this.label13.Size = new System.Drawing.Size(52, 13);
+            this.label13.TabIndex = 9;
+            this.label13.Text = "Ex Byte 4";
             // 
             // txtListExProp1
             // 
@@ -1741,18 +2013,18 @@
             this.txtListExProp1.MaxLength = 2;
             this.txtListExProp1.Name = "txtListExProp1";
             this.txtListExProp1.Size = new System.Drawing.Size(24, 20);
-            this.txtListExProp1.TabIndex = 6;
+            this.txtListExProp1.TabIndex = 4;
             this.txtListExProp1.Text = "FF";
-            this.txtListExProp1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
+            this.txtListExProp1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Txt_Hex_KeyPress);
             // 
             // label12
             // 
             this.label12.AutoSize = true;
             this.label12.Location = new System.Drawing.Point(484, 16);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(55, 13);
+            this.label12.Size = new System.Drawing.Size(52, 13);
             this.label12.TabIndex = 7;
-            this.label12.Text = "Ex Byte 3:";
+            this.label12.Text = "Ex Byte 3";
             // 
             // txtListExProp2
             // 
@@ -1762,7 +2034,7 @@
             this.txtListExProp2.Size = new System.Drawing.Size(24, 20);
             this.txtListExProp2.TabIndex = 6;
             this.txtListExProp2.Text = "FF";
-            this.txtListExProp2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
+            this.txtListExProp2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Txt_Hex_KeyPress);
             // 
             // txtListExProp4
             // 
@@ -1770,27 +2042,27 @@
             this.txtListExProp4.MaxLength = 2;
             this.txtListExProp4.Name = "txtListExProp4";
             this.txtListExProp4.Size = new System.Drawing.Size(24, 20);
-            this.txtListExProp4.TabIndex = 6;
+            this.txtListExProp4.TabIndex = 10;
             this.txtListExProp4.Text = "FF";
-            this.txtListExProp4.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
+            this.txtListExProp4.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Txt_Hex_KeyPress);
             // 
             // label10
             // 
             this.label10.AutoSize = true;
             this.label10.Location = new System.Drawing.Point(302, 16);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(55, 13);
-            this.label10.TabIndex = 7;
-            this.label10.Text = "Ex Byte 1:";
+            this.label10.Size = new System.Drawing.Size(52, 13);
+            this.label10.TabIndex = 3;
+            this.label10.Text = "Ex Byte 1";
             // 
             // label11
             // 
             this.label11.AutoSize = true;
             this.label11.Location = new System.Drawing.Point(393, 16);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(55, 13);
-            this.label11.TabIndex = 7;
-            this.label11.Text = "Ex Byte 2:";
+            this.label11.Size = new System.Drawing.Size(52, 13);
+            this.label11.TabIndex = 5;
+            this.label11.Text = "Ex Byte 2";
             // 
             // txtListExProp3
             // 
@@ -1798,9 +2070,9 @@
             this.txtListExProp3.MaxLength = 2;
             this.txtListExProp3.Name = "txtListExProp3";
             this.txtListExProp3.Size = new System.Drawing.Size(24, 20);
-            this.txtListExProp3.TabIndex = 6;
+            this.txtListExProp3.TabIndex = 8;
             this.txtListExProp3.Text = "FF";
-            this.txtListExProp3.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Hex_KeyPress);
+            this.txtListExProp3.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Txt_Hex_KeyPress);
             // 
             // extraBitDataGridViewCheckBoxColumn
             // 
@@ -1831,7 +2103,7 @@
             this.dsSP4.Name = "dsSP4";
             this.dsSP4.Size = new System.Drawing.Size(153, 20);
             this.dsSP4.TabIndex = 3;
-            this.dsSP4.FileLoaded += new System.EventHandler(this.ds_FileLoaded);
+            this.dsSP4.FileLoaded += new System.EventHandler(this.Ds_FileLoaded);
             // 
             // dsSP3
             // 
@@ -1840,7 +2112,7 @@
             this.dsSP3.Name = "dsSP3";
             this.dsSP3.Size = new System.Drawing.Size(153, 20);
             this.dsSP3.TabIndex = 2;
-            this.dsSP3.FileLoaded += new System.EventHandler(this.ds_FileLoaded);
+            this.dsSP3.FileLoaded += new System.EventHandler(this.Ds_FileLoaded);
             // 
             // dsSP2
             // 
@@ -1849,7 +2121,7 @@
             this.dsSP2.Name = "dsSP2";
             this.dsSP2.Size = new System.Drawing.Size(153, 20);
             this.dsSP2.TabIndex = 1;
-            this.dsSP2.FileLoaded += new System.EventHandler(this.ds_FileLoaded);
+            this.dsSP2.FileLoaded += new System.EventHandler(this.Ds_FileLoaded);
             // 
             // dsSP1
             // 
@@ -1858,7 +2130,7 @@
             this.dsSP1.Name = "dsSP1";
             this.dsSP1.Size = new System.Drawing.Size(153, 20);
             this.dsSP1.TabIndex = 0;
-            this.dsSP1.FileLoaded += new System.EventHandler(this.ds_FileLoaded);
+            this.dsSP1.FileLoaded += new System.EventHandler(this.Ds_FileLoaded);
             // 
             // map16Editor1
             // 
@@ -1877,13 +2149,15 @@
             // dataGridViewTextBoxColumn1
             // 
             this.dataGridViewTextBoxColumn1.DataPropertyName = "Name";
+            this.dataGridViewTextBoxColumn1.FillWeight = 175F;
             this.dataGridViewTextBoxColumn1.HeaderText = "Name";
             this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            this.dataGridViewTextBoxColumn1.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             // 
             // extraBitDataGridViewCheckBoxColumn1
             // 
             this.extraBitDataGridViewCheckBoxColumn1.DataPropertyName = "ExtraBit";
-            this.extraBitDataGridViewCheckBoxColumn1.FillWeight = 50F;
+            this.extraBitDataGridViewCheckBoxColumn1.FillWeight = 70F;
             this.extraBitDataGridViewCheckBoxColumn1.HeaderText = "Extra Bit";
             this.extraBitDataGridViewCheckBoxColumn1.Name = "extraBitDataGridViewCheckBoxColumn1";
             // 
@@ -1893,7 +2167,7 @@
             dataGridViewCellStyle1.Format = "X2";
             this.extraPropertyByte1DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle1;
             this.extraPropertyByte1DataGridViewTextBoxColumn.FillWeight = 50F;
-            this.extraPropertyByte1DataGridViewTextBoxColumn.HeaderText = "Extra 1";
+            this.extraPropertyByte1DataGridViewTextBoxColumn.HeaderText = "Ex1";
             this.extraPropertyByte1DataGridViewTextBoxColumn.Name = "extraPropertyByte1DataGridViewTextBoxColumn";
             // 
             // extraPropertyByte2DataGridViewTextBoxColumn
@@ -1902,7 +2176,7 @@
             dataGridViewCellStyle2.Format = "X2";
             this.extraPropertyByte2DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle2;
             this.extraPropertyByte2DataGridViewTextBoxColumn.FillWeight = 50F;
-            this.extraPropertyByte2DataGridViewTextBoxColumn.HeaderText = "Extra 2";
+            this.extraPropertyByte2DataGridViewTextBoxColumn.HeaderText = "Ex2";
             this.extraPropertyByte2DataGridViewTextBoxColumn.Name = "extraPropertyByte2DataGridViewTextBoxColumn";
             // 
             // extraPropertyByte3DataGridViewTextBoxColumn
@@ -1911,7 +2185,7 @@
             dataGridViewCellStyle3.Format = "X2";
             this.extraPropertyByte3DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle3;
             this.extraPropertyByte3DataGridViewTextBoxColumn.FillWeight = 50F;
-            this.extraPropertyByte3DataGridViewTextBoxColumn.HeaderText = "Extra 3";
+            this.extraPropertyByte3DataGridViewTextBoxColumn.HeaderText = "Ex3";
             this.extraPropertyByte3DataGridViewTextBoxColumn.Name = "extraPropertyByte3DataGridViewTextBoxColumn";
             // 
             // extraPropertyByte4DataGridViewTextBoxColumn
@@ -1920,7 +2194,7 @@
             dataGridViewCellStyle4.Format = "X2";
             this.extraPropertyByte4DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle4;
             this.extraPropertyByte4DataGridViewTextBoxColumn.FillWeight = 50F;
-            this.extraPropertyByte4DataGridViewTextBoxColumn.HeaderText = "Extra 4";
+            this.extraPropertyByte4DataGridViewTextBoxColumn.HeaderText = "Ex4";
             this.extraPropertyByte4DataGridViewTextBoxColumn.Name = "extraPropertyByte4DataGridViewTextBoxColumn";
             // 
             // collectionSpriteBindingSource
@@ -1999,16 +2273,16 @@
             this.ResumeLayout(false);
             this.PerformLayout();
 
-		}
+        }
 
-		#endregion
-		private System.Windows.Forms.MenuStrip menuStrip1;
-		private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem loadToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
-		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        #endregion
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem loadToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem testToolStripMenuItem;
         private System.Windows.Forms.TabPage tpgDefault;
         private System.Windows.Forms.GroupBox grpExtraByteCount;
@@ -2097,7 +2371,6 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.RichTextBox rtbDesc;
         private System.Windows.Forms.DataGridView dgvDisplay;
-        private System.Windows.Forms.DataGridViewTextBoxColumn nameDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewCheckBoxColumn extraBitDataGridViewCheckBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn xDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn yDataGridViewTextBoxColumn;
@@ -2139,12 +2412,6 @@
         private System.Windows.Forms.TextBox txtListExProp3;
         private System.Windows.Forms.DataGridView dgvList;
         private System.Windows.Forms.BindingSource collectionSpriteBindingSource;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn extraBitDataGridViewCheckBoxColumn1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte1DataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte2DataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte3DataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte4DataGridViewTextBoxColumn;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadCustomM16ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadCustomGFX33ToolStripMenuItem;
@@ -2166,6 +2433,35 @@
         private System.Windows.Forms.ToolStripButton tsbGrid;
         private System.Windows.Forms.ToolStripButton tsbPage;
         private System.Windows.Forms.ToolStripButton tsbPalette;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.TextBox txtListExProp9;
+        private System.Windows.Forms.TextBox txtListExProp5;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.TextBox txtListExProp10;
+        private System.Windows.Forms.TextBox txtListExProp6;
+        private System.Windows.Forms.TextBox txtListExProp12;
+        private System.Windows.Forms.TextBox txtListExProp8;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.TextBox txtListExProp11;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.TextBox txtListExProp7;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn extraBitDataGridViewCheckBoxColumn1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte1DataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte2DataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte3DataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte4DataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte5DataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte6DataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte7DataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte8DataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte9DataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte10DataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte11DataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte12DataGridViewTextBoxColumn;
     }
 }
-

@@ -10,6 +10,8 @@
 #include <iterator>
 #include <regex>
 #include <exception>
+#include <string>
+#include <map>
 
 #include "asar/asardll.h"
 #include "cfg.h"
@@ -43,10 +45,18 @@
 #define SPRITE_COUNT 0x80 //count for other sprites like cluster, ow, extended
 
 //version 1.xx
-const char VERSION = 0x23;
+const char VERSION = 0x30;
 bool PER_LEVEL = false;
 bool DISABLE_255_SPRITE_PER_LEVEL = false;
 const char *ASM_DIR = nullptr;
+unsigned char PLS_LEVEL_PTRS[0x400];
+unsigned char PLS_SPRITE_PTRS[0x4000];
+int PLS_SPRITE_PTRS_ADDR = 0;
+unsigned char PLS_DATA[0x8000];
+unsigned char PLS_POINTERS[0x8000];
+// index into both PLS_DATA and PLS_POINTERS
+int PLS_DATA_ADDR = 0;
+
 std::string ASM_DIR_PATH;
 bool disableMeiMei = false;
 
@@ -71,19 +81,10 @@ T *from_table(T *table, int level, int number)
 
 	if (level > 0x200 || number > 0xFF)
 		return nullptr;
-	if (level == 0x200)
-	{
-		if (number < 0xB0)
-			return table + (0x2000 + number);
-		else if (number >= 0xB0 && number < 0xC0)
-			return nullptr;
-		else
-			return table + (0x2000 + number - 0x10);
-	}
-	else if (number >= 0xB0 && number < 0xC0)
-	{
+	if(level == 0x200)
+		return table + (0x2000 + number);
+	else if(number >= 0xB0 && number < 0xC0)
 		return table + ((level * 0x10) + (number - 0xB0));
-	}
 	return nullptr;
 }
 
@@ -159,13 +160,20 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 	fprintf(sprite_patch, "\tincsrc \"%s\"", spr->asm_file);
 	fprintf(sprite_patch, "\nnamespace nested off\n");
 	fclose(sprite_patch);
-
+	
 	patch(TEMP_SPR_FILE, rom);
-
+	std::map<std::string, int> ptr_map = {
+		std::pair<std::string, int>("init", 0x018021),
+		std::pair<std::string, int>("main", 0x018021),
+		std::pair<std::string, int>("cape", 0x000000),
+		std::pair<std::string, int>("mouth", 0x000000),
+		std::pair<std::string, int>("kicked", 0x000000),	// null pointers
+		std::pair<std::string, int>("carriable", 0x000000),
+		std::pair<std::string, int>("carried", 0x000000),
+		std::pair<std::string, int>("goal", 0x000000)
+	};
 	int print_count = 0;
 	const char *const *prints = asar_getprints(&print_count);
-	int addr = 0xFFFFFF;
-	char buf[5];
 
 	if (output)
 		fprintf(output, "%s\n", spr->asm_file);
@@ -174,14 +182,25 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 
 	for (int i = 0; i < print_count; i++)
 	{
-		sscanf(prints[i], "%4s%x", buf, &addr);
-		if (!strcmp(buf, "INIT"))
-			set_pointer(&spr->table.init, addr);
-		else if (!strcmp(buf, "MAIN"))
-			set_pointer(&spr->table.main, addr);
-		else if (!strcmp(buf, "VERG"))
+		if (!strncmp(prints[i], "INIT", 4))
+			ptr_map["init"] = strtol(prints[i]+4, NULL, 16);
+		else if (!strncmp(prints[i], "MAIN", 4))
+			ptr_map["main"] = strtol(prints[i]+4, NULL, 16);
+		else if (!strncmp(prints[i], "CAPE", 4) && spr->sprite_type == 1)
+			ptr_map["cape"] = strtol(prints[i]+4, NULL, 16);
+		else if (!strncmp(prints[i], "CARRIABLE", 9) && spr->sprite_type == 0)
+			ptr_map["carriable"] = strtol(prints[i]+9, NULL, 16);
+		else if (!strncmp(prints[i], "CARRIED", 7) && spr->sprite_type == 0)
+			ptr_map["carried"] = strtol(prints[i]+7, NULL, 16);
+		else if (!strncmp(prints[i], "KICKED", 6) && spr->sprite_type == 0)
+			ptr_map["kicked"] = strtol(prints[i]+6, NULL, 16);
+		else if (!strncmp(prints[i], "MOUTH", 5) && spr->sprite_type == 0)
+			ptr_map["mouth"] = strtol(prints[i]+5, NULL, 16);
+		else if (!strncmp(prints[i], "GOAL", 4) && spr->sprite_type == 0)
+			ptr_map["goal"] = strtol(prints[i]+4, NULL, 16);
+		else if (!strncmp(prints[i], "VERG", 4))
 		{
-			if (VERSION < addr)
+			if (VERSION < strtol(prints[i]+4, NULL, 16))
 			{
 				printf("Version Guard failed on %s.\n", spr->asm_file);
 				exit(-1);
@@ -190,12 +209,39 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 		else if (output)
 			fprintf(output, "\t%s\n", prints[i]);
 	}
-
+	set_pointer(&spr->table.init, ptr_map["init"]);
+	set_pointer(&spr->table.main, ptr_map["main"]);
+	if (spr->table.init.is_empty() && spr->table.main.is_empty()) {
+		error("Sprite %s had neither INIT nor MAIN defined in its file, insertion has been aborted.", spr->asm_file);
+	}
+	if (spr->sprite_type == 1) {
+		set_pointer(&spr->extended_cape_ptr, ptr_map["cape"]);	
+	}
+	else if (spr->sprite_type == 0) {
+		set_pointer(&spr->ptrs.carried, ptr_map["carried"]);
+		set_pointer(&spr->ptrs.carriable, ptr_map["carriable"]);
+		set_pointer(&spr->ptrs.kicked, ptr_map["kicked"]);
+		set_pointer(&spr->ptrs.mouth, ptr_map["mouth"]);
+		set_pointer(&spr->ptrs.goal, ptr_map["goal"]);
+	}
 	if (output)
 	{
-		fprintf(output, "\tINIT: $%06X\n\tMAIN: $%06X"
+		if (spr->sprite_type == 0)
+			fprintf(output, "\tINIT: $%06X\n\tMAIN: $%06X\n"
+						"\tCARRIABLE: $%06X\n\tCARRIED: $%06X\n\tKICKED: $%06X\n"
+						"\tMOUTH: $%06X\n\tGOAL: $%06X"
 						"\n__________________________________\n",
-				spr->table.init.addr(), spr->table.main.addr());
+					spr->table.init.addr(), spr->table.main.addr(),
+					spr->ptrs.carriable.addr(), spr->ptrs.carried.addr(),
+					spr->ptrs.kicked.addr(), spr->ptrs.mouth.addr(), spr->ptrs.goal.addr());
+		else if (spr->sprite_type == 1)
+			fprintf(output, "\tINIT: $%06X\n\tMAIN: $%06X\n\tCAPE: $%06X"
+						"\n__________________________________\n",
+					spr->table.init.addr(), spr->table.main.addr(), spr->extended_cape_ptr.addr());			
+		else 
+			fprintf(output, "\tINIT: $%06X\n\tMAIN: $%06X\n"
+						"\n__________________________________\n",
+					spr->table.init.addr(), spr->table.main.addr());
 	}
 }
 
@@ -216,16 +262,39 @@ void patch_sprites(std::list<std::string>& extraDefines, sprite *sprite_list, in
 				{
 					spr->table.init = sprite_list[j].table.init;
 					spr->table.main = sprite_list[j].table.main;
+					spr->extended_cape_ptr = sprite_list[j].extended_cape_ptr;
+					spr->ptrs = sprite_list[j].ptrs;
 					duplicate = true;
 					break;
 				}
 			}
 		}
+		
+		if(!duplicate)
+			patch_sprite(extraDefines, spr, rom, output);
+		
+		if(spr->level < 0x200 && spr->number >= 0xB0 && spr->number < 0xC0) {
+			int pls_lv_addr = PLS_LEVEL_PTRS[spr -> level * 2] + (PLS_LEVEL_PTRS[spr -> level * 2 + 1] << 8);
+			if(pls_lv_addr == 0x0000) {
+				pls_lv_addr = PLS_SPRITE_PTRS_ADDR+1;
+				PLS_LEVEL_PTRS[spr -> level * 2] = (unsigned char)pls_lv_addr;
+				PLS_LEVEL_PTRS[spr -> level * 2 + 1] = (unsigned char)(pls_lv_addr >> 8);
+				PLS_SPRITE_PTRS_ADDR += 0x20;
+			}
+			pls_lv_addr--;
+			pls_lv_addr += (spr -> number - 0xB0) * 2;
 
-		if (duplicate)
-			continue;
-
-		patch_sprite(extraDefines, spr, rom, output);
+			if(PLS_DATA_ADDR >= 0x8000)
+				error("Too many Per-Level sprites.  Please remove some.\n", "");
+			
+			PLS_SPRITE_PTRS[pls_lv_addr] = (unsigned char)(PLS_DATA_ADDR+1);
+			PLS_SPRITE_PTRS[pls_lv_addr+1] = (unsigned char)((PLS_DATA_ADDR+1) >> 8);
+			
+			memcpy(PLS_DATA+PLS_DATA_ADDR, &spr->table, 0x10);
+			memcpy(PLS_POINTERS+PLS_DATA_ADDR, &spr->ptrs, 15);
+			PLS_POINTERS[PLS_DATA_ADDR+0x0F] = 0xFF;
+			PLS_DATA_ADDR += 0x10;
+		}
 	}
 }
 
@@ -241,52 +310,75 @@ void clean_hack(ROM &rom)
 		FILE *clean_patch = open(path, "w");
 
 		int version = rom.data[rom.snes_to_pc(0x02FFE6)];
-		int flags = rom.data[rom.snes_to_pc(0x02FFE7)];
-
-		bool per_level_sprites_inserted = ((flags & 0x01) == 1) || (version < 2);
-
-		// bit 0 = per level sprites inserted
-		if (per_level_sprites_inserted)
-		{
-			//remove per level sprites
-			for (int bank = 0; bank < 4; bank++)
-			{
-				int level_table_address = (rom.data[rom.snes_to_pc(0x02FFEA + bank)] << 16) + 0x8000;
-				if (level_table_address == 0xFF8000)
-					continue;
-				fprintf(clean_patch, ";Per Level sprites for levels %03X - %03X\n", (bank * 0x80), ((bank + 1) * 0x80) - 1);
-				for (int table_offset = 11; table_offset < 0x8000; table_offset += 0x10)
-				{
-					pointer main_pointer = rom.pointer_snes(level_table_address + table_offset);
-					if (main_pointer.addr() == 0xFFFFFF)
-					{
-						fprintf(clean_patch, ";Encountered pointer to 0xFFFFFF, assuming there to be no sprites to clean!\n");
-						break;
-					}
-					if (!main_pointer.is_empty())
-					{
-						fprintf(clean_patch, "autoclean $%06X\n", main_pointer.addr());
+      int flags = rom.data[rom.snes_to_pc(0x02FFE7)];
+      
+      bool per_level_sprites_inserted = ((flags & 0x01) == 1) || (version < 2);
+      
+      // bit 0 = per level sprites inserted
+      if(per_level_sprites_inserted) {
+         //remove per level sprites
+			// version 1.30+
+			if(version >= 30) {
+				fprintf(clean_patch, ";Per-Level sprites\n");
+				int level_table_address = rom.pointer_snes(0x02FFF1).addr();
+				if(level_table_address != 0xFFFFFF && level_table_address != 0x000000) {
+					int pls_addr = rom.snes_to_pc(level_table_address);
+					for(int level = 0; level < 0x0400; level += 2) {
+						int pls_lv_addr = (rom.data[pls_addr + level] + (rom.data[pls_addr + level + 1] << 8));
+						if(pls_lv_addr == 0)
+							continue;
+						pls_lv_addr = rom.snes_to_pc(pls_lv_addr + level_table_address);
+						for(int i = 0; i < 0x20; i+= 2) {
+							int pls_data_addr = (rom.data[pls_lv_addr + i] + (rom.data[pls_lv_addr + i + 1] << 8));
+							if(pls_data_addr == 0)
+								continue;
+							pointer main_pointer = rom.pointer_snes(pls_data_addr + level_table_address + 0x0B);
+							if(main_pointer.addr() == 0xFFFFFF) {
+								//fprintf(clean_patch, ";Encountered pointer to 0xFFFFFF, assuming there to be no sprites to clean!\n");
+								continue;
+							}
+							if(!main_pointer.is_empty()) {
+								fprintf(clean_patch, "autoclean $%06X\t;%03X:%02X\n", main_pointer.addr(), level >> 1, 0xB0 + ( i >> 1));
+							}
+						}
 					}
 				}
-				fprintf(clean_patch, "\n");
+			// version 1.2x
+			} else {
+				for(int bank = 0; bank < 4; bank++) {
+					int level_table_address = (rom.data[rom.snes_to_pc(0x02FFEA + bank)] << 16) + 0x8000;
+					if(level_table_address == 0xFF8000)
+						continue;
+					fprintf(clean_patch, ";Per Level sprites for levels %03X - %03X\n", (bank * 0x80), ((bank+1)*0x80)-1);
+					for(int table_offset = 0x0B; table_offset < 0x8000; table_offset += 0x10)	{
+						pointer main_pointer = rom.pointer_snes(level_table_address + table_offset);
+						if(main_pointer.addr() == 0xFFFFFF) {
+							fprintf(clean_patch, ";Encountered pointer to 0xFFFFFF, assuming there to be no sprites to clean!\n");
+							break;
+						}
+						if(!main_pointer.is_empty()) {
+							fprintf(clean_patch, "autoclean $%06X\n", main_pointer.addr());
+						}				
+					}
+					fprintf(clean_patch, "\n");
+				}
 			}
-		}
-
-		//if per level sprites are inserted, we only have 0xF00 bytes of normal sprites
-		//due to 10 bytes per sprite and B0-BF not being in the table.
-		const int limit = per_level_sprites_inserted ? 0xF00 : 0x1000;
-
+      }
+      
+      //if per level sprites are inserted, we only have 0xF00 bytes of normal sprites
+      //due to 10 bytes per sprite and B0-BF not being in the table.
+		//but if version is 1.30 or higher, we have 0x1000 bytes.
+      const int limit = version >= 30 ? 0x1000 : (per_level_sprites_inserted ? 0xF00 : 0x1000);
+		
 		//remove global sprites
 		fprintf(clean_patch, ";Global sprites: \n");
 		int global_table_address = rom.pointer_snes(0x02FFEE).addr();
 		if (rom.pointer_snes(global_table_address).addr() != 0xFFFFFF) {
-			for (int table_offset = 11; table_offset < limit; table_offset += 0x10)
-			{
+			for(int table_offset = 0x0B; table_offset < limit; table_offset += 0x10)	{
 				pointer main_pointer = rom.pointer_snes(global_table_address + table_offset);
-				if (!main_pointer.is_empty())
-				{
+				if(!main_pointer.is_empty()) {
 					fprintf(clean_patch, "autoclean $%06X\n", main_pointer.addr());
-				}
+				}				
 			}
 		}
 
@@ -586,25 +678,14 @@ bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 				ERROR("Error on line %d: Trying to insert per level sprites without the -pl flag");
 
 			spr = from_table<sprite>(sprite_list, level, sprite_id);
-			//verify sprite pointer and determine cause if invalid
-			if (!spr)
-			{
-				if (sprite_id >= 0x100)
-				{
+         //verify sprite pointer and determine cause if invalid
+			if(!spr) {
+				if(sprite_id >= 0x100)
 					ERROR("Error on line %d: Sprite number must be less than 0x100");
-				}
-				if (level == 0x200 && sprite_id >= 0xB0 && sprite_id < 0xC0)
-				{
-					ERROR("Error on line %d: Sprite B0-BF must be assigned a level. Eg. 105:B0");
-				}
-				if (level > 0x200)
-				{
+				if(level > 0x200)
 					ERROR("Error on line %d: Level must range from 000-1FF");
-				}
-				if (sprite_id < 0xB0 || sprite_id >= 0xC0)
-				{
+				if(sprite_id >= 0xB0 && sprite_id < 0xC0)
 					ERROR("Error on line %d: Only sprite B0-BF must be assigned a level.");
-				}
 			}
 		}
 		else
@@ -622,6 +703,7 @@ bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 		spr->line = line_number;
 		spr->level = level;
 		spr->number = sprite_id;
+		spr->sprite_type = type;
 
 		//set the directory for the desired type
 		if (type != Sprite)
@@ -724,8 +806,9 @@ void write_long_table(sprite *spr, const char *dir, const char *filename, int si
 		write_all(dummy, dir, filename, 0x10);
 	else
 	{
-		for (int i = 0; i < size; i++)
+		for (int i = 0; i < size; i++) {
 			memcpy(file + (i * 0x10), &spr[i].table, 0x10);
+		}
 		write_all(file, dir, filename, size * 0x10);
 	}
 }
@@ -1021,6 +1104,13 @@ int main(int argc, char *argv[])
 		fflush(stdin); // uff 
 	}
 
+	unsigned char vram_jump = rom.data[rom.snes_to_pc(0x00F6E4)];
+    if (vram_jump != 0x5C) {
+        printf("You haven't installed the VRAM optimization patch in Lunar Magic, this will cause many features of Pixi to work incorrectly, insertion was aborted...\n");
+        getchar();
+        exit(-1);
+    }
+
 	// Initialize MeiMei
 	if (!disableMeiMei)
 	{
@@ -1074,19 +1164,30 @@ int main(int argc, char *argv[])
 	//sprites
 	debug_print("Try create binary tables.\n");
 	write_all(versionflag, paths[ASM], "_versionflag.bin", 4);
-	if (PER_LEVEL)
-	{
-		write_long_table(sprite_list + 0x0000, paths[ASM], "_PerLevelT1.bin");
-		write_long_table(sprite_list + 0x0800, paths[ASM], "_PerLevelT2.bin");
-		write_long_table(sprite_list + 0x1000, paths[ASM], "_PerLevelT3.bin");
-		write_long_table(sprite_list + 0x1800, paths[ASM], "_PerLevelT4.bin");
-		write_long_table(sprite_list + 0x2000, paths[ASM], "_DefaultTables.bin", 0xF0);
-	}
-	else
-	{
+   if(PER_LEVEL) {
+		write_all(PLS_LEVEL_PTRS, paths[ASM], "_PerLevelLvlPtrs.bin", 0x400);
+		if(PLS_DATA_ADDR == 0) {
+			unsigned char dummy[1] = {0xFF};
+			write_all(dummy, paths[ASM], "_PerLevelSprPtrs.bin", 1);
+			write_all(dummy, paths[ASM], "_PerLevelT.bin", 1);
+			write_all(dummy, paths[ASM], "_PerLevelCustomPtrTable.bin", 1);
+		} else {
+			write_all(PLS_SPRITE_PTRS, paths[ASM], "_PerLevelSprPtrs.bin", PLS_SPRITE_PTRS_ADDR);
+			write_all(PLS_DATA, paths[ASM], "_PerLevelT.bin", PLS_DATA_ADDR);
+			write_all(PLS_POINTERS, paths[ASM], "_PerLevelCustomPtrTable.bin", PLS_DATA_ADDR);
+			debug_print("Per-level sprites data size : 0x400+0x%04X+2*0x%04X = %04X\n", PLS_SPRITE_PTRS_ADDR, PLS_DATA_ADDR, 0x400+PLS_SPRITE_PTRS_ADDR+2*PLS_DATA_ADDR);
+		}
+		write_long_table(sprite_list + 0x2000, paths[ASM], "_DefaultTables.bin", 0x100);
+   } else {
 		write_long_table(sprite_list, paths[ASM], "_DefaultTables.bin", 0x100);
+   }
+	unsigned char customstatusptrs[0x100*15];
+	for (int i = 0, j = PER_LEVEL ? 0x2000 : 0; i < 0x100*5; i+=5, j++) {
+        memcpy(customstatusptrs + (i *3), &sprite_list[j].ptrs, 15);
 	}
-
+	write_all(customstatusptrs, paths[ASM], "_CustomStatusPtr.bin", 0x100 * 15);
+      
+	
 	//cluster
 	unsigned char file[SPRITE_COUNT * 3];
 	for (int i = 0; i < SPRITE_COUNT; i++)
@@ -1097,6 +1198,9 @@ int main(int argc, char *argv[])
 	for (int i = 0; i < SPRITE_COUNT; i++)
 		memcpy(file + (i * 3), &extended_list[i].table.main, 3);
 	write_all(file, paths[ASM], "_ExtendedPtr.bin", SPRITE_COUNT * 3);
+	for (int i = 0; i < SPRITE_COUNT; i++)
+		memcpy(file + (i * 3), &extended_list[i].extended_cape_ptr, 3);
+	write_all(file, paths[ASM], "_ExtendedCapePtr.bin", SPRITE_COUNT * 3);
 
 	//overworld
 	// for(int i = 0; i < SPRITE_COUNT; i++)
@@ -1118,15 +1222,15 @@ int main(int argc, char *argv[])
 	//extra byte size file
 	//plus data for .ssc, .mwt, .mw2 files
 	unsigned char extra_bytes[0x200];
+   
+    debug_print("Try create romname files.\n");
+    FILE* s16 = open_subfile(rom, "s16", "wb");
+    FILE* ssc = open_subfile(rom, "ssc", "w");
+    FILE* mwt = open_subfile(rom, "mwt", "w");
+    FILE* mw2 = open_subfile(rom, "mw2", "wb");
+    debug_print("Romname files opened.\n");
 
-	debug_print("Try create romname files.\n");
-	FILE *s16 = open_subfile(rom, "s16", "wb");
-	FILE *ssc = open_subfile(rom, "ssc", "w");
-	FILE *mwt = open_subfile(rom, "mwt", "w");
-	FILE *mw2 = open_subfile(rom, "mw2", "wb");
-	debug_print("Romname files opened.\n");
-
-	if (extensions[EXT_SSC])
+   	if (extensions[EXT_SSC])
 	{
 		std::ifstream fin(extensions[EXT_SSC]);
 		std::string line;
@@ -1136,28 +1240,21 @@ int main(int argc, char *argv[])
 		}
 		fin.close();
 	}
-
-	if (extensions[EXT_S16])
-		read_map16(map, extensions[EXT_S16]);
-
-	fputc(0x00, mw2); //binary data starts with 0x00
-	for (int i = 0; i < 0x100; i++)
-	{
-		sprite *spr = from_table<sprite>(sprite_list, 0x200, i);
-
-		//sprite pointer being null indicates per-level sprite
-		if (!spr)
-		{
-			// per level are now 12
-			extra_bytes[i] = 12;
-			extra_bytes[i + 0x100] = 12;
-		}
-		else
-		{
-
-			//line number within the list file indicates we've got a filled out sprite
-			if (spr->line)
-			{
+   
+   if(extensions[EXT_S16])
+      read_map16(map, extensions[EXT_S16]);
+   
+   fputc(0x00, mw2); //binary data starts with 0x00
+	for(int i = 0; i < 0x100; i++) {
+		sprite* spr = from_table<sprite>(sprite_list, 0x200, i);	
+		
+      //sprite pointer being null indicates per-level sprite
+		if(!spr || (PER_LEVEL && i >= 0xB0 && i < 0xC0)) {
+			extra_bytes[i] = 7;			// 3 bytes + 4 extra bytes because the old one broke basically any sprite that wasn't using exactly 9 extra bytes
+			extra_bytes[i + 0x100] = 7;	// 12 was wrong anyway, should've been 15
+		} else {
+         //line number within the list file indicates we've got a filled out sprite
+			if(spr->line) {
 				extra_bytes[i] = 3 + spr->byte_count;
 				extra_bytes[i + 0x100] = 3 + spr->extra_byte_count;
 
@@ -1272,19 +1369,20 @@ int main(int argc, char *argv[])
 		remove(paths[ASM], "_versionflag.bin");
 
 		remove(paths[ASM], "_DefaultTables.bin");
-		if (PER_LEVEL)
-		{
-			remove(paths[ASM], "_PerLevelT1.bin");
-			remove(paths[ASM], "_PerLevelT2.bin");
-			remove(paths[ASM], "_PerLevelT3.bin");
-			remove(paths[ASM], "_PerLevelT4.bin");
+      	remove(paths[ASM], "_CustomStatusPtr.bin");
+	  	if(PER_LEVEL) {
+         	remove(paths[ASM], "_PerLevelLvlPtrs.bin");
+         	remove(paths[ASM], "_PerLevelSprPtrs.bin");
+         	remove(paths[ASM], "_PerLevelT.bin");
+			remove(paths[ASM], "_PerLevelCustomPtrTable.bin");
 		}
-
+		
 		remove(paths[ASM], "_ClusterPtr.bin");
 		remove(paths[ASM], "_ExtendedPtr.bin");
-		//remove("asm/_OverworldMainPtr.bin");
-		//remove("asm/_OverworldInitPtr.bin");
-
+		remove(paths[ASM], "_ExtendedCapePtr.bin");
+		//remove("asm/_OverworldMainPtr.bin");	
+		//remove("asm/_OverworldInitPtr.bin");	
+		
 		remove(paths[ASM], "_CustomSize.bin");
 		remove("shared.asm");
 		remove(TEMP_SPR_FILE);

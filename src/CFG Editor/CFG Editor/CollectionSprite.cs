@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CFG
 {
@@ -89,6 +85,102 @@ namespace CFG
             set { SetPropertyValue(ref _ExtraPropertyByte4, value); }
         }
 
+        private byte _ExtraPropertyByte5;
+        /// <summary>
+        /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 4, 
+        /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("Extra Property Byte 5")]
+        public byte ExtraPropertyByte5
+        {
+            get { return _ExtraPropertyByte5; }
+            set { SetPropertyValue(ref _ExtraPropertyByte5, value); }
+        }
+
+        private byte _ExtraPropertyByte6;
+        /// <summary>
+        /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 4, 
+        /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("Extra Property Byte 6")]
+        public byte ExtraPropertyByte6
+        {
+            get { return _ExtraPropertyByte6; }
+            set { SetPropertyValue(ref _ExtraPropertyByte6, value); }
+        }
+
+        private byte _ExtraPropertyByte7;
+        /// <summary>
+        /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 4, 
+        /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("Extra Property Byte 7")]
+        public byte ExtraPropertyByte7
+        {
+            get { return _ExtraPropertyByte7; }
+            set { SetPropertyValue(ref _ExtraPropertyByte7, value); }
+        }
+
+        private byte _ExtraPropertyByte8;
+        /// <summary>
+        /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 4, 
+        /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("Extra Property Byte 8")]
+        public byte ExtraPropertyByte8
+        {
+            get { return _ExtraPropertyByte8; }
+            set { SetPropertyValue(ref _ExtraPropertyByte8, value); }
+        }
+
+        private byte _ExtraPropertyByte9;
+        /// <summary>
+        /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 4, 
+        /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("Extra Property Byte 9")]
+        public byte ExtraPropertyByte9
+        {
+            get { return _ExtraPropertyByte9; }
+            set { SetPropertyValue(ref _ExtraPropertyByte9, value); }
+        }
+
+        private byte _ExtraPropertyByte10;
+        /// <summary>
+        /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 4, 
+        /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("Extra Property Byte 10")]
+        public byte ExtraPropertyByte10
+        {
+            get { return _ExtraPropertyByte10; }
+            set { SetPropertyValue(ref _ExtraPropertyByte10, value); }
+        }
+
+        private byte _ExtraPropertyByte11;
+        /// <summary>
+        /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 4, 
+        /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("Extra Property Byte 11")]
+        public byte ExtraPropertyByte11
+        {
+            get { return _ExtraPropertyByte11; }
+            set { SetPropertyValue(ref _ExtraPropertyByte11, value); }
+        }
+
+        private byte _ExtraPropertyByte12;
+        /// <summary>
+        /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 4, 
+        /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("Extra Property Byte 12")]
+        public byte ExtraPropertyByte12
+        {
+            get { return _ExtraPropertyByte12; }
+            set { SetPropertyValue(ref _ExtraPropertyByte12, value); }
+        }
+
         /// <summary>
         /// Invokes the <see cref="PropertyChanged"/> event if the value of
         /// </summary>
@@ -98,8 +190,8 @@ namespace CFG
         /// <param name="caller"></param>
         protected void SetPropertyValue<T>(ref T priv, T val, [CallerMemberName] string caller = "")
         {
-            bool pn = ReferenceEquals(priv, null);
-            bool vn = ReferenceEquals(val, null);
+            bool pn = priv == null;
+            bool vn = val == null;
 
             if (pn && vn)
                 return;
@@ -124,6 +216,14 @@ namespace CFG
                 ExtraPropertyByte2 = this.ExtraPropertyByte2,
                 ExtraPropertyByte3 = this.ExtraPropertyByte3,
                 ExtraPropertyByte4 = this.ExtraPropertyByte4,
+                ExtraPropertyByte5 = this.ExtraPropertyByte5,
+                ExtraPropertyByte6 = this.ExtraPropertyByte6,
+                ExtraPropertyByte7 = this.ExtraPropertyByte7,
+                ExtraPropertyByte8 = this.ExtraPropertyByte8,
+                ExtraPropertyByte9 = this.ExtraPropertyByte9,
+                ExtraPropertyByte10 = this.ExtraPropertyByte10,
+                ExtraPropertyByte11 = this.ExtraPropertyByte11,
+                ExtraPropertyByte12 = this.ExtraPropertyByte12,
             };
         }
     }

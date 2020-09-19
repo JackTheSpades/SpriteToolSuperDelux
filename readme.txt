@@ -12,6 +12,7 @@ ReadMe Contents:
 -- Using the Command Prompt
 
 - New Additions and Changes
+-- Custom status handling and extra property bytes
 -- Softcoding
 -- Per-Level Sprites
 -- SA-1 Detection and Default Labels
@@ -54,9 +55,10 @@ ReadMe Contents:
 		
 
 -- Per-Level Sprites (has to be enabled with -pl)
-	The slots B0 to BF are special, in that you have to assign a level to them. The sprite will only use
+	The slots B0 to BF are special, in that if you assign a level to them, they will become per-level sprites. The sprite will only use
 	the sprite slot between B0 and BF in that one specified level. Meaning you can assign sprite slot B0 of level 105
 	to a Thwomp and B0 of level 106 to a Hammer Bro if you wanted. Keep in mind this only holds true for slots B0 to BF.
+	Do note that per-level sprites support at max 4 extra bytes.
 	The format for per-level sprites looks as follows:
 	
 		level COLON id SPACE cfg_file
@@ -70,6 +72,14 @@ ReadMe Contents:
 		105:B0 Red.cfg
 		105:B1 Yellow.cfg
 		106:B0 Boo.cfg
+
+		or 
+
+		B0 Blue.cfg 
+		105:B0 Red.cfg
+
+		Note that the above is still perfectly valid, sprite B0 will behave like Blue.asm in any level except for 105, where it will take Red.asm properties and code instead.
+		This is because since Pixi 1.3, slots B0-BF are not exclusive to per-level sprites anymore but they can be used by normal sprites aswell instead
 
 -- Other sprite types
 	PIXI also has the ability to insert other types of sprites, such as cluster or extended sprites.
@@ -156,6 +166,29 @@ ReadMe Contents:
 - New Additions and Changes
 If you are used to using Romi's SpriteTool, here is a quick rundown of everything new added in PIXI:
 
+-- Custom status handling and extra property bytes:
+  As most people know, Pixi relies on 2 print statements to tell the game what code to run in which state of the sprite.
+  Most importantly, state 08 will run whatever code is under the "MAIN" print statement and state 01 will run whatever code is under the "INIT" print statement.
+  All the other states will run the corresponding vanilla code, however, some bits in !extra_prop_2 can be set to activate certain functions. Setting bit 7 of that byte will make the sprite run its MAIN code in any state and it won't run the vanilla code, setting bit 6 will make it run both vanilla code and the custom MAIN.
+  Since Pixi 1.2.16 you can have more control over other states that are not 08 and 01 by using new print statements crafted just for the occasion, valid print statements FOR NORMAL CUSTOM SPRITES are:
+      > print "CARRIABLE", pc  which will run in state 09
+	  > print "KICKED", pc  which will run in state 0A
+	  > print "CARRIED", pc which will run in state 0B
+	  > print "MOUTH", pc which will run in state 07
+	  > print "GOAL", pc which will run in state 0C
+  Note that while using these print statements, the data bank will be automatically set, so you don't need to manually set it like for MAIN or INIT.
+  Please be aware that the use of these labels completely and totally overrides ANY vanilla code that would run in the respective states (unless you set the aforementioned bits in the property bytes), 
+  so if you use them you have to code all of the wanted behaviors yourself, this is done on purpose so the code has complete control and they won't have unwanted side-effects due to vanilla code.
+  You can find the code that vanilla rom uses to handle those states at the following rom locations, you can use those to see how to do implement whatever you feel like vanilla gave you and you're missing now, maybe even better than how the original game did things:
+  - $01953C for carriable/stunned
+  - $019913 for kicked
+  - $019F71 for carried
+  - $018157 for goal tape (only activates when the sprite has "turn into a powerup at goal tape" bit on.
+  Fun fact, the game just returns when in Yoshi's Mouth so you can do anything you want here. Be aware that "MOUTH" activates only when the sprite is set to stay in Yoshi's mouth.
+  If you don't use these print statement your sprite will just run the respective state's vanilla code, just as normal, for retro-compatibility purposes.
+  There's also another special print statement that works only for EXTENDED sprites, which is print "CAPE", pc and its purpose is to fix a bug with cape interaction with custom extended sprites. You can use it to define the behavior of your extended sprite with cape twirl,
+  not using it will default cape interaction of the extended sprite to do nothing.
+ 
 -- Softcoding
   All the ASM code inserted by the tool is available to be edited by hand in the asm/ folder, namely main.asm.
   This means that if you need to hijack or change some code PIXI inserts, you can do it just like you would with
@@ -167,6 +200,7 @@ If you are used to using Romi's SpriteTool, here is a quick rundown of everythin
   those same 16 sprite slots can point to different sprite code in different levels.
   This can be especially useful for collaboration hacks or for one-off sprites that don't need to occupy
   their own global slot, especially if sprite slot space is running low.
+  Per-level sprites can only use 4 extra bytes.
 
 
 -- SA-1 Detection and Default Labels
@@ -258,6 +292,7 @@ If you are used to using Romi's SpriteTool, here is a quick rundown of everythin
 	Indirect data pointer:
 	From pixi 1.2.11 onwards, you are allowed to use n extra bytes, both for shooters and sprites - however limited at 12 (not in hex)
 	extra bytes, because lunar magic only allows us to go that far with the input box.
+	This feature isn't valid for per-level sprites, since by design every per-level sprite would have the same number of extra bytes and allowing 12 bytes for each per-level sprite would break every other sprite that used < 5 extra bytes.
 	No additional RAM is reserved for this model.
 
 	So for sprites from 5 onwards extra bytes, the first 3 extra bytes will be used as an indirect pointer to the sprite data, starting at 1.

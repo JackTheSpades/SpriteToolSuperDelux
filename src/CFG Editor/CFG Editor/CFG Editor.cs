@@ -89,14 +89,13 @@ namespace CFG
 
         #endregion
 
-        BindingList<ComboBoxItem> types_list = new BindingList<ComboBoxItem>();
-        BindingList<ComboBoxItem> sprites_list = new BindingList<ComboBoxItem>();
-        
-        Map16Resources resources = new Map16.Map16Resources();
+        readonly BindingList<ComboBoxItem> types_list = new BindingList<ComboBoxItem>();
+        readonly BindingList<ComboBoxItem> sprites_list = new BindingList<ComboBoxItem>();
+        readonly Map16Resources resources = new Map16.Map16Resources();
         
         FileType FileType;
         byte[] RomData = null;
-        List<ControlEnabler> control_enablers = new List<ControlEnabler>();
+        readonly List<ControlEnabler> control_enablers = new List<ControlEnabler>();
 
 		public CFG_Editor(string[] args)
         {
@@ -321,7 +320,7 @@ namespace CFG
 
             //link sprite editor and map16 editor
             spriteEditor1.Map16Editor = map16Editor1;
-            map16Editor1.HoverChanged += (_, e) => { tslHover.Text = $"Tile: {e.Tile.ToString("X3")}"; };
+            map16Editor1.HoverChanged += (_, e) => { tslHover.Text = $"Tile: {e.Tile:X3}"; };
 
             tsb8x8Mode.CheckedChanged += (_, __) => map16Editor1.In8x8Mode = tsb8x8Mode.Checked;
             tsbGrid.CheckedChanged += (_, __) => map16Editor1.ShowGrid = tsbGrid.Checked;
@@ -351,6 +350,14 @@ namespace CFG
                 txtListExProp2.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte2)),
                 txtListExProp3.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte3)),
                 txtListExProp4.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte4)),
+                txtListExProp5.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte5)),
+                txtListExProp6.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte6)),
+                txtListExProp7.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte7)),
+                txtListExProp8.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte8)),
+                txtListExProp9.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte9)),
+                txtListExProp10.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte10)),
+                txtListExProp11.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte11)),
+                txtListExProp12.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte12)),
             };
             expropbind.ForEach(b =>
             {
@@ -393,7 +400,7 @@ namespace CFG
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void testToolStripMenuItem_Click(object sender, EventArgs e)
+        private void TestToolStripMenuItem_Click(object sender, EventArgs e)
         {
         }
 
@@ -429,10 +436,10 @@ namespace CFG
         {
             string ctrlMem = ((MemberExpression)controlMember.Body).GetName();
 
-            string objMem = "";
-            if (objectMember.Body is UnaryExpression)
+            string objMem;
+            if (objectMember.Body is UnaryExpression expression)
             {
-                var op = ((UnaryExpression)objectMember.Body).Operand;
+                var op = expression.Operand;
                 objMem = ((MemberExpression)op).GetName();
             }
             else
@@ -553,14 +560,14 @@ namespace CFG
 
         private void SetDataSelectorGfx(FileSelector ds, int id)
         {
-            string display = $"GFX{id.ToString("X2")}";
+            string display = $"GFX{id:X2}";
 
             if (ds.TextDisplay == display)
                 return;
 
             ds.TextDisplay = display;
             ds.DataLoadHandler = () => GetGfxArray(id);
-            ds_FileLoaded(ds, null);
+            Ds_FileLoaded(ds, null);
         }
 
         private byte[] GetGfxArray(int id, int size = 0x1000)
@@ -577,10 +584,10 @@ namespace CFG
             return ret;
         }
 
-        private DialogResult ShowException(Exception ex, bool rethrow = false )
+        private DialogResult ShowException(Exception ex)
         {
-            if (ex is UserException)
-                return ((UserException)ex).Show();
+            if (ex is UserException exception)
+                return exception.Show();
             return MessageBox.Show(ex.Message, "Unexpected Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
@@ -677,17 +684,17 @@ namespace CFG
         }
 
 		#region Events
-		private void cmb_1656_0F_SelectedIndexChanged(object sender, EventArgs e)
+		private void Cmb_1656_0F_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			lblObjBroke.Visible = ((ComboBox)sender).SelectedIndex >= 0x0F;
 			pcbObjClipping.Image = objClip[((ComboBox)sender).SelectedIndex];
 		}
-		private void cmb_1662_3F_SelectedIndexChanged(object sender, EventArgs e)
+		private void Cmb_1662_3F_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			lblSprBroke.Visible = ((ComboBox)sender).SelectedIndex >= 0x3C;
 			pcbSprClipping.Image = sprClip[((ComboBox)sender).SelectedIndex];
 		}
-		private void cmb_166E_0E_SelectedIndexChanged(object sender, EventArgs e)
+		private void Cmb_166E_0E_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			int index = ((ComboBox)sender).SelectedIndex;
 			if(index > 5)
@@ -700,14 +707,14 @@ namespace CFG
         /// </summary>
         /// <param name="sender">The textbox in question</param>
         /// <param name="e">Event args</param>
-        private void txt_Hex_KeyPress(object sender, KeyPressEventArgs e)
+        private void Txt_Hex_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar != '\b' && !Uri.IsHexDigit(e.KeyChar))
                 e.Handled = true;
             e.KeyChar = Char.ToUpper(e.KeyChar);
         }
 
-        private void cmbType_SelectedIndexChanged(object sender, EventArgs e)
+        private void CmbType_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (FileType == FileType.CfgFile)
             {
@@ -721,7 +728,7 @@ namespace CFG
         #endregion
 
         #region "File" Menu Item Events
-        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        private void NewToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (!UnsavedWarning())
                 return;
@@ -737,12 +744,14 @@ namespace CFG
             this.Unsaved = true;
 		}
 
-		private void loadToolStripMenuItem_Click(object sender, EventArgs e)
+		private void LoadToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			OpenFileDialog ofd = new OpenFileDialog();
-			ofd.Filter = "CFG or JSON file|*.json;*.cfg|ROM file|*.smc;*.sfc";
-			ofd.Title = "Load CFG file";
-			if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                Filter = "CFG or JSON file|*.json;*.cfg|ROM file|*.smc;*.sfc",
+                Title = "Load CFG file"
+            };
+            if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
 				return;
 			try
 			{
@@ -756,7 +765,7 @@ namespace CFG
 			}
 		}
 
-		private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+		private void SaveAsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
             if (FileType == FileType.RomFile)
             {
@@ -765,11 +774,13 @@ namespace CFG
                 return;
             }
 
-            SaveFileDialog sfd = new SaveFileDialog();
-			sfd.Title = "Save CFG File";
-            sfd.Filter = "Json CFG File|*.json|CFG File|*.cfg";
-            sfd.FileName = Path.GetFileName(Path.ChangeExtension(Filename, ".json"));
-			if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
+            SaveFileDialog sfd = new SaveFileDialog
+            {
+                Title = "Save CFG File",
+                Filter = "Json CFG File|*.json|CFG File|*.cfg",
+                FileName = Path.GetFileName(Path.ChangeExtension(Filename, ".json"))
+            };
+            if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
 				return;
 
             try
@@ -783,10 +794,10 @@ namespace CFG
             }
 		}
 
-		private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+		private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
 		{
             if (Filename == "")
-                saveAsToolStripMenuItem_Click(sender, e);
+                SaveAsToolStripMenuItem_Click(sender, e);
             else
             {
                 try
@@ -801,7 +812,7 @@ namespace CFG
 		}
         #endregion
 
-        private void ds_FileLoaded(object sender, EventArgs e)
+        private void Ds_FileLoaded(object sender, EventArgs e)
         {
             var fs = ((FileSelector)sender);
 
@@ -809,25 +820,25 @@ namespace CFG
             resources.Graphics.ChangeData(fs.Data, offset);
         }
 
-        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        private void ToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             var p = new Editors.PaletteEditorForm(resources);
             p.ShowDialog();
         }
 
-        private void tsbPalette_Click(object sender, EventArgs e)
+        private void TsbPalette_Click(object sender, EventArgs e)
         {
             var p = new Editors.PaletteEditorForm(resources);
             p.ShowDialog();
         }
 
-        private void viewTile8x8ToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ViewTile8x8ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var t = new Editors.Tile8x8EditorForm(resources);
             t.Show();
         }
 
-        private void tsb8x8Editor_Click(object sender, EventArgs e)
+        private void Tsb8x8Editor_Click(object sender, EventArgs e)
         {
             var t = new Editors.Tile8x8EditorForm(resources);
             t.Show();
@@ -856,8 +867,7 @@ namespace CFG
         {
             if (ReferenceEquals(this, obj))
                 return true;
-            ComboBoxItem item = obj as ComboBoxItem;
-            if (ReferenceEquals(item, null))
+            if (!(obj is ComboBoxItem item))
                 return false;
             return this.Value == item.Value;
         }
@@ -880,13 +890,13 @@ namespace CFG
 
         public override string ToString()
         {
-            return $"{Sp1.ToString("X2")} {Sp2.ToString("X2")} {Sp3.ToString("X2")} {Sp4.ToString("X2")} ({Name})";
+            return $"{Sp1:X2} {Sp2:X2} {Sp3:X2} {Sp4:X2} ({Name})";
         }
     }
 
     public class EnablerCollection : IEnumerable<ControlEnabler>
     {
-        List<ControlEnabler> ControlEnablers = new List<ControlEnabler>();
+        readonly List<ControlEnabler> ControlEnablers = new List<ControlEnabler>();
 
         public EnablerCollection(params INotifyPropertyChanged[] notifiers)
         {

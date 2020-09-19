@@ -12,8 +12,8 @@
 #define RTL_HIGH 0x80
 #define RTL_LOW 0x21
 
-//10 per leve, 200 level + F0 global
-#define MAX_SPRITE_COUNT 0x20F0
+//10 per level, 200 level + 100 global
+#define MAX_SPRITE_COUNT 0x2100
 
 struct simple_string{
 	int length = 0;
@@ -37,7 +37,7 @@ struct simple_string{
 
 
 struct pointer {
-	unsigned char lowbyte = RTL_LOW;		//point to RTL
+    unsigned char lowbyte = RTL_LOW;	//point to RTL
 	unsigned char highbyte = RTL_HIGH;	//
 	unsigned char bankbyte = RTL_BANK;	//
 	
@@ -101,6 +101,13 @@ struct map16 {
 	map8x8 bottom_right;
 };
 
+struct status_pointers {        // the order of these actually matters
+    pointer carriable;
+    pointer kicked;
+    pointer carried;
+    pointer mouth;
+    pointer goal;
+};
 
 // 00: type {0=tweak,1=custom,3=generator/shooter}
 // 01: "acts like"
@@ -116,7 +123,6 @@ struct sprite_table {
 	pointer init;
 	pointer main;
 	unsigned char extra[2] = {0};
-   
 };
 
 struct sprite {
@@ -124,7 +130,8 @@ struct sprite {
 	int number = 0;
 	int level = 0x200;
 	sprite_table table;
-	
+	status_pointers ptrs;
+    pointer extended_cape_ptr;
 	int byte_count = 0;
 	int extra_byte_count = 0;
 	
@@ -140,7 +147,8 @@ struct sprite {
    
    int collection_count = 0;
    collection* collections = nullptr;
-		
+	
+   int sprite_type = 0; // 0 = Normal custom sprite, 1 = Extended custom sprite, 2 = Cluster custom sprite, 3 = Overworld custom sprite
 	~sprite();
    void print(FILE* stream);
 };
