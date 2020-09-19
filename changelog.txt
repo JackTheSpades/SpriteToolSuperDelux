@@ -1,4 +1,20 @@
 Changelog
+Version 1.3 (September 19, 2020):
+  - (Atari2.0) Added a lot of utility routines (CapeContact, CheckForContactAlternate, SetPlayerClippingAlternate, SetSpriteClippingAlternate, LoseYoshi, FinishOAMWrite, FireballContact) most of these were taken from GIEPY. Credit to respective authors in the asm files.
+  - (Atari2.0) Fixed a bug regarding cape interaction with extended sprites by adding a print "CAPE" statement, along with an ExtendedCapeClipping routine
+  - (Atari2.0) Added a SpawnSpriteSafe routine to fix a problem related to how the vanilla game handles OAM in certain sprite slots.
+  - (Atari2.0) Optimized Random a little bit
+  - (Akaginite, randomdude999 and Atari2.0) Fixed, reworked and merged the per-level sprites update. Now you can use B0-BF as normal sprite slots aswell, reduced insert size
+  - (Atari2.0) Added print statements for states that are not 8, more details in README.txt
+  - (Atari2.0) Fixed various bugs related to per-level sprites in sprite.cpp
+  - (Atari2.0) Added a warning in case the user is inserting Pixi while having the VRAM patch from LM disabled.
+  - (Alcaro) Updated asardll.c to not give compiler warnings about strict aliasing and a missing cast
+  - (randomdude999) Fixed compilation on Linux, added basic makefile
+  - (lx5, Atari2.0) Updated CFG Editor and Pixi to support json files with more than 4 extra bytes for custom collections.
+  - (Atari2.0) Changed SA1 definitions to use absolute addressing instead of long addressing.
+  - (Atari2.0) Added setting bit to disable Lunar Magic sprite count warning message when using 255 sprites per level.
+  - (Atari2.0) Fixed per-level sprites displaying 9 extra bytes in the Lunar Magic window, forced to 4 (as a side effect of this, in fact, per level sprites now can only use up to 4 extra bytes).
+
 Version 1.2.15 (July 10, 2020):
   - (Atari2.0) Removed unnecessary waiting (BRA $00/NOPs) in SA-1 version of various routines (Aiming, CircleX, CircleY, Random)
   - (Atari2.0) Added exception control for missing .json files. Now it will output exactly what json file was not found instead of printing the stacktrace.

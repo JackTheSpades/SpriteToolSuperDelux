@@ -6,15 +6,13 @@
     SEP #$30
     PHA
     JSL $01ACF9|!BankB
+	LDA $148D|!Base2
     PLX
     CPX #$FF
-    BNE .normal
-    LDA $148D|!Base2
-    BRA .end
+    BEQ .end
  
 .normal
     INX
-    LDA $148D|!Base2
  
     if !SA1 == 0
         STA $4202               ; Write first multiplicand.

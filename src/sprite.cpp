@@ -45,7 +45,7 @@
 #define SPRITE_COUNT 0x80 //count for other sprites like cluster, ow, extended
 
 //version 1.xx
-const char VERSION = 0x23;
+const char VERSION = 0x30;
 bool PER_LEVEL = false;
 bool DISABLE_255_SPRITE_PER_LEVEL = false;
 const char *ASM_DIR = nullptr;
@@ -1104,6 +1104,13 @@ int main(int argc, char *argv[])
 		fflush(stdin); // uff 
 	}
 
+	unsigned char vram_jump = rom.data[rom.snes_to_pc(0x00F6E4)];
+    if (vram_jump != 0x5C) {
+        printf("You haven't installed the VRAM optimization patch in Lunar Magic, this will cause many features of Pixi to work incorrectly, insertion was aborted...\n");
+        getchar();
+        exit(-1);
+    }
+
 	// Initialize MeiMei
 	if (!disableMeiMei)
 	{
@@ -1243,8 +1250,8 @@ int main(int argc, char *argv[])
 		
       //sprite pointer being null indicates per-level sprite
 		if(!spr || (PER_LEVEL && i >= 0xB0 && i < 0xC0)) {
-			extra_bytes[i] = 12;
-			extra_bytes[i + 0x100] = 12;
+			extra_bytes[i] = 7;			// 3 bytes + 4 extra bytes because the old one broke basically any sprite that wasn't using exactly 9 extra bytes
+			extra_bytes[i + 0x100] = 7;	// 12 was wrong anyway, should've been 15
 		} else {
          //line number within the list file indicates we've got a filled out sprite
 			if(spr->line) {
