@@ -151,8 +151,8 @@ void sprite::print(FILE* stream) {
          collection* c = collections + i;
          std::stringstream coll;
          coll << "\tExtra-Bit: " << BOOL_STR(c->extra_bit) << ", Property Bytes: ( ";
-         for (int i = 0; i < (c->extra_bit ? extra_byte_count : byte_count); i++) {
-            coll << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(c->prop[i]) << " ";
+         for (int j = 0; j < (c->extra_bit ? extra_byte_count : byte_count); j++) {
+            coll << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(c->prop[j]) << " ";
          }
          coll << ") Name: " << c->name << std::endl;
          fprintf(stream, coll.str().c_str());

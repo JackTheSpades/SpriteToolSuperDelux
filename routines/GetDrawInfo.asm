@@ -42,7 +42,7 @@
 .CheckTwice
    LDA !D8,x
    REP #$21
-   ADC.w #$001C
+   ADC.w #$0020
    SEC : SBC $1C
    SEP #$20
    LDA !14D4,x
@@ -53,10 +53,10 @@
    STA !186C,x
    LDA !D8,x
    REP #$21
-   ADC.w #$000C
+   ADC.w #$0010
    SEC : SBC $1C
    SEP #$21
-   SBC #$0C
+   SBC #$10
    STA $01
    XBA
    BEQ .OnScreenY
