@@ -1,4 +1,14 @@
 Changelog
+Version 1.31 (November 4, 2020):
+  - (Atari2.0, randomdude999) Fully implemented Romi's SpriteTool legacy cleanup (note that this doesn't mean that now Pixi can coexist in the same rom as SpriteTool but it means that at least SpriteTool roms can be easily upgraded to Pixi without breaking massively as long as you do it properly). ASM file used for cleanup provided by randomdude999.
+  - (Atari2.0) Fixed an issue where upon upgrading from 1.2.x to 1.3, Pixi would completely destroy overworld layer 2 events.
+  - (Atari2.0) Upped limit for .s16 files from 0x10 pages to 0x38 pages
+  - (Atari2.0) Added extmod support (for specifics read the Lunar Magic help file in the section "Restore Options"), also added a "-ext-off" command line option to turn off extmod logging.
+  - (Atari2.0) Finished implementing -mw2 and -mwt command line options, since they were not completed.
+  - (Atari2.0) Fixed a bunch of compilation warnings.
+  - (Atari2.0) Added a command line option (-lm-handle) strictly to enable the use of Pixi in the custom user toolbar of Lunar Magic, check LM's help file for more details. Usage is: "-lm-handle <LM_VERIFICATION_HANDLE>", this command line option can't be used out of LM's custom user toolbars. Keep in mind that this is Windows only.
+  - (Atari2.0) Added an icon to the executable file.
+
 Version 1.3 (September 19, 2020):
   - (Atari2.0) Added a lot of utility routines (CapeContact, CheckForContactAlternate, SetPlayerClippingAlternate, SetSpriteClippingAlternate, LoseYoshi, FinishOAMWrite, FireballContact) most of these were taken from GIEPY. Credit to respective authors in the asm files.
   - (Atari2.0) Fixed a bug regarding cape interaction with extended sprites by adding a print "CAPE" statement, along with an ExtendedCapeClipping routine
