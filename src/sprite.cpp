@@ -147,6 +147,42 @@ FILE* get_debug_output(int argc, char* argv[], int* i) {
 	}
 }
 
+bool ends_with(const char* str, const char* suffix) {
+	if (str == nullptr || suffix == nullptr)
+		return false;
+
+	size_t str_len = strlen(str);
+	size_t suffix_len = strlen(suffix);
+
+	if (suffix_len > str_len)
+		return false;
+	
+	return 0 == strncmp(str + str_len - suffix_len, suffix, suffix_len);
+
+}
+
+void create_lm_restore(const char* rom) {
+	char to_write[50];
+	sprintf(to_write, "Pixi v1.%02X\t", VERSION);
+	std::string romname(rom);
+	std::string restorename = romname.substr(0, romname.find_last_of('.')) + ".extmod";
+
+	FILE *res = fopen(restorename.c_str(), "a+");
+	if (res) {
+		int size = file_size(res);
+		char* contents = new char[size+1];
+		fread(contents, size, 1, res);
+		contents[size] = '\0';
+		if (!ends_with(contents, to_write)) {
+			fseek(res, 0, SEEK_END);
+			fprintf(res, "%s", to_write);
+		}
+		fclose(res);
+	} else {
+		error("Couldn't open restore file for writing (%s)\n", restorename.c_str());
+	}
+}
+
 void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &rom, FILE *output)
 {
 	FILE *sprite_patch = open(TEMP_SPR_FILE, "w");
@@ -891,7 +927,7 @@ int main(int argc, char *argv[])
 
 	FILE *output = nullptr;
 	bool keep_temp = false;
-
+	bool extmod = true;
 	//first is version 1.xx, others are preserved
 	unsigned char versionflag[4] = {VERSION, 0x00, 0x00, 0x00};
 
@@ -968,6 +1004,7 @@ int main(int argc, char *argv[])
 			printf("-r   <routines>\tSpecify a shared routine directory (Default %s)\n", paths[ROUTINES]);
 			printf("\n");
 
+			printf("-ext-off\t Disables extmod file logging (check LM's readme for more info on what extmod is)\n");
 			printf("-ssc <append ssc>\tSpecify ssc file to be copied into <romname>.ssc\n");
 			printf("-mwt <append mwt>\tSpecify mwt file to be copied into <romname>.mwt\n");
 			printf("-mw2 <append mw2>\tSpecify mw2 file to be copied into <romname>.mw2\n");
@@ -1017,6 +1054,9 @@ int main(int argc, char *argv[])
 		else if (!strcmp(argv[i], "-meimei-off"))
 		{
 			disableMeiMei = true;
+		}
+		else if (!strcmp(argv[i], "-ext-off")) {
+			extmod = false;
 		}
 		SET_PATH("-r", ROUTINES)
 		SET_PATH("-a", ASM)
@@ -1422,6 +1462,9 @@ int main(int argc, char *argv[])
 	{
 		delete[] paths[i];
 	}
+
+	if (extmod)
+		create_lm_restore(rom.name);
 
 	rom.close();
 	asar_close();
