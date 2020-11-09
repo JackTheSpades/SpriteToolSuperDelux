@@ -1240,11 +1240,34 @@ int main(int argc, char *argv[])
 		}
 		fin.close();
 	}
+
+	if (extensions[EXT_MWT])
+	{
+		std::ifstream fin(extensions[EXT_MWT]);
+		std::string line;
+		while (std::getline(fin, line)) 
+		{
+			fprintf(mwt, "%s\n", line.c_str());
+		}
+		fin.close();
+	}
+
+	if (extensions[EXT_MW2]) 
+	{
+		FILE* fp = fopen(extensions[EXT_MW2], "rb");
+		int size = file_size(fp)-1;		// -1 to skip the 0xFF byte at the end
+		unsigned char mw2_data[size];
+		fread(mw2_data, 1, size, fp);
+		fclose(fp);
+		fwrite(mw2_data, 1, size, mw2);
+	}
+	else {
+		fputc(0x00, mw2);	// binary data starts with 0x00
+	}
    
    if(extensions[EXT_S16])
       read_map16(map, extensions[EXT_S16]);
    
-   fputc(0x00, mw2); //binary data starts with 0x00
 	for(int i = 0; i < 0x100; i++) {
 		sprite* spr = from_table<sprite>(sprite_list, 0x200, i);	
 		
@@ -1261,6 +1284,9 @@ int main(int argc, char *argv[])
 				//----- s16 / map16 -------------------------------------------------
 
 				int map16_tile = find_free_map(map, spr->map_block_count);
+				if (map16_tile == -1) {
+					error("There wasn't enough space in your s16 file to fit everything, was trying to fit %d blocks, couldn't find space\n", spr->map_block_count);
+				}
 				memcpy(map + map16_tile, spr->map_data, spr->map_block_count * sizeof(map16));
 
 				//----- ssc / display -----------------------------------------------
