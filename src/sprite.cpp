@@ -22,6 +22,11 @@
 
 #include "MeiMei/MeiMei.h"
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+	#include <WinUser.h>
+	#define ON_WINDOWS
+#endif
+
 #define ROUTINES 0
 #define SPRITES 1
 #define GENERATORS 2
@@ -664,7 +669,7 @@ bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 	const char *dir = nullptr;
 	sprite *sprite_list = nullptr;
 
-#define ERROR(S)               \
+#define ERROR_DEL(S)               \
 	{                          \
 		delete[] list_data;    \
 		error(S, line_number); \
@@ -701,39 +706,39 @@ bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 
 		//read sprite number
 		if (!sscanf(current_line.data, "%x%n", &sprite_id, &bytes_read))
-			ERROR("Error on line %d: Invalid line start.\n");
+			ERROR_DEL("Error on line %d: Invalid line start.\n");
 
 		//get sprite pointer
 		sprite *spr = nullptr;
 		if (type == Sprite)
 		{
 			if (current_line.data[bytes_read] == ':')
-				sscanf(current_line.data, "%x%*c%hx%n", &level, &sprite_id, &bytes_read);
+				sscanf(current_line.data, "%x%*c%hx%n", &level, (short unsigned int*)&sprite_id, &bytes_read);
 
 			if (level != 0x200 && !PER_LEVEL)
-				ERROR("Error on line %d: Trying to insert per level sprites without the -pl flag");
+				ERROR_DEL("Error on line %d: Trying to insert per level sprites without the -pl flag");
 
 			spr = from_table<sprite>(sprite_list, level, sprite_id);
          //verify sprite pointer and determine cause if invalid
 			if(!spr) {
 				if(sprite_id >= 0x100)
-					ERROR("Error on line %d: Sprite number must be less than 0x100");
+					ERROR_DEL("Error on line %d: Sprite number must be less than 0x100");
 				if(level > 0x200)
-					ERROR("Error on line %d: Level must range from 000-1FF");
+					ERROR_DEL("Error on line %d: Level must range from 000-1FF");
 				if(sprite_id >= 0xB0 && sprite_id < 0xC0)
-					ERROR("Error on line %d: Only sprite B0-BF must be assigned a level.");
+					ERROR_DEL("Error on line %d: Only sprite B0-BF must be assigned a level.");
 			}
 		}
 		else
 		{
 			if (sprite_id > SPRITE_COUNT)
-				ERROR("Error on line %d: Sprite number must be less than 0x80");
+				ERROR_DEL("Error on line %d: Sprite number must be less than 0x80");
 			spr = sprite_list + sprite_id;
 		}
 
 		//check sprite pointer already in use.
 		if (spr->line)
-			ERROR("Error on line %d: Sprite number already used.");
+			ERROR_DEL("Error on line %d: Sprite number already used.");
 
 		//initialize some.
 		spr->line = line_number;
@@ -766,11 +771,11 @@ bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 			if (!file_name[0])
 			{
 				delete[] file_name;
-				ERROR("Error on line %d: Missing filename.\n");
+				ERROR_DEL("Error on line %d: Missing filename.\n");
 			}
 		}
 		else
-			ERROR("Error on line %d: Missing space or level seperator.\n");
+			ERROR_DEL("Error on line %d: Missing space or level seperator.\n");
 
 		char *dot = strrchr(file_name, '.');
 
@@ -778,7 +783,7 @@ bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 		if (type != Sprite)
 		{
 			if (!dot || (strcmp(dot, ".asm") && strcmp(dot, ".ASM")))
-				ERROR("Error on line %d: Not an asm file.");
+				ERROR_DEL("Error on line %d: Not an asm file.");
 			spr->asm_file = file_name;
 		}
 		else
@@ -786,20 +791,20 @@ bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 			spr->cfg_file = file_name;
 			if (!dot)
 			{
-				ERROR("Error on line %d: No file extension.");
+				ERROR_DEL("Error on line %d: No file extension.");
 			}
 			else if (!strcmp(dot, ".cfg") || !strcmp(dot, ".CFG"))
 			{
 				if (!read_cfg_file(spr, output))
-					ERROR("Error on line %d: Cannot parse CFG file.");
+					ERROR_DEL("Error on line %d: Cannot parse CFG file.");
 			}
 			else if (!strcmp(dot, ".json"))
 			{
 				if (!read_json_file(spr, output))
-					ERROR("Error on line %d: Cannot parse JSON file.");
+					ERROR_DEL("Error on line %d: Cannot parse JSON file.");
 			}
 			else
-				ERROR("Error on line %d: Unknown filetype");
+				ERROR_DEL("Error on line %d: Unknown filetype");
 		}
 
 		if (output)
@@ -822,7 +827,7 @@ bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 
 	} while (current_line.length);
 
-#undef ERROR
+#undef ERROR_DEL
 #undef SETTYPE
 
 	delete[] list_data;
@@ -928,6 +933,11 @@ int main(int argc, char *argv[])
 	FILE *output = nullptr;
 	bool keep_temp = false;
 	bool extmod = true;
+	#ifdef ON_WINDOWS
+	std::string lm_handle;
+	uint16_t verification_code = 0;
+	HWND window_handle = 0;
+	#endif
 	//first is version 1.xx, others are preserved
 	unsigned char versionflag[4] = {VERSION, 0x00, 0x00, 0x00};
 
@@ -1007,9 +1017,13 @@ int main(int argc, char *argv[])
 			printf("-ext-off\t Disables extmod file logging (check LM's readme for more info on what extmod is)\n");
 			printf("-ssc <append ssc>\tSpecify ssc file to be copied into <romname>.ssc\n");
 			printf("-mwt <append mwt>\tSpecify mwt file to be copied into <romname>.mwt\n");
-			printf("-mw2 <append mw2>\tSpecify mw2 file to be copied into <romname>.mw2\n");
+			printf("-mw2 <append mw2>\tSpecify mw2 file to be copied into <romname>.mw2, the provided file is assumed to have 0x00 first byte sprite header and the 0xFF end byte\n");
 			printf("-s16 <base s16>\tSpecify s16 file to be used as a base for <romname>.s16\n");
 			printf("     Do not use <romname>.xxx as an argument as the file will be overwriten\n");
+
+			#ifdef ON_WINDOWS
+			printf("-lm-handle <lm_handle_code>\t To be used only within LM's custom user toolbar file, it receives LM's handle to reload the rom\n");
+			#endif
 
 			printf("\nMeiMei flags:\n");
 			printf("-meimei-off\t\tShuts down MeiMei completely\n");
@@ -1058,6 +1072,14 @@ int main(int argc, char *argv[])
 		else if (!strcmp(argv[i], "-ext-off")) {
 			extmod = false;
 		}
+		#ifdef ON_WINDOWS
+		else if (!strcmp(argv[i], "-lm-handle")) {
+			lm_handle = argv[i + 1];
+			window_handle = (HWND)std::stoull(lm_handle, 0, 16);
+			verification_code = std::stoi(lm_handle.substr(lm_handle.find_first_of(':')+1), 0, 16);
+			i++;
+		}
+		#endif
 		SET_PATH("-r", ROUTINES)
 		SET_PATH("-a", ASM)
 		SET_PATH("-sp", SPRITES)
@@ -1468,14 +1490,19 @@ int main(int argc, char *argv[])
 
 	rom.close();
 	asar_close();
-
-	if (disableMeiMei)
-	{
-		return 0;
-	}
-	else
+	int retval = 0;
+	if (!disableMeiMei)
 	{
 		MeiMei::configureSa1Def(ASM_DIR_PATH.append("/sa1def.asm"));
-		return MeiMei::run();
+		retval = MeiMei::run();
 	}
+
+	#ifdef ON_WINDOWS
+	if (!lm_handle.empty()) {
+		uint32_t IParam = (verification_code << 16) + 2;		// reload rom
+		PostMessage(window_handle, 0xBECB, 0, IParam);
+	}
+	#endif
+
+	return retval;
 }
