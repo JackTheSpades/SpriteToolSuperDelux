@@ -436,9 +436,9 @@ void clean_hack(ROM &rom, const char* pathname)
 		patch(path, rom);
 		delete[] path;
 	}
-	else
+	else if (!strncmp((char *)rom.data + rom.snes_to_pc(rom.pointer_snes(0x02A963+1).addr()-3), "MDK", 3))
 	{ //check for old sprite_tool code. (this is annoying)
-
+		patch((std::string(pathname) + "spritetool_clean.asm").c_str(), rom);
 		//removes all STAR####MDK tags
 		const char *mdk = "MDK"; //sprite tool added "MDK" after the rats tag to find it's insertions...
 		int number_of_banks = rom.size / 0x8000;
@@ -1145,7 +1145,7 @@ int main(int argc, char *argv[])
 	std::list<std::string> extraDefines = listExtraAsm(ASM_DIR_PATH + "/ExtraDefines");
 	populate_sprite_list(paths, sprites_list_list, (char *)read_all(paths[LIST], true), output);
 
-	clean_hack(rom);
+	clean_hack(rom, paths[ASM]);
 
 	create_shared_patch(paths[ROUTINES], rom);
 
