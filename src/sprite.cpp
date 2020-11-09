@@ -117,7 +117,7 @@ bool patch(const char *dir, const char *patch_name, ROM &rom)
 void addIncScrToFile(FILE *file, const std::list<std::string>& toInclude)
 {
 	for (std::string const& incPath : toInclude) {
-    	fprintf(file, ("incsrc \"" + incPath + "\"\n").c_str());
+    	fprintf(file,"incsrc \"%s\"\n" , incPath.c_str());
 	}
 }
 
@@ -298,7 +298,7 @@ void patch_sprites(std::list<std::string>& extraDefines, sprite *sprite_list, in
 	}
 }
 
-void clean_hack(ROM &rom)
+void clean_hack(ROM &rom, const char* pathname)
 {
 	if (!strncmp((char *)rom.data + rom.snes_to_pc(0x02FFE2), "STSD", 4))
 	{ //already installed load old tables
@@ -832,7 +832,7 @@ void set_paths_relative_to(const char **path, const char *arg0)
 		return;
 
 	int count = 0;
-	char *pos = strrchr(arg0, '\\');
+	const char *pos = strrchr(arg0, '\\');
 	if (pos == nullptr)
 		pos = strrchr(arg0, '/');
 	if (pos != nullptr)

@@ -40,7 +40,7 @@ void write_all(unsigned char* data, const char* file_name, unsigned int size)
 char* append_to_dir(const char* src, const char* file) {
    
 	//fetches path of src and appand it before
-	char* dic_end = strrchr(src,'/');	//last '/' in string
+	const char* dic_end = strrchr(src,'/');	//last '/' in string
 	size_t len = 0;
 	if(dic_end) len = dic_end - src + 1;
 		

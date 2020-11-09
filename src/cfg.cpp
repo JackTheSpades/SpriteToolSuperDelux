@@ -65,24 +65,24 @@ bool read_cfg_file(sprite *spr, FILE *output)
 
 void cfg_type(const char *line, sprite *spr, int &handle, void *)
 {
-	sscanf(line, "%x", &spr->table.type);
+	sscanf(line, "%hhx", &spr->table.type);
 	handle++;
 }
 void cfg_actlike(const char *line, sprite *spr, int &handle, void *)
 {
-	sscanf(line, "%x", &spr->table.actlike);
+	sscanf(line, "%hhx", &spr->table.actlike);
 	handle++;
 }
 void cfg_tweak(const char *line, sprite *spr, int &handle, void *)
 {
-	sscanf(line, "%x %x %x %x %x %x",
+	sscanf(line, "%hhx %hhx %hhx %hhx %hhx %hhx",
 		   &spr->table.tweak[0], &spr->table.tweak[1], &spr->table.tweak[2],
 		   &spr->table.tweak[3], &spr->table.tweak[4], &spr->table.tweak[5]);
 	handle++;
 }
 void cfg_prop(const char *line, sprite *spr, int &handle, void *)
 {
-	sscanf(line, "%x %x",
+	sscanf(line, "%hhx %hhx",
 		   &spr->table.extra[0], &spr->table.extra[1]);
 	handle++;
 }

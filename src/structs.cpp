@@ -155,7 +155,7 @@ void sprite::print(FILE* stream) {
             coll << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(c->prop[j]) << " ";
          }
          coll << ") Name: " << c->name << std::endl;
-         fprintf(stream, coll.str().c_str());
+         fprintf(stream, "%s", coll.str().c_str());
       }
    }
 }
