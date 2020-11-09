@@ -6,12 +6,12 @@ incsrc "sa1def.asm"
 incsrc "pointer_caller.asm"
 
 org $029B1B|!BankB
-	autoclean JML Main
-	autoclean dl Ptr      ; org $029B1F, default $176FBC
-	
+	JML Main
+	dl Ptr      ; org $029B1F, default $176FBC
+
 org $029633|!BankB
 	autoclean JML CapeInteract
-	autoclean dl CapePtr
+	dl CapePtr
 
 
 freecode
