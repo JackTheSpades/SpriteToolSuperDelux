@@ -84,7 +84,7 @@ struct display {
 struct collection {
    const char* name = nullptr;
    bool extra_bit = false;
-   unsigned char prop[4];
+   unsigned char prop[12];		// why was this 4 again?
    
    ~collection();
 };
