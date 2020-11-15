@@ -214,7 +214,14 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 		std::pair<std::string, int>("goal", 0x000000)
 	};
 	int print_count = 0;
-	const char *const *prints = asar_getprints(&print_count);
+	const char *const *asar_prints = asar_getprints(&print_count);
+	char* prints[print_count];
+
+	for (int i = 0; i < print_count; i++) {		// trim prints since now we can't deal with starting spaces
+		prints[i] = new char[strlen(asar_prints[i]) + 1];
+		strcpy(prints[i], asar_prints[i]);
+		prints[i] = trim(prints[i]);
+	}
 
 	if (output)
 		fprintf(output, "%s\n", spr->asm_file);
