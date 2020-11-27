@@ -29,17 +29,20 @@ bool read_json_file(sprite *spr, FILE *output)
    json j;
    try {
       std::ifstream instr(spr->cfg_file);
+      if (!instr) {
+         if (output)
+            fprintf(output, "Json file with name %s wasn't found, exiting\n", spr->cfg_file);
+         printf("\"%s\" wasn't found, make sure to have the correct filenames in your list file\n", spr->cfg_file);
+         exit(-1);
+      }
       instr >> j;
    }
    catch (const std::exception &e) {
-      if (output)
-         fprintf(output, "Json file with name %s wasn't found, exiting with exception: %s\n", spr->cfg_file, e.what());
-      char *filename = new char[strlen(spr->cfg_file) + 1];
-      char *folder = new char[strlen(spr->cfg_file) + 1];
-      strcpy(filename, strrchr(spr->cfg_file, '/') + 1);
-      strcpy(folder, strchr(spr->cfg_file, '/') + 1);
-      strchr(folder, '/')[0] = '\0';
-      printf("\"%s\" wasn't found in \"%s\", make sure to have the correct filenames in your list file\n", filename, folder);
+      if (strstr(e.what(), "parse error") != NULL) {
+         printf("An error was encountered while parsing %s, please make sure that the json file has the correct format. (error: %s)", spr->cfg_file, e.what());
+      } else {
+         printf("An unknown error has occurred while parsing %s, please contact the developer providing a screenshot of this error: %s\n", spr->cfg_file, e.what());
+      }
       exit(-1);
    }
 
