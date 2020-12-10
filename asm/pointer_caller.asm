@@ -87,6 +87,7 @@ macro CallStatusPtr(label, indextable, vanillaroutine)
 	SEC : SBC #$07
 	TAX
 	LDA.l <indextable>, x
+	STZ $04				  ; setting high byte of $03 to 00 for later
 	STA $03
 	; $09 => 00, $0A => 03, $0B => 06, $0C => 12, $07 => 09
 	PLA					  ; 
@@ -96,9 +97,9 @@ macro CallStatusPtr(label, indextable, vanillaroutine)
 	STA $00               ; \
 	ASL #4		          ; |
 	SEC : SBC $00         	  ; | x = A*15 + (status * 3)
-	SEP #$30
+
 	CLC : ADC $03
-	REP #$30
+
 	TAX                   ; /
 	
 	;pointer in [$00]
