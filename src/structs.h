@@ -161,12 +161,13 @@ struct ROM {
 	char *name;
 	int size;
 	int header_size;
+	bool sa1;
 	
 	void open(const char *n);	
 	void close();
 	
-	int pc_to_snes(int address);
-	int snes_to_pc(int address);
+	int pc_to_snes(int address, bool header = true);
+	int snes_to_pc(int address, bool header = true);
 	
 	pointer pointer_snes(int address, int size = 3, int bank = 0x00);
 	pointer pointer_pc(int address, int size = 3, int bank = 0x00);

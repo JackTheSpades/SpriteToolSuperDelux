@@ -19,6 +19,7 @@ void ROM::open(const char *n)
 	data = read_all(name, false, MAX_ROM_SIZE + header_size);
 	fclose(file);
 	real_data = data + header_size;
+   sa1 = real_data[0x7fd5] == 0x23;
 }
 
 void ROM::close()
@@ -28,15 +29,38 @@ void ROM::close()
 	delete []name;
 }
 
-int ROM::pc_to_snes(int address)
-{
-	address -= header_size;
-	return ((((address << 1) & 0x7F0000) | (address&0x7FFF)) | 0x8000);
+// stole from GPS, as most of the rest of the code of this cursed tool
+int ROM::pc_to_snes(int address, bool header) {
+   if (header)
+	   address -= header_size;
+		
+   if(sa1) {
+	   if(address >= 0x400000) {
+		   return (address & 0x3FFFFF) | 0xC00000;
+	   } else if(address >= 0x200000) {
+		   return ((((address << 1) & 0x3F0000) | (address&0x7FFF)) | 0x808000);
+	   } else {
+		   return ((((address << 1) & 0x3F0000) | (address&0x7FFF)) | 0x8000);
+	   }
+   } else {
+		   return ((((address << 1) & 0x7F0000) | (address&0x7FFF)) | 0x8000);
+	}
 }
 
-int ROM::snes_to_pc(int address)
-{
-	return ((address & 0x7F0000) >> 1 | (address & 0x7FFF)) + header_size;
+int ROM::snes_to_pc(int address, bool header) {
+	if(sa1) {
+		if(address >= 0xC00000) {
+			return (address & 0x7FFFFF) + (header ? header_size : 0);
+		}
+		
+		if(address >= 0x800000) {
+			address -= 0x400000;
+		}
+		
+		return ((address & 0x7F0000) >> 1 | (address & 0x7FFF)) + (header ? header_size : 0);
+	} else {
+		return ((address & 0x7F0000) >> 1 | (address & 0x7FFF)) + (header ? header_size : 0);
+	}
 }
 
 pointer ROM::pointer_snes(int address, int size, int bank)
