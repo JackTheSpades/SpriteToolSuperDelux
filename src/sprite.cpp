@@ -23,7 +23,7 @@
 #include "MeiMei/MeiMei.h"
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-	#include <WinUser.h>
+	#include <windows.h>
 	#define ON_WINDOWS
 #endif
 
@@ -50,7 +50,7 @@
 #define SPRITE_COUNT 0x80 //count for other sprites like cluster, ow, extended
 
 //version 1.xx
-const char VERSION = 0x31;
+const char VERSION = 0x32;
 bool PER_LEVEL = false;
 bool DISABLE_255_SPRITE_PER_LEVEL = false;
 const char *ASM_DIR = nullptr;
@@ -175,9 +175,11 @@ void create_lm_restore(const char* rom) {
 
 	FILE *res = fopen(restorename.c_str(), "a+");
 	if (res) {
-		int size = file_size(res);
+		size_t size = file_size(res);
 		char* contents = new char[size+1];
-		fread(contents, size, 1, res);
+		size_t read_size = fread(contents, size, 1, res);
+		if (size != read_size)
+			error("Couldn\'t fully read file %s, please check file permissions", restorename.c_str());
 		contents[size] = '\0';
 		if (!ends_with(contents, to_write)) {
 			fseek(res, 0, SEEK_END);
@@ -575,8 +577,8 @@ void clean_hack(ROM &rom, const char* pathname)
 					printf("size: %04X, inverted: %04X\n", size - 8, inverted);
 					printf("Bad sprite_tool RATS tag detected at $%06X / 0x%05X. Remove anyway (y/n) ",
 						   rom.pc_to_snes(pc), pc);
-					scanf("%c", &answer);
-					if (answer != 'Y' && answer != 'y')
+					int read_values = scanf("%c", &answer);
+					if ((answer != 'Y' && answer != 'y') || read_values != 1)
 						continue;
 				}
 
@@ -1376,11 +1378,13 @@ int main(int argc, char *argv[])
 	if (extensions[EXT_MW2]) 
 	{
 		FILE* fp = fopen(extensions[EXT_MW2], "rb");
-		int size = file_size(fp)-1;		// -1 to skip the 0xFF byte at the end
-		unsigned char mw2_data[size];
-		fread(mw2_data, 1, size, fp);
+		size_t fs_size = file_size(fp) - 1;		// -1 to skip the 0xFF byte at the end
+		unsigned char mw2_data[fs_size];
+		size_t read_size = fread(mw2_data, 1, fs_size, fp);
+		if (read_size != fs_size)
+			error("Couldn't fully read file %s, please check file permissions", extensions[EXT_MW2]);
 		fclose(fp);
-		fwrite(mw2_data, 1, size, mw2);
+		fwrite(mw2_data, 1, fs_size, mw2);
 	}
 	else {
 		fputc(0x00, mw2);	// binary data starts with 0x00
