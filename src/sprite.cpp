@@ -191,15 +191,19 @@ void create_lm_restore(const char* rom) {
 
 void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &rom, FILE *output)
 {
+	std::regex re("!");
+	std::string escapedDir = std::regex_replace(spr->directory, re, "\\!");
+	std::string escapedAsmfile = std::regex_replace(spr->asm_file, re, "\\!");
+	std::string escapedAsmdir = std::regex_replace(ASM_DIR, re, "\\!");
 	FILE *sprite_patch = open(TEMP_SPR_FILE, "w");
 	fprintf(sprite_patch, "namespace nested on\n");
-	fprintf(sprite_patch, "incsrc \"%ssa1def.asm\"\n", ASM_DIR);
+	fprintf(sprite_patch, "incsrc \"%ssa1def.asm\"\n", escapedAsmdir.c_str());
 	addIncScrToFile(sprite_patch, extraDefines);
 	fprintf(sprite_patch, "incsrc \"shared.asm\"\n");
 	fprintf(sprite_patch, "SPRITE_ENTRY_%d:\n", spr->number);
-	fprintf(sprite_patch, "incsrc \"%s_header.asm\"\n", spr->directory);
+	fprintf(sprite_patch, "incsrc \"%s_header.asm\"\n", escapedDir.c_str());
 	fprintf(sprite_patch, "freecode cleaned\n");
-	fprintf(sprite_patch, "\tincsrc \"%s\"", spr->asm_file);
+	fprintf(sprite_patch, "\tincsrc \"%s\"", escapedAsmfile.c_str());
 	fprintf(sprite_patch, "\nnamespace nested off\n");
 	fclose(sprite_patch);
 	
@@ -627,6 +631,7 @@ std::string cleanPathTrail(const char* path)
 
 void create_shared_patch(const char *routine_path, ROM &rom)
 {
+	std::string escapedRoutinepath = std::regex_replace(routine_path, std::regex("!"), "\\\\\\!");
 	FILE *shared_patch = open("shared.asm", "w");
 	fprintf(shared_patch, "macro include_once(target, base, offset)\n"
 						  "	if !<base> != 1\n"
@@ -670,7 +675,7 @@ void create_shared_patch(const char *routine_path, ROM &rom)
 								  "\t%%include_once(\"%s%s.asm\", %s, $%.2X)\n"
 								  "\tJSL %s\n"
 								  "endmacro\n",
-					name, name, routine_path,
+					name, name, escapedRoutinepath.c_str(),
 					name, name, routine_count * 3, name);
 			routine_count++;
 		}

@@ -140,7 +140,8 @@ void MeiMei::setKeepTemp()
 
 void MeiMei::configureSa1Def(string pathToSa1Def)
 {
-	MeiMei::sa1DefPath = pathToSa1Def;
+	string escapedPath = regex_replace(pathToSa1Def, std::regex("!"), "\\!");
+	MeiMei::sa1DefPath = escapedPath;
 }
 
 bool MeiMei::patch(const char *patch_name, ROM &rom)
