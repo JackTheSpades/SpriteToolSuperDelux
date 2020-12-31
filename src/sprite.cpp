@@ -59,6 +59,7 @@ unsigned char PLS_SPRITE_PTRS[0x4000];
 int PLS_SPRITE_PTRS_ADDR = 0;
 unsigned char PLS_DATA[0x8000];
 unsigned char PLS_POINTERS[0x8000];
+std::vector<pointer> bigincbins{};
 // index into both PLS_DATA and PLS_POINTERS
 int PLS_DATA_ADDR = 0;
 
@@ -254,8 +255,16 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 				exit(-1);
 			}
 		}
-		else if (output)
-			fprintf(output, "\t%s\n", prints[i]);
+		else {
+			if (output)
+				fprintf(output, "\t%s\n", prints[i]);
+			char* maybe = strstr(prints[i], "_BIGINCBIN:");
+			int slen = strlen("_BIGINCBIN:");
+			if (maybe != nullptr) {
+				int bigincbinaddr = strtol(maybe+slen, nullptr, 16);
+				bigincbins.emplace_back(bigincbinaddr);
+			}
+		}
 	}
 	set_pointer(&spr->table.init, ptr_map["init"]);
 	set_pointer(&spr->table.main, ptr_map["main"]);
@@ -430,6 +439,19 @@ void clean_hack(ROM &rom, const char* pathname)
 			}
 		}
 
+		//remove big inc bins
+		fprintf(clean_patch, ";Big inc bins pointers: \n");
+		int bigincbin_address = rom.pointer_snes(0x02FFFA).addr();
+		if (bigincbin_address != 0xFFFFFF && rom.pointer_snes(bigincbin_address).addr() != 0xFFFFFF) {
+			pointer bigptr = rom.pointer_snes(bigincbin_address);
+			int i = 0;
+			while (bigptr.addr() != 0xFFFFFF) {
+				if (!bigptr.is_empty())
+					fprintf(clean_patch, "autoclean $%06X\n", bigptr.addr());
+				i += 3;
+				bigptr = rom.pointer_snes(bigincbin_address + i);
+			}
+		}
 		//shared routines
 		fprintf(clean_patch, "\n\n;Routines:\n");
 		for (int i = 0; i < 100; i++)
@@ -1271,6 +1293,14 @@ int main(int argc, char *argv[])
 		memcpy(file + (i * 3), &extended_list[i].extended_cape_ptr, 3);
 	write_all(file, paths[ASM], "_ExtendedCapePtr.bin", SPRITE_COUNT * 3);
 
+	if (bigincbins.size() > 0) {
+		bigincbins.emplace_back(0xFFFFFF);
+		unsigned char bigincbinsptrs[bigincbins.size() * 3];
+		for (size_t i = 0; i < bigincbins.size(); i++)
+			memcpy(bigincbinsptrs + (i * 3), &bigincbins[i], 3);
+		write_all(bigincbinsptrs, paths[ASM], "_BigincbinsPtr.bin", bigincbins.size() * 3);
+	}
+
 	//overworld
 	// for(int i = 0; i < SPRITE_COUNT; i++)
 	// memcpy(file + (i * 3), &ow_list[i].table.main, 3);
@@ -1472,6 +1502,9 @@ int main(int argc, char *argv[])
 			remove(paths[ASM], "_PerLevelCustomPtrTable.bin");
 		}
 		
+		if (bigincbins.size() > 0)
+			remove(paths[ASM], "_BigincbinsPtr.bin");
+
 		remove(paths[ASM], "_ClusterPtr.bin");
 		remove(paths[ASM], "_ExtendedPtr.bin");
 		remove(paths[ASM], "_ExtendedCapePtr.bin");
