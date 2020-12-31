@@ -171,6 +171,15 @@ struct ROM {
 	
 	pointer pointer_snes(int address, int size = 3, int bank = 0x00);
 	pointer pointer_pc(int address, int size = 3, int bank = 0x00);
+	unsigned char read_byte(int addr);
+	unsigned short read_word(int addr);
+	unsigned int read_long(int addr);
+	void write_byte(int addr, unsigned char val);
+	void write_word(int addr, unsigned short val);
+	void write_long(int addr, unsigned int val);
+	void write_data(unsigned char* src, size_t size, int addr);
+	void read_data(unsigned char* dst, size_t size, int addr);
+
 };
 
 

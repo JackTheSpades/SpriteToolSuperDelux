@@ -72,6 +72,36 @@ pointer ROM::pointer_pc(int address, int size, int bank)
 	return pointer(::get_pointer(data, address, size, bank));
 }
 
+unsigned char ROM::read_byte(int addr) {
+   return real_data[addr];
+}
+unsigned short ROM::read_word(int addr) {
+   return real_data[addr]|(real_data[addr + 1]<<8);
+}
+unsigned int ROM::read_long(int addr) {
+   return real_data[addr]|(real_data[addr + 1]<<8)|(real_data[addr + 2]<<16);
+}
+void ROM::write_byte(int addr, unsigned char val) {
+   real_data[addr] = val;
+}
+void ROM::write_word(int addr, unsigned short val) {
+   real_data[addr] = val & 0xFF;
+   real_data[addr + 1] = (val >> 8) & 0xFF;
+}
+void ROM::write_long(int addr, unsigned int val) {
+   real_data[addr] = val & 0xFF;
+   real_data[addr + 1] = (val >> 8) & 0xFF;
+   real_data[addr + 2] = (val >> 16) & 0xFF;
+}
+void ROM::write_data(unsigned char* data, size_t size, int addr) {
+   memcpy(real_data + addr, data, size);
+}
+void ROM::read_data(unsigned char* dst, size_t size, int addr) {
+   if (data == nullptr)
+      data = (unsigned char*)malloc(sizeof(unsigned char) * size);
+   memcpy(dst, real_data + addr, size);
+}
+
 void set_pointer(pointer* p, int address) {
 	p->lowbyte = (char)(address & 0xFF);
 	p->highbyte = (char)((address >> 8) & 0xFF);
