@@ -435,11 +435,15 @@ void clean_hack(ROM &rom, const char* pathname)
 		fprintf(clean_patch, ";Global sprites: \n");
 		int global_table_address = rom.pointer_snes(0x02FFEE).addr();
 		if (rom.pointer_snes(global_table_address).addr() != 0xFFFFFF) {
-			for(int table_offset = 0x0B; table_offset < limit; table_offset += 0x10)	{
-				pointer main_pointer = rom.pointer_snes(global_table_address + table_offset);
+			for(int table_offset = 0x08; table_offset < limit; table_offset += 0x10)	{
+				pointer init_pointer = rom.pointer_snes(global_table_address + table_offset);
+				if (!init_pointer.is_empty()) {
+					fprintf(clean_patch, "autoclean $%06X\n", init_pointer.addr());
+				}
+				pointer main_pointer = rom.pointer_snes(global_table_address + table_offset + 3);
 				if(!main_pointer.is_empty()) {
 					fprintf(clean_patch, "autoclean $%06X\n", main_pointer.addr());
-				}				
+				}
 			}
 		}
 
@@ -456,6 +460,19 @@ void clean_hack(ROM &rom, const char* pathname)
 				bigptr = rom.pointer_snes(bigincbin_address + i);
 			}
 		}
+
+		//remove global sprites' custom pointers
+		fprintf(clean_patch, ";Global sprite custom pointers: \n");
+		int pointer_table_address = rom.pointer_snes(0x02FFFD).addr();
+		if (pointer_table_address != 0xFFFFFF && rom.pointer_snes(pointer_table_address).addr() != 0xFFFFFF) {
+			for (int table_offset = 0; table_offset < 0x100 * 15; table_offset+=3) {
+				pointer ptr = rom.pointer_snes(pointer_table_address + table_offset);
+				if (!ptr.is_empty() && ptr.addr() != 0) {
+					fprintf(clean_patch, "autoclean $%06X\n", ptr.addr());
+				}
+			}
+		}
+
 		//shared routines
 		fprintf(clean_patch, "\n\n;Routines:\n");
 		for (int i = 0; i < 100; i++)
