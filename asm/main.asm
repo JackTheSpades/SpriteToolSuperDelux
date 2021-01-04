@@ -25,18 +25,13 @@ TableLoc:
         autoclean dl PerLevelLvlPtrs
 		dl $FFFFFF
 		dl $FFFFFF
+		dl $FFFFFF
    else
         dl $FFFFFF
 		dl $FFFFFF
 		dl $FFFFFF
-   endif
-
-   if getfilestatus("_BigincbinsPtr.bin") == 0
-		autoclean dl BigIncBinsPtr
-   else
 		dl $FFFFFF
    endif
-
 	
 	; Use this for custom status pointer tables
 	autoclean dl CustomStatusPtr
@@ -1290,12 +1285,6 @@ TableStart:
 CustomStatusPtr:
 	print "Custom status pointers at", pc
 	incbin "_CustomStatusPtr.bin"
-
-if getfilestatus("_BigincbinsPtr.bin") == 0
-BigIncBinsPtr:
-	print "BigincbinsPtr at", pc
-	incbin "_BigincbinsPtr.bin"
-endif
 
 ; ---------------------------------------------------
 ; per-level tables for sprite B0-BF 0x8000 bytes each.
