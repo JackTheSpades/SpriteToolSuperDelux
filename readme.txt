@@ -138,6 +138,7 @@ ReadMe Contents:
 		-c  <cluster>   Specify a custom cluster sprites directory (Default cluster/)
 
 		-r  <sharedpath>        Specify a shared routine directory (Default routines/)
+		-nr <number>			Specify a maximum number of shared routines (Default is 100, maximum is 310)
 		
 		-ssc <append ssc>       Specify ssc file to be copied into <romname>.ssc
 		-mwt <append mwt>       Specify mwt file to be copied into <romname>.mwt
