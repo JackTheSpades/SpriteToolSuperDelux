@@ -11,6 +11,7 @@
 #include <regex>
 #include <exception>
 #include <string>
+#include <filesystem>
 #include <map>
 
 #include "asar/asardll.h"
@@ -661,7 +662,7 @@ void create_shared_patch(const char *routine_path, ROM &rom)
 		char *name = routine_file->d_name;
 		if (nameEndWithAsmExtension(name))
 		{
-			if (routine_count > 100)
+			if (routine_count > DEFAULT_ROUTINES)
 			{
 				closedir(routine_directory);
 				error("More than 100 routines located.  Please remove some.\n", "");
@@ -1043,6 +1044,7 @@ int main(int argc, char *argv[])
 			printf("\n");
 
 			printf("-r   <routines>\tSpecify a shared routine directory (Default %s)\n", paths[ROUTINES]);
+			printf("-nr <number>\tSpecify limit to shared routines (Default %d, Maximum value %d)\n", DEFAULT_ROUTINES, MAX_ROUTINES);
 			printf("\n");
 
 			printf("-ext-off\t Disables extmod file logging (check LM's readme for more info on what extmod is)\n");
@@ -1071,6 +1073,15 @@ int main(int argc, char *argv[])
 		else if (!strcmp(argv[i], "-k"))
 		{
 			keep_temp = true;
+		}
+		else if (!strcmp(argv[i], "-nr"))
+		{
+			DEFAULT_ROUTINES = std::atoi(argv[i + 1]);
+			i++;
+			if (DEFAULT_ROUTINES > MAX_ROUTINES)
+				DEFAULT_ROUTINES = MAX_ROUTINES;
+			if (DEFAULT_ROUTINES == 0)
+				DEFAULT_ROUTINES = 100;
 		}
 		else if (!strcmp(argv[i], "-pl"))
 		{
