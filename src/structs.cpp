@@ -35,6 +35,8 @@ void ROM::close()
 	write_all(data, name, size + header_size);
 	delete []data;
 	delete []name;
+   data = nullptr;      // assign to nullptr so that when the dtor is called and these already got freed the delete[] is a no-op
+   name = nullptr;
 }
 
 // stolen from GPS, as most of the rest of the code of this cursed tool
@@ -139,6 +141,11 @@ void set_pointer(pointer* p, int address) {
 	p->lowbyte = (char)(address & 0xFF);
 	p->highbyte = (char)((address >> 8) & 0xFF);
 	p->bankbyte = (char)((address >> 16) & 0xFF);
+}
+
+ROM::~ROM() {
+   delete[] data;
+   delete[] name;
 }
 
 simple_string get_line(const char *text, int offset){

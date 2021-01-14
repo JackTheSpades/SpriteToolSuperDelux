@@ -186,7 +186,7 @@ struct ROM {
 	void write_long(int addr, unsigned int val);
 	void write_data(unsigned char* src, size_t size, int addr);
 	void read_data(unsigned char* dst, size_t size, int addr);
-
+	~ROM();
 };
 
 

@@ -62,6 +62,8 @@ unsigned char PLS_DATA[0x8000];
 unsigned char PLS_POINTERS[0x8000];
 // index into both PLS_DATA and PLS_POINTERS
 int PLS_DATA_ADDR = 0;
+int DEFAULT_ROUTINES = 100;
+int MAX_ROUTINES = 310;
 
 std::string ASM_DIR_PATH;
 bool disableMeiMei = false;
@@ -222,11 +224,13 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 	};
 	int print_count = 0;
 	const char *const *asar_prints = asar_getprints(&print_count);
-	char* prints[print_count];
+	char** prints = new char*[print_count];
+	const char** og_ptrs = new const char*[print_count];
 
 	for (int i = 0; i < print_count; i++) {		// trim prints since now we can't deal with starting spaces
 		prints[i] = new char[strlen(asar_prints[i]) + 1];
 		strcpy(prints[i], asar_prints[i]);
+		og_ptrs[i] = prints[i];					// assign pointer before moving it, this way we can actually free it, prevents leaks
 		prints[i] = trim(prints[i]);
 	}
 
@@ -299,6 +303,10 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 						"\n__________________________________\n",
 					spr->table.init.addr(), spr->table.main.addr());
 	}
+	for (int i = 0; i < print_count; i++)
+		delete[] og_ptrs[i];
+	delete[] og_ptrs;
+	delete[] prints;
 }
 
 void patch_sprites(std::list<std::string>& extraDefines, sprite *sprite_list, int size, ROM &rom, FILE *output)
@@ -873,7 +881,7 @@ void write_long_table(sprite *spr, const char *dir, const char *filename, int si
 {
 	unsigned char dummy[0x10] =
 		{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-	unsigned char file[size * 0x10];
+	unsigned char* file = new unsigned char[size * 0x10];
 
 	if (is_empty_table(spr, size))
 		write_all(dummy, dir, filename, 0x10);
@@ -884,6 +892,7 @@ void write_long_table(sprite *spr, const char *dir, const char *filename, int si
 		}
 		write_all(file, dir, filename, size * 0x10);
 	}
+	delete[] file;
 }
 
 FILE *open_subfile(ROM &rom, const char *ext, const char *mode)
@@ -1360,12 +1369,13 @@ int main(int argc, char *argv[])
 	{
 		FILE* fp = fopen(extensions[EXT_MW2], "rb");
 		size_t fs_size = file_size(fp) - 1;		// -1 to skip the 0xFF byte at the end
-		unsigned char mw2_data[fs_size];
+		unsigned char* mw2_data = new unsigned char[fs_size];
 		size_t read_size = fread(mw2_data, 1, fs_size, fp);
 		if (read_size != fs_size)
 			error("Couldn't fully read file %s, please check file permissions", extensions[EXT_MW2]);
 		fclose(fp);
 		fwrite(mw2_data, 1, fs_size, mw2);
+		delete[] mw2_data;
 	}
 	else {
 		fputc(0x00, mw2);	// binary data starts with 0x00
