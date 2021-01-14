@@ -104,16 +104,17 @@ int MeiMei::run()
 
 	int returnValue = MeiMei::run(rom);
 
-	rom.close();
-	asar_close();
-
 	if (returnValue)
 	{
 		prev.close();
+		asar_close();
 		printf("\n\nError occureted in MeiMei.\n"
 				"Your rom has reverted to before pixi insert.\n");
+		return returnValue;
 	}
 
+	rom.close();
+	asar_close();
 	return returnValue;
 }
 
@@ -161,12 +162,12 @@ int MeiMei::run(ROM& rom)
 			if (remapped[lv]) continue;
 
 			int sprAddrSNES = (now.read_byte(0x077100+lv)<<16) + now.read_word(0x02EC00+lv*2);
-			if ((sprAddrSNES&0x8000) == 0)
+			int sprAddrPC = now.snes_to_pc(sprAddrSNES, false);
+			if (sprAddrPC == -1)
 			{
 				ERR("Sprite Data has invalid address.");
 			}
 
-			int sprAddrPC = now.snes_to_pc(sprAddrSNES, false);
 			for (int i=0;i<SPR_ADDR_LIMIT;i++)
 			{
 				sprAllData[i] = 0;

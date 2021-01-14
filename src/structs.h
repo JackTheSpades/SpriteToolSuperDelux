@@ -155,13 +155,20 @@ struct sprite {
 
 int get_pointer(unsigned char *data, int address, int size = 3, int bank = 0x00);
 
+enum class MapperType {
+	lorom,
+	sa1rom,
+	fullsa1rom
+};
+
 struct ROM {
+	inline static const int sa1banks[8] = {0<<20, 1<<20, -1, -1, 2<<20, 3<<20, -1, -1};
 	unsigned char *data;
 	unsigned char *real_data;
 	char *name;
 	int size;
 	int header_size;
-	bool sa1;
+	MapperType mapper;
 	
 	void open(const char *n);	
 	void close();

@@ -19,7 +19,15 @@ void ROM::open(const char *n)
 	data = read_all(name, false, MAX_ROM_SIZE + header_size);
 	fclose(file);
 	real_data = data + header_size;
-   sa1 = real_data[0x7fd5] == 0x23;
+   if (real_data[0x7fd5] == 0x23) {
+      if (real_data[0x7fd7] == 0x0D) {
+         mapper = MapperType::fullsa1rom;
+      } else {
+         mapper = MapperType::sa1rom;
+      }
+   } else {
+      mapper = MapperType::lorom;
+   }
 }
 
 void ROM::close()
@@ -29,38 +37,63 @@ void ROM::close()
 	delete []name;
 }
 
-// stole from GPS, as most of the rest of the code of this cursed tool
+// stolen from GPS, as most of the rest of the code of this cursed tool
+// actually these ones are stolen from asar, an even more cursed tool
 int ROM::pc_to_snes(int address, bool header) {
-   if (header)
-	   address -= header_size;
-		
-   if(sa1) {
-	   if(address >= 0x400000) {
-		   return (address & 0x3FFFFF) | 0xC00000;
-	   } else if(address >= 0x200000) {
-		   return ((((address << 1) & 0x3F0000) | (address&0x7FFF)) | 0x808000);
-	   } else {
-		   return ((((address << 1) & 0x3F0000) | (address&0x7FFF)) | 0x8000);
-	   }
-   } else {
-		   return ((((address << 1) & 0x7F0000) | (address&0x7FFF)) | 0x8000);
-	}
+  if (header)
+    address -= header_size;
+
+  if (mapper == MapperType::lorom) {
+    return ((address << 1) & 0x7F0000) | (address & 0x7FFF) | 0x8000;
+  } else if (mapper == MapperType::sa1rom) {
+    for (int i = 0; i < 8; i++) {
+      if (sa1banks[i] == (address & 0x700000)) {
+        return 0x008000 | (i << 21) | ((address & 0x0F8000) << 1) | (address & 0x7FFF);
+      }
+    }
+  } else if (mapper == MapperType::fullsa1rom) {
+    if ((address & 0x400000) == 0x400000) {
+      return address | 0xC00000;
+    }
+    if ((address & 0x600000) == 0x000000) {
+      return ((address << 1) & 0x3F0000) | 0x8000 | (address & 0x7FFF);
+    }
+    if ((address & 0x600000) == 0x200000) {
+      return 0x800000 | ((address << 1) & 0x3F0000) | 0x8000 | (address & 0x7FFF);
+    }
+  }
+  return -1;
 }
 
 int ROM::snes_to_pc(int address, bool header) {
-	if(sa1) {
-		if(address >= 0xC00000) {
-			return (address & 0x7FFFFF) + (header ? header_size : 0);
-		}
-		
-		if(address >= 0x800000) {
-			address -= 0x400000;
-		}
-		
-		return ((address & 0x7F0000) >> 1 | (address & 0x7FFF)) + (header ? header_size : 0);
-	} else {
-		return ((address & 0x7F0000) >> 1 | (address & 0x7FFF)) + (header ? header_size : 0);
-	}
+
+  if (mapper == MapperType::lorom) {
+    if ((address & 0xFE0000)==0x7E0000 || (address & 0x408000)==0x000000 || (address & 0x708000)==0x700000)
+		return -1;
+    address = (address & 0x7F0000) >> 1 | (address & 0x7FFF);
+  } else if (mapper == MapperType::sa1rom) {
+    if ((address & 0x408000) == 0x008000) {
+        address = sa1banks[(address & 0xE00000) >> 21] | ((address & 0x1F0000) >> 1) | (address & 0x007FFF);
+    } else if ((address & 0xC00000) == 0xC00000) {
+        address = sa1banks[((address & 0x100000) >> 20) | ((address & 0x200000) >> 19)] | (address & 0x0FFFFF);
+    } else {
+        address = -1;
+    }
+  } else if (mapper == MapperType::fullsa1rom) {
+    if ((address & 0xC00000) == 0xC00000) {
+        address = (address & 0x3FFFFF) | 0x400000;
+    } else if ((address & 0xC00000) == 0x000000 || (address & 0xC00000) == 0x800000) {
+        if ((address & 0x008000) == 0x000000) 
+            return -1;
+        address = (address & 0x800000) >> 2 | (address & 0x3F0000) >> 1 | (address & 0x7FFF);
+    } else {
+        return -1;
+    }
+  } else {
+      return -1;
+  }
+  
+  return address + (header ? header_size : 0);
 }
 
 pointer ROM::pointer_snes(int address, int size, int bank)
