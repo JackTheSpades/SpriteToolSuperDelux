@@ -155,6 +155,26 @@ FILE* get_debug_output(int argc, char* argv[], int* i) {
 	}
 }
 
+// trim from start (in place)
+static inline void ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](auto ch) {
+        return !std::isspace(ch);
+    }));
+}
+
+// trim from end (in place)
+static inline void rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](auto ch) {
+        return !std::isspace(ch);
+    }).base(), s.end());
+}
+
+// trim from both ends (in place)
+static inline void trim(std::string &s) {
+    ltrim(s);
+    rtrim(s);
+}
+
 bool ends_with(const char* str, const char* suffix) {
 	if (str == nullptr || suffix == nullptr)
 		return false;
@@ -188,6 +208,7 @@ void create_lm_restore(const char* rom) {
 			fprintf(res, "%s", to_write);
 		}
 		fclose(res);
+		delete[] contents;
 	} else {
 		error("Couldn't open restore file for writing (%s)\n", restorename.c_str());
 	}
@@ -700,88 +721,78 @@ enum ListType
 	Overworld = 3
 };
 
-bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char *list_data, FILE *output)
-{
-	int line_number = 0, i = 0, bytes_read, sprite_id, level;
-	simple_string current_line;
-
+void populate_sprite_list(const char **paths, sprite **sprite_lists, const char* listPath, FILE* output) {
+	std::ifstream listStream(listPath);
+	if (!listStream)
+		error("Couldn't open list file %s for reading", listPath);
+	int sprite_id, level;
+	int lineno = 0;
+	int read_res;
+	std::string line;
 	ListType type = Sprite;
-	const char *dir = nullptr;
-	sprite *sprite_list = nullptr;
-
-#define ERROR_DEL(S)               \
-	{                          \
-		delete[] list_data;    \
-		error(S, line_number); \
-	}
-#define SETTYPE(T)  \
-	{               \
-		type = (T); \
-		continue;   \
-	}
-
-	do
-	{
-		level = 0x200;
-		sprite_list = sprite_lists[type];
-
-		//read line from list_data
-		current_line = static_cast<simple_string &&>(get_line(list_data, i));
-		i += current_line.length;
-		if (list_data[i - 1] == '\r') //adjust for windows line end.
-			i++;
-		line_number++;
-		if (!current_line.length || !trim(current_line.data)[0])
+	sprite* spr = nullptr;
+	char cfgname[FILENAME_MAX] = {0};
+	const char* dir = nullptr;
+	while (std::getline(listStream, line)) {
+		sprite* sprite_list = sprite_lists[type];
+		// possible line formats: xxx:yy filename.<cfg/json/asm> [; ...]
+		//						  yy filename.<cfg/json/asm> [; ...]
+		// 						  TYPE: [; ...]
+		lineno++;
+		if (line.find(';') != std::string::npos)
+			line.erase(line.begin() + line.find_first_of(';'), line.end());
+		trim(line);
+		if (line.empty())
 			continue;
+		if (line.find(':') == std::string::npos) {				// if there's no : in the string, it's a non per-level sprite
+			level = 0x200;
+			read_res = sscanf(line.c_str(), "%x %s", &sprite_id, cfgname);
+			if (read_res != 2 || read_res == EOF)
+				error("Line %d was malformed: \"%s\"\n", lineno, line.c_str());
+		} else if (line.find(':') == line.length() - 1) {		// if it's the last char in the string, it's a type change
+			if (line == "SPRITE:") {
+				type = Sprite;
+			} else if (line == "CLUSTER:") {
+				type = Cluster;
+			} else if (line == "EXTENDED:") {
+				type = Extended;
+			}
+			continue;
+ 		} else {												// if there's a ':' but it's not at the end, it may be a per level sprite
+			read_res = sscanf(line.c_str(), "%x:%x %s", &level, &sprite_id, cfgname);
+			if (read_res != 3 || read_res == EOF)
+				error("Line %d was malformed: \"%s\"\n", lineno, line.c_str());
+			if (!PER_LEVEL)
+				error("Trying to insert per level sprites without using the -pl flag, at line %d: \"%s\"\n", lineno, line.c_str());
+		}
 
-		//context switching (also goes back to beginning of loop)
-		if (!strcmp(current_line.data, "SPRITE:"))
-			SETTYPE(Sprite)
-		if (!strcmp(current_line.data, "EXTENDED:"))
-			SETTYPE(Extended)
-		if (!strcmp(current_line.data, "CLUSTER:"))
-			SETTYPE(Cluster)
-		//if(!strcmp(current_line.data, "OW:"))
-		//	SETTYPE(Overworld)
+		char* dot = strrchr(cfgname, '.');
+		if (dot == nullptr)
+			error("Error on line %d: missing extension on filename %s\n", lineno, cfgname);
+		dot++;
 
-		//read sprite number
-		if (!sscanf(current_line.data, "%x%n", &sprite_id, &bytes_read))
-			ERROR_DEL("Error on line %d: Invalid line start.\n");
-
-		//get sprite pointer
-		sprite *spr = nullptr;
-		if (type == Sprite)
-		{
-			if (current_line.data[bytes_read] == ':')
-				sscanf(current_line.data, "%x%*c%hx%n", &level, (short unsigned int*)&sprite_id, &bytes_read);
-
-			if (level != 0x200 && !PER_LEVEL)
-				ERROR_DEL("Error on line %d: Trying to insert per level sprites without the -pl flag");
-
+		if (type == Sprite) {
 			spr = from_table<sprite>(sprite_list, level, sprite_id);
          //verify sprite pointer and determine cause if invalid
 			if(!spr) {
-				if(sprite_id >= 0x100)
-					ERROR_DEL("Error on line %d: Sprite number must be less than 0x100");
-				if(level > 0x200)
-					ERROR_DEL("Error on line %d: Level must range from 000-1FF");
-				if(sprite_id >= 0xB0 && sprite_id < 0xC0)
-					ERROR_DEL("Error on line %d: Only sprite B0-BF must be assigned a level.");
+				if (sprite_id >= 0x100)
+					error("Error on line %d: Sprite number must be less than 0x100\n", lineno);
+				if (level > 0x200)
+					error("Error on line %d: Level must range from 000-1FF\n", lineno);
+				if (sprite_id >= 0xB0 && sprite_id < 0xC0)
+					error("Error on line %d: Only sprite B0-BF must be assigned a level.\n", lineno);
 			}
-		}
-		else
-		{
+		} else {
 			if (sprite_id > SPRITE_COUNT)
-				ERROR_DEL("Error on line %d: Sprite number must be less than 0x80");
+				error("Error on line %d: Sprite number must be less than %x\n", lineno, SPRITE_COUNT);
 			spr = sprite_list + sprite_id;
 		}
 
-		//check sprite pointer already in use.
 		if (spr->line)
-			ERROR_DEL("Error on line %d: Sprite number already used.");
+			error("Error on line %d: Sprite number %x already used.\n", lineno, sprite_id);
 
 		//initialize some.
-		spr->line = line_number;
+		spr->line = lineno;
 		spr->level = level;
 		spr->number = sprite_id;
 		spr->sprite_type = type;
@@ -800,55 +811,31 @@ bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 		}
 		spr->directory = dir;
 
-		//get the filename from the list file
-		char *file_name = nullptr;
-		if (isspace(current_line.data[bytes_read]))
-		{
-			char *trimmed = trim(current_line.data + bytes_read);
-			file_name = new char[strlen(dir) + strlen(trimmed) + 1];
-			strcpy(file_name, dir);
-			strcat(file_name, trimmed);
-			if (!file_name[0])
-			{
-				delete[] file_name;
-				ERROR_DEL("Error on line %d: Missing filename.\n");
-			}
-		}
-		else
-			ERROR_DEL("Error on line %d: Missing space or level seperator.\n");
+		char* fullFileName = new char[strlen(dir) + strlen(cfgname) + 1];
+		strcpy(fullFileName, dir);
+		strcat(fullFileName, cfgname);
 
-		char *dot = strrchr(file_name, '.');
-
-		//set filename to either cfg/json or asm file, depending on type.
-		if (type != Sprite)
-		{
-			if (!dot || (strcmp(dot, ".asm") && strcmp(dot, ".ASM")))
-				ERROR_DEL("Error on line %d: Not an asm file.");
-			spr->asm_file = file_name;
-		}
-		else
-		{
-			spr->cfg_file = file_name;
-			if (!dot)
-			{
-				ERROR_DEL("Error on line %d: No file extension.");
-			}
-			else if (!strcmp(dot, ".cfg") || !strcmp(dot, ".CFG"))
+		if (type != Sprite) {
+			if (strcmp(dot, "asm") && strcmp(dot, "ASM"))
+				error("Error on line %d: not an asm file\n", lineno);
+			spr->asm_file = fullFileName;
+		} else {
+			spr->cfg_file = fullFileName;
+			if (!strcmp(dot, "cfg") || !strcmp(dot, ".CFG"))
 			{
 				if (!read_cfg_file(spr, output))
-					ERROR_DEL("Error on line %d: Cannot parse CFG file.");
+					error("Error on line %d: Cannot parse CFG file.\n", lineno);
 			}
-			else if (!strcmp(dot, ".json"))
+			else if (!strcmp(dot, "json"))
 			{
 				if (!read_json_file(spr, output))
-					ERROR_DEL("Error on line %d: Cannot parse JSON file.");
+					error("Error on line %d: Cannot parse JSON file.\n", lineno);
 			}
 			else
-				ERROR_DEL("Error on line %d: Unknown filetype");
+				error("Error on line %d: Unknown filetype\n", lineno);
 		}
 
-		if (output)
-		{
+		if (output) {
 			fprintf(output, "Read from line %d\n", spr->line);
 			if (spr->level != 0x200)
 				fprintf(output, "Number %02X for level %03X\n", spr->number, spr->level);
@@ -859,19 +846,11 @@ bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 		}
 
 		//if sprite is tweak, set init and main pointer to contents of ROM pointer table.
-		if (!spr->table.type)
-		{
+		if (!spr->table.type) {
 			set_pointer(&spr->table.init, (INIT_PTR + 2 * spr->number));
 			set_pointer(&spr->table.main, (MAIN_PTR + 2 * spr->number));
 		}
-
-	} while (current_line.length);
-
-#undef ERROR_DEL
-#undef SETTYPE
-
-	delete[] list_data;
-	return true;
+	}
 }
 
 // spr      = sprite array
@@ -913,35 +892,30 @@ void set_paths_relative_to(const char **path, const char *arg0)
 	if (*path == nullptr)
 		return;
 
-	int count = 0;
-	const char *pos = strrchr(arg0, '\\');
-	if (pos == nullptr)
-		pos = strrchr(arg0, '/');
-	if (pos != nullptr)
-		count = (pos - arg0) + 1;
-
-	//printf("count = %d\n", count);
-
-	int len = count + strlen(*path) + 1;
-	if (count == 0) //if there is no path in arg0, we add "./"
-		len += 2;
-
-	char *str = new char[len];
-	memset(str, 0, len);
-
-	if (count != 0)
-		strncat(str, arg0, count);
-	else
-		strcat(str, "./");
-	strcat(str, *path);
-
-	//win path seperator replace.
-	//not really a problem iirc but keeps things uniform.
-	for (int j = 0; j < count; j++)
-		if (str[j] == '\\')
-			str[j] = '/';
-
-	*path = str;
+	std::filesystem::path filePath(*path);
+	std::filesystem::path basePath(arg0);
+	if (filePath.is_relative()) {
+		std::filesystem::path absFilePath = std::filesystem::absolute(filePath);
+		std::filesystem::path absBasePath = std::filesystem::absolute(basePath);
+		debug_print("Path is relative: %s\tOriginal path: %s\tBase path: %s\n", filePath.generic_string().c_str(), absFilePath.generic_string().c_str(), absBasePath.generic_string().c_str());
+		std::string newPath = std::filesystem::relative(absFilePath, std::filesystem::is_directory(absBasePath) ? absBasePath : absBasePath.parent_path()).generic_string();
+		#ifdef ON_WINDOWS
+			char* newCharPath = new char[newPath.length() + 1];
+			strcpy(newCharPath, newPath.c_str());
+			*path = newCharPath;
+		#else
+			if (std::filesystem::is_directory(std::filesystem::path(newPath))) {
+				char* newCharPath = new char[newPath.length() + 2];
+				strcpy(newCharPath, newPath.c_str());
+				strcat(newCharPath, "/");
+				*path = newCharPath;
+			} else {
+				char* newCharPath = new char[newPath.length() + 1];
+				strcpy(newCharPath, newPath.c_str());
+				*path = newCharPath;
+			}
+		#endif
+	}
 }
 
 void remove(const char *dir, const char *file)
@@ -1248,7 +1222,7 @@ int main(int argc, char *argv[])
 	for (int i = 0; i < 4; i++)
 	{
 		set_paths_relative_to(extensions + i, rom.name);
-		debug_print("extensions[%d] = %s\n", i, paths[i]);
+		debug_print("extensions[%d] = %s\n", i, extensions[i]);
 	}
 
 	//------------------------------------------------------------------------------------------
@@ -1256,7 +1230,7 @@ int main(int argc, char *argv[])
 	//------------------------------------------------------------------------------------------
 	create_config_file(ASM_DIR_PATH + "/config.asm");
 	std::list<std::string> extraDefines = listExtraAsm(ASM_DIR_PATH + "/ExtraDefines");
-	populate_sprite_list(paths, sprites_list_list, (char *)read_all(paths[LIST], true), output);
+	populate_sprite_list(paths, sprites_list_list, paths[LIST], output);
 
 	clean_hack(rom, paths[ASM]);
 
