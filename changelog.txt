@@ -1,6 +1,7 @@
 Changelog
 Version 1.32 (Date pending):
-  - (Atari2.0) Updated asar.dll to 1.71, fixes https://github.com/JackTheSpades/SpriteToolSuperDelux/issues/35
+  - (Atari2.0) Now permits nested shared routine calls, fixing https://github.com/JackTheSpades/SpriteToolSuperDelux/issues/28
+  - (Atari2.0) Updated asar.dll to 1.80, fixes https://github.com/JackTheSpades/SpriteToolSuperDelux/issues/35
   - (Atari2.0) Updated and fixed make, Makefile and .gitignore
   - (Atari2.0) Added escaping to ! in filepaths, fixes https://github.com/JackTheSpades/SpriteToolSuperDelux/issues/16
   - (Atari2.0) Added autoclean to all sprite pointers, fixes https://github.com/JackTheSpades/SpriteToolSuperDelux/issues/34
@@ -9,9 +10,10 @@ Version 1.32 (Date pending):
   - (Atari2.0) Greatly refactored and reworked MeiMei, embedded both ROM classes in one
   - (Atari2.0) Made Pixi work on +6mb ROMs correctly
   - (Atari2.0) Now can use -nr to specify max number of shared routines
-  - (Atari2.0) Fixed various memory leaks
+  - (Atari2.0) Fixed various memory leaks, along with a couple of asar warnings related to relative paths being used.
+  - (Atari2.0) You can now use comments in your list.txt file
+  - (Atari2.0) Completely rewritten populate_sprite_list and relative_directory to fix various bugs related to pathing.
 
-Completely rewritten populate_sprite_list and relative_directory to fix various bugs related to pathing.
 Version 1.31 (November 4, 2020):
   - (Atari2.0, randomdude999) Fully implemented Romi's SpriteTool legacy cleanup (note that this doesn't mean that now Pixi can coexist in the same rom as SpriteTool but it means that at least SpriteTool roms can be easily upgraded to Pixi without breaking massively as long as you do it properly). ASM file used for cleanup provided by randomdude999.
   - (Atari2.0) Fixed an issue where upon upgrading from 1.2.x to 1.3, Pixi would completely destroy overworld layer 2 events.
