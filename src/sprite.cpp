@@ -8,11 +8,11 @@
 #include <iostream>
 #include <fstream>
 #include <iterator>
-#include <regex>
 #include <exception>
 #include <string>
 #include <filesystem>
 #include <map>
+#include <sstream>
 
 #include "asar/asardll.h"
 #include "cfg.h"
@@ -67,6 +67,7 @@ int MAX_ROUTINES = 310;
 
 std::string ASM_DIR_PATH;
 bool disableMeiMei = false;
+std::vector<std::string> warnings{};
 
 void double_click_exit()
 {
@@ -96,9 +97,10 @@ T *from_table(T *table, int level, int number)
 	return nullptr;
 }
 
-bool patch(const char *patch_name, ROM &rom)
+bool patch(const char *patch_name_rel, ROM &rom)
 {
-	if (!asar_patch(patch_name, (char *)rom.real_data, MAX_ROM_SIZE, &rom.size))
+	std::string patch_path = std::filesystem::absolute(patch_name_rel).generic_string();
+	if (!asar_patch(patch_path.c_str(), (char *)rom.real_data, MAX_ROM_SIZE, &rom.size))
 	{
 		debug_print("Failure. Try fetch errors:\n");
 		int error_count;
@@ -108,6 +110,10 @@ bool patch(const char *patch_name, ROM &rom)
 			printf("%s\n", errors[i].fullerrdata);
 		exit(-1);
 	}
+	int warn_count = 0;
+	const errordata *loc_warnings = asar_getwarnings(&warn_count);
+	for (int i = 0; i < warn_count; i++)
+		warnings.push_back(std::string(loc_warnings[i].fullerrdata));
 	debug_print("Success\n");
 	return true;
 }
@@ -155,26 +161,6 @@ FILE* get_debug_output(int argc, char* argv[], int* i) {
 	}
 }
 
-// trim from start (in place)
-static inline void ltrim(std::string &s) {
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](auto ch) {
-        return !std::isspace(ch);
-    }));
-}
-
-// trim from end (in place)
-static inline void rtrim(std::string &s) {
-    s.erase(std::find_if(s.rbegin(), s.rend(), [](auto ch) {
-        return !std::isspace(ch);
-    }).base(), s.end());
-}
-
-// trim from both ends (in place)
-static inline void trim(std::string &s) {
-    ltrim(s);
-    rtrim(s);
-}
-
 bool ends_with(const char* str, const char* suffix) {
 	if (str == nullptr || suffix == nullptr)
 		return false;
@@ -214,20 +200,31 @@ void create_lm_restore(const char* rom) {
 	}
 }
 
+std::string escapeDefines(const std::string& path, const char* repl = "\\!") {
+	std::stringstream ss("");
+	for (char c : path) {
+		if (c == '!') {
+			ss << repl;
+		} else {
+			ss << c;
+		}
+	}
+	return ss.str();
+}
+
 void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &rom, FILE *output)
 {
-	std::regex re("!");
-	std::string escapedDir = std::regex_replace(spr->directory, re, "\\!");
-	std::string escapedAsmfile = std::regex_replace(spr->asm_file, re, "\\!");
-	std::string escapedAsmdir = std::regex_replace(ASM_DIR, re, "\\!");
+	std::string escapedDir = escapeDefines(spr->directory);
+	std::string escapedAsmfile = escapeDefines(spr->asm_file);
+	std::string escapedAsmdir = escapeDefines(ASM_DIR);
 	FILE *sprite_patch = open(TEMP_SPR_FILE, "w");
 	fprintf(sprite_patch, "namespace nested on\n");
 	fprintf(sprite_patch, "incsrc \"%ssa1def.asm\"\n", escapedAsmdir.c_str());
 	addIncScrToFile(sprite_patch, extraDefines);
 	fprintf(sprite_patch, "incsrc \"shared.asm\"\n");
-	fprintf(sprite_patch, "SPRITE_ENTRY_%d:\n", spr->number);
 	fprintf(sprite_patch, "incsrc \"%s_header.asm\"\n", escapedDir.c_str());
 	fprintf(sprite_patch, "freecode cleaned\n");
+	fprintf(sprite_patch, "SPRITE_ENTRY_%d:\n", spr->number);
 	fprintf(sprite_patch, "\tincsrc \"%s\"", escapedAsmfile.c_str());
 	fprintf(sprite_patch, "\nnamespace nested off\n");
 	fclose(sprite_patch);
@@ -658,7 +655,7 @@ std::string cleanPathTrail(const char* path)
 
 void create_shared_patch(const char *routine_path, ROM &rom)
 {
-	std::string escapedRoutinepath = std::regex_replace(routine_path, std::regex("!"), "\\\\\\!");
+	std::string escapedRoutinepath = escapeDefines(routine_path, R"(\\\!)");
 	FILE *shared_patch = open("shared.asm", "w");
 	fprintf(shared_patch, "macro include_once(target, base, offset)\n"
 						  "	if !<base> != 1\n"
@@ -668,7 +665,7 @@ void create_shared_patch(const char *routine_path, ROM &rom)
 						  "			<base> = read3(<offset>+$03E05C)\n"
 						  "		else\n"
 						  "			freecode cleaned\n"
-						  "				#<base>:\n"
+						  "				global #<base>:\n"
 						  "				print \"    Routine: <base> inserted at $\",pc\n"
 						  "				namespace <base>\n"
 						  "				incsrc \"<target>\"\n"
@@ -899,22 +896,16 @@ void set_paths_relative_to(const char **path, const char *arg0)
 		std::filesystem::path absBasePath = std::filesystem::absolute(basePath);
 		debug_print("Path is relative: %s\tOriginal path: %s\tBase path: %s\n", filePath.generic_string().c_str(), absFilePath.generic_string().c_str(), absBasePath.generic_string().c_str());
 		std::string newPath = std::filesystem::relative(absFilePath, std::filesystem::is_directory(absBasePath) ? absBasePath : absBasePath.parent_path()).generic_string();
-		#ifdef ON_WINDOWS
+		if (std::filesystem::is_directory(newPath) && newPath.back() != '/') {
+			char* newCharPath = new char[newPath.length() + 2];
+			strcpy(newCharPath, newPath.c_str());
+			strcat(newCharPath, "/");
+			*path = newCharPath;
+		} else {
 			char* newCharPath = new char[newPath.length() + 1];
 			strcpy(newCharPath, newPath.c_str());
 			*path = newCharPath;
-		#else
-			if (std::filesystem::is_directory(std::filesystem::path(newPath))) {
-				char* newCharPath = new char[newPath.length() + 2];
-				strcpy(newCharPath, newPath.c_str());
-				strcat(newCharPath, "/");
-				*path = newCharPath;
-			} else {
-				char* newCharPath = new char[newPath.length() + 1];
-				strcpy(newCharPath, newPath.c_str());
-				*path = newCharPath;
-			}
-		#endif
+		}
 	}
 }
 
@@ -1241,6 +1232,22 @@ int main(int argc, char *argv[])
 	patch_sprites(extraDefines, cluster_list, SPRITE_COUNT, rom, output);
 	patch_sprites(extraDefines, extended_list, SPRITE_COUNT, rom, output);
 	//patch_sprites(extraDefines, ow_list, SPRITE_COUNT, rom, output);
+
+	if (!warnings.empty()) {
+		printf("A warning has been detected:\n");
+		for (const std::string& warning : warnings) {
+			printf("%s\n", warning.c_str());
+		}
+		printf("Do you want to continue insertion anyway? [Y/n] (Default is yes):\n");
+		char c = getchar();
+		if (tolower(c) == 'n') {
+			asar_close();
+			printf("Insertion was stopped, press any button to exit...\n");
+			getchar();
+			exit(-1);
+		}
+		fflush(stdin); // uff 
+	}
 
 	debug_print("Sprites successfully patched.\n");
 

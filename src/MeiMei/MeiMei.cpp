@@ -5,7 +5,6 @@
 #include <iomanip>
 #include <sstream>
 #include <stdio.h>
-#include <regex>
 
 #include "MeiMei.h"
 
@@ -43,9 +42,21 @@ void MeiMei::setKeepTemp()
 	MeiMei::keepTemp = true;
 }
 
+string escapeDefines(const string& path) {
+	stringstream ss("");
+	for (char c : path) {
+		if (c == '!') {
+			ss << "\\!";
+		} else {
+			ss << c;
+		}
+	}
+	return ss.str();
+}
+
 void MeiMei::configureSa1Def(string pathToSa1Def)
 {
-	string escapedPath = regex_replace(pathToSa1Def, std::regex("!"), "\\!");
+	string escapedPath = escapeDefines(pathToSa1Def);
 	MeiMei::sa1DefPath = escapedPath;
 }
 

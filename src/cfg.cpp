@@ -2,10 +2,9 @@
 #include "cfg.h"
 #include "structs.h"
 
-#include <regex>
-#include <sstream>
 #include <string>
 #include <iostream>
+#include <fstream>
 
 typedef void (*linehandler)(const char *, sprite *, int &, void *);
 
@@ -30,21 +29,19 @@ bool read_cfg_file(sprite *spr, FILE *output)
 	handlers[4] = &cfg_asm;
 	handlers[5] = &cfg_extra;
 
-	int bytes_read = 0;
-	simple_string current_line;
 	int line = 0;
 
 	int count = 0;
 	const char *cfg = (char *)read_all(spr->cfg_file, true);
-
-	do
+	std::ifstream cfg_stream(spr->cfg_file);
+	std::string current_line;
+	while (std::getline(cfg_stream, current_line) && line < handlelimit)
 	{
-		current_line = static_cast<simple_string &&>(get_line(cfg, bytes_read));
-		bytes_read += current_line.length;
-		if (!current_line.length || !trim(current_line.data)[0])
+		trim(current_line);
+		if (current_line.empty() || current_line.length() == 0)
 			continue;
 
-		handlers[line](current_line.data, spr, line, &count);
+		handlers[line](current_line.c_str(), spr, line, &count);
 
 		if (line < 0)
 		{
@@ -52,7 +49,7 @@ bool read_cfg_file(sprite *spr, FILE *output)
 			return false;
 		}
 
-	} while (current_line.length && line < handlelimit);
+	};
 
 	if (output)
 	{
@@ -93,13 +90,25 @@ void cfg_asm(const char *line, sprite *spr, int &handle, void *)
 	handle++;
 }
 
-int parseHexString(std::string hexString)
-{
-	int hex;
-	std::stringstream ss;
-	ss << std::hex << hexString;
-	ss >> hex;
-	return hex;
+std::pair<int, int> read_byte_count(const std::string &line) {
+    size_t pos = line.find(':');
+    if (pos == std::string::npos) { 
+        // if there's no ':' it means that this cfg is old, because of backwards compat we just return 0 and ignore
+        return {0, 0};
+    }
+    std::pair<int, int> values{};
+    try {
+        int first = std::stoi(line, nullptr, 16);
+        int second = std::stoi(line.substr(pos + 1), nullptr, 16);
+        values.first = first;
+        values.second = second;
+    } catch (const std::exception &e) {
+        throw std::invalid_argument("Hex values for extra byte count in CFG file where wrongly formatted");
+    }
+    if (values.first > 12 || values.second > 12) {
+        throw std::invalid_argument("Hex value for extra byte count in CFG file out of range, valid range is 00-0C");
+    }
+    return values;
 }
 
 void cfg_extra(const char *line, sprite *spr, int &handle, void *)
@@ -107,35 +116,13 @@ void cfg_extra(const char *line, sprite *spr, int &handle, void *)
 	handle++;
 
 	std::string thisLine (line);
-	std::regex reg (R"((0[\da-fA-F]):(0[\da-fA-F]))");
-	std::smatch extraByteMatch;
-	std::regex_match (thisLine, extraByteMatch, reg);
-	
-	if (!extraByteMatch.ready())
-	{
+	try {
+		auto values = read_byte_count(thisLine);
+		spr->byte_count = values.first;
+		spr->extra_byte_count = values.second;
+	} catch (const std::invalid_argument& e) {
+		printf("%s\n", e.what());
 		handle = -1;
-		return;
 	}
-
-	if (extraByteMatch.empty())
-	{
-		spr->byte_count = 0;
-		spr->extra_byte_count = 0;
-		return;
-	}
-
-	int num (parseHexString(extraByteMatch[1]));
-	int numExtra (parseHexString(extraByteMatch[2]));
-
-	if (num > 12 || numExtra > 12)
-	{
-		handle = -1;
-		return;
-	}
-	else
-	{
-		spr->byte_count = num;
-		spr->extra_byte_count = numExtra;
-		return;
-	}
+	return;
 }
