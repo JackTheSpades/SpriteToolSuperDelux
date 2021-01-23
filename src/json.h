@@ -6,12 +6,12 @@
 struct sprite;
 
 /**
-	Reads the content of a JSON file into a sprite and writes some debug info into
-	output
+    Reads the content of a JSON file into a sprite and writes some debug info into
+    output
 
-	@param spr is the sprite which's data will be filled with the information from the cfg file
-	@param output to write the debug information into, leave as nullptr for no output to be used
+    @param spr is the sprite which's data will be filled with the information from the cfg file
+    @param output to write the debug information into, leave as nullptr for no output to be used
 */
-bool read_json_file(sprite* spr, FILE* output);
+bool read_json_file(sprite *spr, FILE *output);
 
 #endif
