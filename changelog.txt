@@ -1,5 +1,6 @@
 Changelog
-Version 1.32 (Date pending):
+Version 1.32 (January 23, 2021):
+  - (Atari2.0) Fixes spritetool_clean.asm not being in the asm/ folder.
   - (Atari2.0) Now permits nested shared routine calls, fixing https://github.com/JackTheSpades/SpriteToolSuperDelux/issues/28
   - (Atari2.0) Updated asar.dll to 1.80, fixes https://github.com/JackTheSpades/SpriteToolSuperDelux/issues/35
   - (Atari2.0) Updated and fixed make, Makefile and .gitignore
