@@ -119,7 +119,7 @@ int MeiMei::run()
 	{
 		prev.close();
 		asar_close();
-		printf("\n\nError occureted in MeiMei.\n"
+		printf("\n\nError occurred in MeiMei.\n"
 				"Your rom has reverted to before pixi insert.\n");
 		return returnValue;
 	}
