@@ -6,8 +6,6 @@
 #include <sstream>
 #include <stdio.h>
 
-#include "Rom.h"
-
 #include "MeiMei.h"
 
 #include "../asar/asardll.h"
@@ -24,104 +22,10 @@ const int SPR_ADDR_LIMIT = 0x800;
 
 #define ERR(msg) {printf("Error: %s", msg); goto end; }
 
-uchar readByte(Rom* r, int addr) {
-	uchar tmp;
-	r->readData(&tmp, 1, addr);
-	return tmp;
-}
-
-ushort readWord(Rom* r, int addr) {
-	uchar tmp[2];
-	r->readData(&tmp, 2, addr);
-	return tmp[0]|(tmp[1]<<8);
-}
-
-uint readLong(Rom* r, int addr) {
-	uchar tmp[3];
-	r->readData(&tmp, 3, addr);
-	return tmp[0]|(tmp[1]<<8)|(tmp[2]<<16);
-}
-
-void writeByte(Rom* r, int addr, uchar Data) {
-	r->writeData(&Data, 1, addr);
-}
-
-void writeWord(Rom* r, int addr, ushort Data) {
-	uchar tmp[2] = {(uchar)Data, (uchar)(Data>>8)};
-	r->writeData(&tmp, 2, addr);
-}
-
-void writeLong(Rom* r, int addr, ushort Data) {
-	uchar tmp[3] = {(uchar)Data, (uchar)(Data>>8), (uchar)(Data>>16)};
-	r->writeData(&tmp, 3, addr);
-}
-
-int SNEStoPC(int addr, bool isSa1) 
-{
-	if (!isSa1)
-	{
-		return (addr&0x7FFF)+((addr&0x7F0000)>>1);
-	}
-	else
-	{
-		if (addr >= 0xC00000)
-		{
-			return addr - 0x800000;
-		}
-		else
-		{
-			int newAddr = addr;
-			if (newAddr >= 0x800000)
-			{
-				newAddr -= 0x400000;
-			}
-
-			return (newAddr & 0x7FFF)|((newAddr >> 1) & 0x7F8000);
-		}
-	}
-}
-
-int PCtoSNES(int addr, bool isSa1) 
-{
-	if (!isSa1)
-	{
-		return ((addr&0x7FFF)+0x8000)+((addr&0x3F8000)<<1);
-	}
-	else
-	{
-		int newAddr = 0;
-		if (addr >= 0x400000)
-		{
-			return addr + 0x800000;
-		}
-		else
-		{
-			newAddr = (addr & 0x7FFF)|((addr & ~0x7FFF)<<1)|0x8000;
-			if (newAddr >= 0x400000)
-			{
-				return newAddr + 0x400000;
-			}
-			else
-			{
-				return newAddr;
-			}
-		}
-	}
-}
-
 void wait() {
 	fflush(stdin);
 	getc(stdin);
 }
-
-string MeiMei::name;
-Rom* MeiMei::prev;
-uchar MeiMei::prevEx[0x400];
-uchar MeiMei::nowEx[0x400];
-bool MeiMei::always = false;
-bool MeiMei::debug = false;
-bool MeiMei::keepTemp = false;
-string MeiMei::sa1DefPath;
 
 void MeiMei::setAlwaysRemap()
 {
@@ -138,9 +42,22 @@ void MeiMei::setKeepTemp()
 	MeiMei::keepTemp = true;
 }
 
+string escapeDefines(const string& path) {
+	stringstream ss("");
+	for (char c : path) {
+		if (c == '!') {
+			ss << "\\!";
+		} else {
+			ss << c;
+		}
+	}
+	return ss.str();
+}
+
 void MeiMei::configureSa1Def(string pathToSa1Def)
 {
-	MeiMei::sa1DefPath = pathToSa1Def;
+	string escapedPath = escapeDefines(pathToSa1Def);
+	MeiMei::sa1DefPath = escapedPath;
 }
 
 bool MeiMei::patch(const char *patch_name, ROM &rom)
@@ -171,8 +88,6 @@ bool MeiMei::patch(const char *patch_name, ROM &rom)
 void MeiMei::initialize(const char* name)
 {
 	MeiMei::name = std::string(name);
-	uchar* prevEx = MeiMei::prevEx;
-	uchar* nowEx = MeiMei::nowEx;
 	
 	for (int i=0;i<0x400;i++)
 	{
@@ -180,12 +95,11 @@ void MeiMei::initialize(const char* name)
 	 	nowEx[i] = 0x03;
 	}
 	
-	MeiMei::prev = new Rom(MeiMei::name);
-	Rom* prev = MeiMei::prev;
-	if (readByte(prev, 0x07730F)==0x42)
+	prev.open(MeiMei::name.c_str());
+	if (prev.read_byte(0x07730F)==0x42)
 	{
-		int addr = SNEStoPC((int)readLong(prev, 0x07730C), prev->isSa1());
-	 	prev->readData(prevEx, 0x0400, addr);
+		int addr = prev.snes_to_pc(prev.read_long(0x07730C), false);
+	 	prev.read_data(prevEx, 0x0400, addr);
 	}
 }
 
@@ -201,30 +115,31 @@ int MeiMei::run()
 
 	int returnValue = MeiMei::run(rom);
 
-	rom.close();
-	asar_close();
-
 	if (returnValue)
 	{
-		prev->writeRomFile();
-		printf("\n\nError occureted in MeiMei.\n"
+		prev.close();
+		asar_close();
+		printf("\n\nError occurred in MeiMei.\n"
 				"Your rom has reverted to before pixi insert.\n");
+		return returnValue;
 	}
 
+	rom.close();
+	asar_close();
 	return returnValue;
 }
 
 int MeiMei::run(ROM& rom)
 {
-	Rom* prev = MeiMei::prev;
 	uchar* prevEx = MeiMei::prevEx;
 	uchar* nowEx = MeiMei::nowEx;
 
-	Rom* now = new Rom(MeiMei::name);
-	if (readByte(prev, 0x07730F)==0x42)
+	ROM now;
+	now.open(MeiMei::name.c_str());
+	if (prev.read_byte(0x07730F)==0x42)
 	{
-		int addr = SNEStoPC((int)readLong(now, 0x07730C), now->isSa1());
-		now->readData(nowEx, 0x0400, addr);
+		int addr = now.snes_to_pc(now.read_long(0x07730C), false);
+		now.read_data(nowEx, 0x0400, addr);
 	}
 
 	bool changeEx = false;
@@ -257,19 +172,19 @@ int MeiMei::run(ROM& rom)
 		{
 			if (remapped[lv]) continue;
 
-			int sprAddrSNES = (readByte(now, 0x077100+lv)<<16)+readWord(now, 0x02EC00+lv*2);
-			if ((sprAddrSNES&0x8000) == 0)
+			int sprAddrSNES = (now.read_byte(0x077100+lv)<<16) + now.read_word(0x02EC00+lv*2);
+			int sprAddrPC = now.snes_to_pc(sprAddrSNES, false);
+			if (sprAddrPC == -1)
 			{
 				ERR("Sprite Data has invalid address.");
 			}
 
-			int sprAddrPC = SNEStoPC(sprAddrSNES, now->isSa1());
 			for (int i=0;i<SPR_ADDR_LIMIT;i++)
 			{
 				sprAllData[i] = 0;
 			}
 			
-			sprAllData[0] = readByte(now, sprAddrPC);
+			sprAllData[0] = now.read_byte(sprAddrPC);
 			int prevOfs = 1;
 			int nowOfs = 1;
 			bool exlevelFlag = sprAllData[0] & (uchar) 0x20;
@@ -279,7 +194,7 @@ int MeiMei::run(ROM& rom)
 
 			while (true)
 			{
-				now->readData(&sprCommonData, 3, sprAddrPC+prevOfs);
+				now.read_data(sprCommonData, 3, sprAddrPC+prevOfs);
 				if (nowOfs >= SPR_ADDR_LIMIT-3)
 				{
 					ERR("Sprite data is too large!");
@@ -301,7 +216,7 @@ int MeiMei::run(ROM& rom)
 					else
 					{
 						prevOfs += 2;
-						now->readData(&sprCommonData, 3, sprAddrPC+prevOfs);
+						now.read_data(sprCommonData, 3, sprAddrPC+prevOfs);
 					}
 				}
 
@@ -317,7 +232,7 @@ int MeiMei::run(ROM& rom)
 					int i;
 					for (i=3;i<prevEx[sprNum];i++)
 					{
-						sprAllData[nowOfs++] = readByte(now, sprAddrPC+prevOfs+i);
+						sprAllData[nowOfs++] = now.read_byte(sprAddrPC+prevOfs+i);
 						OF_NOW_OFS();
 					}
 					for(;i<nowEx[sprNum];i++)
@@ -331,7 +246,7 @@ int MeiMei::run(ROM& rom)
 					changeData = true;
 					for(int i=3;i<nowEx[sprNum];i++)
 					{
-						sprAllData[nowOfs++] = readByte(now, sprAddrPC+prevOfs+i);
+						sprAllData[nowOfs++] = now.read_byte(sprAddrPC+prevOfs+i);
 						OF_NOW_OFS();
 					}
 				}
@@ -339,7 +254,7 @@ int MeiMei::run(ROM& rom)
 				{
 					for(int i=3;i<nowEx[sprNum];i++)
 					{
-						sprAllData[nowOfs++] = readByte(now, sprAddrPC+prevOfs+i);
+						sprAllData[nowOfs++] = now.read_byte(sprAddrPC+prevOfs+i);
 						OF_NOW_OFS();
 					}
 				}
@@ -377,11 +292,11 @@ int MeiMei::run(ROM& rom)
 				binaryLabel.append(levelAsHex);
 
 				std::ostringstream oss;
-				oss << std::setfill('0') << std::setw(6) << std::hex << PCtoSNES(0x077100+lv, now->isSa1());
+				oss << std::setfill('0') << std::setw(6) << std::hex << now.pc_to_snes(0x077100+lv, false);
 				std::string levelBankAddress = oss.str();
 
 				oss = std::ostringstream();
-				oss << std::setfill('0') << std::setw(6) << std::hex << PCtoSNES(0x02EC00+lv*2, now->isSa1());
+				oss << std::setfill('0') << std::setw(6) << std::hex << now.pc_to_snes(0x02EC00+lv*2, false);
 				std::string levelWordAddress = oss.str();
 
 				// create actual asar patch

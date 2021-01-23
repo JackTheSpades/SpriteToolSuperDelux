@@ -58,7 +58,13 @@ endmacro
 
 
 if read1($00FFD5) == $23		; check if the rom is sa-1
-	sa1rom
+	if read1($00FFD7) == $0D ; full 6/8 mb sa-1 rom
+		fullsa1rom
+		!fullsa1 = 1
+	else
+		!fullsa1 = 0
+		sa1rom
+	endif
 	!sa1 = 1
 	!SA1 = 1
 	!SA_1 = 1

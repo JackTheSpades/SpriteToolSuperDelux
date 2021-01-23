@@ -57,12 +57,12 @@ with zipfile.ZipFile('pixi.zip', 'w', zipfile.ZIP_DEFLATED) as pixizip:
       os.path.join(
          os.path.dirname(cfgexe.replace('/', os.sep)),
          'Newtonsoft.Json.dll'), 
-      'Newtonsoft.Json.dll');
+      'Newtonsoft.Json.dll')
    pixizip.write('pixi.exe')
    pixizip.write('asar.dll')
    
    #asm
-   for asm_folder_file in ['main.asm', 'sa1def.asm', 'cluster.asm', 'extended.asm', 'pointer_caller.asm', 'DefaultSize.bin']:
+   for asm_folder_file in ['main.asm', 'sa1def.asm', 'cluster.asm', 'extended.asm', 'pointer_caller.asm', 'DefaultSize.bin', 'spritetool_clean.asm']:
       pixizip.write(to_asm_folder(asm_folder_file))
    
    #misc

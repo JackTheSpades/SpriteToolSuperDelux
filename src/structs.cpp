@@ -19,6 +19,15 @@ void ROM::open(const char *n)
 	data = read_all(name, false, MAX_ROM_SIZE + header_size);
 	fclose(file);
 	real_data = data + header_size;
+   if (real_data[0x7fd5] == 0x23) {
+      if (real_data[0x7fd7] == 0x0D) {
+         mapper = MapperType::fullsa1rom;
+      } else {
+         mapper = MapperType::sa1rom;
+      }
+   } else {
+      mapper = MapperType::lorom;
+   }
 }
 
 void ROM::close()
@@ -26,17 +35,67 @@ void ROM::close()
 	write_all(data, name, size + header_size);
 	delete []data;
 	delete []name;
+   data = nullptr;      // assign to nullptr so that when the dtor is called and these already got freed the delete[] is a no-op
+   name = nullptr;
 }
 
-int ROM::pc_to_snes(int address)
-{
-	address -= header_size;
-	return ((((address << 1) & 0x7F0000) | (address&0x7FFF)) | 0x8000);
+// stolen from GPS, as most of the rest of the code of this cursed tool
+// actually these ones are stolen from asar, an even more cursed tool
+int ROM::pc_to_snes(int address, bool header) {
+  if (header)
+    address -= header_size;
+
+  if (mapper == MapperType::lorom) {
+    return ((address << 1) & 0x7F0000) | (address & 0x7FFF) | 0x8000;
+  } else if (mapper == MapperType::sa1rom) {
+    for (int i = 0; i < 8; i++) {
+      if (sa1banks[i] == (address & 0x700000)) {
+        return 0x008000 | (i << 21) | ((address & 0x0F8000) << 1) | (address & 0x7FFF);
+      }
+    }
+  } else if (mapper == MapperType::fullsa1rom) {
+    if ((address & 0x400000) == 0x400000) {
+      return address | 0xC00000;
+    }
+    if ((address & 0x600000) == 0x000000) {
+      return ((address << 1) & 0x3F0000) | 0x8000 | (address & 0x7FFF);
+    }
+    if ((address & 0x600000) == 0x200000) {
+      return 0x800000 | ((address << 1) & 0x3F0000) | 0x8000 | (address & 0x7FFF);
+    }
+  }
+  return -1;
 }
 
-int ROM::snes_to_pc(int address)
-{
-	return ((address & 0x7F0000) >> 1 | (address & 0x7FFF)) + header_size;
+int ROM::snes_to_pc(int address, bool header) {
+
+  if (mapper == MapperType::lorom) {
+    if ((address & 0xFE0000)==0x7E0000 || (address & 0x408000)==0x000000 || (address & 0x708000)==0x700000)
+		return -1;
+    address = (address & 0x7F0000) >> 1 | (address & 0x7FFF);
+  } else if (mapper == MapperType::sa1rom) {
+    if ((address & 0x408000) == 0x008000) {
+        address = sa1banks[(address & 0xE00000) >> 21] | ((address & 0x1F0000) >> 1) | (address & 0x007FFF);
+    } else if ((address & 0xC00000) == 0xC00000) {
+        address = sa1banks[((address & 0x100000) >> 20) | ((address & 0x200000) >> 19)] | (address & 0x0FFFFF);
+    } else {
+        address = -1;
+    }
+  } else if (mapper == MapperType::fullsa1rom) {
+    if ((address & 0xC00000) == 0xC00000) {
+        address = (address & 0x3FFFFF) | 0x400000;
+    } else if ((address & 0xC00000) == 0x000000 || (address & 0xC00000) == 0x800000) {
+        if ((address & 0x008000) == 0x000000) 
+            return -1;
+        address = (address & 0x800000) >> 2 | (address & 0x3F0000) >> 1 | (address & 0x7FFF);
+    } else {
+        return -1;
+    }
+  } else {
+      return -1;
+  }
+  
+  return address + (header ? header_size : 0);
 }
 
 pointer ROM::pointer_snes(int address, int size, int bank)
@@ -48,10 +107,45 @@ pointer ROM::pointer_pc(int address, int size, int bank)
 	return pointer(::get_pointer(data, address, size, bank));
 }
 
+unsigned char ROM::read_byte(int addr) {
+   return real_data[addr];
+}
+unsigned short ROM::read_word(int addr) {
+   return real_data[addr]|(real_data[addr + 1]<<8);
+}
+unsigned int ROM::read_long(int addr) {
+   return real_data[addr]|(real_data[addr + 1]<<8)|(real_data[addr + 2]<<16);
+}
+void ROM::write_byte(int addr, unsigned char val) {
+   real_data[addr] = val;
+}
+void ROM::write_word(int addr, unsigned short val) {
+   real_data[addr] = val & 0xFF;
+   real_data[addr + 1] = (val >> 8) & 0xFF;
+}
+void ROM::write_long(int addr, unsigned int val) {
+   real_data[addr] = val & 0xFF;
+   real_data[addr + 1] = (val >> 8) & 0xFF;
+   real_data[addr + 2] = (val >> 16) & 0xFF;
+}
+void ROM::write_data(unsigned char* data, size_t size, int addr) {
+   memcpy(real_data + addr, data, size);
+}
+void ROM::read_data(unsigned char* dst, size_t size, int addr) {
+   if (data == nullptr)
+      data = (unsigned char*)malloc(sizeof(unsigned char) * size);
+   memcpy(dst, real_data + addr, size);
+}
+
 void set_pointer(pointer* p, int address) {
 	p->lowbyte = (char)(address & 0xFF);
 	p->highbyte = (char)((address >> 8) & 0xFF);
 	p->bankbyte = (char)((address >> 16) & 0xFF);
+}
+
+ROM::~ROM() {
+   delete[] data;
+   delete[] name;
 }
 
 simple_string get_line(const char *text, int offset){

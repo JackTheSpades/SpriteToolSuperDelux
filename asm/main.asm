@@ -32,7 +32,6 @@ TableLoc:
 		dl $FFFFFF
 		dl $FFFFFF
    endif
-
 	
 	; Use this for custom status pointer tables
 	autoclean dl CustomStatusPtr

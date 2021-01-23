@@ -8,10 +8,11 @@
 #include <iostream>
 #include <fstream>
 #include <iterator>
-#include <regex>
 #include <exception>
 #include <string>
+#include <filesystem>
 #include <map>
+#include <sstream>
 
 #include "asar/asardll.h"
 #include "cfg.h"
@@ -23,7 +24,7 @@
 #include "MeiMei/MeiMei.h"
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-	#include <WinUser.h>
+	#include <windows.h>
 	#define ON_WINDOWS
 #endif
 
@@ -50,7 +51,7 @@
 #define SPRITE_COUNT 0x80 //count for other sprites like cluster, ow, extended
 
 //version 1.xx
-const char VERSION = 0x31;
+const char VERSION = 0x32;
 bool PER_LEVEL = false;
 bool DISABLE_255_SPRITE_PER_LEVEL = false;
 const char *ASM_DIR = nullptr;
@@ -61,9 +62,12 @@ unsigned char PLS_DATA[0x8000];
 unsigned char PLS_POINTERS[0x8000];
 // index into both PLS_DATA and PLS_POINTERS
 int PLS_DATA_ADDR = 0;
+int DEFAULT_ROUTINES = 100;
+int MAX_ROUTINES = 310;
 
 std::string ASM_DIR_PATH;
 bool disableMeiMei = false;
+std::vector<std::string> warnings{};
 
 void double_click_exit()
 {
@@ -93,9 +97,10 @@ T *from_table(T *table, int level, int number)
 	return nullptr;
 }
 
-bool patch(const char *patch_name, ROM &rom)
+bool patch(const char *patch_name_rel, ROM &rom)
 {
-	if (!asar_patch(patch_name, (char *)rom.real_data, MAX_ROM_SIZE, &rom.size))
+	std::string patch_path = std::filesystem::absolute(patch_name_rel).generic_string();
+	if (!asar_patch(patch_path.c_str(), (char *)rom.real_data, MAX_ROM_SIZE, &rom.size))
 	{
 		debug_print("Failure. Try fetch errors:\n");
 		int error_count;
@@ -105,6 +110,10 @@ bool patch(const char *patch_name, ROM &rom)
 			printf("%s\n", errors[i].fullerrdata);
 		exit(-1);
 	}
+	int warn_count = 0;
+	const errordata *loc_warnings = asar_getwarnings(&warn_count);
+	for (int i = 0; i < warn_count; i++)
+		warnings.push_back(std::string(loc_warnings[i].fullerrdata));
 	debug_print("Success\n");
 	return true;
 }
@@ -174,31 +183,49 @@ void create_lm_restore(const char* rom) {
 
 	FILE *res = fopen(restorename.c_str(), "a+");
 	if (res) {
-		int size = file_size(res);
+		size_t size = file_size(res);
 		char* contents = new char[size+1];
-		fread(contents, size, 1, res);
+		size_t read_size = fread(contents, 1, size, res);
+		if (size != read_size)
+			error("Couldn\'t fully read file %s, please check file permissions", restorename.c_str());
 		contents[size] = '\0';
 		if (!ends_with(contents, to_write)) {
 			fseek(res, 0, SEEK_END);
 			fprintf(res, "%s", to_write);
 		}
 		fclose(res);
+		delete[] contents;
 	} else {
 		error("Couldn't open restore file for writing (%s)\n", restorename.c_str());
 	}
 }
 
+std::string escapeDefines(const std::string& path, const char* repl = "\\!") {
+	std::stringstream ss("");
+	for (char c : path) {
+		if (c == '!') {
+			ss << repl;
+		} else {
+			ss << c;
+		}
+	}
+	return ss.str();
+}
+
 void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &rom, FILE *output)
 {
+	std::string escapedDir = escapeDefines(spr->directory);
+	std::string escapedAsmfile = escapeDefines(spr->asm_file);
+	std::string escapedAsmdir = escapeDefines(ASM_DIR);
 	FILE *sprite_patch = open(TEMP_SPR_FILE, "w");
 	fprintf(sprite_patch, "namespace nested on\n");
-	fprintf(sprite_patch, "incsrc \"%ssa1def.asm\"\n", ASM_DIR);
+	fprintf(sprite_patch, "incsrc \"%ssa1def.asm\"\n", escapedAsmdir.c_str());
 	addIncScrToFile(sprite_patch, extraDefines);
 	fprintf(sprite_patch, "incsrc \"shared.asm\"\n");
-	fprintf(sprite_patch, "SPRITE_ENTRY_%d:\n", spr->number);
-	fprintf(sprite_patch, "incsrc \"%s_header.asm\"\n", spr->directory);
+	fprintf(sprite_patch, "incsrc \"%s_header.asm\"\n", escapedDir.c_str());
 	fprintf(sprite_patch, "freecode cleaned\n");
-	fprintf(sprite_patch, "\tincsrc \"%s\"", spr->asm_file);
+	fprintf(sprite_patch, "SPRITE_ENTRY_%d:\n", spr->number);
+	fprintf(sprite_patch, "\tincsrc \"%s\"", escapedAsmfile.c_str());
 	fprintf(sprite_patch, "\nnamespace nested off\n");
 	fclose(sprite_patch);
 	
@@ -215,11 +242,13 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 	};
 	int print_count = 0;
 	const char *const *asar_prints = asar_getprints(&print_count);
-	char* prints[print_count];
+	char** prints = new char*[print_count];
+	const char** og_ptrs = new const char*[print_count];
 
 	for (int i = 0; i < print_count; i++) {		// trim prints since now we can't deal with starting spaces
 		prints[i] = new char[strlen(asar_prints[i]) + 1];
 		strcpy(prints[i], asar_prints[i]);
+		og_ptrs[i] = prints[i];					// assign pointer before moving it, this way we can actually free it, prevents leaks
 		prints[i] = trim(prints[i]);
 	}
 
@@ -254,8 +283,9 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 				exit(-1);
 			}
 		}
-		else if (output)
+		else if (output) {
 			fprintf(output, "\t%s\n", prints[i]);
+		}
 	}
 	set_pointer(&spr->table.init, ptr_map["init"]);
 	set_pointer(&spr->table.main, ptr_map["main"]);
@@ -291,6 +321,10 @@ void patch_sprite(const std::list<std::string>& extraDefines, sprite *spr, ROM &
 						"\n__________________________________\n",
 					spr->table.init.addr(), spr->table.main.addr());
 	}
+	for (int i = 0; i < print_count; i++)
+		delete[] og_ptrs[i];
+	delete[] og_ptrs;
+	delete[] prints;
 }
 
 void patch_sprites(std::list<std::string>& extraDefines, sprite *sprite_list, int size, ROM &rom, FILE *output)
@@ -422,11 +456,27 @@ void clean_hack(ROM &rom, const char* pathname)
 		fprintf(clean_patch, ";Global sprites: \n");
 		int global_table_address = rom.pointer_snes(0x02FFEE).addr();
 		if (rom.pointer_snes(global_table_address).addr() != 0xFFFFFF) {
-			for(int table_offset = 0x0B; table_offset < limit; table_offset += 0x10)	{
-				pointer main_pointer = rom.pointer_snes(global_table_address + table_offset);
+			for(int table_offset = 0x08; table_offset < limit; table_offset += 0x10)	{
+				pointer init_pointer = rom.pointer_snes(global_table_address + table_offset);
+				if (!init_pointer.is_empty()) {
+					fprintf(clean_patch, "autoclean $%06X\n", init_pointer.addr());
+				}
+				pointer main_pointer = rom.pointer_snes(global_table_address + table_offset + 3);
 				if(!main_pointer.is_empty()) {
 					fprintf(clean_patch, "autoclean $%06X\n", main_pointer.addr());
-				}				
+				}
+			}
+		}
+
+		//remove global sprites' custom pointers
+		fprintf(clean_patch, ";Global sprite custom pointers: \n");
+		int pointer_table_address = rom.pointer_snes(0x02FFFD).addr();
+		if (pointer_table_address != 0xFFFFFF && rom.pointer_snes(pointer_table_address).addr() != 0xFFFFFF) {
+			for (int table_offset = 0; table_offset < 0x100 * 15; table_offset+=3) {
+				pointer ptr = rom.pointer_snes(pointer_table_address + table_offset);
+				if (!ptr.is_empty() && ptr.addr() != 0) {
+					fprintf(clean_patch, "autoclean $%06X\n", ptr.addr());
+				}
 			}
 		}
 
@@ -532,8 +582,8 @@ void clean_hack(ROM &rom, const char* pathname)
 					printf("size: %04X, inverted: %04X\n", size - 8, inverted);
 					printf("Bad sprite_tool RATS tag detected at $%06X / 0x%05X. Remove anyway (y/n) ",
 						   rom.pc_to_snes(pc), pc);
-					scanf("%c", &answer);
-					if (answer != 'Y' && answer != 'y')
+					int read_values = scanf("%c", &answer);
+					if ((answer != 'Y' && answer != 'y') || read_values != 1)
 						continue;
 				}
 
@@ -605,6 +655,7 @@ std::string cleanPathTrail(const char* path)
 
 void create_shared_patch(const char *routine_path, ROM &rom)
 {
+	std::string escapedRoutinepath = escapeDefines(routine_path, R"(\\\!)");
 	FILE *shared_patch = open("shared.asm", "w");
 	fprintf(shared_patch, "macro include_once(target, base, offset)\n"
 						  "	if !<base> != 1\n"
@@ -614,7 +665,7 @@ void create_shared_patch(const char *routine_path, ROM &rom)
 						  "			<base> = read3(<offset>+$03E05C)\n"
 						  "		else\n"
 						  "			freecode cleaned\n"
-						  "				#<base>:\n"
+						  "				global #<base>:\n"
 						  "				print \"    Routine: <base> inserted at $\",pc\n"
 						  "				namespace <base>\n"
 						  "				incsrc \"<target>\"\n"
@@ -637,7 +688,7 @@ void create_shared_patch(const char *routine_path, ROM &rom)
 		char *name = routine_file->d_name;
 		if (nameEndWithAsmExtension(name))
 		{
-			if (routine_count > 100)
+			if (routine_count > DEFAULT_ROUTINES)
 			{
 				closedir(routine_directory);
 				error("More than 100 routines located.  Please remove some.\n", "");
@@ -648,7 +699,7 @@ void create_shared_patch(const char *routine_path, ROM &rom)
 								  "\t%%include_once(\"%s%s.asm\", %s, $%.2X)\n"
 								  "\tJSL %s\n"
 								  "endmacro\n",
-					name, name, routine_path,
+					name, name, escapedRoutinepath.c_str(),
 					name, name, routine_count * 3, name);
 			routine_count++;
 		}
@@ -667,88 +718,78 @@ enum ListType
 	Overworld = 3
 };
 
-bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char *list_data, FILE *output)
-{
-	int line_number = 0, i = 0, bytes_read, sprite_id, level;
-	simple_string current_line;
-
+void populate_sprite_list(const char **paths, sprite **sprite_lists, const char* listPath, FILE* output) {
+	std::ifstream listStream(listPath);
+	if (!listStream)
+		error("Couldn't open list file %s for reading", listPath);
+	int sprite_id, level;
+	int lineno = 0;
+	int read_res;
+	std::string line;
 	ListType type = Sprite;
-	const char *dir = nullptr;
-	sprite *sprite_list = nullptr;
-
-#define ERROR_DEL(S)               \
-	{                          \
-		delete[] list_data;    \
-		error(S, line_number); \
-	}
-#define SETTYPE(T)  \
-	{               \
-		type = (T); \
-		continue;   \
-	}
-
-	do
-	{
-		level = 0x200;
-		sprite_list = sprite_lists[type];
-
-		//read line from list_data
-		current_line = static_cast<simple_string &&>(get_line(list_data, i));
-		i += current_line.length;
-		if (list_data[i - 1] == '\r') //adjust for windows line end.
-			i++;
-		line_number++;
-		if (!current_line.length || !trim(current_line.data)[0])
+	sprite* spr = nullptr;
+	char cfgname[FILENAME_MAX] = {0};
+	const char* dir = nullptr;
+	while (std::getline(listStream, line)) {
+		sprite* sprite_list = sprite_lists[type];
+		// possible line formats: xxx:yy filename.<cfg/json/asm> [; ...]
+		//						  yy filename.<cfg/json/asm> [; ...]
+		// 						  TYPE: [; ...]
+		lineno++;
+		if (line.find(';') != std::string::npos)
+			line.erase(line.begin() + line.find_first_of(';'), line.end());
+		trim(line);
+		if (line.empty())
 			continue;
+		if (line.find(':') == std::string::npos) {				// if there's no : in the string, it's a non per-level sprite
+			level = 0x200;
+			read_res = sscanf(line.c_str(), "%x %s", &sprite_id, cfgname);
+			if (read_res != 2 || read_res == EOF)
+				error("Line %d was malformed: \"%s\"\n", lineno, line.c_str());
+		} else if (line.find(':') == line.length() - 1) {		// if it's the last char in the string, it's a type change
+			if (line == "SPRITE:") {
+				type = Sprite;
+			} else if (line == "CLUSTER:") {
+				type = Cluster;
+			} else if (line == "EXTENDED:") {
+				type = Extended;
+			}
+			continue;
+ 		} else {												// if there's a ':' but it's not at the end, it may be a per level sprite
+			read_res = sscanf(line.c_str(), "%x:%x %s", &level, &sprite_id, cfgname);
+			if (read_res != 3 || read_res == EOF)
+				error("Line %d was malformed: \"%s\"\n", lineno, line.c_str());
+			if (!PER_LEVEL)
+				error("Trying to insert per level sprites without using the -pl flag, at line %d: \"%s\"\n", lineno, line.c_str());
+		}
 
-		//context switching (also goes back to beginning of loop)
-		if (!strcmp(current_line.data, "SPRITE:"))
-			SETTYPE(Sprite)
-		if (!strcmp(current_line.data, "EXTENDED:"))
-			SETTYPE(Extended)
-		if (!strcmp(current_line.data, "CLUSTER:"))
-			SETTYPE(Cluster)
-		//if(!strcmp(current_line.data, "OW:"))
-		//	SETTYPE(Overworld)
+		char* dot = strrchr(cfgname, '.');
+		if (dot == nullptr)
+			error("Error on line %d: missing extension on filename %s\n", lineno, cfgname);
+		dot++;
 
-		//read sprite number
-		if (!sscanf(current_line.data, "%x%n", &sprite_id, &bytes_read))
-			ERROR_DEL("Error on line %d: Invalid line start.\n");
-
-		//get sprite pointer
-		sprite *spr = nullptr;
-		if (type == Sprite)
-		{
-			if (current_line.data[bytes_read] == ':')
-				sscanf(current_line.data, "%x%*c%hx%n", &level, (short unsigned int*)&sprite_id, &bytes_read);
-
-			if (level != 0x200 && !PER_LEVEL)
-				ERROR_DEL("Error on line %d: Trying to insert per level sprites without the -pl flag");
-
+		if (type == Sprite) {
 			spr = from_table<sprite>(sprite_list, level, sprite_id);
          //verify sprite pointer and determine cause if invalid
 			if(!spr) {
-				if(sprite_id >= 0x100)
-					ERROR_DEL("Error on line %d: Sprite number must be less than 0x100");
-				if(level > 0x200)
-					ERROR_DEL("Error on line %d: Level must range from 000-1FF");
-				if(sprite_id >= 0xB0 && sprite_id < 0xC0)
-					ERROR_DEL("Error on line %d: Only sprite B0-BF must be assigned a level.");
+				if (sprite_id >= 0x100)
+					error("Error on line %d: Sprite number must be less than 0x100\n", lineno);
+				if (level > 0x200)
+					error("Error on line %d: Level must range from 000-1FF\n", lineno);
+				if (sprite_id >= 0xB0 && sprite_id < 0xC0)
+					error("Error on line %d: Only sprite B0-BF must be assigned a level.\n", lineno);
 			}
-		}
-		else
-		{
+		} else {
 			if (sprite_id > SPRITE_COUNT)
-				ERROR_DEL("Error on line %d: Sprite number must be less than 0x80");
+				error("Error on line %d: Sprite number must be less than %x\n", lineno, SPRITE_COUNT);
 			spr = sprite_list + sprite_id;
 		}
 
-		//check sprite pointer already in use.
 		if (spr->line)
-			ERROR_DEL("Error on line %d: Sprite number already used.");
+			error("Error on line %d: Sprite number %x already used.\n", lineno, sprite_id);
 
 		//initialize some.
-		spr->line = line_number;
+		spr->line = lineno;
 		spr->level = level;
 		spr->number = sprite_id;
 		spr->sprite_type = type;
@@ -767,55 +808,31 @@ bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 		}
 		spr->directory = dir;
 
-		//get the filename from the list file
-		char *file_name = nullptr;
-		if (isspace(current_line.data[bytes_read]))
-		{
-			char *trimmed = trim(current_line.data + bytes_read);
-			file_name = new char[strlen(dir) + strlen(trimmed) + 1];
-			strcpy(file_name, dir);
-			strcat(file_name, trimmed);
-			if (!file_name[0])
-			{
-				delete[] file_name;
-				ERROR_DEL("Error on line %d: Missing filename.\n");
-			}
-		}
-		else
-			ERROR_DEL("Error on line %d: Missing space or level seperator.\n");
+		char* fullFileName = new char[strlen(dir) + strlen(cfgname) + 1];
+		strcpy(fullFileName, dir);
+		strcat(fullFileName, cfgname);
 
-		char *dot = strrchr(file_name, '.');
-
-		//set filename to either cfg/json or asm file, depending on type.
-		if (type != Sprite)
-		{
-			if (!dot || (strcmp(dot, ".asm") && strcmp(dot, ".ASM")))
-				ERROR_DEL("Error on line %d: Not an asm file.");
-			spr->asm_file = file_name;
-		}
-		else
-		{
-			spr->cfg_file = file_name;
-			if (!dot)
-			{
-				ERROR_DEL("Error on line %d: No file extension.");
-			}
-			else if (!strcmp(dot, ".cfg") || !strcmp(dot, ".CFG"))
+		if (type != Sprite) {
+			if (strcmp(dot, "asm") && strcmp(dot, "ASM"))
+				error("Error on line %d: not an asm file\n", lineno);
+			spr->asm_file = fullFileName;
+		} else {
+			spr->cfg_file = fullFileName;
+			if (!strcmp(dot, "cfg") || !strcmp(dot, ".CFG"))
 			{
 				if (!read_cfg_file(spr, output))
-					ERROR_DEL("Error on line %d: Cannot parse CFG file.");
+					error("Error on line %d: Cannot parse CFG file.\n", lineno);
 			}
-			else if (!strcmp(dot, ".json"))
+			else if (!strcmp(dot, "json"))
 			{
 				if (!read_json_file(spr, output))
-					ERROR_DEL("Error on line %d: Cannot parse JSON file.");
+					error("Error on line %d: Cannot parse JSON file.\n", lineno);
 			}
 			else
-				ERROR_DEL("Error on line %d: Unknown filetype");
+				error("Error on line %d: Unknown filetype\n", lineno);
 		}
 
-		if (output)
-		{
+		if (output) {
 			fprintf(output, "Read from line %d\n", spr->line);
 			if (spr->level != 0x200)
 				fprintf(output, "Number %02X for level %03X\n", spr->number, spr->level);
@@ -826,19 +843,11 @@ bool populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 		}
 
 		//if sprite is tweak, set init and main pointer to contents of ROM pointer table.
-		if (!spr->table.type)
-		{
+		if (!spr->table.type) {
 			set_pointer(&spr->table.init, (INIT_PTR + 2 * spr->number));
 			set_pointer(&spr->table.main, (MAIN_PTR + 2 * spr->number));
 		}
-
-	} while (current_line.length);
-
-#undef ERROR_DEL
-#undef SETTYPE
-
-	delete[] list_data;
-	return true;
+	}
 }
 
 // spr      = sprite array
@@ -848,7 +857,7 @@ void write_long_table(sprite *spr, const char *dir, const char *filename, int si
 {
 	unsigned char dummy[0x10] =
 		{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-	unsigned char file[size * 0x10];
+	unsigned char* file = new unsigned char[size * 0x10];
 
 	if (is_empty_table(spr, size))
 		write_all(dummy, dir, filename, 0x10);
@@ -859,6 +868,7 @@ void write_long_table(sprite *spr, const char *dir, const char *filename, int si
 		}
 		write_all(file, dir, filename, size * 0x10);
 	}
+	delete[] file;
 }
 
 FILE *open_subfile(ROM &rom, const char *ext, const char *mode)
@@ -879,35 +889,24 @@ void set_paths_relative_to(const char **path, const char *arg0)
 	if (*path == nullptr)
 		return;
 
-	int count = 0;
-	const char *pos = strrchr(arg0, '\\');
-	if (pos == nullptr)
-		pos = strrchr(arg0, '/');
-	if (pos != nullptr)
-		count = (pos - arg0) + 1;
-
-	//printf("count = %d\n", count);
-
-	int len = count + strlen(*path) + 1;
-	if (count == 0) //if there is no path in arg0, we add "./"
-		len += 2;
-
-	char *str = new char[len];
-	memset(str, 0, len);
-
-	if (count != 0)
-		strncat(str, arg0, count);
-	else
-		strcat(str, "./");
-	strcat(str, *path);
-
-	//win path seperator replace.
-	//not really a problem iirc but keeps things uniform.
-	for (int j = 0; j < count; j++)
-		if (str[j] == '\\')
-			str[j] = '/';
-
-	*path = str;
+	std::filesystem::path filePath(*path);
+	std::filesystem::path basePath(arg0);
+	if (filePath.is_relative()) {
+		std::filesystem::path absFilePath = std::filesystem::absolute(filePath);
+		std::filesystem::path absBasePath = std::filesystem::absolute(basePath);
+		debug_print("Path is relative: %s\tOriginal path: %s\tBase path: %s\n", filePath.generic_string().c_str(), absFilePath.generic_string().c_str(), absBasePath.generic_string().c_str());
+		std::string newPath = std::filesystem::relative(absFilePath, std::filesystem::is_directory(absBasePath) ? absBasePath : absBasePath.parent_path()).generic_string();
+		if (std::filesystem::is_directory(newPath) && newPath.back() != '/') {
+			char* newCharPath = new char[newPath.length() + 2];
+			strcpy(newCharPath, newPath.c_str());
+			strcat(newCharPath, "/");
+			*path = newCharPath;
+		} else {
+			char* newCharPath = new char[newPath.length() + 1];
+			strcpy(newCharPath, newPath.c_str());
+			*path = newCharPath;
+		}
+	}
 }
 
 void remove(const char *dir, const char *file)
@@ -1019,6 +1018,7 @@ int main(int argc, char *argv[])
 			printf("\n");
 
 			printf("-r   <routines>\tSpecify a shared routine directory (Default %s)\n", paths[ROUTINES]);
+			printf("-nr <number>\tSpecify limit to shared routines (Default %d, Maximum value %d)\n", DEFAULT_ROUTINES, MAX_ROUTINES);
 			printf("\n");
 
 			printf("-ext-off\t Disables extmod file logging (check LM's readme for more info on what extmod is)\n");
@@ -1047,6 +1047,15 @@ int main(int argc, char *argv[])
 		else if (!strcmp(argv[i], "-k"))
 		{
 			keep_temp = true;
+		}
+		else if (!strcmp(argv[i], "-nr"))
+		{
+			DEFAULT_ROUTINES = std::atoi(argv[i + 1]);
+			i++;
+			if (DEFAULT_ROUTINES > MAX_ROUTINES)
+				DEFAULT_ROUTINES = MAX_ROUTINES;
+			if (DEFAULT_ROUTINES == 0)
+				DEFAULT_ROUTINES = 100;
 		}
 		else if (!strcmp(argv[i], "-pl"))
 		{
@@ -1204,7 +1213,7 @@ int main(int argc, char *argv[])
 	for (int i = 0; i < 4; i++)
 	{
 		set_paths_relative_to(extensions + i, rom.name);
-		debug_print("extensions[%d] = %s\n", i, paths[i]);
+		debug_print("extensions[%d] = %s\n", i, extensions[i]);
 	}
 
 	//------------------------------------------------------------------------------------------
@@ -1212,7 +1221,7 @@ int main(int argc, char *argv[])
 	//------------------------------------------------------------------------------------------
 	create_config_file(ASM_DIR_PATH + "/config.asm");
 	std::list<std::string> extraDefines = listExtraAsm(ASM_DIR_PATH + "/ExtraDefines");
-	populate_sprite_list(paths, sprites_list_list, (char *)read_all(paths[LIST], true), output);
+	populate_sprite_list(paths, sprites_list_list, paths[LIST], output);
 
 	clean_hack(rom, paths[ASM]);
 
@@ -1223,6 +1232,22 @@ int main(int argc, char *argv[])
 	patch_sprites(extraDefines, cluster_list, SPRITE_COUNT, rom, output);
 	patch_sprites(extraDefines, extended_list, SPRITE_COUNT, rom, output);
 	//patch_sprites(extraDefines, ow_list, SPRITE_COUNT, rom, output);
+
+	if (!warnings.empty()) {
+		printf("A warning has been detected:\n");
+		for (const std::string& warning : warnings) {
+			printf("%s\n", warning.c_str());
+		}
+		printf("Do you want to continue insertion anyway? [Y/n] (Default is yes):\n");
+		char c = getchar();
+		if (tolower(c) == 'n') {
+			asar_close();
+			printf("Insertion was stopped, press any button to exit...\n");
+			getchar();
+			exit(-1);
+		}
+		fflush(stdin); // uff 
+	}
 
 	debug_print("Sprites successfully patched.\n");
 
@@ -1324,11 +1349,14 @@ int main(int argc, char *argv[])
 	if (extensions[EXT_MW2]) 
 	{
 		FILE* fp = fopen(extensions[EXT_MW2], "rb");
-		int size = file_size(fp)-1;		// -1 to skip the 0xFF byte at the end
-		unsigned char mw2_data[size];
-		fread(mw2_data, 1, size, fp);
+		size_t fs_size = file_size(fp) - 1;		// -1 to skip the 0xFF byte at the end
+		unsigned char* mw2_data = new unsigned char[fs_size];
+		size_t read_size = fread(mw2_data, 1, fs_size, fp);
+		if (read_size != fs_size)
+			error("Couldn't fully read file %s, please check file permissions", extensions[EXT_MW2]);
 		fclose(fp);
-		fwrite(mw2_data, 1, size, mw2);
+		fwrite(mw2_data, 1, fs_size, mw2);
+		delete[] mw2_data;
 	}
 	else {
 		fputc(0x00, mw2);	// binary data starts with 0x00
@@ -1471,7 +1499,7 @@ int main(int argc, char *argv[])
          	remove(paths[ASM], "_PerLevelT.bin");
 			remove(paths[ASM], "_PerLevelCustomPtrTable.bin");
 		}
-		
+
 		remove(paths[ASM], "_ClusterPtr.bin");
 		remove(paths[ASM], "_ExtendedPtr.bin");
 		remove(paths[ASM], "_ExtendedCapePtr.bin");

@@ -10,9 +10,9 @@ FILE *open(const char *name, const char *mode) {
 	return file;
 }
 
-int file_size(FILE *file) {
+size_t file_size(FILE *file) {
 	fseek(file, 0, SEEK_END);
-	int size = ftell(file);
+	size_t size = ftell(file);
 	fseek(file, 0, SEEK_SET);
 	return size;
 }

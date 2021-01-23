@@ -155,21 +155,38 @@ struct sprite {
 
 int get_pointer(unsigned char *data, int address, int size = 3, int bank = 0x00);
 
+enum class MapperType {
+	lorom,
+	sa1rom,
+	fullsa1rom
+};
+
 struct ROM {
+	inline static const int sa1banks[8] = {0<<20, 1<<20, -1, -1, 2<<20, 3<<20, -1, -1};
 	unsigned char *data;
 	unsigned char *real_data;
 	char *name;
 	int size;
 	int header_size;
+	MapperType mapper;
 	
 	void open(const char *n);	
 	void close();
 	
-	int pc_to_snes(int address);
-	int snes_to_pc(int address);
+	int pc_to_snes(int address, bool header = true);
+	int snes_to_pc(int address, bool header = true);
 	
 	pointer pointer_snes(int address, int size = 3, int bank = 0x00);
 	pointer pointer_pc(int address, int size = 3, int bank = 0x00);
+	unsigned char read_byte(int addr);
+	unsigned short read_word(int addr);
+	unsigned int read_long(int addr);
+	void write_byte(int addr, unsigned char val);
+	void write_word(int addr, unsigned short val);
+	void write_long(int addr, unsigned int val);
+	void write_data(unsigned char* src, size_t size, int addr);
+	void read_data(unsigned char* dst, size_t size, int addr);
+	~ROM();
 };
 
 
