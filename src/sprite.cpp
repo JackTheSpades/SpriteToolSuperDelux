@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 #include <exception>
 #include <filesystem>
 #include <fstream>
@@ -15,14 +14,12 @@
 #include <sstream>
 #include <string>
 
-
 #include "asar/asardll.h"
 #include "cfg.h"
 #include "file_io.h"
 #include "json.h"
 #include "map16.h"
 #include "structs.h"
-
 
 #include "MeiMei/MeiMei.h"
 
@@ -863,10 +860,10 @@ int main(int argc, char *argv[]) {
     ROM rom;
 
     // individual lists containing the sprites for the specific sections
-    sprite sprite_list[MAX_SPRITE_COUNT];
-    sprite cluster_list[SPRITE_COUNT];
-    sprite extended_list[SPRITE_COUNT];
-    sprite ow_list[SPRITE_COUNT];
+    sprite *sprite_list = new sprite[MAX_SPRITE_COUNT];
+    sprite *cluster_list = new sprite[SPRITE_COUNT];
+    sprite *extended_list = new sprite[SPRITE_COUNT];
+    sprite *ow_list = new sprite[SPRITE_COUNT];
 
     // the list containing the lists...
     sprite *sprites_list_list[4];
@@ -902,7 +899,7 @@ int main(int argc, char *argv[]) {
     const char *extensions[4] = {0};
 
     // map16 for sprite displays
-    map16 map[MAP16_SIZE];
+    map16 *map = new map16[MAP16_SIZE];
 
     if (argc < 2) {
         atexit(double_click_exit);
@@ -1430,6 +1427,10 @@ int main(int argc, char *argv[]) {
         PostMessage(window_handle, 0xBECB, 0, IParam);
     }
 #endif
-
+    delete[] map;
+    delete[] sprite_list;
+    delete[] extended_list;
+    delete[] cluster_list;
+    delete[] ow_list;
     return retval;
 }
