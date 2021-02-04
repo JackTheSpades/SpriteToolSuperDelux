@@ -1,24 +1,23 @@
 #include <cctype>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <dirent.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include <exception>
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <iterator>
 #include <list>
 #include <map>
 #include <sstream>
-#include <string>
 
 #include "asar/asardll.h"
 #include "cfg.h"
 #include "file_io.h"
 #include "json.h"
 #include "map16.h"
+#include "paths.h"
 #include "structs.h"
 
 #include "MeiMei/MeiMei.h"
@@ -73,12 +72,6 @@ void double_click_exit() {
     getc(stdin); // Pause before exit
 }
 
-template <typename... A> void debug_print(const char *msg, A... args) {
-#ifdef DEBUGMSG
-    printf(msg, args...);
-#endif
-}
-
 template <typename T> T *from_table(T *table, int level, int number) {
     if (!PER_LEVEL)
         return table + number;
@@ -95,7 +88,9 @@ template <typename T> T *from_table(T *table, int level, int number) {
 bool patch(const char *patch_name_rel, ROM &rom) {
     std::string patch_path = std::filesystem::absolute(patch_name_rel).generic_string();
     if (!asar_patch(patch_path.c_str(), (char *)rom.real_data, MAX_ROM_SIZE, &rom.size)) {
+#ifdef DEBUGMSG
         debug_print("Failure. Try fetch errors:\n");
+#endif
         int error_count;
         const errordata *errors = asar_geterrors(&error_count);
         printf("An error has been detected:\n");
@@ -107,7 +102,9 @@ bool patch(const char *patch_name_rel, ROM &rom) {
     const errordata *loc_warnings = asar_getwarnings(&warn_count);
     for (int i = 0; i < warn_count; i++)
         warnings.push_back(std::string(loc_warnings[i].fullerrdata));
+#ifdef DEBUGMSG
     debug_print("Success\n");
+#endif
     return true;
 }
 bool patch(const char *dir, const char *patch_name, ROM &rom) {
@@ -561,14 +558,6 @@ void clean_hack(ROM &rom, const char *pathname) {
     }
 }
 
-bool nameEndWithAsmExtension(const char *name) {
-    return !strcmp(".asm", name + strlen(name) - 4) && name[0] != '.';
-}
-
-bool isAsmFile(const struct dirent *file) {
-    return nameEndWithAsmExtension(file->d_name);
-}
-
 bool areConfigFlagsToggled() {
     return PER_LEVEL == true || DISABLE_255_SPRITE_PER_LEVEL == true || true; // for now config is recreated on all runs
 }
@@ -597,16 +586,11 @@ std::list<std::string> listExtraAsm(const std::string path) {
     return extraDefines;
 }
 
-std::string cleanPathTrailFromString(std::string path) {
-    path.pop_back();
-    return path;
-}
-
 std::string cleanPathTrail(const char *path) {
     return cleanPathTrailFromString(std::string(path));
 }
 
-void create_shared_patch(const char *routine_path, ROM &rom) {
+void create_shared_patch(const char *routine_path) {
     std::string escapedRoutinepath = escapeDefines(routine_path, R"(\\\!)");
     FILE *shared_patch = open("shared.asm", "w");
     fprintf(shared_patch, "macro include_once(target, base, offset)\n"
@@ -664,7 +648,7 @@ void populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
     std::ifstream listStream(listPath);
     if (!listStream)
         error("Couldn't open list file %s for reading", listPath);
-    int sprite_id, level;
+    unsigned int sprite_id, level;
     int lineno = 0;
     int read_res;
     std::string line;
@@ -812,39 +796,12 @@ FILE *open_subfile(ROM &rom, const char *ext, const char *mode) {
     strcpy(name, rom.name);
     char *dot = strrchr(name, '.');
     strcpy(dot + 1, ext);
+#ifdef DEBUGMSG
     debug_print("\ttry opening %s mode %s\n", name, mode);
+#endif
     FILE *r = open(name, mode);
     delete[] name;
     return r;
-}
-
-void set_paths_relative_to(const char **path, const char *arg0) {
-
-    if (*path == nullptr)
-        return;
-
-    std::filesystem::path filePath(*path);
-    std::filesystem::path basePath(arg0);
-    if (filePath.is_relative()) {
-        std::filesystem::path absFilePath = std::filesystem::absolute(filePath);
-        std::filesystem::path absBasePath = std::filesystem::absolute(basePath);
-        debug_print("Path is relative: %s\tOriginal path: %s\tBase path: %s\n", filePath.generic_string().c_str(),
-                    absFilePath.generic_string().c_str(), absBasePath.generic_string().c_str());
-        std::string newPath = std::filesystem::relative(absFilePath, std::filesystem::is_directory(absBasePath)
-                                                                         ? absBasePath
-                                                                         : absBasePath.parent_path())
-                                  .generic_string();
-        if (std::filesystem::is_directory(newPath) && newPath.back() != '/') {
-            char *newCharPath = new char[newPath.length() + 2];
-            strcpy(newCharPath, newPath.c_str());
-            strcat(newCharPath, "/");
-            *path = newCharPath;
-        } else {
-            char *newCharPath = new char[newPath.length() + 1];
-            strcpy(newCharPath, newPath.c_str());
-            *path = newCharPath;
-        }
-    }
 }
 
 void remove(const char *dir, const char *file) {
@@ -1066,7 +1023,7 @@ int main(int argc, char *argv[]) {
     //------------------------------------------------------------------------------------------
 
     char version = *((char *)rom.data + rom.snes_to_pc(0x02FFE2 + 4));
-    if (version > VERSION && version != 0xFF) {
+    if (version > VERSION) {
         printf("The ROM has been patched with a newer version of PIXI (1.%02d) already.\n", version);
         printf("This is version 1.%02d\n", VERSION);
         printf("Please get a newer version.");
@@ -1113,14 +1070,18 @@ int main(int argc, char *argv[]) {
             set_paths_relative_to(paths + i, rom.name);
         else
             set_paths_relative_to(paths + i, argv[0]);
+#ifdef DEBUGMSG
         debug_print("paths[%d] = %s\n", i, paths[i]);
+#endif
     }
     ASM_DIR = paths[ASM];
     ASM_DIR_PATH = cleanPathTrail(ASM_DIR);
 
     for (int i = 0; i < 4; i++) {
         set_paths_relative_to(extensions + i, rom.name);
+#ifdef DEBUGMSG
         debug_print("extensions[%d] = %s\n", i, extensions[i]);
+#endif
     }
 
     //------------------------------------------------------------------------------------------
@@ -1132,7 +1093,7 @@ int main(int argc, char *argv[]) {
 
     clean_hack(rom, paths[ASM]);
 
-    create_shared_patch(paths[ROUTINES], rom);
+    create_shared_patch(paths[ROUTINES]);
 
     int size = PER_LEVEL ? MAX_SPRITE_COUNT : 0x100;
     patch_sprites(extraDefines, sprite_list, size, rom, output);
@@ -1155,15 +1116,17 @@ int main(int argc, char *argv[]) {
         }
         fflush(stdin); // uff
     }
-
+#ifdef DEBUGMSG
     debug_print("Sprites successfully patched.\n");
+#endif
+//------------------------------------------------------------------------------------------
+// create binary files
+//------------------------------------------------------------------------------------------
 
-    //------------------------------------------------------------------------------------------
-    // create binary files
-    //------------------------------------------------------------------------------------------
-
-    // sprites
+// sprites
+#ifdef DEBUGMSG
     debug_print("Try create binary tables.\n");
+#endif
     write_all(versionflag, paths[ASM], "_versionflag.bin", 4);
     if (PER_LEVEL) {
         write_all(PLS_LEVEL_PTRS, paths[ASM], "_PerLevelLvlPtrs.bin", 0x400);
@@ -1176,8 +1139,10 @@ int main(int argc, char *argv[]) {
             write_all(PLS_SPRITE_PTRS, paths[ASM], "_PerLevelSprPtrs.bin", PLS_SPRITE_PTRS_ADDR);
             write_all(PLS_DATA, paths[ASM], "_PerLevelT.bin", PLS_DATA_ADDR);
             write_all(PLS_POINTERS, paths[ASM], "_PerLevelCustomPtrTable.bin", PLS_DATA_ADDR);
+#ifdef DEBUGMSG
             debug_print("Per-level sprites data size : 0x400+0x%04X+2*0x%04X = %04X\n", PLS_SPRITE_PTRS_ADDR,
                         PLS_DATA_ADDR, 0x400 + PLS_SPRITE_PTRS_ADDR + 2 * PLS_DATA_ADDR);
+#endif
         }
         write_long_table(sprite_list + 0x2000, paths[ASM], "_DefaultTables.bin", 0x100);
     } else {
@@ -1212,7 +1177,9 @@ int main(int argc, char *argv[]) {
     // write_all(file, paths[ASM], "_OverworldInitPtr.bin", SPRITE_COUNT * 3);
 
     // more?
+#ifdef DEBUGMSG
     debug_print("Binary tables created.\n");
+#endif
 
     //------------------------------------------------------------------------------------------
     // create custom size table (extra property byte count)
@@ -1224,12 +1191,16 @@ int main(int argc, char *argv[]) {
     // plus data for .ssc, .mwt, .mw2 files
     unsigned char extra_bytes[0x200];
 
+#ifdef DEBUGMSG
     debug_print("Try create romname files.\n");
+#endif
     FILE *s16 = open_subfile(rom, "s16", "wb");
     FILE *ssc = open_subfile(rom, "ssc", "w");
     FILE *mwt = open_subfile(rom, "mwt", "w");
     FILE *mw2 = open_subfile(rom, "mw2", "wb");
+#ifdef DEBUGMSG
     debug_print("Romname files opened.\n");
+#endif
 
     if (extensions[EXT_SSC]) {
         std::ifstream fin(extensions[EXT_SSC]);
@@ -1251,14 +1222,21 @@ int main(int argc, char *argv[]) {
 
     if (extensions[EXT_MW2]) {
         FILE *fp = fopen(extensions[EXT_MW2], "rb");
-        size_t fs_size = file_size(fp) - 1; // -1 to skip the 0xFF byte at the end
-        unsigned char *mw2_data = new unsigned char[fs_size];
-        size_t read_size = fread(mw2_data, 1, fs_size, fp);
-        if (read_size != fs_size)
-            error("Couldn't fully read file %s, please check file permissions", extensions[EXT_MW2]);
+        size_t fs_size = file_size(fp);
+        if (fs_size == 0) {
+            // if size == 0, it means that the file is empty, so we just append the 0x00 and go on with our lives
+            fputc(0x00, mw2);
+        } else {
+            fs_size--; // -1 to skip the 0xFF byte at the end
+            unsigned char *mw2_data = new unsigned char[fs_size];
+            size_t read_size = fread(mw2_data, 1, fs_size, fp);
+            if (read_size != fs_size)
+                error("Couldn't fully read file %s, please check file permissions", extensions[EXT_MW2]);
+            fclose(fp);
+            fwrite(mw2_data, 1, fs_size, mw2);
+            delete[] mw2_data;
+        }
         fclose(fp);
-        fwrite(mw2_data, 1, fs_size, mw2);
-        delete[] mw2_data;
     } else {
         fputc(0x00, mw2); // binary data starts with 0x00
     }
@@ -1408,6 +1386,10 @@ int main(int argc, char *argv[]) {
 
     for (int i = 0; i < 9; i++) {
         delete[] paths[i];
+    }
+
+    for (int i = 0; i < 4; i++) {
+        delete[] extensions[i];
     }
 
     if (extmod)

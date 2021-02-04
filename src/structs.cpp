@@ -1,11 +1,10 @@
 #include "structs.h"
 #include <cctype>
+#include <cstring>
 #include <iomanip>
 #include <sstream>
-#include <string.h>
 
-
-inline const char *const BOOL_STR(bool b) {
+const char *BOOL_STR(bool b) {
     return b ? "true" : "false";
 }
 
