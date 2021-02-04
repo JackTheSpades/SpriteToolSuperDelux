@@ -4,12 +4,13 @@ bool nameEndWithAsmExtension(const char *name) {
     return !strcmp(".asm", name + strlen(name) - 4) && name[0] != '.';
 }
 
-bool isAsmFile(const struct dirent *file) {
-    return nameEndWithAsmExtension(file->d_name);
+bool nameEndWithAsmExtension(std::string_view name) {
+    return nameEndWithAsmExtension(name.data());
 }
 
 std::string cleanPathTrailFromString(std::string path) {
-    path.pop_back();
+    if (path.back() == '/' || path.back() == '\\')
+        path.pop_back();
     return path;
 }
 

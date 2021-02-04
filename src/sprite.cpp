@@ -2,7 +2,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <dirent.h>
 
 #include <exception>
 #include <fstream>
@@ -573,15 +572,18 @@ void create_config_file(const std::string path) {
 
 std::list<std::string> listExtraAsm(const std::string path) {
     std::list<std::string> extraDefines;
-    DIR *dir;
-    struct dirent *fileInfolder;
-    if ((dir = opendir(path.c_str())) != NULL) {
-        while ((fileInfolder = readdir(dir)) != NULL) {
-            if (isAsmFile(fileInfolder)) {
-                extraDefines.push_back(path + "/" + fileInfolder->d_name);
+    if (!std::filesystem::exists(cleanPathTrailFromString(path))) {
+        return extraDefines;
+    }
+    try {
+        for (auto &file : std::filesystem::directory_iterator(path)) {
+            std::string path = file.path().generic_string();
+            if (nameEndWithAsmExtension(path)) {
+                extraDefines.push_back(path);
             }
         }
-        closedir(dir);
+    } catch (const std::filesystem::filesystem_error &err) {
+        error("Trying to read folder \"%s\" returned \"%s\", aborting insertion\n", path.c_str(), err.what());
     }
     return extraDefines;
 }
@@ -612,31 +614,33 @@ void create_shared_patch(const char *routine_path) {
                           "		pullpc\n"
                           "	endif\n"
                           "endmacro\n");
-    DIR *routine_directory = opendir(routine_path);
-    dirent *routine_file = nullptr;
-    if (!routine_directory) {
-        error("Unable to open the routine directory \"%s\"\n", routine_path);
-    }
     int routine_count = 0;
-    while ((routine_file = readdir(routine_directory)) != NULL) {
-        char *name = routine_file->d_name;
-        if (nameEndWithAsmExtension(name)) {
-            if (routine_count > DEFAULT_ROUTINES) {
-                closedir(routine_directory);
-                error("More than 100 routines located.  Please remove some.\n", "");
-            }
-            name[strlen(name) - 4] = 0;
-            fprintf(shared_patch,
-                    "!%s = 0\n"
-                    "macro %s()\n"
-                    "\t%%include_once(\"%s%s.asm\", %s, $%.2X)\n"
-                    "\tJSL %s\n"
-                    "endmacro\n",
-                    name, name, escapedRoutinepath.c_str(), name, name, routine_count * 3, name);
-            routine_count++;
-        }
+    if (!std::filesystem::exists(cleanPathTrail(routine_path))) {
+        error("Couldn't open folder \"%s\" for reading.", routine_path);
     }
-    closedir(routine_directory);
+    try {
+        for (const auto &routine_file : std::filesystem::directory_iterator(routine_path)) {
+            std::string name(routine_file.path().filename().generic_string());
+            if (routine_count > DEFAULT_ROUTINES) {
+                error("More than 100 routines located. Please remove some. \n", "");
+            }
+            if (nameEndWithAsmExtension(name)) {
+                name = name.substr(0, name.length() - 4);
+                const char *charName = name.c_str();
+                fprintf(shared_patch,
+                        "!%s = 0\n"
+                        "macro %s()\n"
+                        "\t%%include_once(\"%s%s.asm\", %s, $%.2X)\n"
+                        "\tJSL %s\n"
+                        "endmacro\n",
+                        charName, charName, escapedRoutinepath.c_str(), charName, charName, routine_count * 3,
+                        charName);
+                routine_count++;
+            }
+        }
+    } catch (const std::filesystem::filesystem_error &err) {
+        error("Trying to read folder \"%s\" returned \"%s\", aborting insertion\n", routine_path, err.what());
+    }
     printf("%d Shared routines registered in \"%s\"\n", routine_count, routine_path);
     fclose(shared_patch);
 }
@@ -657,6 +661,7 @@ void populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
     char cfgname[FILENAME_MAX] = {0};
     const char *dir = nullptr;
     while (std::getline(listStream, line)) {
+        int read_until = -1;
         sprite *sprite_list = sprite_lists[type];
         // possible line formats: xxx:yy filename.<cfg/json/asm> [; ...]
         //						  yy filename.<cfg/json/asm> [; ...]
@@ -669,9 +674,10 @@ void populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
             continue;
         if (line.find(':') == std::string::npos) { // if there's no : in the string, it's a non per-level sprite
             level = 0x200;
-            read_res = sscanf(line.c_str(), "%x %s", &sprite_id, cfgname);
-            if (read_res != 2 || read_res == EOF)
+            read_res = sscanf(line.c_str(), "%x %n", &sprite_id, &read_until);
+            if (read_res != 1 || read_res == EOF || read_until == -1)
                 error("Line %d was malformed: \"%s\"\n", lineno, line.c_str());
+            strcpy(cfgname, line.c_str() + read_until);
         } else if (line.find(':') == line.length() - 1) { // if it's the last char in the string, it's a type change
             if (line == "SPRITE:") {
                 type = Sprite;
@@ -682,12 +688,13 @@ void populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
             }
             continue;
         } else { // if there's a ':' but it's not at the end, it may be a per level sprite
-            read_res = sscanf(line.c_str(), "%x:%x %s", &level, &sprite_id, cfgname);
-            if (read_res != 3 || read_res == EOF)
+            read_res = sscanf(line.c_str(), "%x:%x %n", &level, &sprite_id, &read_until);
+            if (read_res != 2 || read_res == EOF || read_until == -1)
                 error("Line %d was malformed: \"%s\"\n", lineno, line.c_str());
             if (!PER_LEVEL)
                 error("Trying to insert per level sprites without using the -pl flag, at line %d: \"%s\"\n", lineno,
                       line.c_str());
+            strcpy(cfgname, line.c_str() + read_until);
         }
 
         char *dot = strrchr(cfgname, '.');
