@@ -1,14 +1,13 @@
 #include "json.h"
 #include "file_io.h"
 #include "json_const.h"
+#include "paths.h"
 #include "structs.h"
 #include "json/base64.h"
 #include "json/json.hpp"
 
-
 #include <fstream>
 #include <string.h>
-
 
 using json = nlohmann::json;
 

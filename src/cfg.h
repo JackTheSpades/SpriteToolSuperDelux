@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <string>
 
-
 struct sprite;
 
 /**

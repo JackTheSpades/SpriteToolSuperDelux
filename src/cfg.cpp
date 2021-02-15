@@ -1,4 +1,5 @@
 #include "cfg.h"
+#include "paths.h"
 #include "structs.h"
 #include <stdio.h>
 
@@ -6,7 +7,6 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-
 
 typedef void (*linehandler)(const char *, sprite *, int &, void *);
 

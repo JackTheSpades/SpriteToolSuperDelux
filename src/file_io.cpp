@@ -1,7 +1,7 @@
 #include "file_io.h"
+#include "paths.h"
 #include <stdio.h>
 #include <string.h>
-
 
 FILE *open(const char *name, const char *mode) {
     FILE *file = fopen(name, mode);
@@ -37,21 +37,6 @@ void write_all(unsigned char *data, const char *file_name, unsigned int size) {
     fclose(file);
 }
 
-char *append_to_dir(const char *src, const char *file) {
-
-    // fetches path of src and appand it before
-    const char *dic_end = strrchr(src, '/'); // last '/' in string
-    size_t len = 0;
-    if (dic_end)
-        len = dic_end - src + 1;
-
-    char *new_file = new char[len + strlen(file) + 1];
-    strncpy(new_file, src, len);
-    new_file[len] = 0;
-    strcat(new_file, file);
-
-    return new_file;
-}
 void write_all(unsigned char *data, const char *dir, const char *file_name, unsigned int size) {
     char *path = new char[strlen(dir) + strlen(file_name) + 1];
     path[0] = 0;

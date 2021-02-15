@@ -208,9 +208,12 @@ void patch_sprite(const std::list<std::string> &extraDefines, sprite *spr, ROM &
     fprintf(sprite_patch, "incsrc \"shared.asm\"\n");
     fprintf(sprite_patch, "incsrc \"%s_header.asm\"\n", escapedDir.c_str());
     fprintf(sprite_patch, "freecode cleaned\n");
+    fprintf(sprite_patch, "warnings push\n");
+    fprintf(sprite_patch, "warnings disable w1005\n");
     fprintf(sprite_patch, "SPRITE_ENTRY_%d:\n", spr->number);
-    fprintf(sprite_patch, "\tincsrc \"%s\"", escapedAsmfile.c_str());
-    fprintf(sprite_patch, "\nnamespace nested off\n");
+    fprintf(sprite_patch, "\tincsrc \"%s\"\n", escapedAsmfile.c_str());
+    fprintf(sprite_patch, "warnings pull\n");
+    fprintf(sprite_patch, "namespace nested off\n");
     fclose(sprite_patch);
 
     patch(TEMP_SPR_FILE, rom);
@@ -839,6 +842,7 @@ int main(int argc, char *argv[]) {
     FILE *output = nullptr;
     bool keep_temp = false;
     bool extmod = true;
+    bool stop_on_warnings = false;
 #ifdef ON_WINDOWS
     std::string lm_handle;
     uint16_t verification_code = 0;
@@ -903,6 +907,7 @@ int main(int argc, char *argv[]) {
             printf("-npl\t\tSame as the current default, no sprite per level will be inserted, left dangling for "
                    "compatibility reasons\n");
             printf("-d255spl\t\tDisable 255 sprite per level support (won't do the 1938 remap)\n");
+            printf("-w\t\tEnable asar warnings check, recommended to use when developing sprites.\n");
             printf("\n");
 
             printf("-a  <asm>\tSpecify a custom asm directory (Default %s)\n", paths[ASM]);
@@ -956,6 +961,8 @@ int main(int argc, char *argv[]) {
             PER_LEVEL = false;
         } else if (!strcmp(argv[i], "-d255spl")) {
             DISABLE_255_SPRITE_PER_LEVEL = true;
+        } else if (!strcmp(argv[i], "-w")) {
+            stop_on_warnings = true;
         } else if (!strcmp(argv[i], "-meimei-a")) {
             MeiMei::setAlwaysRemap();
         } else if (!strcmp(argv[i], "-meimei-d")) {
@@ -1029,7 +1036,7 @@ int main(int argc, char *argv[]) {
     // Check if a newer version has been used before.
     //------------------------------------------------------------------------------------------
 
-    char version = *((char *)rom.data + rom.snes_to_pc(0x02FFE2 + 4));
+    char version = rom.data[rom.snes_to_pc(0x02FFE2 + 4)];
     if (version > VERSION) {
         printf("The ROM has been patched with a newer version of PIXI (1.%02d) already.\n", version);
         printf("This is version 1.%02d\n", VERSION);
@@ -1108,7 +1115,7 @@ int main(int argc, char *argv[]) {
     patch_sprites(extraDefines, extended_list, SPRITE_COUNT, rom, output);
     // patch_sprites(extraDefines, ow_list, SPRITE_COUNT, rom, output);
 
-    if (!warnings.empty()) {
+    if (!warnings.empty() && stop_on_warnings) {
         printf("A warning has been detected:\n");
         for (const std::string &warning : warnings) {
             printf("%s\n", warning.c_str());
