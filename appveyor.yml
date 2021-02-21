@@ -1,7 +1,4 @@
 version: "1.32"
-build:
-  verbosity: minimal
-configuration: Release
 
 after_build:
   - ps: python .\zip.py
