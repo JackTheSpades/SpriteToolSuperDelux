@@ -45,7 +45,7 @@ def filter_for(folder_name):
 	return folder_filter_map.get(folder_name, keep_header_filter)(folder_name)
 
 cfgexe = "src/CFG Editor/CFG Editor/bin/Release/CFG Editor.exe"
-pixiexe = "build/pixi.exe"
+pixiexe = "build/Release/pixi.exe"
 
 os.rename(pixiexe, "pixi.exe")
 
