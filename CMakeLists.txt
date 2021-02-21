@@ -14,5 +14,5 @@ else()
     set(CMAKE_VS_PLATFORM_NAME Win32 CACHE INTERNAL "")
     target_link_options(pixi PRIVATE /INCREMENTAL:NO /NODEFAULTLIB:MSVCRT)
     message(STATUS "MSVC detected, adding compile flags")
-    target_compile_options(pixi PRIVATE /O2 /MT /Wall /std:c++17)
+    target_compile_options(pixi PRIVATE /O2 /MT /w /std:c++17) ## we disable all warnings just cause there's like 5000 and they are noisy
 endif()
