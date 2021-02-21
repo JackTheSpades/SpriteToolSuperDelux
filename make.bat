@@ -1,6 +1,6 @@
 @rem -----------------------------------
 @rem --- compile option
-@set CFLAGS=-O2 -s
+@set CFLAGS=-O2 -s -Wl,--gc-sections
 @rem -----------------------------------
 
 @rem compile
