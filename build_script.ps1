@@ -6,7 +6,7 @@ Set-Location ..
 Set-Location "src/CFG Editor/CFG Editor"
 nuget install Newtonsoft.Json -Version 10.0.3 -OutputDirectory packages
 dotnet restore
-msbuild "CFG Editor Project.csproj" -t:"CFG Editor Project" -p:Configuration=Release
+msbuild "CFG Editor Project.csproj" -p:Configuration=Release
 Set-Location ..
 Set-Location ..
 Set-Location ..
