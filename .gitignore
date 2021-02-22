@@ -24,3 +24,5 @@ pixi*.zip
 *.o
 make_modern.bat
 pixi
+build
+!CFG Editor.exe

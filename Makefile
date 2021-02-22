@@ -1,5 +1,5 @@
 CXXFLAGS += -std=c++17 -Wl,--gc-sections -ffunction-sections -fdata-sections
-CXXFLAGS += -s -O2 -Wall --std=c++17 -Wno-format
+CXXFLAGS += -s -O2 -Wall -std=c++17 -Wno-format
 LDFLAGS += -ldl
 
 SOURCES = $(wildcard src/*.cpp) $(wildcard src/MeiMei/*.cpp) src/json/base64.cpp

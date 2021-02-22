@@ -2,7 +2,10 @@
 #define JSON_H
 
 #include <stdio.h>
+#include <string>
+#include <vector>
 
+extern std::vector<std::string> warnings;
 struct sprite;
 
 /**

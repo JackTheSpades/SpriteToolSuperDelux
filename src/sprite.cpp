@@ -1,15 +1,10 @@
-#include <cctype>
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
 
 #include <exception>
 #include <fstream>
-#include <iostream>
-#include <iterator>
-#include <list>
 #include <map>
 #include <sstream>
+
 
 #include "asar/asardll.h"
 #include "cfg.h"
@@ -116,7 +111,7 @@ bool patch(const char *dir, const char *patch_name, ROM &rom) {
     return ret;
 }
 
-void addIncScrToFile(FILE *file, const std::list<std::string> &toInclude) {
+void addIncScrToFile(FILE *file, const std::vector<std::string> &toInclude) {
     for (std::string const &incPath : toInclude) {
         fprintf(file, "incsrc \"%s\"\n", incPath.c_str());
     }
@@ -197,7 +192,7 @@ std::string escapeDefines(const std::string &path, const char *repl = "\\!") {
     return ss.str();
 }
 
-void patch_sprite(const std::list<std::string> &extraDefines, sprite *spr, ROM &rom, FILE *output) {
+void patch_sprite(const std::vector<std::string> &extraDefines, sprite *spr, ROM &rom, FILE *output) {
     std::string escapedDir = escapeDefines(spr->directory);
     std::string escapedAsmfile = escapeDefines(spr->asm_file);
     std::string escapedAsmdir = escapeDefines(ASM_DIR);
@@ -306,7 +301,7 @@ void patch_sprite(const std::list<std::string> &extraDefines, sprite *spr, ROM &
     delete[] prints;
 }
 
-void patch_sprites(std::list<std::string> &extraDefines, sprite *sprite_list, int size, ROM &rom, FILE *output) {
+void patch_sprites(std::vector<std::string> &extraDefines, sprite *sprite_list, int size, ROM &rom, FILE *output) {
     for (int i = 0; i < size; i++) {
         sprite *spr = sprite_list + i;
         if (!spr->asm_file)
@@ -573,8 +568,8 @@ void create_config_file(const std::string path) {
     }
 }
 
-std::list<std::string> listExtraAsm(const std::string path) {
-    std::list<std::string> extraDefines;
+std::vector<std::string> listExtraAsm(const std::string path) {
+    std::vector<std::string> extraDefines;
     if (!std::filesystem::exists(cleanPathTrailFromString(path))) {
         return extraDefines;
     }
@@ -825,7 +820,6 @@ void remove(const char *dir, const char *file) {
 
 int main(int argc, char *argv[]) {
     ROM rom;
-
     // individual lists containing the sprites for the specific sections
     sprite *sprite_list = new sprite[MAX_SPRITE_COUNT];
     sprite *cluster_list = new sprite[SPRITE_COUNT];
@@ -1102,7 +1096,7 @@ int main(int argc, char *argv[]) {
     // regular stuff
     //------------------------------------------------------------------------------------------
     create_config_file(ASM_DIR_PATH + "/config.asm");
-    std::list<std::string> extraDefines = listExtraAsm(ASM_DIR_PATH + "/ExtraDefines");
+    std::vector<std::string> extraDefines = listExtraAsm(ASM_DIR_PATH + "/ExtraDefines");
     populate_sprite_list(paths, sprites_list_list, paths[LIST], output);
 
     clean_hack(rom, paths[ASM]);
@@ -1116,7 +1110,7 @@ int main(int argc, char *argv[]) {
     // patch_sprites(extraDefines, ow_list, SPRITE_COUNT, rom, output);
 
     if (!warnings.empty() && stop_on_warnings) {
-        printf("A warning has been detected:\n");
+        printf("One or more warnings have been detected:\n");
         for (const std::string &warning : warnings) {
             printf("%s\n", warning.c_str());
         }
@@ -1360,9 +1354,19 @@ int main(int argc, char *argv[]) {
     patch(paths[ASM], "cluster.asm", rom);
     patch(paths[ASM], "extended.asm", rom);
 
-    std::list<std::string> extraHijacks = listExtraAsm(ASM_DIR_PATH + "/ExtraHijacks");
+    std::vector<std::string> extraHijacks = listExtraAsm(ASM_DIR_PATH + "/ExtraHijacks");
+    int count_extra_prints = 0;
+    if (output && extraHijacks.size() > 0) {
+        fprintf(output, "-------- ExtraHijacks prints --------\n");
+    }
     for (std::string patchUri : extraHijacks) {
         patch(patchUri.c_str(), rom);
+        if (output) {
+            auto prints = asar_getprints(&count_extra_prints);
+            for (int i = 0; i < count_extra_prints; i++) {
+                fprintf(output, "From file \"%s\": %s\n", patchUri.c_str(), prints[i]);
+            }
+        }
     }
 
     // patch(paths[ASM], "asm/overworld.asm", rom);
