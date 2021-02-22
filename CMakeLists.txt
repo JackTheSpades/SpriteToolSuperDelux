@@ -6,15 +6,15 @@ add_executable(pixi src/icon.rc src/cfg.cpp src/file_io.cpp src/json.cpp src/map
 if (CMAKE_COMPILER_IS_GNUCXX)
     if (WIN32)
         message(STATUS "Windows build, adding static libraries")
-        target_link_options(pixi PRIVATE -m32 -static)
+        target_link_options(pixi PRIVATE -m32 -static -s -Wl,--gc-sections)
         target_link_libraries(pixi PRIVATE -static-libgcc -static-libstdc++)
     else()
         message(STATUS "Unix build, not adding static libraries")
-        target_link_options(pixi PRIVATE -m32)
+        target_link_options(pixi PRIVATE -m32 -s -Wl,--gc-sections)
         target_link_libraries(pixi PRIVATE dl)
     endif() 
     message(STATUS "GCC detected, adding compile flags")
-    target_compile_options(pixi PRIVATE -Wl,--gc-sections -m32 -s -Wall -Wextra -Wpedantic) ## -m32 has to be added both in link options and in compile options otherwise unix complains about incompatible architectures
+    target_compile_options(pixi PRIVATE -m32 -Wall -Wextra -Wpedantic) ## -m32 has to be added both in link options and in compile options otherwise unix complains about incompatible architectures
 else()
     set(CMAKE_GENERATOR "Visual Studio 16 2019")
     set(CMAKE_GENERATOR_PLATFORM Win32 CACHE INTERNAL "")
