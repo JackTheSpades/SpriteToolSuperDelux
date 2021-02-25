@@ -1229,7 +1229,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (extensions[EXT_MW2]) {
-        FILE *fp = fopen(extensions[EXT_MW2], "rb");
+        FILE *fp = open(extensions[EXT_MW2], "rb");
         size_t fs_size = file_size(fp);
         if (fs_size == 0) {
             // if size == 0, it means that the file is empty, so we just append the 0x00 and go on with our lives
