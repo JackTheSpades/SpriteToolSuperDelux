@@ -97,11 +97,11 @@ int ROM::snes_to_pc(int address, bool header) {
     return address + (header ? header_size : 0);
 }
 
-pointer ROM::pointer_snes(int address, int size, int bank) {
-    return pointer(::get_pointer(data, snes_to_pc(address), size, bank));
+pointer ROM::pointer_snes(int address, int addrsize, int bank) {
+    return pointer(::get_pointer(data, snes_to_pc(address), addrsize, bank));
 }
-pointer ROM::pointer_pc(int address, int size, int bank) {
-    return pointer(::get_pointer(data, address, size, bank));
+pointer ROM::pointer_pc(int address, int addrsize, int bank) {
+    return pointer(::get_pointer(data, address, addrsize, bank));
 }
 
 unsigned char ROM::read_byte(int addr) {
@@ -125,19 +125,19 @@ void ROM::write_long(int addr, unsigned int val) {
     real_data[addr + 1] = (val >> 8) & 0xFF;
     real_data[addr + 2] = (val >> 16) & 0xFF;
 }
-void ROM::write_data(unsigned char *data, size_t size, int addr) {
-    memcpy(real_data + addr, data, size);
+void ROM::write_data(unsigned char *wdata, size_t wsize, int addr) {
+    memcpy(real_data + addr, wdata, wsize);
 }
-void ROM::read_data(unsigned char *dst, size_t size, int addr) {
-    if (data == nullptr)
-        data = (unsigned char *)malloc(sizeof(unsigned char) * size);
-    memcpy(dst, real_data + addr, size);
+void ROM::read_data(unsigned char *dst, size_t wsize, int addr) {
+    if (dst == nullptr)
+        dst = (unsigned char *)malloc(sizeof(unsigned char) * wsize);
+    memcpy(dst, real_data + addr, wsize);
 }
 
 void set_pointer(pointer *p, int address) {
-    p->lowbyte = (char)(address & 0xFF);
-    p->highbyte = (char)((address >> 8) & 0xFF);
-    p->bankbyte = (char)((address >> 16) & 0xFF);
+    p->lowbyte = (unsigned char)(address & 0xFF);
+    p->highbyte = (unsigned char)((address >> 8) & 0xFF);
+    p->bankbyte = (unsigned char)((address >> 16) & 0xFF);
 }
 
 ROM::~ROM() {

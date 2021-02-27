@@ -82,8 +82,8 @@ bool MeiMei::patch(const char *patch_name, ROM &rom) {
     return true;
 }
 
-void MeiMei::initialize(const char *name) {
-    MeiMei::name = std::string(name);
+void MeiMei::initialize(const char *rom_name) {
+    MeiMei::name = std::string(rom_name);
 
     for (int i = 0; i < 0x400; i++) {
         prevEx[i] = 0x03;
@@ -122,9 +122,6 @@ int MeiMei::run() {
 }
 
 int MeiMei::run(ROM &rom) {
-    uchar *prevEx = MeiMei::prevEx;
-    uchar *nowEx = MeiMei::nowEx;
-
     ROM now;
     now.open(MeiMei::name.c_str());
     if (prev.read_byte(0x07730F) == 0x42) {

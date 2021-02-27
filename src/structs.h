@@ -20,13 +20,14 @@ struct simple_string {
     simple_string() = default;
     simple_string(const simple_string &) = default;
 
-    simple_string &operator=(simple_string &&move) {
+    simple_string &operator=(simple_string &&move) noexcept {
         delete[] data;
         data = move.data;
         move.data = nullptr;
         length = move.length;
         return *this;
     }
+    simple_string& operator=(const simple_string& copy) = delete;
     ~simple_string() {
         delete[] data;
     }
@@ -78,7 +79,7 @@ struct display {
 struct collection {
     const char *name = nullptr;
     bool extra_bit = false;
-    unsigned char prop[12]; // why was this 4 again?
+    unsigned char prop[12] = { 0 }; // why was this 4 again?
 
     ~collection();
 };

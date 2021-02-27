@@ -5,7 +5,6 @@
 #include <map>
 #include <sstream>
 
-
 #include "asar/asardll.h"
 #include "cfg.h"
 #include "file_io.h"
@@ -161,7 +160,7 @@ void create_lm_restore(const char *rom) {
     std::string romname(rom);
     std::string restorename = romname.substr(0, romname.find_last_of('.')) + ".extmod";
 
-    FILE *res = fopen(restorename.c_str(), "a+");
+    FILE *res = open(restorename.c_str(), "a+");
     if (res) {
         size_t size = file_size(res);
         char *contents = new char[size + 1];
@@ -343,7 +342,13 @@ void patch_sprites(std::vector<std::string> &extraDefines, sprite *sprite_list, 
 
             memcpy(PLS_DATA + PLS_DATA_ADDR, &spr->table, 0x10);
             memcpy(PLS_POINTERS + PLS_DATA_ADDR, &spr->ptrs, 15);
-            PLS_POINTERS[PLS_DATA_ADDR + 0x0F] = 0xFF;
+            int index = PLS_DATA_ADDR + 0x0F;
+            if (index < 0x8000) {
+                PLS_POINTERS[index] = 0xFF;
+            }
+            else {
+                error("Per-level sprites data address out of bounds of array, value is %d", PLS_DATA_ADDR);
+            }
             PLS_DATA_ADDR += 0x10;
         }
     }
@@ -568,16 +573,16 @@ void create_config_file(const std::string path) {
     }
 }
 
-std::vector<std::string> listExtraAsm(const std::string path) {
+std::vector<std::string> listExtraAsm(const std::string& path) {
     std::vector<std::string> extraDefines;
     if (!std::filesystem::exists(cleanPathTrailFromString(path))) {
         return extraDefines;
     }
     try {
         for (auto &file : std::filesystem::directory_iterator(path)) {
-            std::string path = file.path().generic_string();
-            if (nameEndWithAsmExtension(path)) {
-                extraDefines.push_back(path);
+            std::string spath = file.path().generic_string();
+            if (nameEndWithAsmExtension(spath)) {
+                extraDefines.push_back(spath);
             }
         }
     } catch (const std::filesystem::filesystem_error &err) {
@@ -644,23 +649,27 @@ void create_shared_patch(const char *routine_path) {
 }
 
 // needs same order as defines at the top...
-enum ListType { Sprite = 0, Extended = 1, Cluster = 2, Overworld = 3 };
+enum class ListType : int { Sprite = 0, Extended = 1, Cluster = 2, Overworld = 3 };
+
+template <typename T> constexpr auto FromEnum(T val) {
+    return static_cast<typename std::underlying_type_t<T>>(val);
+}
 
 void populate_sprite_list(const char **paths, sprite **sprite_lists, const char *listPath, FILE *output) {
-    std::ifstream listStream(listPath);
-    if (!listStream)
-        error("Couldn't open list file %s for reading", listPath);
+    FILE *listStream = open(listPath, "r");
     unsigned int sprite_id, level;
     int lineno = 0;
     int read_res;
     std::string line;
-    ListType type = Sprite;
+    ListType type = ListType::Sprite;
     sprite *spr = nullptr;
     char cfgname[FILENAME_MAX] = {0};
+    char cline[1024]; // i'll boldly assume that nobody is gonna have a 1024 characters line
     const char *dir = nullptr;
-    while (std::getline(listStream, line)) {
+    while (fgets(cline, 1024, listStream) != NULL) {
+        line = cline;
         int read_until = -1;
-        sprite *sprite_list = sprite_lists[type];
+        sprite *sprite_list = sprite_lists[FromEnum(type)];
         // possible line formats: xxx:yy filename.<cfg/json/asm> [; ...]
         //						  yy filename.<cfg/json/asm> [; ...]
         // 						  TYPE: [; ...]
@@ -678,11 +687,11 @@ void populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
             strcpy(cfgname, line.c_str() + read_until);
         } else if (line.find(':') == line.length() - 1) { // if it's the last char in the string, it's a type change
             if (line == "SPRITE:") {
-                type = Sprite;
+                type = ListType::Sprite;
             } else if (line == "CLUSTER:") {
-                type = Cluster;
+                type = ListType::Cluster;
             } else if (line == "EXTENDED:") {
-                type = Extended;
+                type = ListType::Extended;
             }
             continue;
         } else { // if there's a ':' but it's not at the end, it may be a per level sprite
@@ -700,7 +709,7 @@ void populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
             error("Error on line %d: missing extension on filename %s\n", lineno, cfgname);
         dot++;
 
-        if (type == Sprite) {
+        if (type == ListType::Sprite) {
             spr = from_table<sprite>(sprite_list, level, sprite_id);
             // verify sprite pointer and determine cause if invalid
             if (!spr) {
@@ -724,11 +733,11 @@ void populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
         spr->line = lineno;
         spr->level = level;
         spr->number = sprite_id;
-        spr->sprite_type = type;
+        spr->sprite_type = FromEnum(type);
 
         // set the directory for the desired type
-        if (type != Sprite)
-            dir = paths[EXTENDED - 1 + type];
+        if (type != ListType::Sprite)
+            dir = paths[EXTENDED - 1 + FromEnum(type)];
         else {
             if (sprite_id < 0xC0)
                 dir = paths[SPRITES];
@@ -743,7 +752,7 @@ void populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
         strcpy(fullFileName, dir);
         strcat(fullFileName, cfgname);
 
-        if (type != Sprite) {
+        if (type != ListType::Sprite) {
             if (strcmp(dot, "asm") && strcmp(dot, "ASM"))
                 error("Error on line %d: not an asm file\n", lineno);
             spr->asm_file = fullFileName;
@@ -828,10 +837,10 @@ int main(int argc, char *argv[]) {
 
     // the list containing the lists...
     sprite *sprites_list_list[4];
-    sprites_list_list[Sprite] = sprite_list;
-    sprites_list_list[Extended] = extended_list;
-    sprites_list_list[Cluster] = cluster_list;
-    sprites_list_list[Overworld] = ow_list;
+    sprites_list_list[FromEnum(ListType::Sprite)] = sprite_list;
+    sprites_list_list[FromEnum(ListType::Extended)] = extended_list;
+    sprites_list_list[FromEnum(ListType::Cluster)] = cluster_list;
+    sprites_list_list[FromEnum(ListType::Overworld)] = ow_list;
 
     FILE *output = nullptr;
     bool keep_temp = false;
@@ -972,7 +981,7 @@ int main(int argc, char *argv[]) {
         else if (!strcmp(argv[i], "-lm-handle")) {
             lm_handle = argv[i + 1];
             window_handle = (HWND)std::stoull(lm_handle, 0, 16);
-            verification_code = std::stoi(lm_handle.substr(lm_handle.find_first_of(':') + 1), 0, 16);
+            verification_code = (uint16_t)(std::stoi(lm_handle.substr(lm_handle.find_first_of(':') + 1), 0, 16));
             i++;
         }
 #endif
@@ -1045,7 +1054,7 @@ int main(int argc, char *argv[]) {
         printf("You're inserting Pixi without having modified a level in Lunar Magic, this will cause bugs\nDo you "
                "want to abort insertion now [y/n]?\nIf you choose 'n', to fix the bugs just reapply Pixi after having "
                "modified a level\n");
-        char c = getchar();
+        char c = (char)getchar();
         if (tolower(c) == 'y') {
             rom.close();
             asar_close();
@@ -1115,7 +1124,7 @@ int main(int argc, char *argv[]) {
             printf("%s\n", warning.c_str());
         }
         printf("Do you want to continue insertion anyway? [Y/n] (Default is yes):\n");
-        char c = getchar();
+        char c = (char)getchar();
         if (tolower(c) == 'n') {
             asar_close();
             printf("Insertion was stopped, press any button to exit...\n");
@@ -1263,8 +1272,8 @@ int main(int argc, char *argv[]) {
         } else {
             // line number within the list file indicates we've got a filled out sprite
             if (spr->line) {
-                extra_bytes[i] = 3 + spr->byte_count;
-                extra_bytes[i + 0x100] = 3 + spr->extra_byte_count;
+                extra_bytes[i] = (unsigned char)(3 + spr->byte_count);
+                extra_bytes[i + 0x100] = (unsigned char)(3 + spr->extra_byte_count);
 
                 //----- s16 / map16 -------------------------------------------------
 

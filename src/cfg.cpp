@@ -91,7 +91,7 @@ std::pair<int, int> read_byte_count(const std::string &line) {
         int second = std::stoi(line.substr(pos + 1), nullptr, 16);
         values.first = first;
         values.second = second;
-    } catch (const std::exception &e) {
+    } catch (...) {
         throw std::invalid_argument("Hex values for extra byte count in CFG file where wrongly formatted");
     }
     if (values.first > 12 || values.second > 12) {
