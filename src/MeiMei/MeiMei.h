@@ -21,5 +21,5 @@ class MeiMei {
     static void setDebug();
     static void setAlwaysRemap();
     static void setKeepTemp();
-    static void configureSa1Def(std::string pathToSa1Def);
+    static void configureSa1Def(const std::string& pathToSa1Def);
 };

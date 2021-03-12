@@ -1,7 +1,7 @@
 #include "file_io.h"
 #include "paths.h"
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 FILE *open(const char *name, const char *mode) {
     FILE *file = fopen(name, mode);

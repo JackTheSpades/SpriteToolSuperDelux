@@ -1,8 +1,8 @@
 #ifndef FILES_IO_H
 #define FILES_IO_H
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 template <typename... A> void error(const char *message, A... args) {
     printf(message, args...);

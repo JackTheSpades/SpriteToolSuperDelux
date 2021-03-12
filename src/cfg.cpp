@@ -1,7 +1,7 @@
 #include "cfg.h"
 #include "paths.h"
 #include "structs.h"
-#include <stdio.h>
+#include <cstdio>
 
 #include <fstream>
 #include <iostream>

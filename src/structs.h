@@ -2,17 +2,17 @@
 #define STRUCTS_H
 
 #include "file_io.h"
-#include <string.h>
+#include <cstring>
 
 // use 16MB ROM size to avoid asar malloc/memcpy on 8MB of data per block.
-#define MAX_ROM_SIZE 16 * 1024 * 1024
+constexpr auto MAX_ROM_SIZE = 16 * 1024 * 1024;
 
-#define RTL_BANK 0x01
-#define RTL_HIGH 0x80
-#define RTL_LOW 0x21
+constexpr auto RTL_BANK = 0x01;
+constexpr auto RTL_HIGH = 0x80;
+constexpr auto RTL_LOW = 0x21;
 
 // 10 per level, 200 level + 100 global
-#define MAX_SPRITE_COUNT 0x2100
+constexpr auto MAX_SPRITE_COUNT = 0x2100;
 
 struct simple_string {
     int length = 0;

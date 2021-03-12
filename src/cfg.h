@@ -2,7 +2,7 @@
 #define CFG_H
 
 #include <algorithm>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 
 struct sprite;

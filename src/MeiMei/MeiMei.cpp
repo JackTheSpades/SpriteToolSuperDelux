@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 
 
@@ -19,13 +19,17 @@ typedef unsigned int uint;
 typedef unsigned short ushort;
 typedef unsigned char uchar;
 
-const int SPR_ADDR_LIMIT = 0x800;
+constexpr auto SPR_ADDR_LIMIT = 0x800;
 
 #define ERR(msg)                                                                                                       \
     {                                                                                                                  \
         printf("Error: %s", msg);                                                                                      \
         goto end;                                                                                                      \
     }
+
+#define ASSERT_SPR_DATA_ADDR_SIZE(val)                                                                                 \
+    if (val >= SPR_ADDR_LIMIT)                                                                                         \
+        ERR("Sprite data is too large!");
 
 void wait() {
     fflush(stdin);
@@ -56,7 +60,7 @@ string escapeDefines(const string &path) {
     return ss.str();
 }
 
-void MeiMei::configureSa1Def(string pathToSa1Def) {
+void MeiMei::configureSa1Def(const string& pathToSa1Def) {
     string escapedPath = escapeDefines(pathToSa1Def);
     MeiMei::sa1DefPath = escapedPath;
 }
@@ -170,10 +174,6 @@ int MeiMei::run(ROM &rom) {
             bool exlevelFlag = sprAllData[0] & (uchar)0x20;
             bool changeData = false;
 
-#define OF_NOW_OFS()                                                                                                   \
-    if (nowOfs >= SPR_ADDR_LIMIT)                                                                                      \
-        ERR("Sprite data is too large!");
-
             while (true) {
                 now.read_data(sprCommonData, 3, sprAddrPC + prevOfs);
                 if (nowOfs >= SPR_ADDR_LIMIT - 3) {
@@ -206,22 +206,22 @@ int MeiMei::run(ROM &rom) {
                     int i;
                     for (i = 3; i < prevEx[sprNum]; i++) {
                         sprAllData[nowOfs++] = now.read_byte(sprAddrPC + prevOfs + i);
-                        OF_NOW_OFS();
+                        ASSERT_SPR_DATA_ADDR_SIZE(nowOfs);
                     }
                     for (; i < nowEx[sprNum]; i++) {
                         sprAllData[nowOfs++] = 0x00;
-                        OF_NOW_OFS();
+                        ASSERT_SPR_DATA_ADDR_SIZE(nowOfs);
                     }
                 } else if (nowEx[sprNum] < prevEx[sprNum]) {
                     changeData = true;
                     for (int i = 3; i < nowEx[sprNum]; i++) {
                         sprAllData[nowOfs++] = now.read_byte(sprAddrPC + prevOfs + i);
-                        OF_NOW_OFS();
+                        ASSERT_SPR_DATA_ADDR_SIZE(nowOfs);
                     }
                 } else {
                     for (int i = 3; i < nowEx[sprNum]; i++) {
                         sprAllData[nowOfs++] = now.read_byte(sprAddrPC + prevOfs + i);
-                        OF_NOW_OFS();
+                        ASSERT_SPR_DATA_ADDR_SIZE(nowOfs);
                     }
                 }
                 prevOfs += prevEx[sprNum];

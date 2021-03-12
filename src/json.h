@@ -1,7 +1,7 @@
 #ifndef JSON_H
 #define JSON_H
 
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <vector>
 

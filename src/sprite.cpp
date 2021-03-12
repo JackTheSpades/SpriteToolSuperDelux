@@ -20,27 +20,27 @@
 #define ON_WINDOWS
 #endif
 
-#define ROUTINES 0
-#define SPRITES 1
-#define GENERATORS 2
-#define SHOOTERS 3
-#define LIST 4
-#define ASM 5
+constexpr auto ROUTINES = 0;
+constexpr auto SPRITES = 1;
+constexpr auto GENERATORS = 2;
+constexpr auto SHOOTERS = 3;
+constexpr auto LIST = 4;
+constexpr auto ASM = 5;
 
-#define EXTENDED 6
-#define CLUSTER 7
-#define OVERWORLD 8
+constexpr auto EXTENDED = 6;
+constexpr auto CLUSTER = 7;
+constexpr auto OVERWORLD = 8;
 
-#define EXT_SSC 0
-#define EXT_MWT 1
-#define EXT_MW2 2
-#define EXT_S16 3
+constexpr auto EXT_SSC = 0;
+constexpr auto EXT_MWT = 1;
+constexpr auto EXT_MW2 = 2;
+constexpr auto EXT_S16 = 3;
 
-#define INIT_PTR 0x01817D // snes address of default init pointers
-#define MAIN_PTR 0x0185CC // guess what?
+constexpr auto INIT_PTR = 0x01817D; // snes address of default init pointers
+constexpr auto MAIN_PTR = 0x0185CC; // guess what?
 
-#define TEMP_SPR_FILE "spr_temp.asm"
-#define SPRITE_COUNT 0x80 // count for other sprites like cluster, ow, extended
+constexpr auto TEMP_SPR_FILE = "spr_temp.asm";
+constexpr auto SPRITE_COUNT = 0x80; // count for other sprites like cluster, ow, extended
 
 // version 1.xx
 const char VERSION = 0x32;
@@ -652,7 +652,7 @@ void create_shared_patch(const char *routine_path) {
 enum class ListType : int { Sprite = 0, Extended = 1, Cluster = 2, Overworld = 3 };
 
 template <typename T> constexpr auto FromEnum(T val) {
-    return static_cast<typename std::underlying_type_t<T>>(val);
+    return static_cast<std::underlying_type_t<T>>(val);
 }
 
 void populate_sprite_list(const char **paths, sprite **sprite_lists, const char *listPath, FILE *output) {

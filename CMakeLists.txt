@@ -28,6 +28,7 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/asar/asardll.h" 
     "${CMAKE_CURRENT_SOURCE_DIR}/json/base64.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/json/json.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/json_const.h"
 )
 add_executable(pixi ${PIXI_SOURCE_FILES})
 if (CMAKE_COMPILER_IS_GNUCXX)

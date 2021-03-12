@@ -7,7 +7,8 @@
 #include "json/json.hpp"
 
 #include <fstream>
-#include <string.h>
+#include <cstring>
+#include <algorithm>
 
 using json = nlohmann::json;
 
@@ -47,7 +48,6 @@ bool read_json_file(sprite *spr, FILE *output) {
         exit(-1);
     }
 
-#define CAP(x, y) x = (x < (y) ? x : (y))
 
     try {
 
@@ -64,26 +64,15 @@ bool read_json_file(sprite *spr, FILE *output) {
 
             spr->byte_count = j.at("Additional Byte Count (extra bit clear)");
             spr->extra_byte_count = j.at("Additional Byte Count (extra bit set)");
-            CAP(spr->byte_count, 15);
-            CAP(spr->extra_byte_count, 15);
+            spr->byte_count = std::clamp(spr->byte_count, 0, 15);
+            spr->extra_byte_count = std::clamp(spr->byte_count, 0, 15);
         }
-
-        unsigned char tmp = 0;
-#define SET(TWEAK, J)                                                                                                  \
-    {                                                                                                                  \
-        tmp = 0;                                                                                                       \
-        J(tmp, j);                                                                                                     \
-        spr->table.tweak[TWEAK] = tmp;                                                                                 \
-    }
-
-        SET(0, J1656)
-        SET(1, J1662)
-        SET(2, J166E)
-        SET(3, J167A)
-        SET(4, J1686)
-        SET(5, J190F)
-
-#undef SET
+        spr->table.tweak[0] = j1656(j);
+        spr->table.tweak[1] = j1662(j);
+        spr->table.tweak[2] = j166e(j);
+        spr->table.tweak[3] = j167a(j);
+        spr->table.tweak[4] = j1686(j);
+        spr->table.tweak[5] = j190f(j);
 
         std::string decoded = base64_decode(j.at("Map16"));
         spr->map_block_count = decoded.size() / 8;
@@ -100,8 +89,8 @@ bool read_json_file(sprite *spr, FILE *output) {
 
             dis->x = jdisplay.at("X");
             dis->y = jdisplay.at("Y");
-            CAP(dis->x, 0x0F);
-            CAP(dis->y, 0x0F);
+            dis->x = std::clamp(dis->x, 0, 0x0F);
+            dis->y = std::clamp(dis->y, 0, 0x0F);
             dis->extra_bit = jdisplay.at("ExtraBit");
 
             if (jdisplay.at("UseText")) {
@@ -156,6 +145,4 @@ bool read_json_file(sprite *spr, FILE *output) {
             fprintf(output, "Error when parsing json: %s", e.what());
         return false;
     }
-
-#undef CAP
 }
