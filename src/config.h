@@ -91,9 +91,9 @@ struct PixiConfig {
 
     PixiConfig() = default;
 
-    Debug Debug{};
-    Paths Paths{};
-    Extensions Extensions{};
+    Debug m_Debug{};
+    Paths m_Paths{};
+    Extensions m_Extensions{};
     bool KeepFiles = false;
     bool PerLevel = false;
     bool disable255Sprites = false;
@@ -105,6 +105,6 @@ struct PixiConfig {
     std::string AsmDirPath{};
 
     ~PixiConfig() {
-        this->Debug.~Debug();
+        this->m_Debug.~Debug();
     }
 };
