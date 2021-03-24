@@ -45,3 +45,11 @@ void write_all(unsigned char *data, const char *dir, const char *file_name, unsi
     write_all(data, path, size);
     delete[] path;
 }
+
+void write_all(unsigned char *data, std::string_view file_name, unsigned int size) {
+    write_all(data, file_name.data(), size);
+}
+
+void write_all(unsigned char *data, std::string_view dir, std::string_view file_name, unsigned int size) {
+    write_all(data, dir.data(), file_name.data(), size);
+}

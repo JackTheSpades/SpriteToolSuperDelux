@@ -5,36 +5,23 @@
 #include <map>
 #include <sstream>
 
+#include "MeiMei/MeiMei.h"
 #include "asar/asardll.h"
 #include "cfg.h"
+#include "config.h"
 #include "file_io.h"
 #include "json.h"
 #include "map16.h"
 #include "paths.h"
 #include "structs.h"
 
-#include "MeiMei/MeiMei.h"
-
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 #include <windows.h>
 #define ON_WINDOWS
 #endif
 
-constexpr auto ROUTINES = 0;
-constexpr auto SPRITES = 1;
-constexpr auto GENERATORS = 2;
-constexpr auto SHOOTERS = 3;
-constexpr auto LIST = 4;
-constexpr auto ASM = 5;
-
-constexpr auto EXTENDED = 6;
-constexpr auto CLUSTER = 7;
-constexpr auto OVERWORLD = 8;
-
-constexpr auto EXT_SSC = 0;
-constexpr auto EXT_MWT = 1;
-constexpr auto EXT_MW2 = 2;
-constexpr auto EXT_S16 = 3;
+// version 1.xx
+constexpr char VERSION = 0x32;
 
 constexpr auto INIT_PTR = 0x01817D; // snes address of default init pointers
 constexpr auto MAIN_PTR = 0x0185CC; // guess what?
@@ -42,11 +29,9 @@ constexpr auto MAIN_PTR = 0x0185CC; // guess what?
 constexpr auto TEMP_SPR_FILE = "spr_temp.asm";
 constexpr auto SPRITE_COUNT = 0x80; // count for other sprites like cluster, ow, extended
 
-// version 1.xx
-const char VERSION = 0x32;
-bool PER_LEVEL = false;
-bool DISABLE_255_SPRITE_PER_LEVEL = false;
-const char *ASM_DIR = nullptr;
+constexpr int DEFAULT_ROUTINES = 100;
+constexpr int MAX_ROUTINES = 310;
+
 unsigned char PLS_LEVEL_PTRS[0x400];
 unsigned char PLS_SPRITE_PTRS[0x4000];
 int PLS_SPRITE_PTRS_ADDR = 0;
@@ -54,19 +39,16 @@ unsigned char PLS_DATA[0x8000];
 unsigned char PLS_POINTERS[0x8000];
 // index into both PLS_DATA and PLS_POINTERS
 int PLS_DATA_ADDR = 0;
-int DEFAULT_ROUTINES = 100;
-int MAX_ROUTINES = 310;
 
-std::string ASM_DIR_PATH;
-bool disableMeiMei = false;
 std::vector<std::string> warnings{};
+PixiConfig cfg{};
 
 void double_click_exit() {
     getc(stdin); // Pause before exit
 }
 
 template <typename T> T *from_table(T *table, int level, int number) {
-    if (!PER_LEVEL)
+    if (!cfg.PerLevel)
         return table + number;
 
     if (level > 0x200 || number > 0xFF)
@@ -100,10 +82,10 @@ bool patch(const char *patch_name_rel, ROM &rom) {
 #endif
     return true;
 }
-bool patch(const char *dir, const char *patch_name, ROM &rom) {
-    char *path = new char[strlen(dir) + strlen(patch_name) + 1];
+bool patch(std::string_view dir, const char *patch_name, ROM &rom) {
+    char *path = new char[dir.length() + strlen(patch_name) + 1];
     path[0] = 0;
-    strcat(path, dir);
+    strcat(path, dir.data());
     strcat(path, patch_name);
     bool ret = patch(path, rom);
     delete[] path;
@@ -119,7 +101,7 @@ void addIncScrToFile(FILE *file, const std::vector<std::string> &toInclude) {
 FILE *get_debug_output(int argc, char *argv[], int *i) {
 
     if (!strcmp(argv[(*i) + 1], "-out") && (*i) < argc - 3) {
-        const std::string &name = argv[(*i) + 2];
+        const std::string name = argv[(*i) + 2];
         (*i) += 2;
         if (name.find(".smc") != std::string::npos ||
             name.find("-") == 0) { // failsafe in case the user forgets to specify the debug output file (we check if
@@ -133,6 +115,7 @@ FILE *get_debug_output(int argc, char *argv[], int *i) {
                 printf("Couldn't open or create the output file, printing to screen...\n");
                 return stdout;
             } else {
+                cfg.Debug.outfile = name;
                 return fp; // everything went smoothly, return proper file handler
             }
         }
@@ -179,7 +162,7 @@ void create_lm_restore(const char *rom) {
     }
 }
 
-std::string escapeDefines(const std::string &path, const char *repl = "\\!") {
+std::string escapeDefines(std::string_view path, const char *repl = "\\!") {
     std::stringstream ss("");
     for (char c : path) {
         if (c == '!') {
@@ -194,7 +177,7 @@ std::string escapeDefines(const std::string &path, const char *repl = "\\!") {
 void patch_sprite(const std::vector<std::string> &extraDefines, sprite *spr, ROM &rom, FILE *output) {
     std::string escapedDir = escapeDefines(spr->directory);
     std::string escapedAsmfile = escapeDefines(spr->asm_file);
-    std::string escapedAsmdir = escapeDefines(ASM_DIR);
+    std::string escapedAsmdir = escapeDefines(cfg.AsmDir);
     FILE *sprite_patch = open(TEMP_SPR_FILE, "w");
     fprintf(sprite_patch, "namespace nested on\n");
     fprintf(sprite_patch, "incsrc \"%ssa1def.asm\"\n", escapedAsmdir.c_str());
@@ -345,8 +328,7 @@ void patch_sprites(std::vector<std::string> &extraDefines, sprite *sprite_list, 
             int index = PLS_DATA_ADDR + 0x0F;
             if (index < 0x8000) {
                 PLS_POINTERS[index] = 0xFF;
-            }
-            else {
+            } else {
                 error("Per-level sprites data address out of bounds of array, value is %d", PLS_DATA_ADDR);
             }
             PLS_DATA_ADDR += 0x10;
@@ -354,14 +336,11 @@ void patch_sprites(std::vector<std::string> &extraDefines, sprite *sprite_list, 
     }
 }
 
-void clean_hack(ROM &rom, const char *pathname) {
+void clean_hack(ROM &rom, std::string_view pathname) {
     if (!strncmp((char *)rom.data + rom.snes_to_pc(0x02FFE2), "STSD", 4)) { // already installed load old tables
 
-        char *path = new char[strlen(ASM_DIR) + strlen("_cleanup.asm") + 1];
-        path[0] = 0;
-        strcat(path, ASM_DIR);
-        strcat(path, "_cleanup.asm");
-        FILE *clean_patch = open(path, "w");
+        std::string path = cfg.AsmDir + "_cleanup.asm";
+        FILE *clean_patch = open(path.c_str(), "w");
 
         int version = rom.data[rom.snes_to_pc(0x02FFE6)];
         int flags = rom.data[rom.snes_to_pc(0x02FFE7)];
@@ -502,8 +481,7 @@ void clean_hack(ROM &rom, const char *pathname) {
 
         // everything else is being cleaned by the main patch itself.
         fclose(clean_patch);
-        patch(path, rom);
-        delete[] path;
+        patch(path.c_str(), rom);
     } else if (!strncmp((char *)rom.data + rom.snes_to_pc(rom.pointer_snes(0x02A963 + 1).addr() - 3), "MDK",
                         3)) { // check for old sprite_tool code. (this is annoying)
         patch((std::string(pathname) + "spritetool_clean.asm").c_str(), rom);
@@ -561,21 +539,21 @@ void clean_hack(ROM &rom, const char *pathname) {
 }
 
 bool areConfigFlagsToggled() {
-    return PER_LEVEL == true || DISABLE_255_SPRITE_PER_LEVEL == true || true; // for now config is recreated on all runs
+    return cfg.PerLevel || cfg.disable255Sprites || true; // for now config is recreated on all runs
 }
 
 void create_config_file(const std::string path) {
     if (areConfigFlagsToggled()) {
         FILE *config = open(path.c_str(), "w");
-        fprintf(config, "!PerLevel = %d\n", (int)PER_LEVEL);
-        fprintf(config, "!Disable255SpritesPerLevel = %d", (int)DISABLE_255_SPRITE_PER_LEVEL);
+        fprintf(config, "!PerLevel = %d\n", (int)cfg.PerLevel);
+        fprintf(config, "!Disable255SpritesPerLevel = %d", (int)cfg.disable255Sprites);
         fclose(config);
     }
 }
 
-std::vector<std::string> listExtraAsm(const std::string& path) {
+std::vector<std::string> listExtraAsm(const std::string &path) {
     std::vector<std::string> extraDefines;
-    if (!std::filesystem::exists(cleanPathTrailFromString(path))) {
+    if (!std::filesystem::exists(cleanPathTrail(path))) {
         return extraDefines;
     }
     try {
@@ -591,11 +569,7 @@ std::vector<std::string> listExtraAsm(const std::string& path) {
     return extraDefines;
 }
 
-std::string cleanPathTrail(const char *path) {
-    return cleanPathTrailFromString(std::string(path));
-}
-
-void create_shared_patch(const char *routine_path) {
+void create_shared_patch(const std::string& routine_path) {
     std::string escapedRoutinepath = escapeDefines(routine_path, R"(\\\!)");
     FILE *shared_patch = open("shared.asm", "w");
     fprintf(shared_patch, "macro include_once(target, base, offset)\n"
@@ -619,7 +593,7 @@ void create_shared_patch(const char *routine_path) {
                           "endmacro\n");
     int routine_count = 0;
     if (!std::filesystem::exists(cleanPathTrail(routine_path))) {
-        error("Couldn't open folder \"%s\" for reading.", routine_path);
+        error("Couldn't open folder \"%s\" for reading.", routine_path.c_str());
     }
     try {
         for (const auto &routine_file : std::filesystem::directory_iterator(routine_path)) {
@@ -642,21 +616,15 @@ void create_shared_patch(const char *routine_path) {
             }
         }
     } catch (const std::filesystem::filesystem_error &err) {
-        error("Trying to read folder \"%s\" returned \"%s\", aborting insertion\n", routine_path, err.what());
+        error("Trying to read folder \"%s\" returned \"%s\", aborting insertion\n", routine_path.c_str(), err.what());
     }
-    printf("%d Shared routines registered in \"%s\"\n", routine_count, routine_path);
+    printf("%d Shared routines registered in \"%s\"\n", routine_count, routine_path.data());
     fclose(shared_patch);
 }
 
-// needs same order as defines at the top...
-enum class ListType : int { Sprite = 0, Extended = 1, Cluster = 2, Overworld = 3 };
 
-template <typename T> constexpr auto FromEnum(T val) {
-    return static_cast<std::underlying_type_t<T>>(val);
-}
-
-void populate_sprite_list(const char **paths, sprite **sprite_lists, const char *listPath, FILE *output) {
-    FILE *listStream = open(listPath, "r");
+void populate_sprite_list(const Paths& paths, sprite **sprite_lists, std::string_view listPath, FILE *output) {
+    FILE *listStream = open(listPath.data(), "r");
     unsigned int sprite_id, level;
     int lineno = 0;
     int read_res;
@@ -698,7 +666,7 @@ void populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
             read_res = sscanf(line.c_str(), "%x:%x %n", &level, &sprite_id, &read_until);
             if (read_res != 2 || read_res == EOF || read_until == -1)
                 error("Line %d was malformed: \"%s\"\n", lineno, line.c_str());
-            if (!PER_LEVEL)
+            if (!cfg.PerLevel)
                 error("Trying to insert per level sprites without using the -pl flag, at line %d: \"%s\"\n", lineno,
                       line.c_str());
             strcpy(cfgname, line.c_str() + read_until);
@@ -737,14 +705,14 @@ void populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 
         // set the directory for the desired type
         if (type != ListType::Sprite)
-            dir = paths[EXTENDED - 1 + FromEnum(type)];
+            dir = paths[FromEnum(PathType::Extended) - 1 + FromEnum(type)].c_str();
         else {
             if (sprite_id < 0xC0)
-                dir = paths[SPRITES];
+                dir = paths[FromEnum(PathType::Sprites)].c_str();
             else if (sprite_id < 0xD0)
-                dir = paths[SHOOTERS];
+                dir = paths[FromEnum(PathType::Shooters)].c_str();
             else
-                dir = paths[GENERATORS];
+                dir = paths[FromEnum(PathType::Generators)].c_str();
         }
         spr->directory = dir;
 
@@ -789,7 +757,7 @@ void populate_sprite_list(const char **paths, sprite **sprite_lists, const char 
 // spr      = sprite array
 // filename = duh
 // size     = number of sprites to loop over
-void write_long_table(sprite *spr, const char *dir, const char *filename, int size = 0x800) {
+void write_long_table(sprite *spr, std::string_view dir, std::string_view filename, int size = 0x800) {
     unsigned char dummy[0x10] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                                  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
     unsigned char *file = new unsigned char[size * 0x10];
@@ -818,10 +786,10 @@ FILE *open_subfile(ROM &rom, const char *ext, const char *mode) {
     return r;
 }
 
-void remove(const char *dir, const char *file) {
-    char *path = new char[strlen(dir) + strlen(file) + 1];
+void remove(std::string_view dir, const char *file) {
+    char *path = new char[dir.length() + strlen(file) + 1];
     path[0] = 0;
-    strcat(path, dir);
+    strcat(path, dir.data());
     strcat(path, file);
     remove(path);
     delete[] path;
@@ -842,10 +810,6 @@ int main(int argc, char *argv[]) {
     sprites_list_list[FromEnum(ListType::Cluster)] = cluster_list;
     sprites_list_list[FromEnum(ListType::Overworld)] = ow_list;
 
-    FILE *output = nullptr;
-    bool keep_temp = false;
-    bool extmod = true;
-    bool stop_on_warnings = false;
 #ifdef ON_WINDOWS
     std::string lm_handle;
     uint16_t verification_code = 0;
@@ -853,21 +817,6 @@ int main(int argc, char *argv[]) {
 #endif
     // first is version 1.xx, others are preserved
     unsigned char versionflag[4] = {VERSION, 0x00, 0x00, 0x00};
-
-    const char *paths[9];
-    paths[LIST] = "list.txt";
-    paths[SPRITES] = "sprites/";
-    paths[SHOOTERS] = "shooters/";
-    paths[GENERATORS] = "generators/";
-    paths[ROUTINES] = "routines/";
-    paths[ASM] = "asm/";
-    paths[EXTENDED] = "extended/";
-    paths[CLUSTER] = "cluster/";
-    paths[OVERWORLD] = "overworld/";
-
-    // list of strings containing the files to be used as base for <romname.xxx>
-    // all nullptr by default
-    const char *extensions[4] = {0};
 
     // map16 for sprite displays
     map16 *map = new map16[MAP16_SIZE];
@@ -889,12 +838,12 @@ int main(int argc, char *argv[]) {
 
 #define SET_PATH(str, index)                                                                                           \
     else if (!strcmp(argv[i], str) && i < argc - 2) {                                                                  \
-        paths[index] = argv[i + 1];                                                                                    \
+        cfg.Paths[FromEnum(index)] = argv[i + 1];                                                                      \
         i++;                                                                                                           \
     }
 #define SET_EXT(str, index)                                                                                            \
     else if (!strcmp(argv[i], str) && i < argc - 2) {                                                                  \
-        extensions[index] = argv[i + 1];                                                                               \
+        cfg.Extensions[FromEnum(index)] = argv[i + 1];                                                                 \
         i++;                                                                                                           \
     }
 
@@ -905,7 +854,8 @@ int main(int argc, char *argv[]) {
             printf("-out <filename>\t\tTo be used IMMEDIATELY after -d, will redirect the debug output to the "
                    "specified file, if omitted, the output will default to prompt\n");
             printf("-k\t\tKeep debug files\n");
-            printf("-l  <listpath>\tSpecify a custom list file (Default: %s)\n", paths[LIST]);
+            printf("-l  <listpath>\tSpecify a custom list file (Default: %s)\n",
+                   cfg.Paths[FromEnum(PathType::List)].c_str());
             printf("-pl\t\tPer level sprites - will insert perlevel sprite code\n");
             printf("-npl\t\tSame as the current default, no sprite per level will be inserted, left dangling for "
                    "compatibility reasons\n");
@@ -913,16 +863,24 @@ int main(int argc, char *argv[]) {
             printf("-w\t\tEnable asar warnings check, recommended to use when developing sprites.\n");
             printf("\n");
 
-            printf("-a  <asm>\tSpecify a custom asm directory (Default %s)\n", paths[ASM]);
-            printf("-sp <sprites>\tSpecify a custom sprites directory (Default %s)\n", paths[SPRITES]);
-            printf("-sh <shooters>\tSpecify a custom shooters directory (Default %s)\n", paths[SHOOTERS]);
-            printf("-g  <generators>\tSpecify a custom generators directory (Default %s)\n", paths[GENERATORS]);
-            printf("-e  <extended>\tSpecify a custom extended sprites directory (Default %s)\n", paths[EXTENDED]);
-            printf("-c  <cluster>\tSpecify a custom cluster sprites directory (Default %s)\n", paths[CLUSTER]);
-            // printf("-ow <cluster>\tSpecify a custom overworld sprites directory (Default %s)\n", paths[OVERWORLD]);
+            printf("-a  <asm>\tSpecify a custom asm directory (Default %s)\n",
+                   cfg.Paths[FromEnum(PathType::Asm)].c_str());
+            printf("-sp <sprites>\tSpecify a custom sprites directory (Default %s)\n",
+                   cfg.Paths[FromEnum(PathType::Sprites)].c_str());
+            printf("-sh <shooters>\tSpecify a custom shooters directory (Default %s)\n",
+                   cfg.Paths[FromEnum(PathType::Shooters)].c_str());
+            printf("-g  <generators>\tSpecify a custom generators directory (Default %s)\n",
+                   cfg.Paths[FromEnum(PathType::Generators)].c_str());
+            printf("-e  <extended>\tSpecify a custom extended sprites directory (Default %s)\n",
+                   cfg.Paths[FromEnum(PathType::Extended)].c_str());
+            printf("-c  <cluster>\tSpecify a custom cluster sprites directory (Default %s)\n",
+                   cfg.Paths[FromEnum(PathType::Cluster)].c_str());
+            // printf("-ow <cluster>\tSpecify a custom overworld sprites directory (Default %s)\n",
+            // paths[FromEnum(PathType::Overworld)]);
             printf("\n");
 
-            printf("-r   <routines>\tSpecify a shared routine directory (Default %s)\n", paths[ROUTINES]);
+            printf("-r   <routines>\tSpecify a shared routine directory (Default %s)\n",
+                   cfg.Paths[FromEnum(PathType::Routines)].c_str());
             printf("-nr <number>\tSpecify limit to shared routines (Default %d, Maximum value %d)\n", DEFAULT_ROUTINES,
                    MAX_ROUTINES);
             printf("\n");
@@ -948,24 +906,20 @@ int main(int argc, char *argv[]) {
 
             exit(0);
         } else if (!strcmp(argv[i], "-d") || !strcmp(argv[i], "--debug")) {
-            output = get_debug_output(argc, argv, &i);
+            cfg.Debug.output = get_debug_output(argc, argv, &i);
         } else if (!strcmp(argv[i], "-k")) {
-            keep_temp = true;
+            cfg.KeepFiles = true;
         } else if (!strcmp(argv[i], "-nr")) {
-            DEFAULT_ROUTINES = std::atoi(argv[i + 1]);
+            cfg.Routines = std::clamp(std::atoi(argv[i + 1]), DEFAULT_ROUTINES, MAX_ROUTINES);
             i++;
-            if (DEFAULT_ROUTINES > MAX_ROUTINES)
-                DEFAULT_ROUTINES = MAX_ROUTINES;
-            if (DEFAULT_ROUTINES == 0)
-                DEFAULT_ROUTINES = 100;
         } else if (!strcmp(argv[i], "-pl")) {
-            PER_LEVEL = true;
+            cfg.PerLevel = true;
         } else if (!strcmp(argv[i], "-npl")) {
-            PER_LEVEL = false;
+            cfg.PerLevel = false;
         } else if (!strcmp(argv[i], "-d255spl")) {
-            DISABLE_255_SPRITE_PER_LEVEL = true;
+            cfg.disable255Sprites = true;
         } else if (!strcmp(argv[i], "-w")) {
-            stop_on_warnings = true;
+            cfg.Warnings = true;
         } else if (!strcmp(argv[i], "-meimei-a")) {
             MeiMei::setAlwaysRemap();
         } else if (!strcmp(argv[i], "-meimei-d")) {
@@ -973,9 +927,9 @@ int main(int argc, char *argv[]) {
         } else if (!strcmp(argv[i], "-meimei-k")) {
             MeiMei::setKeepTemp();
         } else if (!strcmp(argv[i], "-meimei-off")) {
-            disableMeiMei = true;
+            cfg.DisableMeiMei = true;
         } else if (!strcmp(argv[i], "-ext-off")) {
-            extmod = false;
+            cfg.ExtMod = false;
         }
 #ifdef ON_WINDOWS
         else if (!strcmp(argv[i], "-lm-handle")) {
@@ -985,19 +939,19 @@ int main(int argc, char *argv[]) {
             i++;
         }
 #endif
-        SET_PATH("-r", ROUTINES)
-        SET_PATH("-a", ASM)
-        SET_PATH("-sp", SPRITES)
-        SET_PATH("-sh", SHOOTERS)
-        SET_PATH("-g", GENERATORS)
-        SET_PATH("-l", LIST)
-        SET_PATH("-e", EXTENDED)
-        SET_PATH("-c", CLUSTER)
+        SET_PATH("-r", PathType::Routines)
+        SET_PATH("-a", PathType::Asm)
+        SET_PATH("-sp", PathType::Sprites)
+        SET_PATH("-sh", PathType::Shooters)
+        SET_PATH("-g", PathType::Generators)
+        SET_PATH("-l", PathType::List)
+        SET_PATH("-e", PathType::Extended)
+        SET_PATH("-c", PathType::Cluster)
 
-        SET_EXT("-ssc", EXT_SSC)
-        SET_EXT("-mwt", EXT_MWT)
-        SET_EXT("-mw2", EXT_MW2)
-        SET_EXT("-s16", EXT_S16)
+        SET_EXT("-ssc", ExtType::Ssc)
+        SET_EXT("-mwt", ExtType::Mwt)
+        SET_EXT("-mw2", ExtType::Mw2)
+        SET_EXT("-s16", ExtType::S16)
         else {
             if (i == argc - 1) {
                 break;
@@ -1010,7 +964,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    versionflag[1] = (PER_LEVEL ? 1 : 0);
+    versionflag[1] = (cfg.PerLevel ? 1 : 0);
 
     //------------------------------------------------------------------------------------------
     // Get ROM name if none has been passed yet.
@@ -1074,7 +1028,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Initialize MeiMei
-    if (!disableMeiMei) {
+    if (!cfg.DisableMeiMei) {
         MeiMei::initialize(rom.name);
     }
 
@@ -1082,20 +1036,20 @@ int main(int argc, char *argv[]) {
     // set path for directories relative to pixi or rom, not working dir.
     //------------------------------------------------------------------------------------------
 
-    for (int i = 0; i < 9; i++) {
-        if (i == LIST)
-            set_paths_relative_to(paths + i, rom.name);
+    for (int i = 0; i < FromEnum(PathType::SIZE); i++) {
+        if (i == FromEnum(PathType::List))
+            set_paths_relative_to(cfg.Paths[i], rom.name);
         else
-            set_paths_relative_to(paths + i, argv[0]);
+            set_paths_relative_to(cfg.Paths[i], argv[0]);
 #ifdef DEBUGMSG
         debug_print("paths[%d] = %s\n", i, paths[i]);
 #endif
     }
-    ASM_DIR = paths[ASM];
-    ASM_DIR_PATH = cleanPathTrail(ASM_DIR);
+    cfg.AsmDir = cfg.Paths[FromEnum(PathType::Asm)];
+    cfg.AsmDirPath = cleanPathTrail(cfg.AsmDir);
 
-    for (int i = 0; i < 4; i++) {
-        set_paths_relative_to(extensions + i, rom.name);
+    for (int i = 0; i < FromEnum(ExtType::SIZE); i++) {
+        set_paths_relative_to(cfg.Extensions[i], rom.name);
 #ifdef DEBUGMSG
         debug_print("extensions[%d] = %s\n", i, extensions[i]);
 #endif
@@ -1104,21 +1058,21 @@ int main(int argc, char *argv[]) {
     //------------------------------------------------------------------------------------------
     // regular stuff
     //------------------------------------------------------------------------------------------
-    create_config_file(ASM_DIR_PATH + "/config.asm");
-    std::vector<std::string> extraDefines = listExtraAsm(ASM_DIR_PATH + "/ExtraDefines");
-    populate_sprite_list(paths, sprites_list_list, paths[LIST], output);
+    create_config_file(cfg.AsmDirPath + "/config.asm");
+    std::vector<std::string> extraDefines = listExtraAsm(cfg.AsmDirPath + "/ExtraDefines");
+    populate_sprite_list(cfg.Paths, sprites_list_list, cfg.Paths[FromEnum(PathType::List)], cfg.Debug.output);
 
-    clean_hack(rom, paths[ASM]);
+    clean_hack(rom, cfg.Paths[FromEnum(PathType::Asm)]);
 
-    create_shared_patch(paths[ROUTINES]);
+    create_shared_patch(cfg.Paths[FromEnum(PathType::Routines)]);
 
-    int size = PER_LEVEL ? MAX_SPRITE_COUNT : 0x100;
-    patch_sprites(extraDefines, sprite_list, size, rom, output);
-    patch_sprites(extraDefines, cluster_list, SPRITE_COUNT, rom, output);
-    patch_sprites(extraDefines, extended_list, SPRITE_COUNT, rom, output);
+    int size = cfg.PerLevel ? MAX_SPRITE_COUNT : 0x100;
+    patch_sprites(extraDefines, sprite_list, size, rom, cfg.Debug.output);
+    patch_sprites(extraDefines, cluster_list, SPRITE_COUNT, rom, cfg.Debug.output);
+    patch_sprites(extraDefines, extended_list, SPRITE_COUNT, rom, cfg.Debug.output);
     // patch_sprites(extraDefines, ow_list, SPRITE_COUNT, rom, output);
 
-    if (!warnings.empty() && stop_on_warnings) {
+    if (!warnings.empty() && cfg.Warnings) {
         printf("One or more warnings have been detected:\n");
         for (const std::string &warning : warnings) {
             printf("%s\n", warning.c_str());
@@ -1144,46 +1098,47 @@ int main(int argc, char *argv[]) {
 #ifdef DEBUGMSG
     debug_print("Try create binary tables.\n");
 #endif
-    write_all(versionflag, paths[ASM], "_versionflag.bin", 4);
-    if (PER_LEVEL) {
-        write_all(PLS_LEVEL_PTRS, paths[ASM], "_PerLevelLvlPtrs.bin", 0x400);
+    constexpr int ASM = FromEnum(PathType::Asm);
+    write_all(versionflag, cfg.Paths[ASM], "_versionflag.bin", 4);
+    if (cfg.PerLevel) {
+        write_all(PLS_LEVEL_PTRS, cfg.Paths[ASM], "_PerLevelLvlPtrs.bin", 0x400);
         if (PLS_DATA_ADDR == 0) {
             unsigned char dummy[1] = {0xFF};
-            write_all(dummy, paths[ASM], "_PerLevelSprPtrs.bin", 1);
-            write_all(dummy, paths[ASM], "_PerLevelT.bin", 1);
-            write_all(dummy, paths[ASM], "_PerLevelCustomPtrTable.bin", 1);
+            write_all(dummy, cfg.Paths[ASM], "_PerLevelSprPtrs.bin", 1);
+            write_all(dummy, cfg.Paths[ASM], "_PerLevelT.bin", 1);
+            write_all(dummy, cfg.Paths[ASM], "_PerLevelCustomPtrTable.bin", 1);
         } else {
-            write_all(PLS_SPRITE_PTRS, paths[ASM], "_PerLevelSprPtrs.bin", PLS_SPRITE_PTRS_ADDR);
-            write_all(PLS_DATA, paths[ASM], "_PerLevelT.bin", PLS_DATA_ADDR);
-            write_all(PLS_POINTERS, paths[ASM], "_PerLevelCustomPtrTable.bin", PLS_DATA_ADDR);
+            write_all(PLS_SPRITE_PTRS, cfg.Paths[ASM], "_PerLevelSprPtrs.bin", PLS_SPRITE_PTRS_ADDR);
+            write_all(PLS_DATA, cfg.Paths[ASM], "_PerLevelT.bin", PLS_DATA_ADDR);
+            write_all(PLS_POINTERS, cfg.Paths[ASM], "_PerLevelCustomPtrTable.bin", PLS_DATA_ADDR);
 #ifdef DEBUGMSG
             debug_print("Per-level sprites data size : 0x400+0x%04X+2*0x%04X = %04X\n", PLS_SPRITE_PTRS_ADDR,
                         PLS_DATA_ADDR, 0x400 + PLS_SPRITE_PTRS_ADDR + 2 * PLS_DATA_ADDR);
 #endif
         }
-        write_long_table(sprite_list + 0x2000, paths[ASM], "_DefaultTables.bin", 0x100);
+        write_long_table(sprite_list + 0x2000, cfg.Paths[ASM], "_DefaultTables.bin", 0x100);
     } else {
-        write_long_table(sprite_list, paths[ASM], "_DefaultTables.bin", 0x100);
+        write_long_table(sprite_list, cfg.Paths[ASM], "_DefaultTables.bin", 0x100);
     }
     unsigned char customstatusptrs[0x100 * 15];
-    for (int i = 0, j = PER_LEVEL ? 0x2000 : 0; i < 0x100 * 5; i += 5, j++) {
+    for (int i = 0, j = cfg.PerLevel ? 0x2000 : 0; i < 0x100 * 5; i += 5, j++) {
         memcpy(customstatusptrs + (i * 3), &sprite_list[j].ptrs, 15);
     }
-    write_all(customstatusptrs, paths[ASM], "_CustomStatusPtr.bin", 0x100 * 15);
+    write_all(customstatusptrs, cfg.Paths[ASM], "_CustomStatusPtr.bin", 0x100 * 15);
 
     // cluster
     unsigned char file[SPRITE_COUNT * 3];
     for (int i = 0; i < SPRITE_COUNT; i++)
         memcpy(file + (i * 3), &cluster_list[i].table.main, 3);
-    write_all(file, paths[ASM], "_ClusterPtr.bin", SPRITE_COUNT * 3);
+    write_all(file, cfg.Paths[ASM], "_ClusterPtr.bin", SPRITE_COUNT * 3);
 
     // extended
     for (int i = 0; i < SPRITE_COUNT; i++)
         memcpy(file + (i * 3), &extended_list[i].table.main, 3);
-    write_all(file, paths[ASM], "_ExtendedPtr.bin", SPRITE_COUNT * 3);
+    write_all(file, cfg.Paths[ASM], "_ExtendedPtr.bin", SPRITE_COUNT * 3);
     for (int i = 0; i < SPRITE_COUNT; i++)
         memcpy(file + (i * 3), &extended_list[i].extended_cape_ptr, 3);
-    write_all(file, paths[ASM], "_ExtendedCapePtr.bin", SPRITE_COUNT * 3);
+    write_all(file, cfg.Paths[ASM], "_ExtendedCapePtr.bin", SPRITE_COUNT * 3);
 
     // overworld
     // for(int i = 0; i < SPRITE_COUNT; i++)
@@ -1219,8 +1174,8 @@ int main(int argc, char *argv[]) {
     debug_print("Romname files opened.\n");
 #endif
 
-    if (extensions[EXT_SSC]) {
-        std::ifstream fin(extensions[EXT_SSC]);
+    if (!cfg.Extensions[FromEnum(ExtType::Ssc)].empty()) {
+        std::ifstream fin(cfg.Extensions[FromEnum(ExtType::Ssc)].c_str());
         std::string line;
         while (std::getline(fin, line)) {
             fprintf(ssc, "%s\n", line.c_str());
@@ -1228,8 +1183,8 @@ int main(int argc, char *argv[]) {
         fin.close();
     }
 
-    if (extensions[EXT_MWT]) {
-        std::ifstream fin(extensions[EXT_MWT]);
+    if (!cfg.Extensions[FromEnum(ExtType::Mwt)].empty()) {
+        std::ifstream fin(cfg.Extensions[FromEnum(ExtType::Mwt)].c_str());
         std::string line;
         while (std::getline(fin, line)) {
             fprintf(mwt, "%s\n", line.c_str());
@@ -1237,8 +1192,8 @@ int main(int argc, char *argv[]) {
         fin.close();
     }
 
-    if (extensions[EXT_MW2]) {
-        FILE *fp = open(extensions[EXT_MW2], "rb");
+    if (!cfg.Extensions[FromEnum(ExtType::Mw2)].empty()) {
+        FILE *fp = open(cfg.Extensions[FromEnum(ExtType::Mw2)].c_str(), "rb");
         size_t fs_size = file_size(fp);
         if (fs_size == 0) {
             // if size == 0, it means that the file is empty, so we just append the 0x00 and go on with our lives
@@ -1248,7 +1203,8 @@ int main(int argc, char *argv[]) {
             unsigned char *mw2_data = new unsigned char[fs_size];
             size_t read_size = fread(mw2_data, 1, fs_size, fp);
             if (read_size != fs_size)
-                error("Couldn't fully read file %s, please check file permissions", extensions[EXT_MW2]);
+                error("Couldn't fully read file %s, please check file permissions",
+                      cfg.Extensions[FromEnum(ExtType::Mw2)].c_str());
             fclose(fp);
             fwrite(mw2_data, 1, fs_size, mw2);
             delete[] mw2_data;
@@ -1258,14 +1214,14 @@ int main(int argc, char *argv[]) {
         fputc(0x00, mw2); // binary data starts with 0x00
     }
 
-    if (extensions[EXT_S16])
-        read_map16(map, extensions[EXT_S16]);
+    if (!cfg.Extensions[FromEnum(ExtType::S16)].empty())
+        read_map16(map, cfg.Extensions[FromEnum(ExtType::S16)].c_str());
 
     for (int i = 0; i < 0x100; i++) {
         sprite *spr = from_table<sprite>(sprite_list, 0x200, i);
 
         // sprite pointer being null indicates per-level sprite
-        if (!spr || (PER_LEVEL && i >= 0xB0 && i < 0xC0)) {
+        if (!spr || (cfg.PerLevel && i >= 0xB0 && i < 0xC0)) {
             extra_bytes[i] = 7; // 3 bytes + 4 extra bytes because the old one broke basically any sprite that wasn't
                                 // using exactly 9 extra bytes
             extra_bytes[i + 0x100] = 7; // 12 was wrong anyway, should've been 15
@@ -1350,7 +1306,7 @@ int main(int argc, char *argv[]) {
     }
     fputc(0xFF, mw2); // binary data ends with 0xFF (see SMW level data format)
 
-    write_all(extra_bytes, paths[ASM], "_CustomSize.bin", 0x200);
+    write_all(extra_bytes, cfg.Paths[ASM], "_CustomSize.bin", 0x200);
     fwrite(map, sizeof(map16), MAP16_SIZE, s16);
     // close all the files.
     fclose(s16);
@@ -1359,21 +1315,21 @@ int main(int argc, char *argv[]) {
     fclose(mw2);
 
     // apply the actual patches
-    patch(paths[ASM], "main.asm", rom);
-    patch(paths[ASM], "cluster.asm", rom);
-    patch(paths[ASM], "extended.asm", rom);
+    patch(cfg.Paths[ASM], "main.asm", rom);
+    patch(cfg.Paths[ASM], "cluster.asm", rom);
+    patch(cfg.Paths[ASM], "extended.asm", rom);
 
-    std::vector<std::string> extraHijacks = listExtraAsm(ASM_DIR_PATH + "/ExtraHijacks");
+    std::vector<std::string> extraHijacks = listExtraAsm(cfg.AsmDirPath + "/ExtraHijacks");
     int count_extra_prints = 0;
-    if (output && extraHijacks.size() > 0) {
-        fprintf(output, "-------- ExtraHijacks prints --------\n");
+    if (cfg.Debug.output && extraHijacks.size() > 0) {
+        cfg.Debug.dprintf("-------- ExtraHijacks prints --------\n");
     }
     for (std::string patchUri : extraHijacks) {
         patch(patchUri.c_str(), rom);
-        if (output) {
+        if (cfg.Debug.output) {
             auto prints = asar_getprints(&count_extra_prints);
             for (int i = 0; i < count_extra_prints; i++) {
-                fprintf(output, "From file \"%s\": %s\n", patchUri.c_str(), prints[i]);
+                cfg.Debug.dprintf("From file \"%s\": %s\n", patchUri.c_str(), prints[i]);
             }
         }
     }
@@ -1384,49 +1340,40 @@ int main(int argc, char *argv[]) {
     // clean up (if necessary)
     //------------------------------------------------------------------------------------------
 
-    if (!keep_temp) {
-        remove(paths[ASM], "_versionflag.bin");
+    if (!cfg.KeepFiles) {
+        remove(cfg.Paths[ASM], "_versionflag.bin");
 
-        remove(paths[ASM], "_DefaultTables.bin");
-        remove(paths[ASM], "_CustomStatusPtr.bin");
-        if (PER_LEVEL) {
-            remove(paths[ASM], "_PerLevelLvlPtrs.bin");
-            remove(paths[ASM], "_PerLevelSprPtrs.bin");
-            remove(paths[ASM], "_PerLevelT.bin");
-            remove(paths[ASM], "_PerLevelCustomPtrTable.bin");
+        remove(cfg.Paths[ASM], "_DefaultTables.bin");
+        remove(cfg.Paths[ASM], "_CustomStatusPtr.bin");
+        if (cfg.PerLevel) {
+            remove(cfg.Paths[ASM], "_PerLevelLvlPtrs.bin");
+            remove(cfg.Paths[ASM], "_PerLevelSprPtrs.bin");
+            remove(cfg.Paths[ASM], "_PerLevelT.bin");
+            remove(cfg.Paths[ASM], "_PerLevelCustomPtrTable.bin");
         }
 
-        remove(paths[ASM], "_ClusterPtr.bin");
-        remove(paths[ASM], "_ExtendedPtr.bin");
-        remove(paths[ASM], "_ExtendedCapePtr.bin");
+        remove(cfg.Paths[ASM], "_ClusterPtr.bin");
+        remove(cfg.Paths[ASM], "_ExtendedPtr.bin");
+        remove(cfg.Paths[ASM], "_ExtendedCapePtr.bin");
         // remove("asm/_OverworldMainPtr.bin");
         // remove("asm/_OverworldInitPtr.bin");
 
-        remove(paths[ASM], "_CustomSize.bin");
+        remove(cfg.Paths[ASM], "_CustomSize.bin");
         remove("shared.asm");
         remove(TEMP_SPR_FILE);
 
-        remove(paths[ASM], "_cleanup.asm");
+        remove(cfg.Paths[ASM], "_cleanup.asm");
     }
 
     printf("\nAll sprites applied successfully!\n");
 
-    for (int i = 0; i < 9; i++) {
-        delete[] paths[i];
-    }
-
-    for (int i = 0; i < 4; i++) {
-        delete[] extensions[i];
-    }
-
-    if (extmod)
+    if (cfg.ExtMod)
         create_lm_restore(rom.name);
-
     rom.close();
     asar_close();
     int retval = 0;
-    if (!disableMeiMei) {
-        MeiMei::configureSa1Def(ASM_DIR_PATH.append("/sa1def.asm"));
+    if (!cfg.DisableMeiMei) {
+        MeiMei::configureSa1Def(cfg.AsmDirPath + "/sa1def.asm");
         retval = MeiMei::run();
     }
 

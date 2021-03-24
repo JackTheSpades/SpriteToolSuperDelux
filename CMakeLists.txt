@@ -29,6 +29,7 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/json/base64.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/json/json.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/json_const.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/config.h"
 )
 add_executable(pixi ${PIXI_SOURCE_FILES})
 if (CMAKE_COMPILER_IS_GNUCXX)
@@ -79,11 +80,23 @@ else()
             /wd4774 # format string is not a string literal
 
             # from here are warnings that I can't do anything about
-            /wd4061 # stuff in nlohmann::json that I can't fix
-            /wd28020 # same as above
-            /wd26495 # same as above
+            # but I still dont't want them clogging my output
+
+            # from nlhomann's json.hpp
+            /wd4061 # enumerator 'identifier' in switch of enum 'enumeration' is not explicitly handled by a case label
+            /wd4623 # default constructor was implicitely defined as deleted
+            /wd4625 # copy constructor was implicitely defined as deleted
+            /wd4626 # assignment operator was implicitely defined as deleted
+            /wd5027 # move assignment operator was implicitely defined as deleted
+            /wd26819 # unannotated fallthrought between switch labels
+            /wd28020 # The expression <expr> is not true at this call
+            /wd26495 # Variable <var> is uninitialized. Always initialize a member variable
+
+            # from asardll.c
             /wd5039 # throwing stuff passed to extern "C"
             /wd4090 # function different 'const' qualifiers (stuff from asardll.c)
-            /wd4668 # stuff from limits.h (why does stuff from the stdlib have warnings)
+
+            # from stdlib's limits.h for some reason (why does stuff from the stdlib have warnings)
+            /wd4668
 	)
 endif()

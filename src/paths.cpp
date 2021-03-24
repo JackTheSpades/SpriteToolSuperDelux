@@ -8,15 +8,15 @@ bool nameEndWithAsmExtension(std::string_view name) {
     return nameEndWithAsmExtension(name.data());
 }
 
-std::string cleanPathTrailFromString(std::string path) {
+std::string cleanPathTrail(std::string path) {
     if (path.back() == '/' || path.back() == '\\')
         path.pop_back();
     return path;
 }
 
-void set_paths_relative_to(const char **path, const char *arg0) {
+void set_paths_relative_to(std::string& path, const char *arg0) {
 
-    if (*path == nullptr)
+    if (path.empty())
         return;
 
     std::filesystem::path absBasePath(std::filesystem::absolute(arg0));
@@ -24,7 +24,7 @@ void set_paths_relative_to(const char **path, const char *arg0) {
 #ifdef DEBUGMSG
     debug_print("Absolute base path: %s ", absBasePath.generic_string().c_str());
 #endif
-    std::filesystem::path filePath(*path);
+    std::filesystem::path filePath(path);
     std::string newPath{};
     if (filePath.is_relative()) {
         newPath = absBasePath.generic_string() + filePath.generic_string();
@@ -36,14 +36,9 @@ void set_paths_relative_to(const char **path, const char *arg0) {
 #endif
 
     if (std::filesystem::is_directory(newPath) && newPath.back() != '/') {
-        char *newCharPath = new char[newPath.length() + 2];
-        strcpy(newCharPath, newPath.c_str());
-        strcat(newCharPath, "/");
-        *path = newCharPath;
+        path = newPath + "/";
     } else {
-        char *newCharPath = new char[newPath.length() + 1];
-        strcpy(newCharPath, newPath.c_str());
-        *path = newCharPath;
+        path = newPath;
     }
 }
 
