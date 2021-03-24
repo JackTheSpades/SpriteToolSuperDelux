@@ -1,5 +1,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/s1qmi7r0s820ebl5?svg=true)](https://ci.appveyor.com/project/Atari2/spritetoolsuperdelux-24tuh)
 
+[![CMake](https://github.com/JackTheSpades/SpriteToolSuperDelux/actions/workflows/cmake.yml/badge.svg)](https://github.com/JackTheSpades/SpriteToolSuperDelux/actions/workflows/cmake.yml)
+
 PIXI is a tool to insert custom sprites into Super Mario World ROMs.
 It assembles using Asar, meaning TRASM sprites are not supported.
 Artifacts of each commit can be found [here](https://www.atarismwc.com/pixi_releases/)
