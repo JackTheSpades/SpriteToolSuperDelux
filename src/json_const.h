@@ -10,7 +10,7 @@ auto j1656 (const nlohmann::json &j) {
     c |= (byte["Hop in/kick shell"] ? 0x40 : 0);
     c |= (byte["Disappears in cloud of smoke"] ? 0x80 : 0);
     return c;
-};
+}
 
 auto j1662 (const nlohmann::json &j) {
     unsigned char c = 0;
@@ -19,7 +19,7 @@ auto j1662 (const nlohmann::json &j) {
     c |= (byte["Use shell as death frame"] ? 0x40 : 0);
     c |= (byte["Fall straight down when killed"] ? 0x80 : 0);
     return c;
-};
+}
 
 auto j166e (const nlohmann::json& j) {
     unsigned char c = 0;
@@ -31,7 +31,7 @@ auto j166e (const nlohmann::json& j) {
     c |= (byte["Disable water splash"] ? 0x40 : 0);
     c |= (byte["Don't interact with Layer 2"] ? 0x80 : 0);
     return c;
-};
+}
 
 auto j167a (const nlohmann::json& j) {
     unsigned char c = 0;
@@ -45,7 +45,7 @@ auto j167a (const nlohmann::json& j) {
     c |= (byte["Gives power-up when eaten by yoshi"] ? 0x40 : 0);
     c |= (byte["Don't use default interaction with Mario"] ? 0x80 : 0);
     return c;
-};
+}
 
 auto j1686 (const nlohmann::json &j) {
     unsigned char c = 0;
@@ -59,7 +59,7 @@ auto j1686 (const nlohmann::json &j) {
     c |= (byte["Spawn a new sprite"] ? 0x40 : 0);
     c |= (byte["Don't interact with objects"] ? 0x80 : 0);
     return c;
-};
+}
 
 auto j190f (const nlohmann::json &j) {
     unsigned char c = 0;
@@ -73,4 +73,4 @@ auto j190f (const nlohmann::json &j) {
     c |= (byte["Don't turn into a coin with silver POW"] ? 0x40 : 0);
     c |= (byte["Don't get stuck in walls (carryable sprites)"] ? 0x80 : 0);
     return c;
-};
+}
