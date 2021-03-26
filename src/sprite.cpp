@@ -569,7 +569,7 @@ std::vector<std::string> listExtraAsm(const std::string &path) {
     return extraDefines;
 }
 
-void create_shared_patch(const std::string& routine_path) {
+void create_shared_patch(const std::string &routine_path) {
     std::string escapedRoutinepath = escapeDefines(routine_path, R"(\\\!)");
     FILE *shared_patch = open("shared.asm", "w");
     fprintf(shared_patch, "macro include_once(target, base, offset)\n"
@@ -622,8 +622,7 @@ void create_shared_patch(const std::string& routine_path) {
     fclose(shared_patch);
 }
 
-
-void populate_sprite_list(const Paths& paths, sprite **sprite_lists, std::string_view listPath, FILE *output) {
+void populate_sprite_list(const Paths &paths, sprite **sprite_lists, std::string_view listPath, FILE *output) {
     FILE *listStream = open(listPath.data(), "r");
     unsigned int sprite_id, level;
     int lineno = 0;
@@ -838,12 +837,12 @@ int main(int argc, char *argv[]) {
 
 #define SET_PATH(str, index)                                                                                           \
     else if (!strcmp(argv[i], str) && i < argc - 2) {                                                                  \
-        cfg.m_Paths[FromEnum(index)] = argv[i + 1];                                                                      \
+        cfg.m_Paths[FromEnum(index)] = argv[i + 1];                                                                    \
         i++;                                                                                                           \
     }
 #define SET_EXT(str, index)                                                                                            \
     else if (!strcmp(argv[i], str) && i < argc - 2) {                                                                  \
-        cfg.m_Extensions[FromEnum(index)] = argv[i + 1];                                                                 \
+        cfg.m_Extensions[FromEnum(index)] = argv[i + 1];                                                               \
         i++;                                                                                                           \
     }
 
