@@ -21,7 +21,7 @@
 #endif
 
 // version 1.xx
-constexpr char VERSION = 0x32;
+constexpr unsigned char VERSION = 0x32;
 
 constexpr auto INIT_PTR = 0x01817D; // snes address of default init pointers
 constexpr auto MAIN_PTR = 0x0185CC; // guess what?
@@ -992,7 +992,7 @@ int main(int argc, char *argv[]) {
     // Check if a newer version has been used before.
     //------------------------------------------------------------------------------------------
 
-    char version = rom.data[rom.snes_to_pc(0x02FFE2 + 4)];
+    unsigned char version = rom.data[rom.snes_to_pc(0x02FFE2 + 4)];
     if (version > VERSION && version != 0xFF) {
         printf("The ROM has been patched with a newer version of PIXI (1.%02d) already.\n", version);
         printf("This is version 1.%02d\n", VERSION);
