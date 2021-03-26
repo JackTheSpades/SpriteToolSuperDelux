@@ -65,7 +65,7 @@ bool read_json_file(sprite *spr, FILE *output) {
             spr->byte_count = j.at("Additional Byte Count (extra bit clear)");
             spr->extra_byte_count = j.at("Additional Byte Count (extra bit set)");
             spr->byte_count = std::clamp(spr->byte_count, 0, 15);
-            spr->extra_byte_count = std::clamp(spr->byte_count, 0, 15);
+            spr->extra_byte_count = std::clamp(spr->extra_byte_count, 0, 15);
         }
         spr->table.tweak[0] = j1656(j);
         spr->table.tweak[1] = j1662(j);
