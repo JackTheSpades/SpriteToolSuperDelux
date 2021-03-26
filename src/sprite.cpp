@@ -993,7 +993,7 @@ int main(int argc, char *argv[]) {
     //------------------------------------------------------------------------------------------
 
     char version = rom.data[rom.snes_to_pc(0x02FFE2 + 4)];
-    if (version > VERSION) {
+    if (version > VERSION && version != 0xFF) {
         printf("The ROM has been patched with a newer version of PIXI (1.%02d) already.\n", version);
         printf("This is version 1.%02d\n", VERSION);
         printf("Please get a newer version.");
