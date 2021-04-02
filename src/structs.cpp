@@ -233,7 +233,7 @@ void sprite::print(FILE *stream) {
         }
     }
 
-    if (display_count) {
+    if (collection_count) {
         fprintf(stream, "Collections:\n");
         for (int i = 0; i < collection_count; i++) {
             collection *c = collections + i;
