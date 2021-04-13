@@ -566,6 +566,8 @@ std::vector<std::string> listExtraAsm(const std::string &path) {
     } catch (const std::filesystem::filesystem_error &err) {
         error("Trying to read folder \"%s\" returned \"%s\", aborting insertion\n", path.c_str(), err.what());
     }
+    if (extraDefines.size() > 0)
+        std::sort(extraDefines.begin(), extraDefines.end());
     return extraDefines;
 }
 
