@@ -11,12 +11,14 @@
 	ldx $04
 	lda.l .sincostable,x
 if !SA1 == 0
-	sta $211B
-	stz $211B
-	lda $06
-	sta $211C
-	rep #$20
-	lda $2135
+    sta $4202
+    lda $06
+    sta $4203
+    bra $00        ;; waste 5 cycles
+    nop
+    rep #$20
+    lda $4217
+    and #$00ff
 else
 	stz $2250
 	sta $2251
