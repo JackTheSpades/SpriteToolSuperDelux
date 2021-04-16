@@ -235,8 +235,11 @@ void patch_sprite(const std::vector<std::string> &extraDefines, sprite *spr, ROM
         else if (!strncmp(prints[i], "GOAL", 4) && spr->sprite_type == 0)
             ptr_map["goal"] = strtol(prints[i] + 4, NULL, 16);
         else if (!strncmp(prints[i], "VERG", 4)) {
-            if (VERSION < strtol(prints[i] + 4, NULL, 16)) {
-                printf("Version Guard failed on %s.\n", spr->asm_file);
+            // if the user has put $ to indicate the hex number we skip it
+            auto required_version = strtol(prints[i] + (prints[i][4] == '$' ? 5 : 4), NULL, 16);
+            if (VERSION < required_version) {
+                printf("The sprite %s requires to be inserted at least with Pixi 1.%02lX, this is Pixi 1.%02X\n",
+                       spr->asm_file, required_version, VERSION);
                 exit(-1);
             }
         } else if (output) {

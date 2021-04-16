@@ -193,6 +193,9 @@ If you are used to using Romi's SpriteTool, here is a quick rundown of everythin
   If you don't use these print statement your sprite will just run the respective state's vanilla code, just as normal, for retro-compatibility purposes.
   There's also another special print statement that works only for EXTENDED sprites, which is print "CAPE", pc and its purpose is to fix a bug with cape interaction with custom extended sprites. You can use it to define the behavior of your extended sprite with cape twirl,
   not using it will default cape interaction of the extended sprite to do nothing.
+  Lastly, there's a special print statement: 
+	  > print "VERG<version>"
+  this is a print which can appear in any sprite type, and it indicates that this sprite should only be inserted with a version of pixi that's at least the one indicated in <version>, where <version> is an hex number indicating a pixi version. E.g. if I want to make sure the user is using at least pixi 1.31, you can use $31, 0x31 or 31 as <version>. If the version requirement is not met, insertion is aborted.
  
 -- Softcoding
   All the ASM code inserted by the tool is available to be edited by hand in the asm/ folder, namely main.asm.

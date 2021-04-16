@@ -196,7 +196,7 @@ If you are used to using Romi's SpriteTool, here is a quick rundown of everythin
 	  - print "MOUTH", pc which will run in state 07
 	  - print "GOAL", pc which will run in state 0C
     
-    Note that while using these print statements, the data bank will be automatically set, so you don't need to manually set it like for MAIN or INIT.
+  Note that while using these print statements, the data bank will be automatically set, so you don't need to manually set it like for MAIN or INIT.
   Please be aware that the use of these labels completely and totally overrides ANY vanilla code that would run in the respective states (unless you set the aforementioned bits in the property bytes), 
   so if you use them you have to code all of the wanted behaviors yourself, this is done on purpose so the code has complete control and they won't have unwanted side-effects due to vanilla code.
   You can find the code that vanilla rom uses to handle those states at the following rom locations, you can use those to see how to do implement whatever you feel like vanilla gave you and you're missing now, maybe even better than how the original game did things:
@@ -205,10 +205,14 @@ If you are used to using Romi's SpriteTool, here is a quick rundown of everythin
     - $019F71 for carried
     - $018157 for goal tape (only activates when the sprite has "turn into a powerup at goal tape" bit on.
 
-    Fun fact, the game just returns when in Yoshi's Mouth so you can do anything you want here. Be aware that "MOUTH" activates only when the sprite is set to stay in Yoshi's mouth.
-      If you don't use these print statement your sprite will just run the respective state's vanilla code, just as normal, for retro-compatibility purposes.
-      There's also another special print statement that works only for EXTENDED sprites, which is print "CAPE", pc and its purpose is to fix a bug with cape interaction with custom extended sprites. You can use it to define the behavior of your extended sprite with cape twirl,
-      not using it will default cape interaction of the extended sprite to do nothing.
+  Fun fact, the game just returns when in Yoshi's Mouth so you can do anything you want here. Be aware that "MOUTH" activates only when the sprite is set to stay in Yoshi's mouth.
+  If you don't use these print statement your sprite will just run the respective state's vanilla code, just as normal, for retro-compatibility purposes.
+  There's also another special print statement that works only for EXTENDED sprites, which is print "CAPE", pc and its purpose is to fix a bug with cape interaction with custom extended sprites. You can use it to define the behavior of your extended sprite with cape twirl, not using it will default cape interaction of the extended sprite to do nothing.
+  Lastly, there's a special print statement: 
+  
+	- print "VERG\<version\>"
+	
+  this is a print which can appear in any sprite type, and it indicates that this sprite should only be inserted with a version of pixi that's at least the one indicated in \<version\>, where \<version\> is an hex number indicating a pixi version. E.g. if you want to make sure the user is using at least pixi 1.31, you can use $31, 0x31 or 31 as \<version\>. If the version requirement is not met, insertion is aborted.
  
 - Softcoding
   All the ASM code inserted by the tool is available to be edited by hand in the asm/ folder, namely main.asm.
