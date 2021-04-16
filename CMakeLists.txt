@@ -66,11 +66,11 @@ else()
     target_compile_options(pixi PRIVATE
             # generic & extremely noisy warnings which do (almost) nothing useful
             # not to say that most come from code which I have no control over
-			/wd4514 # unreferenced inline function removed
-			/wd4710 # function not inlined
-			/wd4711 # function selected for automatic inline expansion
-			/wd4820 # 'bytes' bytes padding added after construct 'member_name'
-			/wd4464 # relative include path contains '..'
+            /wd4514 # unreferenced inline function removed
+            /wd4710 # function not inlined
+            /wd4711 # function selected for automatic inline expansion
+            /wd4820 # 'bytes' bytes padding added after construct 'member_name'
+            /wd4464 # relative include path contains '..'
 
             # specific warnings of pixi
             /wd4996 # deprecated function
