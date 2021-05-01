@@ -240,9 +240,6 @@ If you are used to using Romi's SpriteTool, here is a quick rundown of everythin
 	For those who aren't aware, the Object Clipping (the green box) determines how the sprite interacts with tiles and
 	objects, while the Sprite Clipping determines how it interacts with other sprites, including Mario.
 
-	BONUS: As of version 1.1, you can also open your ROM in the CFG Editor and use it to tweak existing sprites in the
-	game, basically replicating the functionality of Tweaker.
-
 
 -- JSON Files
 	As of version 1.2, PIXI now aso supports JSON files as an alternative to CFG files (CFG files can still be used
