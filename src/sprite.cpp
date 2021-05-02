@@ -112,7 +112,6 @@ FILE *get_debug_output(int argc, char *argv[], int *i) {
                 printf("Couldn't open or create the output file, printing to screen...\n");
                 return stdout;
             } else {
-                cfg.m_Debug.outfile = name;
                 return fp; // everything went smoothly, return proper file handler
             }
         }
@@ -1250,14 +1249,14 @@ int main(int argc, char *argv[]) {
                     // here custom bit is always set (because why the fuck not?)
                     // if no description (or empty) just asm filename instead.
                     int ref = 0;
-                    if (d->extra_byte) {
+                    if (spr->disp_type == display_type::ExtensionByte) {
                         ref = 0x20 + (d->extra_bit ? 0x10 : 0);
                         if (d->description && strlen(d->description))
-                            fprintf(ssc, "%02X %1X%02X%02X %s\n", i, d->exbyte.index, d->exbyte.value, ref, d->description);
+                            fprintf(ssc, "%02X %1X%02X%02X %s\n", i, d->x_or_index, d->y_or_value, ref, d->description);
                         else
-                            fprintf(ssc, "%02X %1X%02X%02X %s\n", i, d->exbyte.index, d->exbyte.value, ref, spr->asm_file);
+                            fprintf(ssc, "%02X %1X%02X%02X %s\n", i, d->x_or_index, d->y_or_value, ref, spr->asm_file);
                     } else {
-                        ref = d->y * 0x1000 + d->x * 0x100 + 0x20 + (d->extra_bit ? 0x10 : 0);
+                        ref = d->y_or_value * 0x1000 + d->x_or_index * 0x100 + 0x20 + (d->extra_bit ? 0x10 : 0);
                         if (d->description && strlen(d->description))
                             fprintf(ssc, "%02X %04X %s\n", i, ref, d->description);
                         else
@@ -1277,8 +1276,8 @@ int main(int argc, char *argv[]) {
                     }
 
                     // loop over tiles and append them into the output.
-                    if (d->extra_byte)
-                        fprintf(ssc, "%02X %1X%02X%02X", i, d->exbyte.index, d->exbyte.value, ref + 2);
+                    if (spr->disp_type == display_type::ExtensionByte)
+                        fprintf(ssc, "%02X %1X%02X%02X", i, d->x_or_index, d->y_or_value, ref + 2);
                     else
                         fprintf(ssc, "%02X %04X", i, ref + 2);
                     for (int k = 0; k < d->tile_count; k++) {

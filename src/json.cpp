@@ -78,6 +78,14 @@ bool read_json_file(sprite *spr, FILE *output) {
         spr->map_data = (map16 *)strcln(decoded);
 
         // displays
+        auto disp_type = j.at("DisplayType").get<std::string>();
+        if (disp_type == "XY") {
+            spr->disp_type = display_type::XYPosition;
+        } else if (disp_type == "ExByte") {
+            spr->disp_type = display_type::ExtensionByte;
+        } else {
+            throw std::domain_error("Unknown type of display " + disp_type);
+        }
         spr->display_count = (int)j.at("Displays").size();
         spr->displays = new display[spr->display_count];
         int counter = 0;
@@ -87,24 +95,22 @@ bool read_json_file(sprite *spr, FILE *output) {
             dis->description = strcln(jdisplay.at("Description"));
             dis->extra_bit = jdisplay.at("ExtraBit");
 
-            auto exbyte = jdisplay.find("ExtensionByte");
-            if (exbyte != jdisplay.end()) {
-                dis->extra_byte = true;
-                dis->exbyte.index = exbyte->at("Index");
-                dis->exbyte.index = std::clamp(dis->exbyte.index, 0, (dis->extra_bit ? spr->extra_byte_count : spr->byte_count)) + 3;
-                dis->exbyte.value = exbyte->at("Value");
+            if (spr->disp_type == display_type::ExtensionByte) {
+                dis->x_or_index = jdisplay.at("Index");
+                dis->x_or_index = std::clamp(dis->x_or_index, 0, (dis->extra_bit ? spr->extra_byte_count : spr->byte_count)) + 3;
+                dis->y_or_value = jdisplay.at("Value");
             } else {
-                dis->x = jdisplay.at("X");
-                dis->y = jdisplay.at("Y");
-                dis->x = std::clamp(dis->x, 0, 0x0F);
-                dis->y = std::clamp(dis->y, 0, 0x0F);
+                dis->x_or_index = jdisplay.at("X");
+                dis->y_or_value = jdisplay.at("Y");
+                dis->x_or_index = std::clamp(dis->x_or_index, 0, 0x0F);
+                dis->y_or_value = std::clamp(dis->y_or_value, 0, 0x0F);
             }
 
             // for each X,Y or extension byte based appearance check if they have gfx information
             auto gfxinfo = jdisplay.find("GFXInfo");
             if (gfxinfo != jdisplay.end()) {
                 auto gfxarray = *gfxinfo;
-                dis->gfx_setup_count = gfxarray.size();
+                dis->gfx_setup_count = (int)gfxarray.size();
                 dis->gfx_files = new gfx_info[dis->gfx_setup_count];
                 for (int n = 0; n < dis->gfx_setup_count; n++) {
                     bool separate = gfxarray[n].at("Separate");
@@ -166,8 +172,7 @@ bool read_json_file(sprite *spr, FILE *output) {
 
         return true;
     } catch (const std::exception &e) {
-        if (output)
-            fprintf(output, "Error when parsing json: %s\n", e.what());
+        fprintf(output, "Error when parsing json: %s\n", e.what());
         return false;
     }
 }

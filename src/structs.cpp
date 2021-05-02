@@ -40,7 +40,7 @@ void ROM::close() {
 
 // stolen from GPS, as most of the rest of the code of this cursed tool
 // actually these ones are stolen from asar, an even more cursed tool
-int ROM::pc_to_snes(int address, bool header) {
+int ROM::pc_to_snes(int address, bool header) const {
     if (header)
         address -= header_size;
 
@@ -66,7 +66,7 @@ int ROM::pc_to_snes(int address, bool header) {
     return -1;
 }
 
-int ROM::snes_to_pc(int address, bool header) {
+int ROM::snes_to_pc(int address, bool header) const {
 
     if (mapper == MapperType::lorom) {
         if ((address & 0xFE0000) == 0x7E0000 || (address & 0x408000) == 0x000000 || (address & 0x708000) == 0x700000)
@@ -97,38 +97,21 @@ int ROM::snes_to_pc(int address, bool header) {
     return address + (header ? header_size : 0);
 }
 
-pointer ROM::pointer_snes(int address, int addrsize, int bank) {
+pointer ROM::pointer_snes(int address, int addrsize, int bank) const {
     return pointer(::get_pointer(data, snes_to_pc(address), addrsize, bank));
 }
-pointer ROM::pointer_pc(int address, int addrsize, int bank) {
-    return pointer(::get_pointer(data, address, addrsize, bank));
-}
 
-unsigned char ROM::read_byte(int addr) {
+unsigned char ROM::read_byte(int addr) const {
     return real_data[addr];
 }
-unsigned short ROM::read_word(int addr) {
+unsigned short ROM::read_word(int addr) const {
     return real_data[addr] | (real_data[addr + 1] << 8);
 }
-unsigned int ROM::read_long(int addr) {
+unsigned int ROM::read_long(int addr) const {
     return real_data[addr] | (real_data[addr + 1] << 8) | (real_data[addr + 2] << 16);
 }
-void ROM::write_byte(int addr, unsigned char val) {
-    real_data[addr] = val;
-}
-void ROM::write_word(int addr, unsigned short val) {
-    real_data[addr] = val & 0xFF;
-    real_data[addr + 1] = (val >> 8) & 0xFF;
-}
-void ROM::write_long(int addr, unsigned int val) {
-    real_data[addr] = val & 0xFF;
-    real_data[addr + 1] = (val >> 8) & 0xFF;
-    real_data[addr + 2] = (val >> 16) & 0xFF;
-}
-void ROM::write_data(unsigned char *wdata, size_t wsize, int addr) {
-    memcpy(real_data + addr, wdata, wsize);
-}
-void ROM::read_data(unsigned char *dst, size_t wsize, int addr) {
+
+void ROM::read_data(unsigned char *dst, size_t wsize, int addr) const {
     if (dst == nullptr)
         dst = (unsigned char *)malloc(sizeof(unsigned char) * wsize);
     memcpy(dst, real_data + addr, wsize);
@@ -145,17 +128,6 @@ ROM::~ROM() {
     delete[] name;
 }
 
-simple_string get_line(const char *text, int offset) {
-    simple_string string;
-    if (!text[offset]) {
-        return string;
-    }
-    string.length = strcspn(text + offset, "\r\n") + 1;
-    string.data = new char[string.length]();
-    strncpy(string.data, text + offset, string.length - 1);
-    return string;
-}
-
 bool is_empty_table(sprite *spr, int size) {
     for (int i = 0; i < size; i++) {
         if (!spr[i].table.init.is_empty() || !spr[i].table.main.is_empty())
@@ -164,7 +136,7 @@ bool is_empty_table(sprite *spr, int size) {
     return true;
 }
 
-int get_pointer(unsigned char *data, int address, int size, int bank) {
+int get_pointer(const unsigned char *data, int address, int size, int bank) {
     address = (data[address]) | (data[address + 1] << 8) | ((data[address + 2] << 16) * (size - 2));
     return address | (bank << 16);
 }
@@ -180,16 +152,11 @@ char *trim(char *text) {
 }
 
 sprite::~sprite() {
-    if (asm_file)
-        delete[] asm_file;
-    if (cfg_file)
-        delete[] cfg_file;
-    if (map_data)
-        delete[] map_data;
-    if (displays)
-        delete[] displays;
-    if (collections)
-        delete[] collections;
+    delete[] asm_file;
+    delete[] cfg_file;
+    delete[] map_data;
+    delete[] displays;
+    delete[] collections;
 }
 
 void sprite::print(FILE *stream) {
@@ -207,7 +174,7 @@ void sprite::print(FILE *stream) {
 
     if (map_block_count) {
         fprintf(stream, "Map16:\n");
-        unsigned char *mapdata = (unsigned char *)map_data;
+        auto *mapdata = (unsigned char *)map_data;
         for (int i = 0; i < map_block_count * 8; i++) {
             if ((i % 8) == 0)
                 fprintf(stream, "\t");
@@ -250,20 +217,15 @@ void sprite::print(FILE *stream) {
 }
 
 tile::~tile() {
-    if (text)
-        delete[] text;
+    delete[] text;
 }
 
 display::~display() {
-    if (description)
-        delete[] description;
-    if (tiles)
-        delete[] tiles;
-    if (gfx_files)
-        delete[] gfx_files;
+    delete[] description;
+    delete[] tiles;
+    delete[] gfx_files;
 }
 
 collection::~collection() {
-    if (name)
-        delete[] name;
+    delete[] name;
 }

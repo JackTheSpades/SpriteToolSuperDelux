@@ -26,8 +26,6 @@ template <typename T> constexpr auto FromEnum(T val) {
 
 
 struct Debug {
-    bool isOn = false;
-    std::string outfile{};
     FILE *output = nullptr;
 
     template <typename... Args> inline void dprintf(const char *format, Args... args) {
