@@ -259,6 +259,8 @@ display::~display() {
         delete[] description;
     if (tiles)
         delete[] tiles;
+    if (gfx_files)
+        delete[] gfx_files;
 }
 
 collection::~collection() {

@@ -4,7 +4,6 @@
 #include "paths.h"
 #include "structs.h"
 #include "json/base64.h"
-#include "json/json.hpp"
 
 #include <fstream>
 #include <cstring>
@@ -36,7 +35,7 @@ bool read_json_file(sprite *spr, FILE *output) {
         }
         instr >> j;
     } catch (const std::exception &e) {
-        if (strstr(e.what(), "parse error") != NULL) {
+        if (strstr(e.what(), "parse error") != nullptr) {
             printf("An error was encountered while parsing %s, please make sure that the json file has the correct "
                    "format. (error: %s)",
                    spr->cfg_file, e.what());
@@ -75,30 +74,56 @@ bool read_json_file(sprite *spr, FILE *output) {
         spr->table.tweak[5] = j190f(j);
 
         std::string decoded = base64_decode(j.at("Map16"));
-        spr->map_block_count = decoded.size() / 8;
+        spr->map_block_count = (int)decoded.size() / 8;
         spr->map_data = (map16 *)strcln(decoded);
 
         // displays
-        spr->display_count = j.at("Displays").size();
+        spr->display_count = (int)j.at("Displays").size();
         spr->displays = new display[spr->display_count];
         int counter = 0;
         for (auto jdisplay : j.at("Displays")) {
             display *dis = spr->displays + counter;
 
             dis->description = strcln(jdisplay.at("Description"));
-
-            dis->x = jdisplay.at("X");
-            dis->y = jdisplay.at("Y");
-            dis->x = std::clamp(dis->x, 0, 0x0F);
-            dis->y = std::clamp(dis->y, 0, 0x0F);
             dis->extra_bit = jdisplay.at("ExtraBit");
+
+            auto exbyte = jdisplay.find("ExtensionByte");
+            if (exbyte != jdisplay.end()) {
+                dis->extra_byte = true;
+                dis->exbyte.index = exbyte->at("Index");
+                dis->exbyte.index = std::clamp(dis->exbyte.index, 0, (dis->extra_bit ? spr->extra_byte_count : spr->byte_count)) + 3;
+                dis->exbyte.value = exbyte->at("Value");
+            } else {
+                dis->x = jdisplay.at("X");
+                dis->y = jdisplay.at("Y");
+                dis->x = std::clamp(dis->x, 0, 0x0F);
+                dis->y = std::clamp(dis->y, 0, 0x0F);
+            }
+
+            // for each X,Y or extension byte based appearance check if they have gfx information
+            auto gfxinfo = jdisplay.find("GFXInfo");
+            if (gfxinfo != jdisplay.end()) {
+                auto gfxarray = *gfxinfo;
+                dis->gfx_setup_count = gfxarray.size();
+                dis->gfx_files = new gfx_info[dis->gfx_setup_count];
+                for (int n = 0; n < dis->gfx_setup_count; n++) {
+                    bool separate = gfxarray[n].at("Separate");
+                    for (int gfx = 0; gfx < 4; gfx++) {
+                        try {
+                            dis->gfx_files[n].gfx_files[gfx] = gfxarray[n].at(std::to_string(gfx)).get<int>() | (separate ? 0x8000 : 0);
+                        } catch (const std::out_of_range &err) {
+                            dis->gfx_files[n].gfx_files[gfx] = 0x7F;
+                        }
+                    }
+                }
+            }
 
             if (jdisplay.at("UseText")) {
                 dis->tile_count = 1;
                 dis->tiles = new tile[1];
                 dis->tiles->text = strcln(jdisplay.at("DisplayText"));
             } else {
-                dis->tile_count = jdisplay.at("Tiles").size();
+                dis->tile_count = (int)jdisplay.at("Tiles").size();
                 dis->tiles = new tile[dis->tile_count];
                 int counter2 = 0;
                 for (auto jtile : jdisplay.at("Tiles")) {
@@ -114,7 +139,7 @@ bool read_json_file(sprite *spr, FILE *output) {
 
         // collections
         counter = 0;
-        spr->collection_count = j.at("Collection").size();
+        spr->collection_count = (int)j.at("Collection").size();
         spr->collections = new collection[spr->collection_count];
         for (auto jCollection : j.at("Collection")) {
             collection *col = spr->collections + counter;
@@ -142,7 +167,7 @@ bool read_json_file(sprite *spr, FILE *output) {
         return true;
     } catch (const std::exception &e) {
         if (output)
-            fprintf(output, "Error when parsing json: %s", e.what());
+            fprintf(output, "Error when parsing json: %s\n", e.what());
         return false;
     }
 }

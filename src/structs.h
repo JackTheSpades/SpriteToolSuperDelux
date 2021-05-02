@@ -65,13 +65,26 @@ struct tile {
     ~tile();
 };
 
+struct extension_byte_info {
+    int index;
+    int value;
+};
+
+struct gfx_info {
+    int gfx_files[4] = {0x7F, 0x7F, 0x7F, 0x7F};
+};
+
 struct display {
     char *description = nullptr;
     int tile_count = 0;
     tile *tiles = nullptr;
     bool extra_bit = false;
+    bool extra_byte = false;
+    extension_byte_info exbyte = {0, 0};
     int x = 0;
     int y = 0;
+    int gfx_setup_count = 0;
+    gfx_info* gfx_files = nullptr;
 
     ~display();
 };

@@ -3,17 +3,14 @@
 #include <exception>
 #include <fstream>
 #include <map>
-#include <sstream>
 
 #include "MeiMei/MeiMei.h"
 #include "asar/asardll.h"
 #include "cfg.h"
 #include "config.h"
-#include "file_io.h"
 #include "json.h"
 #include "map16.h"
 #include "paths.h"
-#include "structs.h"
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 #include <windows.h>
@@ -76,7 +73,7 @@ bool patch(const char *patch_name_rel, ROM &rom) {
     int warn_count = 0;
     const errordata *loc_warnings = asar_getwarnings(&warn_count);
     for (int i = 0; i < warn_count; i++)
-        warnings.push_back(std::string(loc_warnings[i].fullerrdata));
+        warnings.emplace_back(loc_warnings[i].fullerrdata);
 #ifdef DEBUGMSG
     debug_print("Success\n");
 #endif
@@ -104,7 +101,7 @@ FILE *get_debug_output(int argc, char *argv[], int *i) {
         const std::string name = argv[(*i) + 2];
         (*i) += 2;
         if (name.find(".smc") != std::string::npos ||
-            name.find("-") == 0) { // failsafe in case the user forgets to specify the debug output file (we check if
+            name.find('-') == 0) { // failsafe in case the user forgets to specify the debug output file (we check if
                                    // it's a rom or another cmd line option)
             (*i)--; // fallback to stdout and decrement i to keep reading the rest of the cmd line options
             printf("Output debug file specified was invalid or missing, printing to screen...\n");
@@ -219,24 +216,24 @@ void patch_sprite(const std::vector<std::string> &extraDefines, sprite *spr, ROM
 
     for (int i = 0; i < print_count; i++) {
         if (!strncmp(prints[i], "INIT", 4))
-            ptr_map["init"] = strtol(prints[i] + 4, NULL, 16);
+            ptr_map["init"] = strtol(prints[i] + 4, nullptr, 16);
         else if (!strncmp(prints[i], "MAIN", 4))
-            ptr_map["main"] = strtol(prints[i] + 4, NULL, 16);
+            ptr_map["main"] = strtol(prints[i] + 4, nullptr, 16);
         else if (!strncmp(prints[i], "CAPE", 4) && spr->sprite_type == 1)
-            ptr_map["cape"] = strtol(prints[i] + 4, NULL, 16);
+            ptr_map["cape"] = strtol(prints[i] + 4, nullptr, 16);
         else if (!strncmp(prints[i], "CARRIABLE", 9) && spr->sprite_type == 0)
-            ptr_map["carriable"] = strtol(prints[i] + 9, NULL, 16);
+            ptr_map["carriable"] = strtol(prints[i] + 9, nullptr, 16);
         else if (!strncmp(prints[i], "CARRIED", 7) && spr->sprite_type == 0)
-            ptr_map["carried"] = strtol(prints[i] + 7, NULL, 16);
+            ptr_map["carried"] = strtol(prints[i] + 7, nullptr, 16);
         else if (!strncmp(prints[i], "KICKED", 6) && spr->sprite_type == 0)
-            ptr_map["kicked"] = strtol(prints[i] + 6, NULL, 16);
+            ptr_map["kicked"] = strtol(prints[i] + 6, nullptr, 16);
         else if (!strncmp(prints[i], "MOUTH", 5) && spr->sprite_type == 0)
-            ptr_map["mouth"] = strtol(prints[i] + 5, NULL, 16);
+            ptr_map["mouth"] = strtol(prints[i] + 5, nullptr, 16);
         else if (!strncmp(prints[i], "GOAL", 4) && spr->sprite_type == 0)
-            ptr_map["goal"] = strtol(prints[i] + 4, NULL, 16);
+            ptr_map["goal"] = strtol(prints[i] + 4, nullptr, 16);
         else if (!strncmp(prints[i], "VERG", 4)) {
             // if the user has put $ to indicate the hex number we skip it
-            auto required_version = strtol(prints[i] + (prints[i][4] == '$' ? 5 : 4), NULL, 16);
+            auto required_version = strtol(prints[i] + (prints[i][4] == '$' ? 5 : 4), nullptr, 16);
             if (VERSION < required_version) {
                 printf("The sprite %s requires to be inserted at least with Pixi 1.%02lX, this is Pixi 1.%02X\n",
                        spr->asm_file, required_version, VERSION);
@@ -495,7 +492,7 @@ void clean_hack(ROM &rom, std::string_view pathname) {
             char *bank = (char *)(rom.real_data + i * 0x8000);
 
             int bank_offset = 8;
-            while (1) {
+            while (true) {
                 // look for data inserted on previous uses
 
                 int offset = bank_offset;
@@ -512,7 +509,7 @@ void clean_hack(ROM &rom, std::string_view pathname) {
                 if (offset >= 0x8000)
                     break;
                 bank_offset = offset + strlen(mdk);
-                if (strncmp((bank + offset - 8), "STAR", 4)) // check for "STAR"
+                if (strncmp((bank + offset - 8), "STAR", 4) != 0) // check for "STAR"
                     continue;
 
                 // delete the amount that the RATS tag is protecting
@@ -545,7 +542,7 @@ bool areConfigFlagsToggled() {
     return cfg.PerLevel || cfg.disable255Sprites || true; // for now config is recreated on all runs
 }
 
-void create_config_file(const std::string path) {
+void create_config_file(const std::string& path) {
     if (areConfigFlagsToggled()) {
         FILE *config = open(path.c_str(), "w");
         fprintf(config, "!PerLevel = %d\n", (int)cfg.PerLevel);
@@ -569,7 +566,7 @@ std::vector<std::string> listExtraAsm(const std::string &path) {
     } catch (const std::filesystem::filesystem_error &err) {
         error("Trying to read folder \"%s\" returned \"%s\", aborting insertion\n", path.c_str(), err.what());
     }
-    if (extraDefines.size() > 0)
+    if (!extraDefines.empty())
         std::sort(extraDefines.begin(), extraDefines.end());
     return extraDefines;
 }
@@ -638,7 +635,7 @@ void populate_sprite_list(const Paths &paths, sprite **sprite_lists, std::string
     char cfgname[FILENAME_MAX] = {0};
     char cline[1024]; // i'll boldly assume that nobody is gonna have a 1024 characters line
     const char *dir = nullptr;
-    while (fgets(cline, 1024, listStream) != NULL) {
+    while (fgets(cline, 1024, listStream) != nullptr) {
         line = cline;
         int read_until = -1;
         sprite *sprite_list = sprite_lists[FromEnum(type)];
@@ -725,7 +722,7 @@ void populate_sprite_list(const Paths &paths, sprite **sprite_lists, std::string
         strcat(fullFileName, cfgname);
 
         if (type != ListType::Sprite) {
-            if (strcmp(dot, "asm") && strcmp(dot, "ASM"))
+            if (strcmp(dot, "asm") != 0 && strcmp(dot, "ASM") != 0)
                 error("Error on line %d: not an asm file\n", lineno);
             spr->asm_file = fullFileName;
         } else {
@@ -764,7 +761,7 @@ void populate_sprite_list(const Paths &paths, sprite **sprite_lists, std::string
 void write_long_table(sprite *spr, std::string_view dir, std::string_view filename, int size = 0x800) {
     unsigned char dummy[0x10] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                                  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-    unsigned char *file = new unsigned char[size * 0x10];
+    auto *file = new unsigned char[size * 0x10];
 
     if (is_empty_table(spr, size))
         write_all(dummy, dir, filename, 0x10);
@@ -800,12 +797,12 @@ void remove(std::string_view dir, const char *file) {
 }
 
 int main(int argc, char *argv[]) {
-    ROM rom;
+    ROM rom{};
     // individual lists containing the sprites for the specific sections
-    sprite *sprite_list = new sprite[MAX_SPRITE_COUNT];
-    sprite *cluster_list = new sprite[SPRITE_COUNT];
-    sprite *extended_list = new sprite[SPRITE_COUNT];
-    sprite *ow_list = new sprite[SPRITE_COUNT];
+    auto *sprite_list = new sprite[MAX_SPRITE_COUNT];
+    auto *cluster_list = new sprite[SPRITE_COUNT];
+    auto *extended_list = new sprite[SPRITE_COUNT];
+    auto *ow_list = new sprite[SPRITE_COUNT];
 
     // the list containing the lists...
     sprite *sprites_list_list[4];
@@ -817,13 +814,13 @@ int main(int argc, char *argv[]) {
 #ifdef ON_WINDOWS
     std::string lm_handle;
     uint16_t verification_code = 0;
-    HWND window_handle = 0;
+    HWND window_handle = nullptr;
 #endif
     // first is version 1.xx, others are preserved
     unsigned char versionflag[4] = {VERSION, 0x00, 0x00, 0x00};
 
     // map16 for sprite displays
-    map16 *map = new map16[MAP16_SIZE];
+    auto *map = new map16[MAP16_SIZE];
 
     if (argc < 2) {
         atexit(double_click_exit);
@@ -914,7 +911,7 @@ int main(int argc, char *argv[]) {
         } else if (!strcmp(argv[i], "-k")) {
             cfg.KeepFiles = true;
         } else if (!strcmp(argv[i], "-nr")) {
-            cfg.Routines = std::clamp(std::atoi(argv[i + 1]), DEFAULT_ROUTINES, MAX_ROUTINES);
+            cfg.Routines = std::clamp((int)std::strtol(argv[i + 1], nullptr, 10), DEFAULT_ROUTINES, MAX_ROUTINES);
             i++;
         } else if (!strcmp(argv[i], "-pl")) {
             cfg.PerLevel = true;
@@ -938,7 +935,7 @@ int main(int argc, char *argv[]) {
 #ifdef ON_WINDOWS
         else if (!strcmp(argv[i], "-lm-handle")) {
             lm_handle = argv[i + 1];
-            window_handle = (HWND)std::stoull(lm_handle, 0, 16);
+            window_handle = (HWND)std::stoull(lm_handle, nullptr, 16);
             verification_code = (uint16_t)(std::stoi(lm_handle.substr(lm_handle.find_first_of(':') + 1), 0, 16));
             i++;
         }
@@ -1204,7 +1201,7 @@ int main(int argc, char *argv[]) {
             fputc(0x00, mw2);
         } else {
             fs_size--; // -1 to skip the 0xFF byte at the end
-            unsigned char *mw2_data = new unsigned char[fs_size];
+            auto *mw2_data = new unsigned char[fs_size];
             size_t read_size = fread(mw2_data, 1, fs_size, fp);
             if (read_size != fs_size)
                 error("Couldn't fully read file %s, please check file permissions",
@@ -1222,7 +1219,7 @@ int main(int argc, char *argv[]) {
         read_map16(map, cfg.m_Extensions[FromEnum(ExtType::S16)].c_str());
 
     for (int i = 0; i < 0x100; i++) {
-        sprite *spr = from_table<sprite>(sprite_list, 0x200, i);
+        sprite *spr = from_table(sprite_list, 0x200, i);
 
         // sprite pointer being null indicates per-level sprite
         if (!spr || (cfg.PerLevel && i >= 0xB0 && i < 0xC0)) {
@@ -1251,16 +1248,39 @@ int main(int argc, char *argv[]) {
 
                     // 4 digit hex value. First is Y pos (0-F) then X (0-F) then custom/extra bit combination
                     // here custom bit is always set (because why the fuck not?)
-                    int ref = d->y * 0x1000 + d->x * 0x100 + 0x20 + (d->extra_bit ? 0x10 : 0);
-
                     // if no description (or empty) just asm filename instead.
-                    if (d->description && strlen(d->description))
-                        fprintf(ssc, "%02X %04X %s\n", i, ref, d->description);
-                    else
-                        fprintf(ssc, "%02X %04X %s\n", i, ref, spr->asm_file);
+                    int ref = 0;
+                    if (d->extra_byte) {
+                        ref = 0x20 + (d->extra_bit ? 0x10 : 0);
+                        if (d->description && strlen(d->description))
+                            fprintf(ssc, "%02X %1X%02X%02X %s\n", i, d->exbyte.index, d->exbyte.value, ref, d->description);
+                        else
+                            fprintf(ssc, "%02X %1X%02X%02X %s\n", i, d->exbyte.index, d->exbyte.value, ref, spr->asm_file);
+                    } else {
+                        ref = d->y * 0x1000 + d->x * 0x100 + 0x20 + (d->extra_bit ? 0x10 : 0);
+                        if (d->description && strlen(d->description))
+                            fprintf(ssc, "%02X %04X %s\n", i, ref, d->description);
+                        else
+                            fprintf(ssc, "%02X %04X %s\n", i, ref, spr->asm_file);
+                    }
+
+                    if (d->gfx_setup_count > 0) {
+                        fprintf(ssc, "%02X 8 ", i);
+                        for (int n = 0; n < d->gfx_setup_count; n++) {
+                            fprintf(ssc, "%X,%X,%X,%X ",
+                                    d->gfx_files[n].gfx_files[0],
+                                    d->gfx_files[n].gfx_files[1],
+                                    d->gfx_files[n].gfx_files[2],
+                                    d->gfx_files[n].gfx_files[3]);
+                        }
+                        fprintf(ssc, "\n");
+                    }
 
                     // loop over tiles and append them into the output.
-                    fprintf(ssc, "%02X %04X", i, ref + 2);
+                    if (d->extra_byte)
+                        fprintf(ssc, "%02X %1X%02X%02X", i, d->exbyte.index, d->exbyte.value, ref + 2);
+                    else
+                        fprintf(ssc, "%02X %04X", i, ref + 2);
                     for (int k = 0; k < d->tile_count; k++) {
                         tile *t = d->tiles + k;
                         if (t->text) {
@@ -1325,10 +1345,10 @@ int main(int argc, char *argv[]) {
 
     std::vector<std::string> extraHijacks = listExtraAsm(cfg.AsmDirPath + "/ExtraHijacks");
     int count_extra_prints = 0;
-    if (cfg.m_Debug.output && extraHijacks.size() > 0) {
+    if (cfg.m_Debug.output && !extraHijacks.empty()) {
         cfg.m_Debug.dprintf("-------- ExtraHijacks prints --------\n", "");
     }
-    for (std::string patchUri : extraHijacks) {
+    for (const std::string& patchUri : extraHijacks) {
         patch(patchUri.c_str(), rom);
         if (cfg.m_Debug.output) {
             auto prints = asar_getprints(&count_extra_prints);
