@@ -188,7 +188,7 @@ void sprite::print(FILE *stream) {
         fprintf(stream, "Displays:\n");
         for (int i = 0; i < display_count; i++) {
             display *d = displays + i;
-            fprintf(stream, "\tX: %d, Y: %d, Extra-Bit: %s\n", d->x, d->y, BOOL_STR(d->extra_bit));
+            fprintf(stream, "\tX: %d, Y: %d, Extra-Bit: %s\n", d->x_or_index, d->y_or_value, BOOL_STR(d->extra_bit));
             fprintf(stream, "\tDescription: %s\n", d->description);
             for (int j = 0; j < d->tile_count; j++) {
                 tile *t = d->tiles + j;
