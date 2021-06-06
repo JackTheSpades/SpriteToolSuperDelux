@@ -472,6 +472,15 @@ void clean_hack(ROM &rom, std::string_view pathname) {
                         fprintf(clean_patch, "autoclean $%06X\n", extended_pointer.addr());
                 }
 
+            fprintf(clean_patch, "\n\n;MinorExtended:\n");
+            int minor_extended_table = rom.pointer_snes(0x028B70).addr();
+            if (minor_extended_table != 0x942016) // check with default/uninserted address
+                for (int i = 0; i < SPRITE_COUNT; i++) {
+                    pointer minor_extended_pointer = rom.pointer_snes(minor_extended_table + 3 * i);
+                    if (!minor_extended_pointer.is_empty())
+                        fprintf(clean_patch, "autoclean $%06X\n", minor_extended_pointer.addr());
+                }
+
             // remove overworld sprites
             // fprintf(clean_patch, "\n\n;Overworld:\n");
             // int ow_table = rom.pointer_snes(0x048633).addr();
@@ -664,6 +673,8 @@ void populate_sprite_list(const Paths &paths, sprite **sprite_lists, std::string
                 type = ListType::Cluster;
             } else if (line == "EXTENDED:") {
                 type = ListType::Extended;
+            } else if (line == "MINOREXTENDED:") {
+                type = ListType::MinorExtended;
             }
             continue;
         } else { // if there's a ':' but it's not at the end, it may be a per level sprite
@@ -805,13 +816,15 @@ int main(int argc, char *argv[]) {
     sprite *sprite_list = new sprite[MAX_SPRITE_COUNT];
     sprite *cluster_list = new sprite[SPRITE_COUNT];
     sprite *extended_list = new sprite[SPRITE_COUNT];
+    sprite *minor_extended_list = new sprite[SPRITE_COUNT];
     sprite *ow_list = new sprite[SPRITE_COUNT];
 
     // the list containing the lists...
-    sprite *sprites_list_list[4];
+    sprite *sprites_list_list[5];
     sprites_list_list[FromEnum(ListType::Sprite)] = sprite_list;
     sprites_list_list[FromEnum(ListType::Extended)] = extended_list;
     sprites_list_list[FromEnum(ListType::Cluster)] = cluster_list;
+    sprites_list_list[FromEnum(ListType::MinorExtended)] = minor_extended_list;
     sprites_list_list[FromEnum(ListType::Overworld)] = ow_list;
 
 #ifdef ON_WINDOWS
@@ -879,6 +892,8 @@ int main(int argc, char *argv[]) {
                    cfg.m_Paths[FromEnum(PathType::Extended)].c_str());
             printf("-c  <cluster>\tSpecify a custom cluster sprites directory (Default %s)\n",
                    cfg.m_Paths[FromEnum(PathType::Cluster)].c_str());
+            printf("-me  <minorextended>\tSpecify a custom minor extended sprites directory (Default %s)\n",
+                   cfg.m_Paths[FromEnum(PathType::MinorExtended)].c_str());
             // printf("-ow <cluster>\tSpecify a custom overworld sprites directory (Default %s)\n",
             // paths[FromEnum(PathType::Overworld)]);
             printf("\n");
@@ -950,6 +965,7 @@ int main(int argc, char *argv[]) {
         SET_PATH("-g", PathType::Generators)
         SET_PATH("-l", PathType::List)
         SET_PATH("-e", PathType::Extended)
+        SET_PATH("-me", PathType::MinorExtended)
         SET_PATH("-c", PathType::Cluster)
 
         SET_EXT("-ssc", ExtType::Ssc)
@@ -1074,6 +1090,7 @@ int main(int argc, char *argv[]) {
     patch_sprites(extraDefines, sprite_list, size, rom, cfg.m_Debug.output);
     patch_sprites(extraDefines, cluster_list, SPRITE_COUNT, rom, cfg.m_Debug.output);
     patch_sprites(extraDefines, extended_list, SPRITE_COUNT, rom, cfg.m_Debug.output);
+    patch_sprites(extraDefines, minor_extended_list, SPRITE_COUNT, rom, cfg.m_Debug.output);
     // patch_sprites(extraDefines, ow_list, SPRITE_COUNT, rom, output);
 
     if (!warnings.empty() && cfg.Warnings) {
@@ -1143,6 +1160,10 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < SPRITE_COUNT; i++)
         memcpy(file + (i * 3), &extended_list[i].extended_cape_ptr, 3);
     write_all(file, cfg.m_Paths[ASM], "_ExtendedCapePtr.bin", SPRITE_COUNT * 3);
+
+    for (int i = 0; i < SPRITE_COUNT; i++)
+        memcpy(file + (i * 3), &minor_extended_list[i].table.main, 3);
+    write_all(file, cfg.m_Paths[ASM], "_MinorExtendedPtr.bin", SPRITE_COUNT * 3);
 
     // overworld
     // for(int i = 0; i < SPRITE_COUNT; i++)
@@ -1322,6 +1343,7 @@ int main(int argc, char *argv[]) {
     patch(cfg.m_Paths[ASM], "main.asm", rom);
     patch(cfg.m_Paths[ASM], "cluster.asm", rom);
     patch(cfg.m_Paths[ASM], "extended.asm", rom);
+    patch(cfg.m_Paths[ASM], "minorextended.asm", rom);
 
     std::vector<std::string> extraHijacks = listExtraAsm(cfg.AsmDirPath + "/ExtraHijacks");
     int count_extra_prints = 0;
@@ -1359,6 +1381,7 @@ int main(int argc, char *argv[]) {
         remove(cfg.m_Paths[ASM], "_ClusterPtr.bin");
         remove(cfg.m_Paths[ASM], "_ExtendedPtr.bin");
         remove(cfg.m_Paths[ASM], "_ExtendedCapePtr.bin");
+        remove(cfg.m_Paths[ASM], "_MinorExtendedPtr.bin");
         // remove("asm/_OverworldMainPtr.bin");
         // remove("asm/_OverworldInitPtr.bin");
 

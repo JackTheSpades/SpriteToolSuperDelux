@@ -12,13 +12,14 @@ enum class PathType : int {
     Asm,
     Extended,
     Cluster,
+    MinorExtended,
     // Overworld,
     SIZE // this is here as a shorthand for counting how many elements are in the enum
 };
 
 enum class ExtType : int { Ssc, Mwt, Mw2, S16, SIZE };
 
-enum class ListType : int { Sprite = 0, Extended = 1, Cluster = 2, Overworld = 3 };
+enum class ListType : int { Sprite = 0, Extended = 1, Cluster = 2, MinorExtended = 3, Overworld = 4 };
 
 template <typename T> constexpr auto FromEnum(T val) {
     return static_cast<std::underlying_type_t<T>>(val);
@@ -50,18 +51,19 @@ struct Paths {
     std::string generators{"generators/"};
     std::string extended{"extended/"};
     std::string cluster{"cluster/"};
+    std::string minorextended{ "minorextended/" };
     std::string routines{"routines/"};
 
     inline constexpr std::string &operator[](int index) noexcept {
         std::array<std::string *, ArrSize> paths{&routines, &sprites, &generators, &shooters,
-                                                 &list,     &pasm,    &extended,   &cluster};
+                                                 &list,     &pasm,    &extended,   &cluster, &minorextended};
         index = std::clamp(index, 0, (int)paths.size() - 1);
         return *paths[index];
     };
 
     inline constexpr const std::string &operator[](int index) const noexcept {
         std::array<const std::string *, ArrSize> paths{&routines, &sprites, &generators, &shooters,
-                                                       &list,     &pasm,    &extended,   &cluster};
+                                                       &list,     &pasm,    &extended,   &cluster, &minorextended};
         index = std::clamp(index, 0, (int)paths.size() - 1);
         return *paths[index];
     };
