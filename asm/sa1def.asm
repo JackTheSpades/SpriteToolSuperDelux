@@ -120,6 +120,7 @@ endmacro
 !GenStart = $D0
 !ClusterOffset  = $09
 !ExtendedOffset = $13
+!MinorExtendedOffset = $0C
 
 ;$9E,x =  ($B4)
 
@@ -182,6 +183,18 @@ endmacro
 %define_base2_address(extended_table,$1765)
 %define_base2_address(extended_timer,$176F)
 %define_base2_address(extended_behind,$1779)
+
+;minor extended defines
+%define_base2_address(minor_extended_num,$17F0)
+%define_base2_address(minor_extended_y_low,$17FC)
+%define_base2_address(minor_extended_y_high,$1814)
+%define_base2_address(minor_extended_x_low,$1808)
+%define_base2_address(minor_extended_x_high,$18EA)
+%define_base2_address(minor_extended_x_speed,$182C)
+%define_base2_address(minor_extended_y_speed,$1820)
+%define_base2_address(minor_extended_x_fraction,$1844)
+%define_base2_address(minor_extended_y_fraction,$1838)
+%define_base2_address(minor_extended_timer,$1850)
 
 
 ;overworld defines
