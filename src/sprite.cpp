@@ -28,6 +28,8 @@ constexpr auto MAIN_PTR = 0x0185CC; // guess what?
 
 constexpr auto TEMP_SPR_FILE = "spr_temp.asm";
 constexpr auto SPRITE_COUNT = 0x80; // count for other sprites like cluster, ow, extended
+constexpr auto LESS_SPRITE_COUNT = 0x3F;
+constexpr auto MINOR_SPRITE_COUNT = 0x1F;
 
 constexpr int DEFAULT_ROUTINES = 100;
 constexpr int MAX_ROUTINES = 310;
@@ -45,6 +47,22 @@ PixiConfig cfg{};
 
 void double_click_exit() {
     getc(stdin); // Pause before exit
+}
+
+template <typename T, size_t N> constexpr size_t array_size(T (&)[N]) {
+    return N;
+}
+
+void clean_sprite_generic(FILE *clean_patch, int table_address, int original_value, size_t count, const char *preface,
+                          ROM &rom) {
+    fprintf(clean_patch, preface);
+    int table = rom.pointer_snes(table_address).addr();
+    if (table != original_value) // check with default/uninserted address
+        for (size_t i = 0; i < count; i++) {
+            pointer pointer = rom.pointer_snes(table + 3 * i);
+            if (!pointer.is_empty())
+                fprintf(clean_patch, "autoclean $%06X\n", pointer.addr());
+        }
 }
 
 template <typename T> T *from_table(T *table, int level, int number) {
@@ -451,44 +469,13 @@ void clean_hack(ROM &rom, std::string_view pathname) {
 
         // Version 1.01 stuff:
         if (version >= 1) {
-
-            // remove cluster sprites
-            fprintf(clean_patch, "\n\n;Cluster:\n");
-            int cluster_table = rom.pointer_snes(0x00A68A).addr();
-            if (cluster_table != 0x9C1498) // check with default/uninserted address
-                for (int i = 0; i < SPRITE_COUNT; i++) {
-                    pointer cluster_pointer = rom.pointer_snes(cluster_table + 3 * i);
-                    if (!cluster_pointer.is_empty())
-                        fprintf(clean_patch, "autoclean $%06X\n", cluster_pointer.addr());
-                }
-
-            // remove extended sprites
-            fprintf(clean_patch, "\n\n;Extended:\n");
-            int extended_table = rom.pointer_snes(0x029B1F).addr();
-            if (extended_table != 0x176FBC) // check with default/uninserted address
-                for (int i = 0; i < SPRITE_COUNT; i++) {
-                    pointer extended_pointer = rom.pointer_snes(extended_table + 3 * i);
-                    if (!extended_pointer.is_empty())
-                        fprintf(clean_patch, "autoclean $%06X\n", extended_pointer.addr());
-                }
-
-            fprintf(clean_patch, "\n\n;MinorExtended:\n");
-            int minor_extended_table = rom.pointer_snes(0x028B70).addr();
-            if (minor_extended_table != 0x942016) // check with default/uninserted address
-                for (int i = 0; i < SPRITE_COUNT; i++) {
-                    pointer minor_extended_pointer = rom.pointer_snes(minor_extended_table + 3 * i);
-                    if (!minor_extended_pointer.is_empty())
-                        fprintf(clean_patch, "autoclean $%06X\n", minor_extended_pointer.addr());
-                }
-
-            // remove overworld sprites
-            // fprintf(clean_patch, "\n\n;Overworld:\n");
-            // int ow_table = rom.pointer_snes(0x048633).addr();
-            // for(int i = 0; i < SPRITE_COUNT; i++) {
-            // pointer ow_pointer = rom.pointer_snes(ow_table + 3 * i);
-            // if(!ow_pointer.is_empty())
-            // fprintf(clean_patch, "autoclean $%06X\n", ow_pointer.addr());
-            // }
+            clean_sprite_generic(clean_patch, 0x00A68A, 0x9C1498, SPRITE_COUNT, "\n\n;Cluster:\n", rom);
+            clean_sprite_generic(clean_patch, 0x029B1F, 0x176FBC, SPRITE_COUNT, "\n\n;Extended:\n", rom);
+            clean_sprite_generic(clean_patch, 0x028B70, 0x942016, LESS_SPRITE_COUNT, "\n\n;MinorExtended:\n", rom);
+            clean_sprite_generic(clean_patch, 0x029058, 0x03F016, LESS_SPRITE_COUNT, "\n\n;Bounce:\n", rom);
+            clean_sprite_generic(clean_patch, 0x0296C0, 0x17C0BD, LESS_SPRITE_COUNT, "\n\n;Smoke:\n", rom);
+            clean_sprite_generic(clean_patch, 0x0299DA, 0x2003F0, MINOR_SPRITE_COUNT, "\n\n;SpinningCoin:\n", rom);
+            clean_sprite_generic(clean_patch, 0x02ADBE, 0xF016E1, MINOR_SPRITE_COUNT, "\n\n;Score:\n", rom);
         }
 
         // everything else is being cleaned by the main patch itself.
@@ -675,6 +662,14 @@ void populate_sprite_list(const Paths &paths, sprite **sprite_lists, std::string
                 type = ListType::Extended;
             } else if (line == "MINOREXTENDED:") {
                 type = ListType::MinorExtended;
+            } else if (line == "BOUNCE:") {
+                type = ListType::Bounce;
+            } else if (line == "SMOKE:") {
+                type = ListType::Smoke;
+            } else if (line == "SPINNINGCOIN:") {
+                type = ListType::SpinningCoin;
+            } else if (line == "SCORE:") {
+                type = ListType::Score;
             }
             continue;
         } else { // if there's a ':' but it's not at the end, it may be a per level sprite
@@ -704,7 +699,13 @@ void populate_sprite_list(const Paths &paths, sprite **sprite_lists, std::string
                     error("Error on line %d: Only sprite B0-BF must be assigned a level.\n", lineno);
             }
         } else {
-            if (sprite_id > SPRITE_COUNT)
+            if (type == ListType::Score || type == ListType::SpinningCoin) {
+                if (sprite_id > MINOR_SPRITE_COUNT)
+                    error("Error on line %d: Sprite number must be less than %x\n", lineno, MINOR_SPRITE_COUNT);
+            } else if (type == ListType::Bounce || type == ListType::Smoke) {
+                if (sprite_id > LESS_SPRITE_COUNT)
+                    error("Error on line %d: Sprite number must be less than %x\n", lineno, LESS_SPRITE_COUNT);
+            } else if (sprite_id > SPRITE_COUNT)
                 error("Error on line %d: Sprite number must be less than %x\n", lineno, SPRITE_COUNT);
             spr = sprite_list + sprite_id;
         }
@@ -816,15 +817,23 @@ int main(int argc, char *argv[]) {
     sprite *sprite_list = new sprite[MAX_SPRITE_COUNT];
     sprite *cluster_list = new sprite[SPRITE_COUNT];
     sprite *extended_list = new sprite[SPRITE_COUNT];
-    sprite *minor_extended_list = new sprite[SPRITE_COUNT];
+    sprite *minor_extended_list = new sprite[LESS_SPRITE_COUNT];
+    sprite *bounce_list = new sprite[LESS_SPRITE_COUNT];
+    sprite *smoke_list = new sprite[LESS_SPRITE_COUNT];
+    sprite *spinningcoin_list = new sprite[MINOR_SPRITE_COUNT];
+    sprite *score_list = new sprite[MINOR_SPRITE_COUNT];
     sprite *ow_list = new sprite[SPRITE_COUNT];
 
     // the list containing the lists...
-    sprite *sprites_list_list[5];
+    sprite *sprites_list_list[FromEnum(ListType::__SIZE__)];
     sprites_list_list[FromEnum(ListType::Sprite)] = sprite_list;
     sprites_list_list[FromEnum(ListType::Extended)] = extended_list;
     sprites_list_list[FromEnum(ListType::Cluster)] = cluster_list;
     sprites_list_list[FromEnum(ListType::MinorExtended)] = minor_extended_list;
+    sprites_list_list[FromEnum(ListType::Smoke)] = smoke_list;
+    sprites_list_list[FromEnum(ListType::Bounce)] = bounce_list;
+    sprites_list_list[FromEnum(ListType::SpinningCoin)] = spinningcoin_list;
+    sprites_list_list[FromEnum(ListType::Score)] = score_list;
     sprites_list_list[FromEnum(ListType::Overworld)] = ow_list;
 
 #ifdef ON_WINDOWS
@@ -894,6 +903,14 @@ int main(int argc, char *argv[]) {
                    cfg.m_Paths[FromEnum(PathType::Cluster)].c_str());
             printf("-me  <minorextended>\tSpecify a custom minor extended sprites directory (Default %s)\n",
                    cfg.m_Paths[FromEnum(PathType::MinorExtended)].c_str());
+            printf("-b  <bounce>\tSpecify a custom bounce sprites directory (Default %s)\n",
+                   cfg.m_Paths[FromEnum(PathType::Bounce)].c_str());
+            printf("-sm  <smoke>\tSpecify a custom smoke sprites directory (Default %s)\n",
+                   cfg.m_Paths[FromEnum(PathType::Smoke)].c_str());
+            printf("-sn  <spinningcoin>\tSpecify a custom spinning coin sprites directory (Default %s)\n",
+                   cfg.m_Paths[FromEnum(PathType::SpinningCoin)].c_str());
+            printf("-sc  <score>\tSpecify a custom score sprites directory (Default %s)\n",
+                   cfg.m_Paths[FromEnum(PathType::Score)].c_str());
             // printf("-ow <cluster>\tSpecify a custom overworld sprites directory (Default %s)\n",
             // paths[FromEnum(PathType::Overworld)]);
             printf("\n");
@@ -966,6 +983,10 @@ int main(int argc, char *argv[]) {
         SET_PATH("-l", PathType::List)
         SET_PATH("-e", PathType::Extended)
         SET_PATH("-me", PathType::MinorExtended)
+        SET_PATH("-b", PathType::Bounce)
+        SET_PATH("-sm", PathType::Smoke)
+        SET_PATH("-sn", PathType::SpinningCoin)
+        SET_PATH("-sc", PathType::Score)
         SET_PATH("-c", PathType::Cluster)
 
         SET_EXT("-ssc", ExtType::Ssc)
@@ -1056,7 +1077,7 @@ int main(int argc, char *argv[]) {
     // set path for directories relative to pixi or rom, not working dir.
     //------------------------------------------------------------------------------------------
 
-    for (int i = 0; i < FromEnum(PathType::SIZE); i++) {
+    for (int i = 0; i < FromEnum(PathType::__SIZE__); i++) {
         if (i == FromEnum(PathType::List))
             set_paths_relative_to(cfg.m_Paths[i], rom.name);
         else
@@ -1068,7 +1089,7 @@ int main(int argc, char *argv[]) {
     cfg.AsmDir = cfg.m_Paths[FromEnum(PathType::Asm)];
     cfg.AsmDirPath = cleanPathTrail(cfg.AsmDir);
 
-    for (int i = 0; i < FromEnum(ExtType::SIZE); i++) {
+    for (int i = 0; i < FromEnum(ExtType::__SIZE__); i++) {
         set_paths_relative_to(cfg.m_Extensions[i], rom.name);
 #ifdef DEBUGMSG
         debug_print("extensions[%d] = %s\n", i, extensions[i]);
@@ -1090,7 +1111,11 @@ int main(int argc, char *argv[]) {
     patch_sprites(extraDefines, sprite_list, size, rom, cfg.m_Debug.output);
     patch_sprites(extraDefines, cluster_list, SPRITE_COUNT, rom, cfg.m_Debug.output);
     patch_sprites(extraDefines, extended_list, SPRITE_COUNT, rom, cfg.m_Debug.output);
-    patch_sprites(extraDefines, minor_extended_list, SPRITE_COUNT, rom, cfg.m_Debug.output);
+    patch_sprites(extraDefines, minor_extended_list, LESS_SPRITE_COUNT, rom, cfg.m_Debug.output);
+    patch_sprites(extraDefines, bounce_list, LESS_SPRITE_COUNT, rom, cfg.m_Debug.output);
+    patch_sprites(extraDefines, smoke_list, LESS_SPRITE_COUNT, rom, cfg.m_Debug.output);
+    patch_sprites(extraDefines, spinningcoin_list, MINOR_SPRITE_COUNT, rom, cfg.m_Debug.output);
+    patch_sprites(extraDefines, score_list, MINOR_SPRITE_COUNT, rom, cfg.m_Debug.output);
     // patch_sprites(extraDefines, ow_list, SPRITE_COUNT, rom, output);
 
     if (!warnings.empty() && cfg.Warnings) {
@@ -1161,9 +1186,29 @@ int main(int argc, char *argv[]) {
         memcpy(file + (i * 3), &extended_list[i].extended_cape_ptr, 3);
     write_all(file, cfg.m_Paths[ASM], "_ExtendedCapePtr.bin", SPRITE_COUNT * 3);
 
-    for (int i = 0; i < SPRITE_COUNT; i++)
+    for (int i = 0; i < LESS_SPRITE_COUNT; i++)
         memcpy(file + (i * 3), &minor_extended_list[i].table.main, 3);
     write_all(file, cfg.m_Paths[ASM], "_MinorExtendedPtr.bin", SPRITE_COUNT * 3);
+
+    // bounce
+    for (int i = 0; i < LESS_SPRITE_COUNT; i++)
+        memcpy(file + (i * 3), &smoke_list[i].table.main, 3);
+    write_all(file, cfg.m_Paths[ASM], "_SmokePtr.bin", LESS_SPRITE_COUNT * 3);
+
+    // smoke
+    for (int i = 0; i < MINOR_SPRITE_COUNT; i++)
+        memcpy(file + (i * 3), &spinningcoin_list[i].table.main, 3);
+    write_all(file, cfg.m_Paths[ASM], "_SpinningCoinPtr.bin", MINOR_SPRITE_COUNT * 3);
+
+    // spinningcoin
+    for (int i = 0; i < LESS_SPRITE_COUNT; i++)
+        memcpy(file + (i * 3), &bounce_list[i].table.main, 3);
+    write_all(file, cfg.m_Paths[ASM], "_BouncePtr.bin", LESS_SPRITE_COUNT * 3);
+
+    // score
+    for (int i = 0; i < MINOR_SPRITE_COUNT; i++)
+        memcpy(file + (i * 3), &score_list[i].table.main, 3);
+    write_all(file, cfg.m_Paths[ASM], "_ScorePtr.bin", MINOR_SPRITE_COUNT * 3);
 
     // overworld
     // for(int i = 0; i < SPRITE_COUNT; i++)
@@ -1344,6 +1389,10 @@ int main(int argc, char *argv[]) {
     patch(cfg.m_Paths[ASM], "cluster.asm", rom);
     patch(cfg.m_Paths[ASM], "extended.asm", rom);
     patch(cfg.m_Paths[ASM], "minorextended.asm", rom);
+    patch(cfg.m_Paths[ASM], "bounce.asm", rom);
+    patch(cfg.m_Paths[ASM], "smoke.asm", rom);
+    patch(cfg.m_Paths[ASM], "spinningcoin.asm", rom);
+    patch(cfg.m_Paths[ASM], "score.asm", rom);
 
     std::vector<std::string> extraHijacks = listExtraAsm(cfg.AsmDirPath + "/ExtraHijacks");
     int count_extra_prints = 0;
@@ -1382,6 +1431,10 @@ int main(int argc, char *argv[]) {
         remove(cfg.m_Paths[ASM], "_ExtendedPtr.bin");
         remove(cfg.m_Paths[ASM], "_ExtendedCapePtr.bin");
         remove(cfg.m_Paths[ASM], "_MinorExtendedPtr.bin");
+        remove(cfg.m_Paths[ASM], "_SmokePtr.bin");
+        remove(cfg.m_Paths[ASM], "_SpinningCoinPtr.bin");
+        remove(cfg.m_Paths[ASM], "_BouncePtr.bin");
+        remove(cfg.m_Paths[ASM], "_ScorePtr.bin");
         // remove("asm/_OverworldMainPtr.bin");
         // remove("asm/_OverworldInitPtr.bin");
 
@@ -1410,10 +1463,9 @@ int main(int argc, char *argv[]) {
         PostMessage(window_handle, 0xBECB, 0, IParam);
     }
 #endif
+    for (size_t i = 0; i < array_size(sprites_list_list); i++) {
+        delete[] sprites_list_list[i];
+    }
     delete[] map;
-    delete[] sprite_list;
-    delete[] extended_list;
-    delete[] cluster_list;
-    delete[] ow_list;
     return retval;
 }
