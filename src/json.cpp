@@ -6,9 +6,9 @@
 #include "json/base64.h"
 #include "json/json.hpp"
 
-#include <fstream>
-#include <cstring>
 #include <algorithm>
+#include <cstring>
+#include <fstream>
 
 using json = nlohmann::json;
 
@@ -48,7 +48,6 @@ bool read_json_file(sprite *spr, FILE *output) {
         exit(-1);
     }
 
-
     try {
 
         spr->table.actlike = j.at("ActLike");
@@ -75,9 +74,9 @@ bool read_json_file(sprite *spr, FILE *output) {
         spr->table.tweak[5] = j190f(j);
 
         std::string decoded = base64_decode(j.at("Map16"));
-        spr->map_block_count = decoded.size() / 8;
-        spr->map_data = (map16 *)strcln(decoded);
-
+        spr->map_block_count = decoded.size() / sizeof(map16);
+        spr->map_data = (map16 *)malloc(sizeof(map16) * spr->map_block_count);
+        memcpy(spr->map_data, decoded.c_str(), spr->map_block_count * sizeof(map16));
         // displays
         spr->display_count = j.at("Displays").size();
         spr->displays = new display[spr->display_count];
