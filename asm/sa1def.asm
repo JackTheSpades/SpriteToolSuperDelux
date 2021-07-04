@@ -127,6 +127,7 @@ endmacro
 !ScoreOffset = $16
 ;!QuakeOffset = $03
 
+!ExtendedSize = $08
 !MinorExtendedSize = $0C
 !SmokeSize = $04
 !SpinningCoinSize = $04
