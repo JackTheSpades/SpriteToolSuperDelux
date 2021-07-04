@@ -42,7 +42,7 @@ Main:
 
 	SEC
    SBC #!ExtendedOffset  ; 13 is the first custom one
-	AND #$3F              ;	
+	AND #$7F              ;	
 	%CallSprite(Ptr)      ;
 	JML $029B15|!BankB           ; JML back to an RTS
 	

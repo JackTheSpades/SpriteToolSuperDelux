@@ -45,7 +45,7 @@ Main:
 	;PHB : PHK : PLB       ; magic bank wrapper
 	SEC                   ; \ Subtract 9. (Also allows you to use slots up to $88 instead of $7F in this version.)
 	SBC #$09              ; / (Not that you'll ever use all of them though)
-	AND #$3F
+	AND #$7F
 
 	%CallSprite(Ptr)
 

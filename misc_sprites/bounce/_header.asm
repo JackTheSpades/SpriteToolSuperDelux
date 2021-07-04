@@ -44,35 +44,35 @@ endmacro
 macro SpawnExtendedAlt()
     xba
     %SetupCoords()
-	%SpawnExtendedGeneric()
+    %SpawnExtendedGeneric()
 endmacro
 
 macro SpawnSmokeAlt()
     xba
     %SetupCoords()
-	%SpawnSmokeGeneric()
+    %SpawnSmokeGeneric()
 endmacro
 
 macro SpawnCluster()
     xba
     %SetupCoords()
-	%SpawnClusterGeneric()
+    %SpawnClusterGeneric()
 endmacro
 
 macro SpawnMinorExtended()
     xba
     %SetupCoords()
-	%SpawnMinorExtendedGeneric()
+    %SpawnMinorExtendedGeneric()
 endmacro
 
 macro SpawnSpinningCoin()
     xba
     %SetupCoords()
-	%SpawnSpinningCoinGeneric()
+    %SpawnSpinningCoinGeneric()
 endmacro
 
 macro SpawnScore()
     xba
     %SetupCoords()
-	%SpawnScoreGeneric()
+    %SpawnScoreGeneric()
 endmacro
