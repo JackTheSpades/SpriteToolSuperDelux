@@ -3,6 +3,8 @@
 #include <exception>
 #include <fstream>
 #include <map>
+#include <sstream>
+
 
 #include "MeiMei/MeiMei.h"
 #include "asar/asardll.h"
@@ -541,7 +543,7 @@ bool areConfigFlagsToggled() {
     return cfg.PerLevel || cfg.disable255Sprites || true; // for now config is recreated on all runs
 }
 
-void create_config_file(const std::string& path) {
+void create_config_file(const std::string &path) {
     if (areConfigFlagsToggled()) {
         FILE *config = open(path.c_str(), "w");
         fprintf(config, "!PerLevel = %d\n", (int)cfg.PerLevel);
@@ -1266,11 +1268,8 @@ int main(int argc, char *argv[]) {
                     if (d->gfx_setup_count > 0) {
                         fprintf(ssc, "%02X 8 ", i);
                         for (int n = 0; n < d->gfx_setup_count; n++) {
-                            fprintf(ssc, "%X,%X,%X,%X ",
-                                    d->gfx_files[n].gfx_files[0],
-                                    d->gfx_files[n].gfx_files[1],
-                                    d->gfx_files[n].gfx_files[2],
-                                    d->gfx_files[n].gfx_files[3]);
+                            fprintf(ssc, "%X,%X,%X,%X ", d->gfx_files[n].gfx_files[0], d->gfx_files[n].gfx_files[1],
+                                    d->gfx_files[n].gfx_files[2], d->gfx_files[n].gfx_files[3]);
                         }
                         fprintf(ssc, "\n");
                     }
@@ -1347,7 +1346,7 @@ int main(int argc, char *argv[]) {
     if (cfg.m_Debug.output && !extraHijacks.empty()) {
         cfg.m_Debug.dprintf("-------- ExtraHijacks prints --------\n", "");
     }
-    for (const std::string& patchUri : extraHijacks) {
+    for (const std::string &patchUri : extraHijacks) {
         patch(patchUri.c_str(), rom);
         if (cfg.m_Debug.output) {
             auto prints = asar_getprints(&count_extra_prints);
