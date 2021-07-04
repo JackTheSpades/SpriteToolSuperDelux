@@ -66,6 +66,11 @@ with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
         "cluster",
         "extended",
         "routines",
+        "misc_sprites/bounce",
+        "misc_sprites/minorextended",
+        "misc_sprites/score",
+        "misc_sprites/smoke",
+        "misc_sprites/spinningcoin",
     ]:
         zipdir(folder_name, pixizip, filter_for(folder_name))
 
@@ -86,6 +91,11 @@ with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
         "sa1def.asm",
         "cluster.asm",
         "extended.asm",
+        "minorextended.asm",
+        "score.asm",
+        "bounce.asm",
+        "spinningcoin.asm",
+        "smoke.asm",
         "pointer_caller.asm",
         "DefaultSize.bin",
         "spritetool_clean.asm",

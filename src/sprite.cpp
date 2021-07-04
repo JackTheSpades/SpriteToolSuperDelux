@@ -70,7 +70,7 @@ void clean_sprite_generic(FILE *clean_patch, int table_address, int original_val
     int table = rom.pointer_snes(table_address).addr();
     if (table != original_value) // check with default/uninserted address
         for (size_t i = 0; i < count; i++) {
-            pointer pointer = rom.pointer_snes(table + 3 * i);
+            pointer pointer = rom.pointer_snes(table + 3 * static_cast<int>(i));
             if (!pointer.is_empty())
                 fprintf(clean_patch, "autoclean $%06X\n", pointer.addr());
         }
@@ -1115,7 +1115,7 @@ int main(int argc, char *argv[]) {
     int normal_sprites_size = cfg.PerLevel ? MAX_SPRITE_COUNT : 0x100;
     patch_sprites(extraDefines, sprite_list, normal_sprites_size, rom, cfg.m_Debug.output);
     for (auto [type, size] : sprite_sizes) {
-        patch_sprites(extraDefines, sprites_list_list[FromEnum(type)], size, rom, cfg.m_Debug.output);
+        patch_sprites(extraDefines, sprites_list_list[FromEnum(type)], static_cast<int>(size), rom, cfg.m_Debug.output);
     }
 
     if (!warnings.empty() && cfg.Warnings) {
