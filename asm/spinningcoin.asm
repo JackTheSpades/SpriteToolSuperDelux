@@ -15,7 +15,7 @@ freecode
 
 Fix: 
     JSL $05B34A|!BankB
-    LDA #$02
+    LDA #$01
     STA !spinning_coin_num,x
     JML $028A84|!BankB
 
