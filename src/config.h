@@ -23,18 +23,7 @@ enum class PathType : int {
 
 enum class ExtType : int { Ssc, Mwt, Mw2, S16, __SIZE__ };
 
-enum class ListType : int {
-    Sprite = 0,
-    Extended = 1,
-    Cluster = 2,
-    MinorExtended = 3,
-    Bounce = 4,
-    Smoke = 5,
-    SpinningCoin = 6,
-    Score = 7,
-    Overworld = 8,
-    __SIZE__ = 9
-};
+enum class ListType : int { Sprite, Extended, Cluster, MinorExtended, Bounce, Smoke, SpinningCoin, Score, __SIZE__ };
 
 template <typename T> constexpr auto FromEnum(T val) {
     return static_cast<std::underlying_type_t<T>>(val);
