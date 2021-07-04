@@ -9,7 +9,6 @@
 #include <cstring>
 #include <fstream>
 
-
 using json = nlohmann::json;
 
 // string clone.
@@ -77,7 +76,7 @@ bool read_json_file(sprite *spr, FILE *output) {
         spr->map_block_count = decoded.size() / sizeof(map16);
         spr->map_data = (map16 *)malloc(sizeof(map16) * spr->map_block_count);
         memcpy(spr->map_data, decoded.c_str(), spr->map_block_count * sizeof(map16));
-
+      
         // displays
         auto disp_type = j.at("DisplayType").get<std::string>();
         if (disp_type == "XY") {
