@@ -1,18 +1,33 @@
 @include
 
-macro LDE()
-	LDA !shoot_num,x
-	AND #$40
+macro SpeedX()
+    lda #$00
+    %MinorExtendedSpeed()
+endmacro
+
+macro SpeedY()
+    lda #$02
+    %MinorExtendedSpeed()
+endmacro
+
+macro SpeedXFast()
+    lda #$01
+    %MinorExtendedSpeed()
+endmacro
+
+macro SpeedYFast()
+    lda #$03
+    %MinorExtendedSpeed()
 endmacro
 
 macro SetupCoords()
-    lda !shooter_x_low,x
+    lda !minor_extended_x_low,x
     sta $04
-    lda !shooter_x_high,x
+    lda !minor_extended_x_high,x
     sta $05
-    lda !shooter_y_low,x
+    lda !minor_extended_y_low,x
     sta $06
-    lda !shooter_y_high,x
+    lda !minor_extended_y_high,x
     sta $07
 endmacro
 

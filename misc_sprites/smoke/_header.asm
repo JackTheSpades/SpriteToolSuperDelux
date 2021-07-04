@@ -1,18 +1,13 @@
 @include
 
-macro LDE()
-	LDA !shoot_num,x
-	AND #$40
-endmacro
-
 macro SetupCoords()
-    lda !shooter_x_low,x
+    lda !smoke_x_low,x
     sta $04
-    lda !shooter_x_high,x
+    lda !smoke_x_high,x
     sta $05
-    lda !shooter_y_low,x
+    lda !smoke_y_low,x
     sta $06
-    lda !shooter_y_high,x
+    lda !smoke_y_high,x
     sta $07
 endmacro
 
