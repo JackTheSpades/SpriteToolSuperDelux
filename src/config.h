@@ -12,18 +12,22 @@ enum class PathType : int {
     Asm,
     Extended,
     Cluster,
+    MinorExtended,
+    Bounce,
+    Smoke,
+    SpinningCoin,
+    Score,
     // Overworld,
-    SIZE // this is here as a shorthand for counting how many elements are in the enum
+    __SIZE__ // this is here as a shorthand for counting how many elements are in the enum
 };
 
-enum class ExtType : int { Ssc, Mwt, Mw2, S16, SIZE };
+enum class ExtType : int { Ssc, Mwt, Mw2, S16, __SIZE__ };
 
-enum class ListType : int { Sprite = 0, Extended = 1, Cluster = 2, Overworld = 3 };
+enum class ListType : int { Sprite, Extended, Cluster, MinorExtended, Bounce, Smoke, SpinningCoin, Score, __SIZE__ };
 
 template <typename T> constexpr auto FromEnum(T val) {
     return static_cast<std::underlying_type_t<T>>(val);
 }
-
 
 struct Debug {
     bool isOn = false;
@@ -42,7 +46,7 @@ struct Debug {
 };
 
 struct Paths {
-    static constexpr int ArrSize = FromEnum(PathType::SIZE);
+    static constexpr int ArrSize = FromEnum(PathType::__SIZE__);
     std::string list{"list.txt"};
     std::string pasm{"asm/"};
     std::string sprites{"sprites/"};
@@ -50,25 +54,32 @@ struct Paths {
     std::string generators{"generators/"};
     std::string extended{"extended/"};
     std::string cluster{"cluster/"};
+    std::string minorextended{"misc_sprites/minorextended/"};
+    std::string bounce{"misc_sprites/bounce/"};
+    std::string smoke{"misc_sprites/smoke/"};
+    std::string spinningcoin{"misc_sprites/spinningcoin/"};
+    std::string score{"misc_sprites/score/"};
     std::string routines{"routines/"};
 
     inline constexpr std::string &operator[](int index) noexcept {
-        std::array<std::string *, ArrSize> paths{&routines, &sprites, &generators, &shooters,
-                                                 &list,     &pasm,    &extended,   &cluster};
+        std::array<std::string *, ArrSize> paths{&routines, &sprites,      &generators, &shooters,      &list,
+                                                 &pasm,     &extended,     &cluster,    &minorextended, &bounce,
+                                                 &smoke,    &spinningcoin, &score};
         index = std::clamp(index, 0, (int)paths.size() - 1);
         return *paths[index];
     };
 
     inline constexpr const std::string &operator[](int index) const noexcept {
-        std::array<const std::string *, ArrSize> paths{&routines, &sprites, &generators, &shooters,
-                                                       &list,     &pasm,    &extended,   &cluster};
+        std::array<const std::string *, ArrSize> paths{&routines, &sprites,      &generators, &shooters,      &list,
+                                                       &pasm,     &extended,     &cluster,    &minorextended, &bounce,
+                                                       &smoke,    &spinningcoin, &score};
         index = std::clamp(index, 0, (int)paths.size() - 1);
         return *paths[index];
     };
 };
 
 struct Extensions {
-    static constexpr int ArrSize = FromEnum(ExtType::SIZE);
+    static constexpr int ArrSize = FromEnum(ExtType::__SIZE__);
     std::string ssc{};
     std::string mwt{};
     std::string mw2{};
