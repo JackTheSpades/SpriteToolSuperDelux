@@ -7,10 +7,10 @@
 ;;    A (8-bit)
 ;;    X/Y (8-bit)
 
-.LoseYoshi
+?main:
     PHA
     LDA $187A|!addr                ; If the player is not on Yoshi, return.
-    BEQ .noYoshi
+    BEQ ?.noYoshi
     PHX
     PHY
     LDX $18E2|!addr                ; Load index to Yoshi in the sprite tables.
@@ -39,6 +39,6 @@
     STA $1497|!addr
     PLY
     PLX
-.noYoshi
+?.noYoshi
     PLA
     RTL

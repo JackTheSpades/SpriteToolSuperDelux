@@ -7,7 +7,7 @@
 ;   A   = number
 ;   $00 = x offset
 ;   $01 = y offset
-;	$02 = timer
+;    $02 = timer
 ;   $04 = origin x pos  ; since this is a generic routine it can be called from any other sprite
 ;   $06 = origin y pos  ; type, so i opted for adding macros in _header.asm that helps to setup this
 
@@ -47,5 +47,5 @@
 
     clc
     rtl
-
+    
 

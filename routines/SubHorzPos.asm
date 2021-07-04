@@ -11,15 +11,16 @@
 ;        Some sprites use a version of this routine where only $0F is being stored to
 ;        as the low byte of the distance (here it is the high byte)
 
-	LDY #$00
-	LDA $94
-	SEC
-	SBC !E4,x
-	STA $0E
-	LDA $95
-	SBC !14E0,x
-	STA $0F
-	BPL ?+
-	INY
+?main:
+    LDY #$00
+    LDA $94
+    SEC
+    SBC !E4,x
+    STA $0E
+    LDA $95
+    SBC !14E0,x
+    STA $0F
+    BPL ?+
+    INY
 ?+
-	RTL
+    RTL
