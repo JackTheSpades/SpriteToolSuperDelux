@@ -1,53 +1,52 @@
 @include
 
-macro LDE()
-	LDA !shoot_num,x
-	AND #$40
+macro UpdateYPos()
+    %SpinningCoinUpdateYPos()
 endmacro
 
 macro SetupCoords()
-    lda !shooter_x_low,x
+    lda !spinning_coin_x_low,x
     sta $04
-    lda !shooter_x_high,x
+    lda !spinning_coin_x_high,x
     sta $05
-    lda !shooter_y_low,x
+    lda !spinning_coin_y_low,x
     sta $06
-    lda !shooter_y_high,x
+    lda !spinning_coin_y_high,x
     sta $07
 endmacro
 
 macro SpawnExtendedAlt()
     xba
     %SetupCoords()
-	%SpawnExtendedGeneric()
+    %SpawnExtendedGeneric()
 endmacro
 
 macro SpawnSmokeAlt()
     xba
     %SetupCoords()
-	%SpawnSmokeGeneric()
+    %SpawnSmokeGeneric()
 endmacro
 
 macro SpawnCluster()
     xba
     %SetupCoords()
-	%SpawnClusterGeneric()
+    %SpawnClusterGeneric()
 endmacro
 
 macro SpawnMinorExtended()
     xba
     %SetupCoords()
-	%SpawnMinorExtendedGeneric()
+    %SpawnMinorExtendedGeneric()
 endmacro
 
 macro SpawnSpinningCoin()
     xba
     %SetupCoords()
-	%SpawnSpinningCoinGeneric()
+    %SpawnSpinningCoinGeneric()
 endmacro
 
 macro SpawnScore()
     xba
     %SetupCoords()
-	%SpawnScoreGeneric()
+    %SpawnScoreGeneric()
 endmacro

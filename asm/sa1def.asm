@@ -120,6 +120,19 @@ endmacro
 !GenStart = $D0
 !ClusterOffset  = $09
 !ExtendedOffset = $13
+!MinorExtendedOffset = $0C
+!SmokeOffset = $06
+!SpinningCoinOffset = $02
+!BounceOffset = $08
+!ScoreOffset = $16
+;!QuakeOffset = $03
+
+!MinorExtendedSize = $0C
+!SmokeSize = $04
+!SpinningCoinSize = $04
+!BounceSize = $04
+!ScoreSize = $06
+;!QuakeSize = $04
 
 ;$9E,x =  ($B4)
 
@@ -183,6 +196,66 @@ endmacro
 %define_base2_address(extended_timer,$176F)
 %define_base2_address(extended_behind,$1779)
 
+;minor extended defines
+%define_base2_address(minor_extended_num,$17F0)
+%define_base2_address(minor_extended_y_low,$17FC)
+%define_base2_address(minor_extended_y_high,$1814)
+%define_base2_address(minor_extended_x_low,$1808)
+%define_base2_address(minor_extended_x_high,$18EA)
+%define_base2_address(minor_extended_x_speed,$182C)
+%define_base2_address(minor_extended_y_speed,$1820)
+%define_base2_address(minor_extended_x_fraction,$1844)
+%define_base2_address(minor_extended_y_fraction,$1838)
+%define_base2_address(minor_extended_timer,$1850)
+
+;smoke sprite defines
+%define_base2_address(smoke_num,$17C0)
+%define_base2_address(smoke_y_low,$17C4)
+%define_base2_address(smoke_x_low,$17C8)
+%define_base2_address(smoke_timer,$17CC)
+
+;spinning coin sprite defines
+%define_base2_address(spinning_coin_num,$17D0)
+%define_base2_address(spinning_coin_y_low,$17D4)
+%define_base2_address(spinning_coin_y_speed,$17D8)
+%define_base2_address(spinning_coin_y_bits,$17DC)
+%define_base2_address(spinning_coin_x_low,$17E0)
+%define_base2_address(spinning_coin_layer,$17E4)
+%define_base2_address(spinning_coin_y_high,$17E8)
+%define_base2_address(spinning_coin_x_high,$17EC)
+
+;score sprite defines
+%define_base2_address(score_num,$16E1)
+%define_base2_address(score_y_low,$16E7)
+%define_base2_address(score_x_low,$16ED)
+%define_base2_address(score_x_high,$16F3)
+%define_base2_address(score_y_high,$16F9)
+%define_base2_address(score_y_speed,$16FF)
+%define_base2_address(score_layer,$1705)
+
+;bounce sprite defines
+%define_base2_address(bounce_num,$1699)
+%define_base2_address(bounce_init,$169D)
+%define_base2_address(bounce_y_low,$16A1)
+%define_base2_address(bounce_x_low,$16A5)
+%define_base2_address(bounce_y_high,$16A9)
+%define_base2_address(bounce_x_high,$16AD)
+%define_base2_address(bounce_y_speed,$16B1)
+%define_base2_address(bounce_x_speed,$16B5)
+%define_base2_address(bounce_x_bits,$16B9)
+%define_base2_address(bounce_y_bits,$16BD)
+%define_base2_address(bounce_map16_tile,$16C1)
+%define_base2_address(bounce_timer,$16C5)
+%define_base2_address(bounce_table,$16C9)
+%define_base2_address(bounce_properties,$1901)
+
+;quake sprite defines
+; %define_base2_address(quake_num,$16CD)
+; %define_base2_address(quake_x_low,$16D1)
+; %define_base2_address(quake_x_high,$16D5)
+; %define_base2_address(quake_y_low,$16D9)
+; %define_base2_address(quake_y_high,$16DD)
+; %define_base2_address(quake_timer,$18F8)
 
 ;overworld defines
 ; %define_sprite_table(ow_num,     $0DE5, $3200)
