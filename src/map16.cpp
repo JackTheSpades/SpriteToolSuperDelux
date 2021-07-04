@@ -2,7 +2,7 @@
 #include "file_io.h"
 #include "structs.h"
 
-int find_free_map(map16 *map, int count) {
+size_t find_free_map(map16 *map, size_t count) {
     if (count == 0)
         return 0;
 
@@ -16,7 +16,7 @@ int find_free_map(map16 *map, int count) {
         }
     }
     delete[] zero;
-    return -1;
+    return static_cast<size_t>(-1);
 }
 
 void read_map16(map16 *map, const char *file) {

@@ -504,14 +504,14 @@ void clean_hack(ROM &rom, std::string_view pathname) {
                     if (bank[offset] != mdk[j++])
                         j = 0;
                     if (j == strlen(mdk)) {
-                        offset -= strlen(mdk) - 1; // set pointer to start of mdk string
+                        offset -= static_cast<int>(strlen(mdk)) - 1; // set pointer to start of mdk string
                         break;
                     }
                 }
 
                 if (offset >= 0x8000)
                     break;
-                bank_offset = offset + strlen(mdk);
+                bank_offset = offset + static_cast<int>(strlen(mdk));
                 if (strncmp((bank + offset - 8), "STAR", 4)) // check for "STAR"
                     continue;
 
@@ -978,7 +978,7 @@ int main(int argc, char *argv[]) {
         printf("Enter a ROM file name, or drag and drop the ROM here: ");
         char ROM_name[FILENAME_MAX];
         if (fgets(ROM_name, FILENAME_MAX, stdin)) {
-            int length = strlen(ROM_name) - 1;
+            size_t length = strlen(ROM_name) - 1;
             ROM_name[length] = 0;
             if ((ROM_name[0] == '"' && ROM_name[length - 1] == '"') ||
                 (ROM_name[0] == '\'' && ROM_name[length - 1] == '\'')) {
@@ -1237,8 +1237,8 @@ int main(int argc, char *argv[]) {
 
                 //----- s16 / map16 -------------------------------------------------
 
-                int map16_tile = find_free_map(map, spr->map_block_count);
-                if (map16_tile == -1) {
+                size_t map16_tile = find_free_map(map, spr->map_block_count);
+                if (map16_tile == static_cast<size_t>(-1)) {
                     error("There wasn't enough space in your s16 file to fit everything, was trying to fit %d blocks, "
                           "couldn't find space\n",
                           spr->map_block_count);
@@ -1246,7 +1246,7 @@ int main(int argc, char *argv[]) {
                 memcpy(map + map16_tile, spr->map_data, spr->map_block_count * sizeof(map16));
 
                 //----- ssc / display -----------------------------------------------
-                for (int j = 0; j < spr->display_count; j++) {
+                for (size_t j = 0; j < spr->display_count; j++) {
                     display *d = spr->displays + j;
 
                     // 4 digit hex value. First is Y pos (0-F) then X (0-F) then custom/extra bit combination
@@ -1261,7 +1261,7 @@ int main(int argc, char *argv[]) {
 
                     // loop over tiles and append them into the output.
                     fprintf(ssc, "%02X %04X", i, ref + 2);
-                    for (int k = 0; k < d->tile_count; k++) {
+                    for (size_t k = 0; k < d->tile_count; k++) {
                         tile *t = d->tiles + k;
                         if (t->text) {
                             fprintf(ssc, " 0,0,*%s*", t->text);
@@ -1271,7 +1271,7 @@ int main(int argc, char *argv[]) {
                             // earlier +0x100 because in LM these start at 0x400.
                             int tile_num = t->tile_number;
                             if (tile_num >= 0x300)
-                                tile_num += 0x100 + map16_tile;
+                                tile_num += 0x100 + static_cast<int>(map16_tile);
                             // note we're using %d because x/y are signed integers here
                             fprintf(ssc, " %d,%d,%X", t->x_offset, t->y_offset, tile_num);
                         }
@@ -1280,7 +1280,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 //----- mwt,mw2 / collection ------------------------------------------
-                for (int j = 0; j < spr->collection_count; j++) {
+                for (size_t j = 0; j < spr->collection_count; j++) {
                     collection *c = spr->collections + j;
 
                     // mw2

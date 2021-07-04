@@ -14,25 +14,6 @@ constexpr auto RTL_LOW = 0x21;
 // 10 per level, 200 level + 100 global
 constexpr auto MAX_SPRITE_COUNT = 0x2100;
 
-struct simple_string {
-    int length = 0;
-    char *data = nullptr;
-    simple_string() = default;
-    simple_string(const simple_string &) = default;
-
-    simple_string &operator=(simple_string &&move) noexcept {
-        delete[] data;
-        data = move.data;
-        move.data = nullptr;
-        length = move.length;
-        return *this;
-    }
-    simple_string& operator=(const simple_string& copy) = delete;
-    ~simple_string() {
-        delete[] data;
-    }
-};
-
 struct pointer {
     unsigned char lowbyte = RTL_LOW;   // point to RTL
     unsigned char highbyte = RTL_HIGH; //
@@ -67,7 +48,7 @@ struct tile {
 
 struct display {
     char *description = nullptr;
-    int tile_count = 0;
+    size_t tile_count = 0;
     tile *tiles = nullptr;
     bool extra_bit = false;
     int x = 0;
@@ -79,7 +60,7 @@ struct display {
 struct collection {
     const char *name = nullptr;
     bool extra_bit = false;
-    unsigned char prop[12] = { 0 }; // why was this 4 again?
+    unsigned char prop[12] = {0}; // why was this 4 again?
 
     ~collection();
 };
@@ -134,13 +115,13 @@ struct sprite {
     const char *asm_file = nullptr;
     const char *cfg_file = nullptr;
 
-    int map_block_count = 0;
+    size_t map_block_count = 0;
     map16 *map_data = nullptr;
 
-    int display_count = 0;
+    size_t display_count = 0;
     display *displays = nullptr;
 
-    int collection_count = 0;
+    size_t collection_count = 0;
     collection *collections = nullptr;
 
     int sprite_type = 0; // 0 = Normal custom sprite, 1 = Extended custom sprite, 2 = Cluster custom sprite, 3 =
@@ -181,7 +162,6 @@ struct ROM {
     ~ROM();
 };
 
-simple_string get_line(const char *text, int offset);
 void set_pointer(pointer *p, int address);
 bool is_empty_table(sprite *spr, int size);
 char *trim(char *text);

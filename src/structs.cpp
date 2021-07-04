@@ -12,7 +12,7 @@ void ROM::open(const char *n) {
     name = new char[strlen(n) + 1]();
     strcpy(name, n);
     FILE *file = ::open(name, "r+b"); // call global open
-    size = file_size(file);
+    size = static_cast<int>(file_size(file));
     header_size = size & 0x7FFF;
     size -= header_size;
     data = read_all(name, false, MAX_ROM_SIZE + header_size);
@@ -145,17 +145,6 @@ ROM::~ROM() {
     delete[] name;
 }
 
-simple_string get_line(const char *text, int offset) {
-    simple_string string;
-    if (!text[offset]) {
-        return string;
-    }
-    string.length = strcspn(text + offset, "\r\n") + 1;
-    string.data = new char[string.length]();
-    strncpy(string.data, text + offset, string.length - 1);
-    return string;
-}
-
 bool is_empty_table(sprite *spr, int size) {
     for (int i = 0; i < size; i++) {
         if (!spr[i].table.init.is_empty() || !spr[i].table.main.is_empty())
@@ -173,7 +162,7 @@ char *trim(char *text) {
     while (isspace(*text)) { // trim front
         text++;
     }
-    for (int i = strlen(text); isspace(text[i - 1]); i--) { // trim back
+    for (int i = static_cast<int>(strlen(text)); isspace(text[i - 1]); i--) { // trim back
         text[i - 1] = 0;
     }
     return text;
@@ -208,7 +197,7 @@ void sprite::print(FILE *stream) {
     if (map_block_count) {
         fprintf(stream, "Map16:\n");
         unsigned char *mapdata = (unsigned char *)map_data;
-        for (int i = 0; i < map_block_count * 8; i++) {
+        for (size_t i = 0; i < map_block_count * 8; i++) {
             if ((i % 8) == 0)
                 fprintf(stream, "\t");
             fprintf(stream, "%02X, ", (int)mapdata[i]);
@@ -219,11 +208,11 @@ void sprite::print(FILE *stream) {
 
     if (display_count) {
         fprintf(stream, "Displays:\n");
-        for (int i = 0; i < display_count; i++) {
+        for (size_t i = 0; i < display_count; i++) {
             display *d = displays + i;
             fprintf(stream, "\tX: %d, Y: %d, Extra-Bit: %s\n", d->x, d->y, BOOL_STR(d->extra_bit));
             fprintf(stream, "\tDescription: %s\n", d->description);
-            for (int j = 0; j < d->tile_count; j++) {
+            for (size_t j = 0; j < d->tile_count; j++) {
                 tile *t = d->tiles + j;
                 if (t->text)
                     fprintf(stream, "\t\t%d,%d,*%s*\n", t->x_offset, t->y_offset, t->text);
@@ -235,7 +224,7 @@ void sprite::print(FILE *stream) {
 
     if (collection_count) {
         fprintf(stream, "Collections:\n");
-        for (int i = 0; i < collection_count; i++) {
+        for (size_t i = 0; i < collection_count; i++) {
             collection *c = collections + i;
             std::stringstream coll;
             coll << "\tExtra-Bit: " << BOOL_STR(c->extra_bit) << ", Property Bytes: ( ";
