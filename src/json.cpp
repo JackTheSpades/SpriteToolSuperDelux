@@ -5,9 +5,10 @@
 #include "structs.h"
 #include "json/base64.h"
 
-#include <fstream>
-#include <cstring>
 #include <algorithm>
+#include <cstring>
+#include <fstream>
+
 
 using json = nlohmann::json;
 
@@ -47,7 +48,6 @@ bool read_json_file(sprite *spr, FILE *output) {
         exit(-1);
     }
 
-
     try {
 
         spr->table.actlike = j.at("ActLike");
@@ -74,8 +74,9 @@ bool read_json_file(sprite *spr, FILE *output) {
         spr->table.tweak[5] = j190f(j);
 
         std::string decoded = base64_decode(j.at("Map16"));
-        spr->map_block_count = (int)decoded.size() / 8;
-        spr->map_data = (map16 *)strcln(decoded);
+        spr->map_block_count = decoded.size() / sizeof(map16);
+        spr->map_data = (map16 *)malloc(sizeof(map16) * spr->map_block_count);
+        memcpy(spr->map_data, decoded.c_str(), spr->map_block_count * sizeof(map16));
 
         // displays
         auto disp_type = j.at("DisplayType").get<std::string>();
@@ -97,7 +98,8 @@ bool read_json_file(sprite *spr, FILE *output) {
 
             if (spr->disp_type == display_type::ExtensionByte) {
                 dis->x_or_index = jdisplay.at("Index");
-                dis->x_or_index = std::clamp(dis->x_or_index, 0, (dis->extra_bit ? spr->extra_byte_count : spr->byte_count)) + 3;
+                dis->x_or_index =
+                    std::clamp(dis->x_or_index, 0, (dis->extra_bit ? spr->extra_byte_count : spr->byte_count)) + 3;
                 dis->y_or_value = jdisplay.at("Value");
             } else {
                 dis->x_or_index = jdisplay.at("X");
@@ -116,7 +118,8 @@ bool read_json_file(sprite *spr, FILE *output) {
                     bool separate = gfxarray[n].at("Separate");
                     for (int gfx = 0; gfx < 4; gfx++) {
                         try {
-                            dis->gfx_files[n].gfx_files[gfx] = gfxarray[n].at(std::to_string(gfx)).get<int>() | (separate ? 0x8000 : 0);
+                            dis->gfx_files[n].gfx_files[gfx] =
+                                gfxarray[n].at(std::to_string(gfx)).get<int>() | (separate ? 0x8000 : 0);
                         } catch (const std::out_of_range &err) {
                             dis->gfx_files[n].gfx_files[gfx] = 0x7F;
                         }

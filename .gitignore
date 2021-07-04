@@ -25,6 +25,3 @@ pixi*.zip
 make_modern.bat
 pixi
 build
-.idea
-cmake-build-debug-visual-studio-x86
-cmake-build-release-visual-studio-x86
