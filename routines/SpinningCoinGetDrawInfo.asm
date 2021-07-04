@@ -7,7 +7,7 @@
 ; Output: 
 ;   $00 = X position within the screen
 ;   $01 = Y position within the screen
-;	$03 = OAM size and offscreen bit
+;   $03 = OAM size and offscreen bit
 ;   Y   = OAM Index
 ;   C   = Draw status
 ;       Set     = Ready to be drawn on screen

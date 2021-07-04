@@ -16,7 +16,8 @@
 ;; Clobbers: A
 ;;
 
-.SetSpriteClippingAlternate
+?main:
+?.SetSpriteClippingAlternate
     LDA !sprite_x_high,x
     XBA : LDA !sprite_x_low,x
     REP #$20

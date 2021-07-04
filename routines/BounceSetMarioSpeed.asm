@@ -22,9 +22,9 @@
     sta $7B
 ?.no_mario_x_speed
     tyx 
-	rtl
+    rtl
 
 ?.mario_x_speed
-	db $80,$E0,$20,$80
+    db $80,$E0,$20,$80
 ?.mario_y_speed
-	db $80,$80,$80,$00
+    db $80,$80,$80,$00

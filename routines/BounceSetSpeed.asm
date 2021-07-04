@@ -23,6 +23,6 @@
     rtl 
 
 ?.bounce_x_accel
-	db $00,$F0,$10,$00
+    db $00,$F0,$10,$00
 ?.bounce_y_accel
-	db $10,$00,$00,$F0
+    db $10,$00,$00,$F0
