@@ -1,6 +1,6 @@
 #ifndef MAP16_H
 #define MAP16_H
-
+#include <cstddef>
 #define MAP16_SIZE 0x3800
 
 struct map16;
