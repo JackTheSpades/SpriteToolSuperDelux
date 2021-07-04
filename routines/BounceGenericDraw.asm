@@ -1,3 +1,10 @@
+; Draws a single 16x16 tile for a bounce sprite, it also handles the offscreen behavior (X pos high bit)
+; 
+; Input:
+;   A = Tile number to use
+; 
+; Output:
+;   N/A
 
 ?main:
     sta $02

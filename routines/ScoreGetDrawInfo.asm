@@ -1,12 +1,15 @@
 ; Routine for score sprites that fetches information to draw a it on screen.
 ; 
+; Input:
+;   N/A
+; 
 ; Output: 
 ;   $00 = X position within the screen
 ;   $01 = Y position within the screen
 ;   Y   = OAM Index
 ;   C   = Draw status
-;       Set     = Score sprite drawn on screen
-;       Clear   = Score sprite not drawn on screen
+;       Set     = Ready to be drawn on screen
+;       Clear   = Not possible to draw on screen
 
 ?main:
     lda !score_layer,x

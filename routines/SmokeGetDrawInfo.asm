@@ -1,5 +1,8 @@
 ; Routine for smoke sprites that fetches information to draw a single oam tile on screen.
 ;
+; Input:
+;   N/A
+; 
 ; Output:
 ;   $00 = X position within the screen
 ;   $01 = Y position within the screen

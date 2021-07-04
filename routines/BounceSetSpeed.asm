@@ -1,3 +1,10 @@
+; Routine that updates the speeds of a bounce sprite like the original bounce sprites.
+; 
+; Input:
+;   N/A
+;
+; Output:
+;   N/A
 
 ?main:
     txy

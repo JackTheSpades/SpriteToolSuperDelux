@@ -2,6 +2,9 @@
 ; It handles offscreen situations, including X position's high bit.
 ; If a minor extended sprite is way too offscreen, the sprite will be erased from memory.
 ;
+; Input:
+;   N/A
+; 
 ; Output:
 ;   $00 = X position within the screen
 ;   $01 = Y position within the screen

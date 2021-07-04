@@ -42,10 +42,10 @@
     adc $06
     sta !smoke_y_low,y
 
-    lda $02
-    sta !smoke_timer,y
+	lda $02
+	sta !smoke_timer,y
 
     clc
-    rtl
-    
+	rtl
+	
 

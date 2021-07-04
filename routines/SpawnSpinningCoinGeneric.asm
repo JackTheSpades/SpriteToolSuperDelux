@@ -56,5 +56,5 @@
     sta !spinning_coin_y_speed,y
 
     clc
-    rtl
-    
+	rtl
+	

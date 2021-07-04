@@ -1,3 +1,14 @@
+; Routine that updates score's sprites Y position based on its speed.
+; It also handles how high the score sprite can go.
+; You'd be better using %UpdateYPos() for default SMW behavior or
+; %UpdateYPosAlt() for easy handling of the upper limit of the score sprite
+;
+; Input:
+;   C = Use SMW's highest position value
+;   A = If carry set, highest position relative to the camera the score sprite can reach
+; 
+; Output:
+;   N/A
 
 ?main:
     bcs ?.already_set

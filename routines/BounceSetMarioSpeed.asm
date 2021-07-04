@@ -1,4 +1,10 @@
-
+; Updates the player's speed based on the direction of the bounce sprite.
+;
+; Input:
+;   N/A
+; 
+; Output:
+;   N/A
 
 ?main:
     txy

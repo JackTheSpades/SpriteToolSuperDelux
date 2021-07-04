@@ -56,5 +56,5 @@
     lda #$30
     sta !score_y_speed,y
 
-    rtl
-    
+	rtl
+	

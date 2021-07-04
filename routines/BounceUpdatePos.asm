@@ -1,3 +1,10 @@
+; Updates the X and Y positions of a bounce sprite based on its speed values
+;
+; Input:
+;   N/A
+; 
+; Output:
+;   N/A
 
 ?main:
     lda !bounce_y_speed,x
@@ -31,10 +38,10 @@
     lsr #4
     cmp #$08
     ldy #$00
-    bcc +
+    bcc ?+
     ora #$F0
     dey
-+
+?+
     plp
     adc !bounce_x_low,x
     sta !bounce_x_low,x
