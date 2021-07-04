@@ -61,5 +61,5 @@
     sta !extended_y_speed,y
 
     clc
-	rtl
-	
+    rtl
+
