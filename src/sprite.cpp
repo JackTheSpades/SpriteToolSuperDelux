@@ -98,7 +98,7 @@ template <typename T> T *from_table(T *table, int level, int number) {
 }
 
 bool patch(const char *patch_name_rel, ROM &rom) {
-    std::string patch_path = std::filesystem::absolute(patch_name_rel).generic_string();
+    std::string patch_path{patch_name_rel}; //  = std::filesystem::absolute(patch_name_rel).generic_string();
     if (!asar_patch(patch_path.c_str(), (char *)rom.real_data, MAX_ROM_SIZE, &rom.size)) {
 #ifdef DEBUGMSG
         debug_print("Failure. Try fetch errors:\n");
@@ -1088,7 +1088,7 @@ int main(int argc, char *argv[]) {
         else
             set_paths_relative_to(cfg.m_Paths[i], argv[0]);
 #ifdef DEBUGMSG
-        debug_print("paths[%d] = %s\n", i, paths[i]);
+        debug_print("paths[%d] = %s\n", i, cfg.m_Paths[i].c_str());
 #endif
     }
     cfg.AsmDir = cfg.m_Paths[FromEnum(PathType::Asm)];
@@ -1097,7 +1097,7 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < FromEnum(ExtType::__SIZE__); i++) {
         set_paths_relative_to(cfg.m_Extensions[i], rom.name);
 #ifdef DEBUGMSG
-        debug_print("extensions[%d] = %s\n", i, extensions[i]);
+        debug_print("extensions[%d] = %s\n", i, cfg.m_Extensions[i].c_str());
 #endif
     }
 
