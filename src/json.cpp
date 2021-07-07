@@ -156,7 +156,7 @@ bool read_json_file(sprite *spr, FILE *output) {
             for (int i = 1; i <= (col->extra_bit ? spr->extra_byte_count : spr->byte_count); i++) {
                 try {
                     col->prop[i - 1] = jCollection.at("Extra Property Byte " + std::to_string(i));
-                } catch (const std::out_of_range &exc) {
+                } catch (const std::out_of_range &) {
                     col->prop[i - 1] = 0;
                     // if it's not specified in the json just set it at 0, who cares anyway, just add a warning
                     warnings.push_back("Your json file \"" +

@@ -8,7 +8,8 @@
 ;;
 ;; Clobbers: A
 
-.SetPlayerClippingAlternate
+?main:
+?.SetPlayerClippingAlternate
     PHX
     REP #$20
     LDA $94
@@ -19,16 +20,16 @@
     SEP #$20
     LDX #$00
     LDA $73
-    BNE .inc1
+    BNE ?.inc1
     LDA $19
-    BNE .next1
-.inc1
+    BNE ?.next1
+?.inc1
     INX
-.next1
+?.next1
     LDA $187A|!addr
-    BEQ .next2
+    BEQ ?.next2
     INX #2
-.next2
+?.next2
     LDA.l $03B660|!bank,x
     STA $06
     STZ $07

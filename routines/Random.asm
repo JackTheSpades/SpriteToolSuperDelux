@@ -2,16 +2,17 @@
 ; Input: A = max value
 ; Output: A = random number in the interval [0, A]
  
+?main:
     PHX : PHP
     SEP #$30
     PHA
     JSL $01ACF9|!BankB
-	LDA $148D|!Base2
+    LDA $148D|!Base2
     PLX
     CPX #$FF
-    BEQ .end
+    BEQ ?.end
  
-.normal
+?.normal
     INX
  
     if !SA1 == 0
@@ -28,6 +29,6 @@
         NOP                     ; Wait 2 cycles, which is enough according to SnesLab docs about sa-1 registers.
         LDA $2307               ; Read multiplication product.
     endif
-.end
+?.end
     PLP : PLX
     RTL

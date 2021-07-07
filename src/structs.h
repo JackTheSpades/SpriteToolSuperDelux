@@ -50,20 +50,17 @@ struct gfx_info {
     int gfx_files[4] = {0x7F, 0x7F, 0x7F, 0x7F};
 };
 
-enum class display_type {
-    XYPosition,
-    ExtensionByte
-};
+enum class display_type { XYPosition, ExtensionByte };
 
 struct display {
     char *description = nullptr;
-    int tile_count = 0;
+    size_t tile_count = 0;
     tile *tiles = nullptr;
     bool extra_bit = false;
     int x_or_index = 0;
     int y_or_value = 0;
     int gfx_setup_count = 0;
-    gfx_info* gfx_files = nullptr;
+    gfx_info *gfx_files = nullptr;
 
     ~display();
 };
@@ -71,7 +68,7 @@ struct display {
 struct collection {
     const char *name = nullptr;
     bool extra_bit = false;
-    unsigned char prop[12] = { 0 }; // why was this 4 again?
+    unsigned char prop[12] = {0}; // why was this 4 again?
 
     ~collection();
 };
@@ -126,14 +123,14 @@ struct sprite {
     const char *asm_file = nullptr;
     const char *cfg_file = nullptr;
 
-    int map_block_count = 0;
+    size_t map_block_count = 0;
     map16 *map_data = nullptr;
 
     display_type disp_type = display_type::XYPosition;
-    int display_count = 0;
+    size_t display_count = 0;
     display *displays = nullptr;
 
-    int collection_count = 0;
+    size_t collection_count = 0;
     collection *collections = nullptr;
 
     int sprite_type = 0; // 0 = Normal custom sprite, 1 = Extended custom sprite, 2 = Cluster custom sprite, 3 =
