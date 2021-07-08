@@ -20,7 +20,7 @@ struct pointer {
     unsigned char bankbyte = RTL_BANK; //
 
     pointer() = default;
-    pointer(int snes) {
+    explicit pointer(int snes) {
         lowbyte = (unsigned char)(snes & 0xFF);
         highbyte = (unsigned char)((snes >> 8) & 0xFF);
         bankbyte = (unsigned char)((snes >> 16) & 0xFF);
@@ -28,11 +28,11 @@ struct pointer {
     pointer(const pointer &) = default;
     ~pointer() = default;
 
-    bool is_empty() {
+    [[nodiscard]] bool is_empty() const {
         return lowbyte == RTL_LOW && highbyte == RTL_HIGH && bankbyte == RTL_BANK;
     }
 
-    int addr() {
+    [[nodiscard]] int addr() const {
         return (bankbyte << 16) + (highbyte << 8) + lowbyte;
     }
 };
@@ -46,13 +46,21 @@ struct tile {
     ~tile();
 };
 
+struct gfx_info {
+    int gfx_files[4] = {0x7F, 0x7F, 0x7F, 0x7F};
+};
+
+enum class display_type { XYPosition, ExtensionByte };
+
 struct display {
     char *description = nullptr;
     size_t tile_count = 0;
     tile *tiles = nullptr;
     bool extra_bit = false;
-    int x = 0;
-    int y = 0;
+    int x_or_index = 0;
+    int y_or_value = 0;
+    int gfx_setup_count = 0;
+    gfx_info *gfx_files = nullptr;
 
     ~display();
 };
@@ -118,6 +126,7 @@ struct sprite {
     size_t map_block_count = 0;
     map16 *map_data = nullptr;
 
+    display_type disp_type = display_type::XYPosition;
     size_t display_count = 0;
     display *displays = nullptr;
 
@@ -130,7 +139,7 @@ struct sprite {
     void print(FILE *stream);
 };
 
-int get_pointer(unsigned char *data, int address, int size = 3, int bank = 0x00);
+int get_pointer(const unsigned char *data, int address, int size = 3, int bank = 0x00);
 
 enum class MapperType { lorom, sa1rom, fullsa1rom };
 
@@ -146,19 +155,14 @@ struct ROM {
     void open(const char *n);
     void close();
 
-    int pc_to_snes(int address, bool header = true);
-    int snes_to_pc(int address, bool header = true);
+    int pc_to_snes(int address, bool header = true) const;
+    int snes_to_pc(int address, bool header = true) const;
 
-    pointer pointer_snes(int address, int size = 3, int bank = 0x00);
-    pointer pointer_pc(int address, int size = 3, int bank = 0x00);
-    unsigned char read_byte(int addr);
-    unsigned short read_word(int addr);
-    unsigned int read_long(int addr);
-    void write_byte(int addr, unsigned char val);
-    void write_word(int addr, unsigned short val);
-    void write_long(int addr, unsigned int val);
-    void write_data(unsigned char *src, size_t size, int addr);
-    void read_data(unsigned char *dst, size_t size, int addr);
+    pointer pointer_snes(int address, int size = 3, int bank = 0x00) const;
+    unsigned char read_byte(int addr) const;
+    unsigned short read_word(int addr) const;
+    unsigned int read_long(int addr) const;
+    void read_data(unsigned char *dst, size_t size, int addr) const;
     ~ROM();
 };
 

@@ -20,7 +20,7 @@ size_t find_free_map(map16 *map, size_t count) {
 }
 
 void read_map16(map16 *map, const char *file) {
-    map16 *src = (map16 *)read_all(file, false, MAP16_SIZE * sizeof(map16));
+    auto *src = (map16 *)read_all(file, false, MAP16_SIZE * sizeof(map16));
     memcpy(map, src, MAP16_SIZE * sizeof(map16));
     delete[] src;
 }

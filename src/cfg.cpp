@@ -4,7 +4,6 @@
 #include <cstdio>
 
 #include <fstream>
-#include <iostream>
 #include <string>
 
 typedef void (*linehandler)(const char *, sprite *, int &);
@@ -108,5 +107,4 @@ void cfg_extra(const char *line, sprite *spr, int &handle) {
         printf("Error in reading extra byte settings for file %s, error was \"%s\"\n", spr->cfg_file, e.what());
         handle = -1;
     }
-    return;
 }
