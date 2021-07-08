@@ -14,12 +14,12 @@ std::string cleanPathTrail(std::string path) {
     return path;
 }
 
-void set_paths_relative_to(std::string& path, const char *arg0) {
+void set_paths_relative_to(std::string &path, const char *arg0) {
 
     if (path.empty())
         return;
 
-    std::filesystem::path absBasePath(std::filesystem::absolute(arg0));
+    std::filesystem::path absBasePath = std::filesystem::relative(arg0);
     absBasePath.remove_filename();
 #ifdef DEBUGMSG
     debug_print("Absolute base path: %s ", absBasePath.generic_string().c_str());
