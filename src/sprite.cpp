@@ -66,7 +66,7 @@ template <typename T, size_t N> constexpr size_t array_size(T (&)[N]) {
 
 void clean_sprite_generic(FILE *clean_patch, int table_address, int original_value, size_t count, const char *preface,
                           ROM &rom) {
-    fprintf(clean_patch, preface);
+    fprintf(clean_patch, "%s", preface);
     int table = rom.pointer_snes(table_address).addr();
     if (table != original_value) // check with default/uninserted address
         for (size_t i = 0; i < count; i++) {
@@ -79,7 +79,7 @@ void clean_sprite_generic(FILE *clean_patch, int table_address, int original_val
 template <size_t COUNT> void write_sprite_generic(sprite *list, const char *filename) {
     constexpr auto ASM = FromEnum(PathType::Asm);
     unsigned char file[COUNT * 3];
-    for (int i = 0; i < COUNT; i++)
+    for (size_t i = 0; i < COUNT; i++)
         memcpy(file + (i * 3), &list[i].table.main, 3);
     write_all(file, cfg.m_Paths[ASM], filename, COUNT * 3);
 }
@@ -1181,7 +1181,7 @@ int main(int argc, char *argv[]) {
     write_sprite_generic<MINOR_SPRITE_COUNT>(score_list, "_ScorePtr.bin");
 
     uint8_t file[SPRITE_COUNT * 3];
-    for (int i = 0; i < SPRITE_COUNT; i++)
+    for (size_t i = 0; i < SPRITE_COUNT; i++)
         memcpy(file + (i * 3), &extended_list[i].extended_cape_ptr, 3);
     write_all(file, cfg.m_Paths[ASM], "_ExtendedCapePtr.bin", SPRITE_COUNT * 3);
 
