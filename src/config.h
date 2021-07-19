@@ -3,6 +3,10 @@
 #include <cstdio>
 #include <string>
 
+constexpr size_t operator""_sz(size_t n) {
+    return n;
+}
+
 enum class PathType : int {
     Routines,
     Sprites,
@@ -65,7 +69,7 @@ struct Paths {
         std::array<std::string *, ArrSize> paths{&routines, &sprites,      &generators, &shooters,      &list,
                                                  &pasm,     &extended,     &cluster,    &minorextended, &bounce,
                                                  &smoke,    &spinningcoin, &score};
-        index = std::clamp(index, 0ull, paths.size() - 1ull);
+        index = std::clamp(index, 0_sz, paths.size() - 1_sz);
         return *paths[index];
     };
 
@@ -73,7 +77,7 @@ struct Paths {
         std::array<const std::string *, ArrSize> paths{&routines, &sprites,      &generators, &shooters,      &list,
                                                        &pasm,     &extended,     &cluster,    &minorextended, &bounce,
                                                        &smoke,    &spinningcoin, &score};
-        index = std::clamp(index, 0ull, paths.size() - 1ull);
+        index = std::clamp(index, 0_sz, paths.size() - 1_sz);
         return *paths[index];
     };
 };
@@ -87,13 +91,13 @@ struct Extensions {
 
     inline constexpr std::string &operator[](size_t index) noexcept {
         std::array<std::string *, ArrSize> exts{&ssc, &mwt, &mw2, &s16};
-        index = std::clamp(index, 0ull, exts.size() - 1ull);
+        index = std::clamp(index, 0_sz, exts.size() - 1_sz);
         return *exts[index];
     };
 
     inline constexpr const std::string &operator[](size_t index) const noexcept {
         std::array<const std::string *, ArrSize> exts{&ssc, &mwt, &mw2, &s16};
-        index = std::clamp(index, 0ull, exts.size() - 1ull);
+        index = std::clamp(index, 0_sz, exts.size() - 1_sz);
         return *exts[index];
     };
 };
