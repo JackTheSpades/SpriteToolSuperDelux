@@ -61,19 +61,19 @@ struct Paths {
     std::string score{"misc_sprites/score/"};
     std::string routines{"routines/"};
 
-    inline constexpr std::string &operator[](int index) noexcept {
+    inline constexpr std::string &operator[](size_t index) noexcept {
         std::array<std::string *, ArrSize> paths{&routines, &sprites,      &generators, &shooters,      &list,
                                                  &pasm,     &extended,     &cluster,    &minorextended, &bounce,
                                                  &smoke,    &spinningcoin, &score};
-        index = std::clamp(index, 0, (int)paths.size() - 1);
+        index = std::clamp(index, 0ull, paths.size() - 1ull);
         return *paths[index];
     };
 
-    inline constexpr const std::string &operator[](int index) const noexcept {
+    inline constexpr const std::string &operator[](size_t index) const noexcept {
         std::array<const std::string *, ArrSize> paths{&routines, &sprites,      &generators, &shooters,      &list,
                                                        &pasm,     &extended,     &cluster,    &minorextended, &bounce,
                                                        &smoke,    &spinningcoin, &score};
-        index = std::clamp(index, 0, (int)paths.size() - 1);
+        index = std::clamp(index, 0ull, paths.size() - 1ull);
         return *paths[index];
     };
 };
@@ -85,15 +85,15 @@ struct Extensions {
     std::string mw2{};
     std::string s16{};
 
-    inline constexpr std::string &operator[](int index) noexcept {
+    inline constexpr std::string &operator[](size_t index) noexcept {
         std::array<std::string *, ArrSize> exts{&ssc, &mwt, &mw2, &s16};
-        index = std::clamp(index, 0, (int)exts.size() - 1);
+        index = std::clamp(index, 0ull, exts.size() - 1ull);
         return *exts[index];
     };
 
-    inline constexpr const std::string &operator[](int index) const noexcept {
+    inline constexpr const std::string &operator[](size_t index) const noexcept {
         std::array<const std::string *, ArrSize> exts{&ssc, &mwt, &mw2, &s16};
-        index = std::clamp(index, 0, (int)exts.size() - 1);
+        index = std::clamp(index, 0ull, exts.size() - 1ull);
         return *exts[index];
     };
 };
