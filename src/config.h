@@ -111,6 +111,7 @@ struct PixiConfig {
     bool Warnings = false;
     bool ExtMod = true;
     bool DisableMeiMei = false;
+    bool DisableAllExtensionFiles = false;
     int Routines = 100;
     std::string AsmDir{};
     std::string AsmDirPath{};
