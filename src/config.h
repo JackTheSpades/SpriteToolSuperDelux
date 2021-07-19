@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <string>
 
-constexpr size_t operator""_sz(size_t n) {
+constexpr size_t operator""_sz(unsigned long long n) {
     return n;
 }
 
