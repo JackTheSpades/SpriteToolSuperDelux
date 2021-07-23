@@ -32,6 +32,9 @@ bool read_cfg_file(sprite *spr, FILE *output) {
     int line = 0;
 
     std::ifstream cfg_stream(spr->cfg_file);
+    if (!cfg_stream) {
+        error("Can't find CFG file %s, aborting insertion", spr->cfg_file);
+    }
     std::string current_line;
     while (std::getline(cfg_stream, current_line) && line < handlelimit) {
         trim(current_line);
