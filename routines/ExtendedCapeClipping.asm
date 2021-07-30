@@ -15,20 +15,20 @@
 
 
 ?.ClippingExt                     ; Subroutine to get clipping values (B) for an extended sprite.
-    LDA $171F|!addr,X
+    LDA !extended_x_low,X
     CLC
     ADC $00
     STA $04
-    LDA $1733|!addr,X
+    LDA !extended_x_high,X
     ADC #$00
     STA $0A
     LDA $01
     STA $06
-    LDA $1715|!addr,X
+    LDA !extended_y_low,X
     CLC
     ADC $02
     STA $05
-    LDA $1729|!addr,X
+    LDA !extended_y_high,X
     ADC #$00
     STA $0B
     LDA $03

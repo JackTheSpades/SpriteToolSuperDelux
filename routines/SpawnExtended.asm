@@ -19,9 +19,9 @@
     BNE ?.ret                    ; /
     
 ; Get Index
-    LDY #$07                    ; loop over 8 extra sprite slots (last 2 are for fireballs)
+    LDY.b #!ExtendedSize-1       ; loop over 8 extra sprite slots (last 2 are for fireballs)
 ?.loop
-    LDA $170B|!Base2,y    ; \ if empty, proceed
+    LDA !extended_num,y    ; \ if empty, proceed
     BEQ ?+                        ; /
     DEY                        ; \
     BPL ?.loop                ; | if not, decrease Y and continue with loop
@@ -30,33 +30,33 @@
     RTL                        ; /
 ?+
     XBA                        ; get number back in A
-    STA $170B|!Base2,y     ;
+    STA !extended_num,y     ;
         
         
     LDA $00                    ; \
     CLC : ADC !E4,x        ; |
-    STA $171F|!Base2,y    ; | store x position + x offset (low byte)
+    STA !extended_x_low,y    ; | store x position + x offset (low byte)
     LDA #$00                    ; |
     BIT $00                    ; | create high byte based on $00 in A and add
     BPL ?+                        ; | to x position
     DEC                        ; |
 ?+    ADC !14E0,x                ; |
-    STA $1733|!Base2,y    ; /
+    STA !extended_x_high,y    ; /
         
     LDA $01                    ; \ 
      CLC : ADC !D8,x        ; |
-    STA $1715|!Base2,y    ; | store y position + y offset    
+    STA !extended_y_low,y    ; | store y position + y offset    
     LDA #$00                    ; |
     BIT $01                    ; | create high byte based on $01 in A and add
     BPL ?+                        ; | to y position
     DEC                        ; |
 ?+    ADC !14D4,x                ; |
-    STA $1729|!Base2,y    ; /
+    STA !extended_y_high,y    ; /
     
     LDA $02                    ; \ store x speed
-    STA $1747|!Base2,y    ; /
+    STA !extended_x_speed,y    ; /
     LDA $03                    ; \ store y speed
-    STA $173D|!Base2,y    ; /
+    STA !extended_y_speed,y    ; /
     
     CLC
     RTL
