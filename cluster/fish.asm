@@ -27,7 +27,7 @@ db !FishProp1,!FishProp2,!FishProp3,!FishProp4,!FishProp1,!FishProp2,!FishProp3,
 print "MAIN ",pc
 Main:				;The code always starts at this label in all sprites.
 LDA #$01
-STA $1E2A|!Base2,y
+STA !cluster_y_high,y
 
 LDA $9D				; \ Don't move if sprites are supposed to be frozen.
 BNE ImmobileFish		; /
@@ -35,19 +35,19 @@ BNE ImmobileFish		; /
 LDA $14
 AND #$01
 BEQ +
-LDA $1E16|!Base2,y
+LDA !cluster_x_low,y
 CLC
 ADC #!FishSpeed
-STA $1E16|!Base2,y
+STA !cluster_x_low,y
 +
 
 ImmobileFish:                   ; OAM routine starts here.
 LDX.w OAMStuffFish,y 		; Get OAM index.
-LDA $1E02|!Base2,y			; \ Copy Y position relative to screen Y to OAM Y.
+LDA !cluster_y_low,y			; \ Copy Y position relative to screen Y to OAM Y.
 SEC                             ;  |
 SBC $1C				;  |
 STA $0201|!Base2,x			; /
-LDA $1E16|!Base2,y			; \ Copy X position relative to screen X to OAM X.
+LDA !cluster_x_low,y			; \ Copy X position relative to screen X to OAM X.
 SEC				;  |
 SBC $1A				;  |
 STA $0200|!Base2,x			; /
@@ -70,6 +70,6 @@ LDA $0201|!Base2,x
 CMP #$F0                                    	; As soon as the sprite is off-screen...
 BCC +
 LDA #$00					; Kill it.
-STA $1892|!Base2,y					;
+STA !cluster_num,y					;
 
 +  RTL
