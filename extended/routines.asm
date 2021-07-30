@@ -60,7 +60,7 @@ SpriteXSpd:
 	PHK
 	PEA.w .donex-1
 	PEA.w $B889-1
-	JML $02B554|!base3
+	JML $02B554|!bank
 .donex	RTS
 
 ;; original sprite y speed handler.
@@ -68,7 +68,7 @@ SpriteYSpd:
 	PHK
 	PEA.w .doney-1
 	PEA.w $B889-1
-	JML $02B560|!base3
+	JML $02B560|!bank
 .doney	RTS
 
 ;; extended sprite -> mario interaction.
@@ -100,6 +100,6 @@ Hit_Mario:
 	PHK
 	PEA.w .retur-1
 	PEA.w $B889-1
-	JML $02A469|!base3
+	JML $02A469|!bank
 .retur	PLB 
 .hitmar	RTS
