@@ -3,79 +3,59 @@
 #include "structs.h"
 #include <cstdio>
 
+#include <array>
 #include <fstream>
-#include <iostream>
 #include <string>
 
-typedef void (*linehandler)(const char *, sprite *, int &);
-
-void cfg_type(const char *line, sprite *spr, int &handle);
-void cfg_actlike(const char *line, sprite *spr, int &handle);
-void cfg_tweak(const char *line, sprite *spr, int &handle);
-void cfg_prop(const char *line, sprite *spr, int &handle);
-void cfg_asm(const char *line, sprite *spr, int &handle);
-void cfg_extra(const char *line, sprite *spr, int &handle);
+void cfg_type(const std::string &line, sprite *spr);
+void cfg_actlike(const std::string &line, sprite *spr);
+void cfg_tweak(const std::string &line, sprite *spr);
+void cfg_prop(const std::string &line, sprite *spr);
+void cfg_asm(const std::string &line, sprite *spr);
+void cfg_extra(const std::string &line, sprite *spr);
 
 bool read_cfg_file(sprite *spr, FILE *output) {
 
-    const int handlelimit = 6;
-    linehandler handlers[handlelimit];
+    std::array handlers{cfg_type, cfg_actlike, cfg_tweak, cfg_prop, cfg_asm, cfg_extra};
 
-    // functions that parse lines
-    handlers[0] = &cfg_type;    // parse line 1 of cfg file
-    handlers[1] = &cfg_actlike; // parse line 2 etc...
-    handlers[2] = &cfg_tweak;
-    handlers[3] = &cfg_prop;
-    handlers[4] = &cfg_asm;
-    handlers[5] = &cfg_extra;
-
-    int line = 0;
+    size_t line = 0;
 
     std::ifstream cfg_stream(spr->cfg_file);
     if (!cfg_stream) {
         error("Can't find CFG file %s, aborting insertion", spr->cfg_file);
     }
     std::string current_line;
-    while (std::getline(cfg_stream, current_line) && line < handlelimit) {
+    while (std::getline(cfg_stream, current_line) && line < handlers.size()) {
         trim(current_line);
         if (current_line.empty() || current_line.length() == 0)
             continue;
 
-        handlers[line](current_line.c_str(), spr, line);
-
-        if (line < 0) {
-            return false;
-        }
+        handlers[line++](current_line.c_str(), spr);
     };
 
     if (output) {
-        fprintf(output, "Parsed: %s, %d lines\n", spr->cfg_file, line - 1);
+        fprintf(output, "Parsed: %s, %zu lines\n", spr->cfg_file, line - 1);
     }
 
     return true;
 }
 
-void cfg_type(const char *line, sprite *spr, int &handle) {
-    sscanf(line, "%hhx", &spr->table.type);
-    handle++;
+void cfg_type(const std::string &line, sprite *spr) {
+    sscanf(line.data(), "%hhx", &spr->table.type);
 }
-void cfg_actlike(const char *line, sprite *spr, int &handle) {
-    sscanf(line, "%hhx", &spr->table.actlike);
-    handle++;
+void cfg_actlike(const std::string &line, sprite *spr) {
+    sscanf(line.data(), "%hhx", &spr->table.actlike);
 }
-void cfg_tweak(const char *line, sprite *spr, int &handle) {
-    sscanf(line, "%hhx %hhx %hhx %hhx %hhx %hhx", &spr->table.tweak[0], &spr->table.tweak[1], &spr->table.tweak[2],
-           &spr->table.tweak[3], &spr->table.tweak[4], &spr->table.tweak[5]);
-    handle++;
+void cfg_tweak(const std::string &line, sprite *spr) {
+    sscanf(line.data(), "%hhx %hhx %hhx %hhx %hhx %hhx", &spr->table.tweak[0], &spr->table.tweak[1],
+           &spr->table.tweak[2], &spr->table.tweak[3], &spr->table.tweak[4], &spr->table.tweak[5]);
 }
-void cfg_prop(const char *line, sprite *spr, int &handle) {
-    sscanf(line, "%hhx %hhx", &spr->table.extra[0], &spr->table.extra[1]);
-    handle++;
+void cfg_prop(const std::string &line, sprite *spr) {
+    sscanf(line.data(), "%hhx %hhx", &spr->table.extra[0], &spr->table.extra[1]);
 }
-void cfg_asm(const char *line, sprite *spr, int &handle) {
+void cfg_asm(const std::string &line, sprite *spr) {
 
-    spr->asm_file = append_to_dir(spr->cfg_file, line);
-    handle++;
+    spr->asm_file = append_to_dir(spr->cfg_file, line.data());
 }
 
 std::pair<int, int> read_byte_count(const std::string &line) {
@@ -91,7 +71,7 @@ std::pair<int, int> read_byte_count(const std::string &line) {
         values.first = first;
         values.second = second;
     } catch (...) {
-        throw std::invalid_argument("Hex values for extra byte count in CFG file where wrongly formatted");
+        throw std::invalid_argument("Hex values for extra byte count in CFG file were wrongly formatted");
     }
     if (values.first > 12 || values.second > 12) {
         throw std::invalid_argument("Hex value for extra byte count in CFG file out of range, valid range is 00-0C");
@@ -99,17 +79,12 @@ std::pair<int, int> read_byte_count(const std::string &line) {
     return values;
 }
 
-void cfg_extra(const char *line, sprite *spr, int &handle) {
-    handle++;
-
-    std::string thisLine(line);
+void cfg_extra(const std::string &line, sprite *spr) {
     try {
-        auto values = read_byte_count(thisLine);
+        auto values = read_byte_count(line);
         spr->byte_count = values.first;
         spr->extra_byte_count = values.second;
     } catch (const std::invalid_argument &e) {
-        printf("Error in reading extra byte settings for file %s, error was \"%s\"\n", spr->cfg_file, e.what());
-        handle = -1;
+        error("Error in reading extra byte settings for file %s, error was \"%s\"\n", spr->cfg_file, e.what());
     }
-    return;
 }
