@@ -7,6 +7,9 @@
 #include <fstream>
 #include <string>
 
+constexpr size_t handler_limit = 6;
+using cfg_handler = void (*)(const std::string &, sprite *);
+
 void cfg_type(const std::string &line, sprite *spr);
 void cfg_actlike(const std::string &line, sprite *spr);
 void cfg_tweak(const std::string &line, sprite *spr);
@@ -16,7 +19,7 @@ void cfg_extra(const std::string &line, sprite *spr);
 
 bool read_cfg_file(sprite *spr, FILE *output) {
 
-    std::array handlers{cfg_type, cfg_actlike, cfg_tweak, cfg_prop, cfg_asm, cfg_extra};
+    std::array<cfg_handler, handler_limit> handlers{cfg_type, cfg_actlike, cfg_tweak, cfg_prop, cfg_asm, cfg_extra};
 
     size_t line = 0;
 
