@@ -926,13 +926,14 @@ int main(int argc, char *argv[]) {
                    MAX_ROUTINES);
             printf("\n");
 
-            printf("-ext-off\t Disables extmod file logging (check LM's readme for more info on what extmod is)\n");
+            printf("-extmod-off\t Disables extmod file logging (check LM's readme for more info on what extmod is)\n");
             printf("-ssc <append ssc>\tSpecify ssc file to be copied into <romname>.ssc\n");
             printf("-mwt <append mwt>\tSpecify mwt file to be copied into <romname>.mwt\n");
             printf("-mw2 <append mw2>\tSpecify mw2 file to be copied into <romname>.mw2, the provided file is assumed "
                    "to have 0x00 first byte sprite header and the 0xFF end byte\n");
             printf("-s16 <base s16>\tSpecify s16 file to be used as a base for <romname>.s16\n");
             printf("     Do not use <romname>.xxx as an argument as the file will be overwriten\n");
+            printf("-no-lm-aux\t Disables all of the Lunar Magic auxiliary files creation (ssc, mwt, mw2, s16)\n");
 
 #ifdef ON_WINDOWS
             printf("-lm-handle <lm_handle_code>\t To be used only within LM's custom user toolbar file, it receives "
@@ -969,8 +970,10 @@ int main(int argc, char *argv[]) {
             MeiMei::setKeepTemp();
         } else if (!strcmp(argv[i], "-meimei-off")) {
             cfg.DisableMeiMei = true;
-        } else if (!strcmp(argv[i], "-ext-off")) {
+        } else if (!strcmp(argv[i], "-extmod-off")) {
             cfg.ExtMod = false;
+        } else if (!strcmp(argv[i], "-no-lm-aux")) {
+            cfg.DisableAllExtensionFiles = true;
         }
 #ifdef ON_WINDOWS
         else if (!strcmp(argv[i], "-lm-handle")) {
@@ -1200,13 +1203,19 @@ int main(int argc, char *argv[]) {
     // plus data for .ssc, .mwt, .mw2 files
     unsigned char extra_bytes[0x200];
 
+#ifdef ON_WINDOWS
+#define NUL_FILE "nul"
+#else
+#define NUL_FILE "/dev/null"
+#endif
+
 #ifdef DEBUGMSG
     debug_print("Try create romname files.\n");
 #endif
-    FILE *s16 = open_subfile(rom, "s16", "wb");
-    FILE *ssc = open_subfile(rom, "ssc", "w");
-    FILE *mwt = open_subfile(rom, "mwt", "w");
-    FILE *mw2 = open_subfile(rom, "mw2", "wb");
+    FILE *s16 = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "wb") : open_subfile(rom, "s16", "wb");
+    FILE *ssc = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "w") : open_subfile(rom, "ssc", "w");
+    FILE *mwt = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "w") : open_subfile(rom, "mwt", "w");
+    FILE *mw2 = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "wb") : open_subfile(rom, "mw2", "wb");
 #ifdef DEBUGMSG
     debug_print("Romname files opened.\n");
 #endif
