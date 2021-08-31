@@ -1,21 +1,21 @@
 ;; extended sprite -> mario interaction.
 
 ?main:
-    LDA $171F|!Base2,x
+    LDA !extended_x_low,x
     CLC
     ADC #$03
     STA $04
-    LDA $1733|!Base2,x
+    LDA !extended_x_high,x
     ADC #$00
     STA $0A
     LDA #$0A
     STA $06
     STA $07
-    LDA $1715|!Base2,x
+    LDA !extended_y_low,x
     CLC
     ADC #$03
     STA $05
-    LDA $1729|!Base2,x
+    LDA !extended_y_high,x
     ADC #$00
     STA $0B
     JSL $03B664|!BankB

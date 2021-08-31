@@ -29,40 +29,40 @@ Boomerang:
 	lda !extra_extended,x
 	inc
 	sta !extra_extended,x
-	LDA $176F|!Base2,x	; if timer isn't zero, branch.
+	LDA !extended_timer,x	; if timer isn't zero, branch.
 	BNE .nodecre
 
-	LDA $1765|!Base2,x
+	LDA !extended_table,x
 	TAY
-	LDA $1747|!Base2,x	; accelerate sprite based on "direction."
+	LDA !extended_x_speed,x	; accelerate sprite based on "direction."
 	CMP xmax,y
 	BEQ .nodecre
-	LDA $1747|!Base2,x
+	LDA !extended_x_speed,x
 	CLC
 	ADC xinc,y
-	STA $1747|!Base2,x
+	STA !extended_x_speed,x
 .nodecre
 	LDA $14		; run every other frame.
 	LSR
 	BCS .ret
-	LDA $1779|!Base2,x
+	LDA !extended_behind,x
 	CMP #$01
 	BCS ++
-	LDA $1779|!Base2,x	; increment/decrement y speed based on stuff.
+	LDA !extended_behind,x	; increment/decrement y speed based on stuff.
 	AND #$01
 	TAY
-	LDA $173D|!Base2,x
+	LDA !extended_y_speed,x
 	CMP ymax,y
 	BNE +
-	INC $1779|!Base2,x
-+	LDA $173D|!Base2,x
+	INC !extended_behind,x
++	LDA !extended_y_speed,x
 	CLC
 	ADC yinc,y
-	STA $173D|!Base2,x
+	STA !extended_y_speed,x
 	RTS
-++	LDA $173D|!Base2,x
+++	LDA !extended_y_speed,x
 	BEQ .ret
-	DEC $173D|!Base2,x	; decrement timer used by the x speed.
+	DEC !extended_y_speed,x	; decrement timer used by the x speed.
 .ret
 	RTL
    
@@ -75,7 +75,7 @@ tilemap:
    
 Graphics:
    %ExtendedGetDrawInfo()
-	LDA $1747|!Base2,x
+	LDA !extended_x_speed,x
 	STA $03
 
 	LDA !extra_extended,x	; get frame based on $0E05,x

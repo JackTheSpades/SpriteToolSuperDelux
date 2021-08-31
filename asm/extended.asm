@@ -19,7 +19,7 @@ freecode
 CapeInteract:
 .sub
 	STX.w $15E9|!addr
-	LDA $170B|!addr,x		; restore vanilla code
+	LDA !extended_num,x		; restore vanilla code
 	CMP #!ExtendedOffset
 	BCC .NotCustom
 	SEC : SBC #!ExtendedOffset

@@ -127,6 +127,7 @@ endmacro
 !ScoreOffset = $16
 ;!QuakeOffset = $03
 
+!ClusterSize = $14
 !ExtendedSize = $08
 !MinorExtendedSize = $0C
 !SmokeSize = $04
@@ -184,6 +185,15 @@ endmacro
 %define_base2_address(cluster_y_high,$1E2A)
 %define_base2_address(cluster_x_low,$1E16)
 %define_base2_address(cluster_x_high,$1E3E)
+%define_base2_address(cluster_misc_0f4a,$0F4A)
+%define_base2_address(cluster_misc_0f5e,$0F5E)
+%define_base2_address(cluster_misc_0f72,$0F72)
+%define_base2_address(cluster_misc_0f86,$0F86)
+%define_base2_address(cluster_misc_0f9a,$0F9a)
+%define_base2_address(cluster_misc_1e52,$1E52)
+%define_base2_address(cluster_misc_1e66,$1E66)
+%define_base2_address(cluster_misc_1e7a,$1E7A)
+%define_base2_address(cluster_misc_1e8e,$1E8E)
 
 ;extended defines
 %define_base2_address(extended_num,$170B)
@@ -193,6 +203,8 @@ endmacro
 %define_base2_address(extended_x_high,$1733)
 %define_base2_address(extended_x_speed,$1747)
 %define_base2_address(extended_y_speed,$173D)
+%define_base2_address(extended_x_fraction,$175B)
+%define_base2_address(extended_y_fraction,$1751)
 %define_base2_address(extended_table,$1765)
 %define_base2_address(extended_timer,$176F)
 %define_base2_address(extended_behind,$1779)
