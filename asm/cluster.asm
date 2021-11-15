@@ -20,8 +20,8 @@ NotQuiteMain:
 	STZ $1495|!Base2      ; /
 	REP #$20
 	LDX #$9E              ; \ Set $1E02-$1EA1 to zero on level load.
-.loop                    ; |
-	STZ $1E02|!Base2,x    ; |
+.loop                     ; |
+	STZ !cluster_y_low,x  ; |
 	DEX                   ; |
 	DEX                   ; |
 	BNE .loop             ; /
@@ -33,9 +33,9 @@ Main:
 	LDA $0100|!Base2      ; \ If in mosaic routine, don't run sprite.
 	CMP #$13              ;  |
 	BEQ .return           ; /
-	LDA $1892|!Base2,x    ; \ Check if $1892,x is 00 (free slot). If so, return.
+	LDA !cluster_num,x    ; \ Check if $1892,x is 00 (free slot). If so, return.
 	BEQ .return           ; /
-	CMP #$09              ; \ Check if >=09.
+	CMP.b #!ClusterOffset ; \ Check if >=09.
 	BCS .custom           ; / If so, run custom cluster sprite routine.
 	PEA $F81C             ; \ Go to old pointer.
 	JML $02F821|!BankB    ; /

@@ -93,7 +93,8 @@ struct status_pointers { // the order of these actually matters
     pointer goal;
 };
 
-// 00: type {0=tweak,1=custom,3=generator/shooter}
+// 00: type {0=tweak,1=custom,2=generator/shooter, 3+=other}
+// 3+ can only be gotten when using the new cfg editor
 // 01: "acts like"
 // 02-07: tweaker bytes
 // 08-10: init pointer

@@ -64,7 +64,7 @@ template <typename T, size_t N> constexpr size_t array_size(T (&)[N]) {
 
 void clean_sprite_generic(FILE *clean_patch, int table_address, int original_value, size_t count, const char *preface,
                           ROM &rom) {
-    fprintf(clean_patch, preface);
+    fprintf(clean_patch, "%s", preface);
     int table = rom.pointer_snes(table_address).addr();
     if (table != original_value) // check with default/uninserted address
         for (size_t i = 0; i < count; i++) {
@@ -77,7 +77,7 @@ void clean_sprite_generic(FILE *clean_patch, int table_address, int original_val
 template <size_t COUNT> void write_sprite_generic(sprite *list, const char *filename) {
     constexpr auto ASM = FromEnum(PathType::Asm);
     unsigned char file[COUNT * 3];
-    for (int i = 0; i < COUNT; i++)
+    for (size_t i = 0; i < COUNT; i++)
         memcpy(file + (i * 3), &list[i].table.main, 3);
     write_all(file, cfg.m_Paths[ASM], filename, COUNT * 3);
 }
@@ -96,7 +96,7 @@ template <typename T> T *from_table(T *table, int level, int number) {
 }
 
 bool patch(const char *patch_name_rel, ROM &rom) {
-    std::string patch_path = std::filesystem::absolute(patch_name_rel).generic_string();
+    std::string patch_path{patch_name_rel}; //  = std::filesystem::absolute(patch_name_rel).generic_string();
     if (!asar_patch(patch_path.c_str(), (char *)rom.real_data, MAX_ROM_SIZE, &rom.size)) {
 #ifdef DEBUGMSG
         debug_print("Failure. Try fetch errors:\n");
@@ -923,13 +923,14 @@ int main(int argc, char *argv[]) {
                    MAX_ROUTINES);
             printf("\n");
 
-            printf("-ext-off\t Disables extmod file logging (check LM's readme for more info on what extmod is)\n");
+            printf("-extmod-off\t Disables extmod file logging (check LM's readme for more info on what extmod is)\n");
             printf("-ssc <append ssc>\tSpecify ssc file to be copied into <romname>.ssc\n");
             printf("-mwt <append mwt>\tSpecify mwt file to be copied into <romname>.mwt\n");
             printf("-mw2 <append mw2>\tSpecify mw2 file to be copied into <romname>.mw2, the provided file is assumed "
                    "to have 0x00 first byte sprite header and the 0xFF end byte\n");
             printf("-s16 <base s16>\tSpecify s16 file to be used as a base for <romname>.s16\n");
             printf("     Do not use <romname>.xxx as an argument as the file will be overwriten\n");
+            printf("-no-lm-aux\t Disables all of the Lunar Magic auxiliary files creation (ssc, mwt, mw2, s16)\n");
 
 #ifdef ON_WINDOWS
             printf("-lm-handle <lm_handle_code>\t To be used only within LM's custom user toolbar file, it receives "
@@ -966,8 +967,10 @@ int main(int argc, char *argv[]) {
             MeiMei::setKeepTemp();
         } else if (!strcmp(argv[i], "-meimei-off")) {
             cfg.DisableMeiMei = true;
-        } else if (!strcmp(argv[i], "-ext-off")) {
+        } else if (!strcmp(argv[i], "-extmod-off")) {
             cfg.ExtMod = false;
+        } else if (!strcmp(argv[i], "-no-lm-aux")) {
+            cfg.DisableAllExtensionFiles = true;
         }
 #ifdef ON_WINDOWS
         else if (!strcmp(argv[i], "-lm-handle")) {
@@ -1085,7 +1088,7 @@ int main(int argc, char *argv[]) {
         else
             set_paths_relative_to(cfg.m_Paths[i], argv[0]);
 #ifdef DEBUGMSG
-        debug_print("paths[%d] = %s\n", i, paths[i]);
+        debug_print("paths[%d] = %s\n", i, cfg.m_Paths[i].c_str());
 #endif
     }
     cfg.AsmDir = cfg.m_Paths[FromEnum(PathType::Asm)];
@@ -1094,7 +1097,7 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < FromEnum(ExtType::__SIZE__); i++) {
         set_paths_relative_to(cfg.m_Extensions[i], rom.name);
 #ifdef DEBUGMSG
-        debug_print("extensions[%d] = %s\n", i, extensions[i]);
+        debug_print("extensions[%d] = %s\n", i, cfg.m_Extensions[i].c_str());
 #endif
     }
 
@@ -1178,7 +1181,7 @@ int main(int argc, char *argv[]) {
     write_sprite_generic<MINOR_SPRITE_COUNT>(score_list, "_ScorePtr.bin");
 
     uint8_t file[SPRITE_COUNT * 3];
-    for (int i = 0; i < SPRITE_COUNT; i++)
+    for (size_t i = 0; i < SPRITE_COUNT; i++)
         memcpy(file + (i * 3), &extended_list[i].extended_cape_ptr, 3);
     write_all(file, cfg.m_Paths[ASM], "_ExtendedCapePtr.bin", SPRITE_COUNT * 3);
 
@@ -1197,13 +1200,19 @@ int main(int argc, char *argv[]) {
     // plus data for .ssc, .mwt, .mw2 files
     unsigned char extra_bytes[0x200];
 
+#ifdef ON_WINDOWS
+#define NUL_FILE "nul"
+#else
+#define NUL_FILE "/dev/null"
+#endif
+
 #ifdef DEBUGMSG
     debug_print("Try create romname files.\n");
 #endif
-    FILE *s16 = open_subfile(rom, "s16", "wb");
-    FILE *ssc = open_subfile(rom, "ssc", "w");
-    FILE *mwt = open_subfile(rom, "mwt", "w");
-    FILE *mw2 = open_subfile(rom, "mw2", "wb");
+    FILE *s16 = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "wb") : open_subfile(rom, "s16", "wb");
+    FILE *ssc = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "w") : open_subfile(rom, "ssc", "w");
+    FILE *mwt = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "w") : open_subfile(rom, "mwt", "w");
+    FILE *mw2 = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "wb") : open_subfile(rom, "mw2", "wb");
 #ifdef DEBUGMSG
     debug_print("Romname files opened.\n");
 #endif
