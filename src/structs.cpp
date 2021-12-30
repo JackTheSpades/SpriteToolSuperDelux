@@ -173,12 +173,6 @@ sprite::~sprite() {
         delete[] asm_file;
     if (cfg_file)
         delete[] cfg_file;
-    if (map_data)
-        delete[] map_data;
-    if (displays)
-        delete[] displays;
-    if (collections)
-        delete[] collections;
 }
 
 void sprite::print(FILE *stream) {
@@ -194,63 +188,43 @@ void sprite::print(FILE *stream) {
         fprintf(stream, "Byte Count: %d, %d\n", byte_count, extra_byte_count);
     }
 
-    if (map_block_count) {
+    if (!map_data.empty()) {
         fprintf(stream, "Map16:\n");
-        unsigned char *mapdata = (unsigned char *)map_data;
-        for (size_t i = 0; i < map_block_count * 8; i++) {
-            if ((i % 8) == 0)
-                fprintf(stream, "\t");
-            fprintf(stream, "%02X, ", (int)mapdata[i]);
-            if ((i % 8) == 7)
-                fprintf(stream, "\n");
+        auto print_map16 = [stream](const map16 &map) {
+            fprintf(stream, "\t%02X, %02X, %02X, %02X, %02X, %02X, %02X, %02X\n", map.top_left.tile, map.top_left.prop,
+                    map.bottom_left.tile, map.bottom_left.prop, map.top_right.tile, map.top_right.prop,
+                    map.bottom_right.tile, map.bottom_right.prop);
+        };
+        for (const auto &m : map_data) {
+            print_map16(m);
         }
     }
 
-    if (display_count) {
+    if (!displays.empty()) {
         fprintf(stream, "Displays:\n");
-        for (size_t i = 0; i < display_count; i++) {
-            display *d = displays + i;
-            fprintf(stream, "\tX: %d, Y: %d, Extra-Bit: %s\n", d->x, d->y, BOOL_STR(d->extra_bit));
-            fprintf(stream, "\tDescription: %s\n", d->description);
-            for (size_t j = 0; j < d->tile_count; j++) {
-                tile *t = d->tiles + j;
-                if (t->text)
-                    fprintf(stream, "\t\t%d,%d,*%s*\n", t->x_offset, t->y_offset, t->text);
+        for (const auto &d : displays) {
+            fprintf(stream, "\tX: %d, Y: %d, Extra-Bit: %s\n", d.x, d.y, BOOL_STR(d.extra_bit));
+            fprintf(stream, "\tDescription: %s\n", d.description.c_str());
+            for (const auto &t : d.tiles) {
+                if (t.text.size())
+                    fprintf(stream, "\t\t%d,%d,*%s*\n", t.x_offset, t.y_offset, t.text.c_str());
                 else
-                    fprintf(stream, "\t\t%d,%d,%X\n", t->x_offset, t->y_offset, t->tile_number);
+                    fprintf(stream, "\t\t%d,%d,%X\n", t.x_offset, t.y_offset, t.tile_number);
             }
         }
     }
 
-    if (collection_count) {
+    if (!collections.empty()) {
         fprintf(stream, "Collections:\n");
-        for (size_t i = 0; i < collection_count; i++) {
-            collection *c = collections + i;
+        for (const auto &c : collections) {
             std::stringstream coll;
-            coll << "\tExtra-Bit: " << BOOL_STR(c->extra_bit) << ", Property Bytes: ( ";
-            for (int j = 0; j < (c->extra_bit ? extra_byte_count : byte_count); j++) {
-                coll << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(c->prop[j])
+            coll << "\tExtra-Bit: " << BOOL_STR(c.extra_bit) << ", Property Bytes: ( ";
+            for (int j = 0; j < (c.extra_bit ? extra_byte_count : byte_count); j++) {
+                coll << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(c.prop[j])
                      << " ";
             }
-            coll << ") Name: " << c->name << std::endl;
+            coll << ") Name: " << c.name << std::endl;
             fprintf(stream, "%s", coll.str().c_str());
         }
     }
-}
-
-tile::~tile() {
-    if (text)
-        delete[] text;
-}
-
-display::~display() {
-    if (description)
-        delete[] description;
-    if (tiles)
-        delete[] tiles;
-}
-
-collection::~collection() {
-    if (name)
-        delete[] name;
 }

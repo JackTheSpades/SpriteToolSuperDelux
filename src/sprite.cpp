@@ -97,9 +97,39 @@ template <typename T> T *from_table(T *table, int level, int number) {
     return nullptr;
 }
 
+template <typename T, size_t N> constexpr size_t sizeof_array(const T (&)[N]) {
+    return N;
+}
+
 bool patch(const char *patch_name_rel, ROM &rom) {
     std::string patch_path{patch_name_rel}; //  = std::filesystem::absolute(patch_name_rel).generic_string();
-    if (!asar_patch(patch_path.c_str(), (char *)rom.real_data, MAX_ROM_SIZE, &rom.size)) {
+    // clang-format off
+    constexpr struct warnsetting disabled_warnings[] {
+        {.warnid = "W1001", .enabled = false},
+        {.warnid = "W1005", .enabled = false}
+    };
+    struct patchparams params {
+        .structsize = sizeof(struct patchparams), 
+        .patchloc = patch_path.c_str(),
+        .romdata = reinterpret_cast<char*>(rom.real_data),
+        .buflen = MAX_ROM_SIZE,
+        .romlen = &rom.size, 
+        .includepaths = nullptr,
+        .numincludepaths = 0,
+        .should_reset = true,
+        .additional_defines = nullptr, 
+        .additional_define_count = 0,
+        .stdincludesfile = nullptr,
+        .stddefinesfile = nullptr,
+        .warning_settings = disabled_warnings,
+        .warning_setting_count = static_cast<int>(sizeof_array(disabled_warnings)),
+        .memory_files = nullptr,
+        .memory_file_count = 0,
+        .override_checksum_gen = false,
+        .generate_checksum = true
+    };
+    // clang-format on
+    if (!asar_patch_ex(&params)) {
 #ifdef DEBUGMSG
         debug_print("Failure. Try fetch errors:\n");
 #endif
@@ -217,13 +247,14 @@ void patch_sprite(const std::vector<std::string> &extraDefines, sprite *spr, ROM
     std::string escapedAsmdir = escapeDefines(cfg.AsmDir);
     FILE *sprite_patch = open(TEMP_SPR_FILE, "w");
     fprintf(sprite_patch, "namespace nested on\n");
+    fprintf(sprite_patch, "warnings push\n");
+    fprintf(sprite_patch, "warnings disable w1005\n");
+    fprintf(sprite_patch, "warnings disable w1001\n");
     fprintf(sprite_patch, "incsrc \"%ssa1def.asm\"\n", escapedAsmdir.c_str());
     addIncScrToFile(sprite_patch, extraDefines);
     fprintf(sprite_patch, "incsrc \"shared.asm\"\n");
     fprintf(sprite_patch, "incsrc \"%s_header.asm\"\n", escapedDir.c_str());
     fprintf(sprite_patch, "freecode cleaned\n");
-    fprintf(sprite_patch, "warnings push\n");
-    fprintf(sprite_patch, "warnings disable w1005\n");
     fprintf(sprite_patch, "SPRITE_ENTRY_%d:\n", spr->number);
     fprintf(sprite_patch, "\tincsrc \"%s\"\n", escapedAsmfile.c_str());
     fprintf(sprite_patch, "warnings pull\n");
@@ -1279,68 +1310,66 @@ int main(int argc, char *argv[]) {
 
                 //----- s16 / map16 -------------------------------------------------
 
-                size_t map16_tile = find_free_map(map, spr->map_block_count);
+                size_t map16_tile = find_free_map(map, spr->map_data.size());
                 if (map16_tile == static_cast<size_t>(-1)) {
                     error("There wasn't enough space in your s16 file to fit everything, was trying to fit %d blocks, "
                           "couldn't find space\n",
-                          spr->map_block_count);
+                          spr->map_data.size());
                 }
-                memcpy(map + map16_tile, spr->map_data, spr->map_block_count * sizeof(map16));
+                memcpy(map + map16_tile, spr->map_data.data(), spr->map_data.size() * sizeof(map16));
 
                 //----- ssc / display -----------------------------------------------
-                for (size_t j = 0; j < spr->display_count; j++) {
-                    display *d = spr->displays + j;
+                for (const auto &d : spr->displays) {
 
                     // 4 digit hex value. First is Y pos (0-F) then X (0-F) then custom/extra bit combination
                     // here custom bit is always set (because why the fuck not?)
-                    int ref = d->y * 0x1000 + d->x * 0x100 + 0x20 + (d->extra_bit ? 0x10 : 0);
+                    int ref = d.y * 0x1000 + d.x * 0x100 + 0x20 + (d.extra_bit ? 0x10 : 0);
 
                     // if no description (or empty) just asm filename instead.
-                    if (d->description && strlen(d->description))
-                        fprintf(ssc, "%02X %04X %s\n", i, ref, d->description);
+                    if (!d.description.empty())
+                        fprintf(ssc, "%02X %04X %s\n", i, ref, d.description.c_str());
                     else
                         fprintf(ssc, "%02X %04X %s\n", i, ref, spr->asm_file);
 
                     // loop over tiles and append them into the output.
                     fprintf(ssc, "%02X %04X", i, ref + 2);
-                    for (size_t k = 0; k < d->tile_count; k++) {
-                        tile *t = d->tiles + k;
-                        if (t->text) {
-                            fprintf(ssc, " 0,0,*%s*", t->text);
+                    for (const auto &t : d.tiles) {
+                        if (!t.text.empty()) {
+                            fprintf(ssc, " 0,0,*%s*", t.text.c_str());
                             break;
                         } else {
                             // tile numbers > 0x300 indicates it's a "custom" map16 tile, so we add the offset we got
                             // earlier +0x100 because in LM these start at 0x400.
-                            int tile_num = t->tile_number;
+                            int tile_num = t.tile_number;
                             if (tile_num >= 0x300)
                                 tile_num += 0x100 + static_cast<int>(map16_tile);
                             // note we're using %d because x/y are signed integers here
-                            fprintf(ssc, " %d,%d,%X", t->x_offset, t->y_offset, tile_num);
+                            fprintf(ssc, " %d,%d,%X", t.x_offset, t.y_offset, tile_num);
                         }
                     }
                     fprintf(ssc, "\n");
                 }
 
                 //----- mwt,mw2 / collection ------------------------------------------
-                for (size_t j = 0; j < spr->collection_count; j++) {
-                    collection *c = spr->collections + j;
-
+                int counter_collections = 0;
+                for (const auto &c : spr->collections) {
                     // mw2
                     // build 3 byte level format
-                    char c1 = 0x79 + (c->extra_bit ? 0x04 : 0);
+                    char c1 = 0x79 + (c.extra_bit ? 0x04 : 0);
                     fputc(c1, mw2);
                     fputc(0x70, mw2);
                     fputc(spr->number, mw2);
                     // add the extra property bytes
-                    int byte_count = (c->extra_bit ? spr->extra_byte_count : spr->byte_count);
-                    fwrite(c->prop, 1, byte_count, mw2);
+                    int byte_count = (c.extra_bit ? spr->extra_byte_count : spr->byte_count);
+                    fwrite(c.prop, 1, byte_count, mw2);
 
                     // mwt
                     // first one prints sprite number as well, all others just their name.
-                    if (j == 0)
-                        fprintf(mwt, "%02X\t%s\n", spr->number, c->name);
+                    if (counter_collections == 0)
+                        fprintf(mwt, "%02X\t%s\n", spr->number, c.name.c_str());
                     else
-                        fprintf(mwt, "\t%s\n", c->name);
+                        fprintf(mwt, "\t%s\n", c.name.c_str());
+                    counter_collections++;
                 }
 
                 // no line means unused sprite, so just set to default 3.
