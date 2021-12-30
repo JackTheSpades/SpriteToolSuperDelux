@@ -51,10 +51,13 @@ jobs:
         path: ${{github.workspace}}/build/pixi
       if: matrix.os == 'ubuntu-latest'
     
-    - name: Configure tests and setup python
+    - name: Setup python
       uses: actions/setup-python@v2
       with:
         python-version: '3.9'
+      if: matrix.os == 'ubuntu-latest'
+    
+    - name: Install python packages
       run: |
         python3 -m pip install --upgrade pip
         python3 -m pip install beatifulsoup4 requests
