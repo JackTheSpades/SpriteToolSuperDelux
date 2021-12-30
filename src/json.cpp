@@ -105,7 +105,7 @@ bool read_json_file(sprite *spr, FILE *output) {
                         try {
                             dis.gfx_files[n].gfx_files[gfx_idx] =
                                 gfx.at(std::to_string(gfx_idx)).get<int>() | (separate ? 0x8000 : 0);
-                        } catch (const std::out_of_range &err) {
+                        } catch (const std::out_of_range &) {
                             dis.gfx_files[n].gfx_files[gfx_idx] = 0x7F;
                         }
                     }
@@ -118,7 +118,7 @@ bool read_json_file(sprite *spr, FILE *output) {
             } else {
                 dis.tiles.resize(jdisplay.at("Tiles").size());
                 int counter2 = 0;
-                for (auto& jtile : jdisplay.at("Tiles")) {
+                for (auto &jtile : jdisplay.at("Tiles")) {
                     auto &til = dis.tiles[counter2];
                     til.x_offset = jtile.at("X offset");
                     til.y_offset = jtile.at("Y offset");
@@ -132,7 +132,7 @@ bool read_json_file(sprite *spr, FILE *output) {
         // collections
         counter = 0;
         spr->collections.resize(j.at("Collection").size());
-        for (auto& jCollection : j.at("Collection")) {
+        for (auto &jCollection : j.at("Collection")) {
             auto &col = spr->collections.emplace_back();
             col.name = jCollection.at("Name").get<std::string>();
             col.extra_bit = jCollection.at("ExtraBit");
