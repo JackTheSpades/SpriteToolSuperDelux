@@ -1,1 +1,0 @@
-UberASMTool11\UberASMTool ..\uber_list.txt ..\test.smc

@@ -23,13 +23,15 @@
     SBC $1C
     STA $02
     LDA !extended_y_high,x
-    ADC $1D
-    BEQ ?.neg
+    SBC $1D
+    BNE ?.vert_offscreen
     LDA $02
     CMP #$F0
     BCS ?.erasespr
     RTL
-?.neg
+?.vert_offscreen
+    CMP #$FF
+    BNE ?.erasespr ; erase: not within 1 screen above top of screen
     LDA $02
     CMP #$C0
     BCC ?.erasespr

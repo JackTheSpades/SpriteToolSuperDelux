@@ -3,6 +3,8 @@
 
 #include "file_io.h"
 #include <cstring>
+#include <vector>
+#include <string>
 
 // use 16MB ROM size to avoid asar malloc/memcpy on 8MB of data per block.
 constexpr auto MAX_ROM_SIZE = 16 * 1024 * 1024;
@@ -41,9 +43,7 @@ struct tile {
     int x_offset = 0;
     int y_offset = 0;
     int tile_number = 0;
-    const char *text = nullptr;
-
-    ~tile();
+    std::string text{};
 };
 
 struct gfx_info {
@@ -53,24 +53,18 @@ struct gfx_info {
 enum class display_type { XYPosition, ExtensionByte };
 
 struct display {
-    char *description = nullptr;
-    size_t tile_count = 0;
-    tile *tiles = nullptr;
+    std::string description{};
+    std::vector<tile> tiles{};
     bool extra_bit = false;
     int x_or_index = 0;
     int y_or_value = 0;
-    int gfx_setup_count = 0;
-    gfx_info *gfx_files = nullptr;
-
-    ~display();
+    std::vector<gfx_info> gfx_files{};
 };
 
 struct collection {
-    const char *name = nullptr;
+    std::string name{};
     bool extra_bit = false;
     unsigned char prop[12] = {0}; // why was this 4 again?
-
-    ~collection();
 };
 
 struct map8x8 {
@@ -124,15 +118,12 @@ struct sprite {
     const char *asm_file = nullptr;
     const char *cfg_file = nullptr;
 
-    size_t map_block_count = 0;
-    map16 *map_data = nullptr;
+    std::vector<map16> map_data{};
 
     display_type disp_type = display_type::XYPosition;
-    size_t display_count = 0;
-    display *displays = nullptr;
+    std::vector<display> displays{};
 
-    size_t collection_count = 0;
-    collection *collections = nullptr;
+    std::vector<collection> collections{};
 
     int sprite_type = 0; // 0 = Normal custom sprite, 1 = Extended custom sprite, 2 = Cluster custom sprite, 3 =
                          // Overworld custom sprite
