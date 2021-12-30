@@ -60,7 +60,7 @@ jobs:
     - name: Install python packages
       run: |
         python3 -m pip install --upgrade pip
-        python3 -m pip install beatifulsoup4 requests
+        python3 -m pip install beautifulsoup4 requests
       if: matrix.os == 'ubuntu-latest'
 
     - name: Test
