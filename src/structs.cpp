@@ -186,7 +186,7 @@ void sprite::print(FILE *stream) {
     if (!displays.empty()) {
         fprintf(stream, "Displays:\n");
         for (const auto &d : displays) {
-            fprintf(stream, "\tX: %d, Y: %d, Extra-Bit: %s\n", d.x, d.y, BOOL_STR(d.extra_bit));
+            fprintf(stream, "\tX: %d, Y: %d, Extra-Bit: %s\n", d.x_or_index, d.y_or_value, BOOL_STR(d.extra_bit));
             fprintf(stream, "\tDescription: %s\n", d.description.c_str());
             for (const auto &t : d.tiles) {
                 if (t.text.size())
