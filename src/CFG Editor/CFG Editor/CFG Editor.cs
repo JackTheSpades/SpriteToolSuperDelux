@@ -97,6 +97,18 @@ namespace CFG
         byte[] RomData = null;
         readonly List<ControlEnabler> control_enablers = new List<ControlEnabler>();
 
+        public void DisplaySourceCurrentChanged(object o, EventArgs e)
+        {
+            spriteEditor1.Sprite = (DisplaySprite)displaySpriteBindingSource.Current;
+        }
+
+        public void CheckedExtraByteChanged(object _, EventArgs __)
+        {
+            Data.DispType = chbExtraByte.Checked ? Json.DisplayType.ExtraByte : Json.DisplayType.XY;
+            foreach (var entry in Data.DisplayEntries)
+                entry.disp_type = Data.DispType;
+        }
+
 		public CFG_Editor(string[] args)
         {
             if(args.Length > 0)
@@ -170,6 +182,14 @@ namespace CFG
                 Unsaved = true;
                 if (e.PropertyName == nameof(Data.Type))
                     control_enablers.ForEach(c => c.Evaluate());
+                if (e.PropertyName == nameof(Data.DispType))
+                {
+                    chbExtraByte.CheckedChanged -= CheckedExtraByteChanged;
+                    chbExtraByte.Checked = Data.DispType == Json.DisplayType.ExtraByte;
+                    dgvDisplay.Columns[1].HeaderText = Data.DispType == Json.DisplayType.ExtraByte ? "Index" : "X";
+                    dgvDisplay.Columns[2].HeaderText = Data.DispType == Json.DisplayType.ExtraByte ? "Value" : "Y";
+                    chbExtraByte.CheckedChanged += CheckedExtraByteChanged;
+                }
             };
 
             #region Default Tab
@@ -260,7 +280,8 @@ namespace CFG
             dsSP3.Tag = 0x2000;
             dsSP4.Tag = 0x3000;
             cmbTilesets.SelectedIndex = 0;
-            
+
+            chbExtraByte.CheckedChanged += CheckedExtraByteChanged;
             //Grid size combobox data + events
             foreach (GridSize gridSize in Enum.GetValues(typeof(GridSize)).Cast<GridSize>().Reverse())
                 cmbGrid.Items.Add(new ComboBoxItem(gridSize.GetName(), (int)gridSize));
@@ -272,17 +293,21 @@ namespace CFG
             //create binding source for later databinding.
             displaySpriteBindingSource.DataSource = Data;
             displaySpriteBindingSource.DataMember = nameof(CfgFile.DisplayEntries);
+
+            gfxInfoBindingSource.DataSource = Data;
+            gfxInfoBindingSource.DataMember = nameof(CfgFile.GFXInfos);
             
             //create databindings between display list and controls.
             BindToSourceDisplay(rtbDesc, displaySpriteBindingSource, ctrl => ctrl.Text, ds => ds.Description);
-            BindToSourceDisplay(nudX, displaySpriteBindingSource, ctrl => ctrl.Value, ds => ds.X);
-            BindToSourceDisplay(nudY, displaySpriteBindingSource, ctrl => ctrl.Value, ds => ds.Y);
+            BindToSourceDisplay(nudX, displaySpriteBindingSource, ctrl => ctrl.Value, ds => ds.X_or_index);
+            BindToSourceDisplay(nudY, displaySpriteBindingSource, ctrl => ctrl.Value, ds => ds.Y_or_value);
             BindToSourceDisplay(chbExtraBit, displaySpriteBindingSource, ctrl => ctrl.Checked, ds => ds.ExtraBit);
             BindToSourceDisplay(chbUseText, displaySpriteBindingSource, ctrl => ctrl.Checked, ds => ds.UseText).DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
-            displaySpriteBindingSource.CurrentChanged += (_, __) => spriteEditor1.Sprite = (DisplaySprite)displaySpriteBindingSource.Current;
-
             ConnectViewAndButtons(displaySpriteBindingSource, dgvDisplay, btnDisplayNew, btnDisplayClone, btnDisplayDelete);
+            displaySpriteBindingSource.CurrentChanged += DisplaySourceCurrentChanged;
 
+            ConnectViewAndButtons(gfxInfoBindingSource, dgvGFXInfo, btnGFXNew, btnGFXClone, btnGFXRemove);
+            dgvGFXInfo.CellFormatting += DgvGFXInfo_CellFormatting;
 
             map16Editor1.Initialize(map16data, resources);
             map16Editor1.SelectionChanged += (_, e) => pnlEdit.Enabled = e.Tile >= 0x300;
@@ -394,7 +419,39 @@ namespace CFG
 #endif
 
 		}
-        
+
+        private void DgvGFXInfo_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            var dgv = sender as DataGridView;
+            if (e.ColumnIndex != 0 && e.Value != null)
+            {
+                string v = e.Value.ToString();
+                if (v.StartsWith("0x") || v.StartsWith("0X"))
+                {
+                    if (int.TryParse(v.Substring(2), System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.CurrentCulture, out int value))
+                    {
+                        e.Value = $"0x{(value > 0x7F ? 0x7F : value):X02}";
+                    }
+                    else
+                    {
+                        e.Value = "0x7F";
+                    }
+                } else
+                {
+                    if (int.TryParse(v, out int value))
+                    {
+                        e.Value = $"0x{(value > 0x7F ? 0x7F : value):X02}";
+                    }
+                    else
+                    {
+                        e.Value = "0x7F";
+                    }
+                }
+
+            }
+            e.FormattingApplied = true;
+        }
+
         /// <summary>
         /// Testbutton on the menu. Only available in debug mode.
         /// </summary>
@@ -410,11 +467,12 @@ namespace CFG
         {
             btnRemove.Enabled = false;
             dgv.AllowUserToDeleteRows = false;
-
+            source.AllowNew = true;
             //events to control the button/view behaviour for new/clone/delete
             btnNew.Click += (_, __) => source.AddNew();
             btnClone.Click += (_, __) => source.Add(((ICloneable)source.Current).Clone());
             btnRemove.Click += (_, __) => source.RemoveCurrent();
+
 
             dgv.RowsAdded += (_, __) => 
                 dgv.AllowUserToDeleteRows = dgv.Rows.Count > 1;
@@ -428,6 +486,10 @@ namespace CFG
             where TCon : Control
             => BindToSource(control, source, controlMember, objectMember);
         private Binding BindToSourceDisplay<TCon, TProp>(TCon control, BindingSource source, Expression<Func<TCon, TProp>> controlMember, Expression<Func<DisplaySprite, TProp>> objectMember)
+            where TCon : Control
+            => BindToSource(control, source, controlMember, objectMember);
+
+        private Binding BindToSourceGFX<TCon, TProp>(TCon control, BindingSource source, Expression<Func<TCon, TProp>> controlMember, Expression<Func<GFXInfo, TProp>> objectMember)
             where TCon : Control
             => BindToSource(control, source, controlMember, objectMember);
 

@@ -10,6 +10,8 @@ using System.Windows.Forms;
 using System.Collections;
 using System.Drawing.Drawing2D;
 
+using System.Diagnostics;
+
 namespace CFG.Map16
 {
     public partial class SpriteEditor : UserControl

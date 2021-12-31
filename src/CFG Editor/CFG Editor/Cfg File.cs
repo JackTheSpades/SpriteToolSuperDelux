@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CFG.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -107,8 +108,16 @@ namespace CFG
 			set { SetPropertyValue(ref _exbyteCount, value); }
 		}
 
+        private DisplayType _DispType = DisplayType.XY;
+        public DisplayType DispType
+        {
+            get { return _DispType; }
+            set { SetPropertyValue(ref _DispType, value); }
+        }
+
         public BindingList<CollectionSprite> CollectionEntries { get; set; } = new BindingList<CollectionSprite>();
         public BindingList<Map16.DisplaySprite> DisplayEntries { get; set; } = new BindingList<Map16.DisplaySprite>();
+        public BindingList<Map16.GFXInfo> GFXInfos { get; set; } = new BindingList<Map16.GFXInfo>();
         public byte[] CustomMap16Data { get; set; } = new byte[0];
         #endregion
 

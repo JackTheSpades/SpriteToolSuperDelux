@@ -50,8 +50,8 @@ namespace CFG_Editor_Tests
             Assert.IsTrue(comp.Equals(ds1, ds2), "Should only have checked X, Y and ExtraBit");
 
             TestChange(ds1, ds2, comp, ds => ds.ExtraBit = !ds.ExtraBit, nameof(DisplaySprite.ExtraBit));
-            TestChange(ds1, ds2, comp, ds => ds.X++, nameof(DisplaySprite.X));
-            TestChange(ds1, ds2, comp, ds => ds.Y--, nameof(DisplaySprite.Y));
+            TestChange(ds1, ds2, comp, ds => ds.X_or_index++, nameof(DisplaySprite.X_or_index));
+            TestChange(ds1, ds2, comp, ds => ds.Y_or_value--, nameof(DisplaySprite.Y_or_value));
         }
         
         [TestMethod]
@@ -60,18 +60,18 @@ namespace CFG_Editor_Tests
         {
             var ds = Create();
             ds.DisplayText = "Some Text";
-            ds.X = 5;
-            ds.Y = 15;
+            ds.X_or_index = 5;
+            ds.Y_or_value = 15;
             ds.ExtraBit = false;
             ds.CustomBit = true;
 
             Assert.AreEqual("F522 0,0,*Some Text*", ds.GetTileLine(), "First");
             ds.ExtraBit = true;
             Assert.AreEqual("F532 0,0,*Some Text*", ds.GetTileLine(), nameof(DisplaySprite.ExtraBit));
-            ds.X = 0x0A;
-            Assert.AreEqual("FA32 0,0,*Some Text*", ds.GetTileLine(), nameof(DisplaySprite.X));
-            ds.Y = 0x01;
-            Assert.AreEqual("1A32 0,0,*Some Text*", ds.GetTileLine(), nameof(DisplaySprite.Y));
+            ds.X_or_index = 0x0A;
+            Assert.AreEqual("FA32 0,0,*Some Text*", ds.GetTileLine(), nameof(DisplaySprite.X_or_index));
+            ds.Y_or_value = 0x01;
+            Assert.AreEqual("1A32 0,0,*Some Text*", ds.GetTileLine(), nameof(DisplaySprite.Y_or_value));
             ds.DisplayText = "New";
             Assert.AreEqual("1A32 0,0,*New*", ds.GetTileLine(), nameof(DisplaySprite.Description));
         }
@@ -88,8 +88,8 @@ namespace CFG_Editor_Tests
                 Description = "A pointless sprite",
                 DisplayText = "None for this sprite uses tiles",
                 UseText = false,
-                X = 5,
-                Y = 7,
+                X_or_index = 5,
+                Y_or_value = 7,
             };
         }
 

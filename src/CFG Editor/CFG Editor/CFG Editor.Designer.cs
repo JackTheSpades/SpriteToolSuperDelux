@@ -30,18 +30,22 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CFG_Editor));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle11 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle12 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle13 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle14 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle15 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle16 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -135,6 +139,10 @@
             this.chb_190F_01 = new System.Windows.Forms.CheckBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tpgLm = new System.Windows.Forms.TabPage();
+            this.btnGFXRemove = new System.Windows.Forms.Button();
+            this.btnGFXClone = new System.Windows.Forms.Button();
+            this.btnGFXNew = new System.Windows.Forms.Button();
+            this.dgvGFXInfo = new System.Windows.Forms.DataGridView();
             this.btnDisplayDelete = new System.Windows.Forms.Button();
             this.btnDisplayClone = new System.Windows.Forms.Button();
             this.btnDisplayNew = new System.Windows.Forms.Button();
@@ -161,6 +169,7 @@
             this.txtBottomLeft = new System.Windows.Forms.TextBox();
             this.txtBottomRight = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.chbExtraByte = new System.Windows.Forms.CheckBox();
             this.nudY = new System.Windows.Forms.NumericUpDown();
             this.nudX = new System.Windows.Forms.NumericUpDown();
             this.rtbDesc = new System.Windows.Forms.RichTextBox();
@@ -212,9 +221,12 @@
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.txtListExProp3 = new System.Windows.Forms.TextBox();
-            this.extraBitDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.xDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.yDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.separateDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.sp0DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.sp1DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.sp2DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.sp3DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.gfxInfoBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.displaySpriteBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.dsSP4 = new CFG.Map16.FileSelector();
             this.dsSP3 = new CFG.Map16.FileSelector();
@@ -229,6 +241,9 @@
             this.extraPropertyByte3DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.extraPropertyByte4DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.collectionSpriteBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.ExtraBit = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.X_or_index = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Y_or_value = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.menuStrip1.SuspendLayout();
             this.tpgDefault.SuspendLayout();
             this.grpActLike.SuspendLayout();
@@ -250,6 +265,7 @@
             this.grp_190F.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tpgLm.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvGFXInfo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDisplay)).BeginInit();
             this.groupBox3.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -265,6 +281,7 @@
             this.groupBox6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvList)).BeginInit();
             this.groupBox5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.gfxInfoBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.displaySpriteBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.collectionSpriteBindingSource)).BeginInit();
             this.SuspendLayout();
@@ -325,7 +342,7 @@
             // saveAsToolStripMenuItem
             // 
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Alt)
+            this.saveAsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Alt) 
             | System.Windows.Forms.Keys.S)));
             this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.saveAsToolStripMenuItem.Text = "Save As...";
@@ -1237,6 +1254,10 @@
             // tpgLm
             // 
             this.tpgLm.BackColor = System.Drawing.SystemColors.Control;
+            this.tpgLm.Controls.Add(this.btnGFXRemove);
+            this.tpgLm.Controls.Add(this.btnGFXClone);
+            this.tpgLm.Controls.Add(this.btnGFXNew);
+            this.tpgLm.Controls.Add(this.dgvGFXInfo);
             this.tpgLm.Controls.Add(this.btnDisplayDelete);
             this.tpgLm.Controls.Add(this.btnDisplayClone);
             this.tpgLm.Controls.Add(this.btnDisplayNew);
@@ -1249,30 +1270,79 @@
             this.tpgLm.TabIndex = 1;
             this.tpgLm.Text = "Lunar Magic";
             // 
+            // btnGFXRemove
+            // 
+            this.btnGFXRemove.Location = new System.Drawing.Point(447, 354);
+            this.btnGFXRemove.Name = "btnGFXRemove";
+            this.btnGFXRemove.Size = new System.Drawing.Size(28, 22);
+            this.btnGFXRemove.TabIndex = 22;
+            this.btnGFXRemove.Text = "-";
+            this.btnGFXRemove.UseVisualStyleBackColor = true;
+            // 
+            // btnGFXClone
+            // 
+            this.btnGFXClone.Location = new System.Drawing.Point(447, 327);
+            this.btnGFXClone.Name = "btnGFXClone";
+            this.btnGFXClone.Size = new System.Drawing.Size(28, 22);
+            this.btnGFXClone.TabIndex = 21;
+            this.btnGFXClone.Text = "C";
+            this.btnGFXClone.UseVisualStyleBackColor = true;
+            // 
+            // btnGFXNew
+            // 
+            this.btnGFXNew.Location = new System.Drawing.Point(447, 299);
+            this.btnGFXNew.Name = "btnGFXNew";
+            this.btnGFXNew.Size = new System.Drawing.Size(28, 22);
+            this.btnGFXNew.TabIndex = 20;
+            this.btnGFXNew.Text = "+";
+            this.btnGFXNew.UseVisualStyleBackColor = true;
+            // 
+            // dgvGFXInfo
+            // 
+            this.dgvGFXInfo.AllowUserToAddRows = false;
+            this.dgvGFXInfo.AllowUserToDeleteRows = false;
+            this.dgvGFXInfo.AllowUserToResizeColumns = false;
+            this.dgvGFXInfo.AllowUserToResizeRows = false;
+            this.dgvGFXInfo.AutoGenerateColumns = false;
+            this.dgvGFXInfo.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvGFXInfo.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvGFXInfo.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.separateDataGridViewCheckBoxColumn,
+            this.sp0DataGridViewTextBoxColumn,
+            this.sp1DataGridViewTextBoxColumn,
+            this.sp2DataGridViewTextBoxColumn,
+            this.sp3DataGridViewTextBoxColumn});
+            this.dgvGFXInfo.DataSource = this.gfxInfoBindingSource;
+            this.dgvGFXInfo.Location = new System.Drawing.Point(481, 299);
+            this.dgvGFXInfo.Name = "dgvGFXInfo";
+            this.dgvGFXInfo.RowHeadersVisible = false;
+            this.dgvGFXInfo.Size = new System.Drawing.Size(193, 115);
+            this.dgvGFXInfo.TabIndex = 19;
+            // 
             // btnDisplayDelete
             // 
             this.btnDisplayDelete.Enabled = false;
-            this.btnDisplayDelete.Location = new System.Drawing.Point(596, 356);
+            this.btnDisplayDelete.Location = new System.Drawing.Point(372, 354);
             this.btnDisplayDelete.Name = "btnDisplayDelete";
-            this.btnDisplayDelete.Size = new System.Drawing.Size(72, 23);
+            this.btnDisplayDelete.Size = new System.Drawing.Size(57, 23);
             this.btnDisplayDelete.TabIndex = 18;
             this.btnDisplayDelete.Text = "Remove";
             this.btnDisplayDelete.UseVisualStyleBackColor = true;
             // 
             // btnDisplayClone
             // 
-            this.btnDisplayClone.Location = new System.Drawing.Point(596, 327);
+            this.btnDisplayClone.Location = new System.Drawing.Point(372, 326);
             this.btnDisplayClone.Name = "btnDisplayClone";
-            this.btnDisplayClone.Size = new System.Drawing.Size(72, 23);
+            this.btnDisplayClone.Size = new System.Drawing.Size(57, 23);
             this.btnDisplayClone.TabIndex = 18;
             this.btnDisplayClone.Text = "Clone";
             this.btnDisplayClone.UseVisualStyleBackColor = true;
             // 
             // btnDisplayNew
             // 
-            this.btnDisplayNew.Location = new System.Drawing.Point(596, 298);
+            this.btnDisplayNew.Location = new System.Drawing.Point(372, 298);
             this.btnDisplayNew.Name = "btnDisplayNew";
-            this.btnDisplayNew.Size = new System.Drawing.Size(72, 23);
+            this.btnDisplayNew.Size = new System.Drawing.Size(57, 23);
             this.btnDisplayNew.TabIndex = 18;
             this.btnDisplayNew.Text = "New";
             this.btnDisplayNew.UseVisualStyleBackColor = true;
@@ -1286,9 +1356,9 @@
             this.dgvDisplay.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvDisplay.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvDisplay.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.extraBitDataGridViewCheckBoxColumn,
-            this.xDataGridViewTextBoxColumn,
-            this.yDataGridViewTextBoxColumn});
+            this.ExtraBit,
+            this.X_or_index,
+            this.Y_or_value});
             this.dgvDisplay.DataSource = this.displaySpriteBindingSource;
             this.dgvDisplay.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.dgvDisplay.Location = new System.Drawing.Point(203, 298);
@@ -1296,7 +1366,7 @@
             this.dgvDisplay.Name = "dgvDisplay";
             this.dgvDisplay.RowHeadersVisible = false;
             this.dgvDisplay.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvDisplay.Size = new System.Drawing.Size(387, 116);
+            this.dgvDisplay.Size = new System.Drawing.Size(163, 116);
             this.dgvDisplay.TabIndex = 8;
             // 
             // groupBox3
@@ -1536,6 +1606,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.chbExtraByte);
             this.groupBox1.Controls.Add(this.nudY);
             this.groupBox1.Controls.Add(this.nudX);
             this.groupBox1.Controls.Add(this.spriteEditor1);
@@ -1552,6 +1623,16 @@
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Lunar Magic Display";
+            // 
+            // chbExtraByte
+            // 
+            this.chbExtraByte.AutoSize = true;
+            this.chbExtraByte.Location = new System.Drawing.Point(115, 245);
+            this.chbExtraByte.Name = "chbExtraByte";
+            this.chbExtraByte.Size = new System.Drawing.Size(74, 17);
+            this.chbExtraByte.TabIndex = 8;
+            this.chbExtraByte.Text = "Extra Byte";
+            this.chbExtraByte.UseVisualStyleBackColor = true;
             // 
             // nudY
             // 
@@ -1723,8 +1804,8 @@
             // extraPropertyByte5DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte5DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte5";
-            dataGridViewCellStyle5.Format = "X2";
-            this.extraPropertyByte5DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle9.Format = "X2";
+            this.extraPropertyByte5DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle9;
             this.extraPropertyByte5DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte5DataGridViewTextBoxColumn.HeaderText = "Ex5";
             this.extraPropertyByte5DataGridViewTextBoxColumn.Name = "extraPropertyByte5DataGridViewTextBoxColumn";
@@ -1732,8 +1813,8 @@
             // extraPropertyByte6DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte6DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte6";
-            dataGridViewCellStyle6.Format = "X2";
-            this.extraPropertyByte6DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle10.Format = "X2";
+            this.extraPropertyByte6DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle10;
             this.extraPropertyByte6DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte6DataGridViewTextBoxColumn.HeaderText = "Ex6";
             this.extraPropertyByte6DataGridViewTextBoxColumn.Name = "extraPropertyByte6DataGridViewTextBoxColumn";
@@ -1741,8 +1822,8 @@
             // extraPropertyByte7DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte7DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte7";
-            dataGridViewCellStyle7.Format = "X2";
-            this.extraPropertyByte7DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle7;
+            dataGridViewCellStyle11.Format = "X2";
+            this.extraPropertyByte7DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle11;
             this.extraPropertyByte7DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte7DataGridViewTextBoxColumn.HeaderText = "Ex7";
             this.extraPropertyByte7DataGridViewTextBoxColumn.Name = "extraPropertyByte7DataGridViewTextBoxColumn";
@@ -1750,8 +1831,8 @@
             // extraPropertyByte8DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte8DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte8";
-            dataGridViewCellStyle8.Format = "X2";
-            this.extraPropertyByte8DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle8;
+            dataGridViewCellStyle12.Format = "X2";
+            this.extraPropertyByte8DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle12;
             this.extraPropertyByte8DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte8DataGridViewTextBoxColumn.HeaderText = "Ex8";
             this.extraPropertyByte8DataGridViewTextBoxColumn.Name = "extraPropertyByte8DataGridViewTextBoxColumn";
@@ -1759,8 +1840,8 @@
             // extraPropertyByte9DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte9DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte9";
-            dataGridViewCellStyle9.Format = "X2";
-            this.extraPropertyByte9DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle9;
+            dataGridViewCellStyle13.Format = "X2";
+            this.extraPropertyByte9DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle13;
             this.extraPropertyByte9DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte9DataGridViewTextBoxColumn.HeaderText = "Ex9";
             this.extraPropertyByte9DataGridViewTextBoxColumn.Name = "extraPropertyByte9DataGridViewTextBoxColumn";
@@ -1768,8 +1849,8 @@
             // extraPropertyByte10DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte10DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte10";
-            dataGridViewCellStyle10.Format = "X2";
-            this.extraPropertyByte10DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle10;
+            dataGridViewCellStyle14.Format = "X2";
+            this.extraPropertyByte10DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle14;
             this.extraPropertyByte10DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte10DataGridViewTextBoxColumn.HeaderText = "Ex10";
             this.extraPropertyByte10DataGridViewTextBoxColumn.Name = "extraPropertyByte10DataGridViewTextBoxColumn";
@@ -1777,8 +1858,8 @@
             // extraPropertyByte11DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte11DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte11";
-            dataGridViewCellStyle11.Format = "X2";
-            this.extraPropertyByte11DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle11;
+            dataGridViewCellStyle15.Format = "X2";
+            this.extraPropertyByte11DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle15;
             this.extraPropertyByte11DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte11DataGridViewTextBoxColumn.HeaderText = "Ex11";
             this.extraPropertyByte11DataGridViewTextBoxColumn.Name = "extraPropertyByte11DataGridViewTextBoxColumn";
@@ -1786,8 +1867,8 @@
             // extraPropertyByte12DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte12DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte12";
-            dataGridViewCellStyle12.Format = "X2";
-            this.extraPropertyByte12DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle12;
+            dataGridViewCellStyle16.Format = "X2";
+            this.extraPropertyByte12DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle16;
             this.extraPropertyByte12DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte12DataGridViewTextBoxColumn.HeaderText = "Ex12";
             this.extraPropertyByte12DataGridViewTextBoxColumn.Name = "extraPropertyByte12DataGridViewTextBoxColumn";
@@ -2074,23 +2155,47 @@
             this.txtListExProp3.Text = "FF";
             this.txtListExProp3.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Txt_Hex_KeyPress);
             // 
-            // extraBitDataGridViewCheckBoxColumn
+            // separateDataGridViewCheckBoxColumn
             // 
-            this.extraBitDataGridViewCheckBoxColumn.DataPropertyName = "ExtraBit";
-            this.extraBitDataGridViewCheckBoxColumn.HeaderText = "ExtraBit";
-            this.extraBitDataGridViewCheckBoxColumn.Name = "extraBitDataGridViewCheckBoxColumn";
+            this.separateDataGridViewCheckBoxColumn.DataPropertyName = "Separate";
+            this.separateDataGridViewCheckBoxColumn.HeaderText = "Sep.";
+            this.separateDataGridViewCheckBoxColumn.Name = "separateDataGridViewCheckBoxColumn";
             // 
-            // xDataGridViewTextBoxColumn
+            // sp0DataGridViewTextBoxColumn
             // 
-            this.xDataGridViewTextBoxColumn.DataPropertyName = "X";
-            this.xDataGridViewTextBoxColumn.HeaderText = "X";
-            this.xDataGridViewTextBoxColumn.Name = "xDataGridViewTextBoxColumn";
+            this.sp0DataGridViewTextBoxColumn.DataPropertyName = "Sp0";
+            dataGridViewCellStyle1.NullValue = "0x7F";
+            this.sp0DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle1;
+            this.sp0DataGridViewTextBoxColumn.HeaderText = "Sp0";
+            this.sp0DataGridViewTextBoxColumn.Name = "sp0DataGridViewTextBoxColumn";
             // 
-            // yDataGridViewTextBoxColumn
+            // sp1DataGridViewTextBoxColumn
             // 
-            this.yDataGridViewTextBoxColumn.DataPropertyName = "Y";
-            this.yDataGridViewTextBoxColumn.HeaderText = "Y";
-            this.yDataGridViewTextBoxColumn.Name = "yDataGridViewTextBoxColumn";
+            this.sp1DataGridViewTextBoxColumn.DataPropertyName = "Sp1";
+            dataGridViewCellStyle2.NullValue = "0x7F";
+            this.sp1DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle2;
+            this.sp1DataGridViewTextBoxColumn.HeaderText = "Sp1";
+            this.sp1DataGridViewTextBoxColumn.Name = "sp1DataGridViewTextBoxColumn";
+            // 
+            // sp2DataGridViewTextBoxColumn
+            // 
+            this.sp2DataGridViewTextBoxColumn.DataPropertyName = "Sp2";
+            dataGridViewCellStyle3.NullValue = "0x7F";
+            this.sp2DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle3;
+            this.sp2DataGridViewTextBoxColumn.HeaderText = "Sp2";
+            this.sp2DataGridViewTextBoxColumn.Name = "sp2DataGridViewTextBoxColumn";
+            // 
+            // sp3DataGridViewTextBoxColumn
+            // 
+            this.sp3DataGridViewTextBoxColumn.DataPropertyName = "Sp3";
+            dataGridViewCellStyle4.NullValue = "0x7F";
+            this.sp3DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle4;
+            this.sp3DataGridViewTextBoxColumn.HeaderText = "Sp3";
+            this.sp3DataGridViewTextBoxColumn.Name = "sp3DataGridViewTextBoxColumn";
+            // 
+            // gfxInfoBindingSource
+            // 
+            this.gfxInfoBindingSource.DataSource = typeof(CFG.Map16.GFXInfo);
             // 
             // displaySpriteBindingSource
             // 
@@ -2164,8 +2269,8 @@
             // extraPropertyByte1DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte1DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte1";
-            dataGridViewCellStyle1.Format = "X2";
-            this.extraPropertyByte1DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle5.Format = "X2";
+            this.extraPropertyByte1DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle5;
             this.extraPropertyByte1DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte1DataGridViewTextBoxColumn.HeaderText = "Ex1";
             this.extraPropertyByte1DataGridViewTextBoxColumn.Name = "extraPropertyByte1DataGridViewTextBoxColumn";
@@ -2173,8 +2278,8 @@
             // extraPropertyByte2DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte2DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte2";
-            dataGridViewCellStyle2.Format = "X2";
-            this.extraPropertyByte2DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle6.Format = "X2";
+            this.extraPropertyByte2DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle6;
             this.extraPropertyByte2DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte2DataGridViewTextBoxColumn.HeaderText = "Ex2";
             this.extraPropertyByte2DataGridViewTextBoxColumn.Name = "extraPropertyByte2DataGridViewTextBoxColumn";
@@ -2182,8 +2287,8 @@
             // extraPropertyByte3DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte3DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte3";
-            dataGridViewCellStyle3.Format = "X2";
-            this.extraPropertyByte3DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle7.Format = "X2";
+            this.extraPropertyByte3DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle7;
             this.extraPropertyByte3DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte3DataGridViewTextBoxColumn.HeaderText = "Ex3";
             this.extraPropertyByte3DataGridViewTextBoxColumn.Name = "extraPropertyByte3DataGridViewTextBoxColumn";
@@ -2191,8 +2296,8 @@
             // extraPropertyByte4DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte4DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte4";
-            dataGridViewCellStyle4.Format = "X2";
-            this.extraPropertyByte4DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle8.Format = "X2";
+            this.extraPropertyByte4DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle8;
             this.extraPropertyByte4DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte4DataGridViewTextBoxColumn.HeaderText = "Ex4";
             this.extraPropertyByte4DataGridViewTextBoxColumn.Name = "extraPropertyByte4DataGridViewTextBoxColumn";
@@ -2200,6 +2305,24 @@
             // collectionSpriteBindingSource
             // 
             this.collectionSpriteBindingSource.DataSource = typeof(CFG.CollectionSprite);
+            // 
+            // ExtraBit
+            // 
+            this.ExtraBit.DataPropertyName = "ExtraBit";
+            this.ExtraBit.HeaderText = "ExtraBit";
+            this.ExtraBit.Name = "ExtraBit";
+            // 
+            // X_or_index
+            // 
+            this.X_or_index.DataPropertyName = "X_or_index";
+            this.X_or_index.HeaderText = "X";
+            this.X_or_index.Name = "X_or_index";
+            // 
+            // Y_or_value
+            // 
+            this.Y_or_value.DataPropertyName = "Y_or_value";
+            this.Y_or_value.HeaderText = "Y";
+            this.Y_or_value.Name = "Y_or_value";
             // 
             // CFG_Editor
             // 
@@ -2247,6 +2370,7 @@
             this.grp_190F.PerformLayout();
             this.tabControl1.ResumeLayout(false);
             this.tpgLm.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvGFXInfo)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDisplay)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
@@ -2268,6 +2392,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvList)).EndInit();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.gfxInfoBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.displaySpriteBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.collectionSpriteBindingSource)).EndInit();
             this.ResumeLayout(false);
@@ -2371,9 +2496,6 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.RichTextBox rtbDesc;
         private System.Windows.Forms.DataGridView dgvDisplay;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn extraBitDataGridViewCheckBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn xDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn yDataGridViewTextBoxColumn;
         private System.Windows.Forms.BindingSource displaySpriteBindingSource;
         private System.Windows.Forms.NumericUpDown nudX;
         private System.Windows.Forms.Label label6;
@@ -2463,5 +2585,19 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte10DataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte11DataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn extraPropertyByte12DataGridViewTextBoxColumn;
+        private System.Windows.Forms.CheckBox chbExtraByte;
+        private System.Windows.Forms.Button btnGFXRemove;
+        private System.Windows.Forms.Button btnGFXClone;
+        private System.Windows.Forms.Button btnGFXNew;
+        private System.Windows.Forms.DataGridView dgvGFXInfo;
+        private System.Windows.Forms.BindingSource gfxInfoBindingSource;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn separateDataGridViewCheckBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn sp0DataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn sp1DataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn sp2DataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn sp3DataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn ExtraBit;
+        private System.Windows.Forms.DataGridViewTextBoxColumn X_or_index;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Y_or_value;
     }
 }
