@@ -88,6 +88,7 @@ jobs:
       shell: powershell
       run: |
         cd "${{github.workspace}}/src/CFG Editor"
+        dotnet restore
         msbuild.exe "CFG Editor.sln" -p:Configuration=Release
         Compress-Archive "${{github.workspace}}/src/CFG Editor/CFG Editor/bin/Release/CFG Editor.exe","${{github.workspace}}/src/CFG Editor/CFG Editor/bin/Release/Newtonsoft.Json.dll" ${{github.workspace}}/cfgeditor.zip
       if: matrix.os == 'windows-latest'
