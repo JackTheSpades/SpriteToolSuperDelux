@@ -67,11 +67,33 @@ jobs:
       working-directory: ${{github.workspace}}/test
       shell: bash
       run: bash pixi_test.sh
-      if: matrix.os == 'ubuntu-latest'
+      if: "matrix.os == 'ubuntu-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
     
     - name: Upload test results
       uses: actions/upload-artifact@v2
       with:
         name: test-result
         path: ${{github.workspace}}/test/results.zip
-      if: matrix.os == 'ubuntu-latest'
+      if: "matrix.os == 'ubuntu-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
+    
+    - name: Setup msbuild
+      uses: microsoft/setup-msbuild@v1
+    
+    - name: Setup nuget
+      uses: NuGet/setup-nuget@v1.0.2
+    
+    - name: Build CFG Editor
+      shell: powershell
+      run: |
+        cd "${{github.workspace}}/src/CFG Editor"
+        msbuild.exe "CFG Editor.sln" -p:Configuration=Release
+        Compress-Archive "${{github.workspace}}/src/CFG Editor/CFG Editor/bin/Release/CFG Editor.exe","${{github.workspace}}/src/CFG Editor/CFG Editor/bin/Release/Newtonsoft.Json.dll" ${{github.workspace}}/cfgeditor.zip
+      if: matrix.os == 'windows-latest'
+    
+    - name: Upload CFG Editor executable
+      uses: actions/upload-artifact@v2
+      with:
+        name: "CFG Editor"
+        path: ${{github.workspace}}/cfgeditor.zip
+      if: matrix.os == 'windows-latest'
+
