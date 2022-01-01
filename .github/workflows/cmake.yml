@@ -78,9 +78,11 @@ jobs:
     
     - name: Setup msbuild
       uses: microsoft/setup-msbuild@v1
+      if: matrix.os == 'windows-latest'
     
     - name: Setup nuget
       uses: NuGet/setup-nuget@v1.0.2
+      if: matrix.os == 'windows-latest'
     
     - name: Build CFG Editor
       shell: powershell
