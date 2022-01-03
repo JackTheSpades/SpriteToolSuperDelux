@@ -194,6 +194,9 @@ namespace CFG
                     chbExtraByte.Checked = Data.DispType == Json.DisplayType.ExtraByte;
                     dgvDisplay.Columns[1].HeaderText = Data.DispType == Json.DisplayType.ExtraByte ? "Index" : "X";
                     dgvDisplay.Columns[2].HeaderText = Data.DispType == Json.DisplayType.ExtraByte ? "Value" : "Y";
+                    label8.Text = Data.DispType == Json.DisplayType.ExtraByte ? "I:" : "X:";
+                    label9.Text = Data.DispType == Json.DisplayType.ExtraByte ? "V:" : "Y:";
+
                     chbExtraByte.CheckedChanged += CheckedExtraByteChanged;
                 }
             };
@@ -304,6 +307,27 @@ namespace CFG
             gfxInfoBindingSource.DataMember = nameof(CfgFile.GFXInfos);
 
             dgvDisplay.AutoGenerateColumns = false;
+            dgvDisplay.Columns.Clear();
+            dgvDisplay.Columns.AddRange(new DataGridViewColumn[] {
+                new DataGridViewCheckBoxColumn
+                {
+                    HeaderText = "ExtraBit",
+                    Name = "ExtraBit",
+                    DataPropertyName = "ExtraBit"
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    HeaderText = "X",
+                    Name = "X_or_index",
+                    DataPropertyName = "X_or_index"
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    HeaderText = "Y",
+                    Name = "Y_or_value",
+                    DataPropertyName = "Y_or_value"
+                }
+            });
             dgvGFXInfo.DataError += DgvGFXInfo_DataError;
 
             //create databindings between display list and controls.
