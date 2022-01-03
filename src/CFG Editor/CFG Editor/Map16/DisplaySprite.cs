@@ -88,6 +88,7 @@ namespace CFG.Map16
 
         public BindingList<Tile> Tiles { get; set; }
 
+        [Newtonsoft.Json.JsonIgnore]
         public bool CheckDispType => disp_type == DisplayType.XY;
 
         class DisplayTypeConverter : JsonConverter

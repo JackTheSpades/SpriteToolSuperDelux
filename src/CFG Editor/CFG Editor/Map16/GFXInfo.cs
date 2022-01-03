@@ -30,10 +30,10 @@ namespace CFG.Map16
         private bool _Separate;
         public bool Separate { get => _Separate; set => _Separate = value;}
 
-        private int _Sp0;
-        private int _Sp1;
-        private int _Sp2;
-        private int _Sp3;
+        private int _Sp0 = 0x7F;
+        private int _Sp1 = 0x7F;
+        private int _Sp2 = 0x7F;
+        private int _Sp3 = 0x7F;
 
         class SPSerializer : JsonConverter
         {

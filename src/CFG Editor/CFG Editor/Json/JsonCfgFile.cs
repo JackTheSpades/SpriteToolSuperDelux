@@ -158,8 +158,11 @@ namespace CFG.Json
                 cfgFile.CollectionEntries.Add(cs);
 
             cfgFile.GFXInfos.Clear();
-            foreach (var cs in GFXInfos)
-                cfgFile.GFXInfos.Add(cs);
+            if (GFXInfos != null)
+            {
+                foreach (var cs in GFXInfos)
+                    cfgFile.GFXInfos.Add(cs);
+            }
         }
     }
 }

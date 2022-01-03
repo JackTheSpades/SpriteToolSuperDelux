@@ -30,22 +30,24 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CFG_Editor));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle11 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle12 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle13 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle14 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle15 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle16 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle37 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle38 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle39 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle40 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle41 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle42 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle43 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle44 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle45 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle46 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle47 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle48 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle33 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle34 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle35 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle36 = new System.Windows.Forms.DataGridViewCellStyle();
+            this.dgvDisplay = new System.Windows.Forms.DataGridView();
+            this.displaySpriteBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -142,11 +144,10 @@
             this.btnGFXRemove = new System.Windows.Forms.Button();
             this.btnGFXClone = new System.Windows.Forms.Button();
             this.btnGFXNew = new System.Windows.Forms.Button();
-            this.dgvGFXInfo = new System.Windows.Forms.DataGridView();
+            this.gfxInfoBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.btnDisplayDelete = new System.Windows.Forms.Button();
             this.btnDisplayClone = new System.Windows.Forms.Button();
             this.btnDisplayNew = new System.Windows.Forms.Button();
-            this.dgvDisplay = new System.Windows.Forms.DataGridView();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
@@ -159,6 +160,10 @@
             this.tsbPalette = new System.Windows.Forms.ToolStripButton();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.dsSP4 = new CFG.Map16.FileSelector();
+            this.dsSP3 = new CFG.Map16.FileSelector();
+            this.dsSP2 = new CFG.Map16.FileSelector();
+            this.dsSP1 = new CFG.Map16.FileSelector();
             this.cmbTilesets = new System.Windows.Forms.ComboBox();
             this.pnlEdit = new System.Windows.Forms.Panel();
             this.btnX = new System.Windows.Forms.Button();
@@ -168,10 +173,12 @@
             this.cmbPalette = new System.Windows.Forms.ComboBox();
             this.txtBottomLeft = new System.Windows.Forms.TextBox();
             this.txtBottomRight = new System.Windows.Forms.TextBox();
+            this.map16Editor1 = new CFG.Map16Editor();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.chbExtraByte = new System.Windows.Forms.CheckBox();
             this.nudY = new System.Windows.Forms.NumericUpDown();
             this.nudX = new System.Windows.Forms.NumericUpDown();
+            this.spriteEditor1 = new CFG.Map16.SpriteEditor();
             this.rtbDesc = new System.Windows.Forms.RichTextBox();
             this.cmbGrid = new System.Windows.Forms.ComboBox();
             this.label9 = new System.Windows.Forms.Label();
@@ -185,6 +192,12 @@
             this.btnColClone = new System.Windows.Forms.Button();
             this.btnColNew = new System.Windows.Forms.Button();
             this.dgvList = new System.Windows.Forms.DataGridView();
+            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.extraBitDataGridViewCheckBoxColumn1 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.extraPropertyByte1DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.extraPropertyByte2DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.extraPropertyByte3DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.extraPropertyByte4DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.extraPropertyByte5DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.extraPropertyByte6DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.extraPropertyByte7DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -193,6 +206,7 @@
             this.extraPropertyByte10DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.extraPropertyByte11DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.extraPropertyByte12DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.collectionSpriteBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.txtListExProp10 = new System.Windows.Forms.TextBox();
             this.txtListExProp12 = new System.Windows.Forms.TextBox();
@@ -221,29 +235,17 @@
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.txtListExProp3 = new System.Windows.Forms.TextBox();
+            this.dgvGFXInfo = new System.Windows.Forms.DataGridView();
             this.separateDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.sp0DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.sp1DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.sp2DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.sp3DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.gfxInfoBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.displaySpriteBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.dsSP4 = new CFG.Map16.FileSelector();
-            this.dsSP3 = new CFG.Map16.FileSelector();
-            this.dsSP2 = new CFG.Map16.FileSelector();
-            this.dsSP1 = new CFG.Map16.FileSelector();
-            this.map16Editor1 = new CFG.Map16Editor();
-            this.spriteEditor1 = new CFG.Map16.SpriteEditor();
-            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.extraBitDataGridViewCheckBoxColumn1 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.extraPropertyByte1DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.extraPropertyByte2DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.extraPropertyByte3DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.extraPropertyByte4DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.collectionSpriteBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.ExtraBit = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.X_or_index = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Y_or_value = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvDisplay)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.displaySpriteBindingSource)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.tpgDefault.SuspendLayout();
             this.grpActLike.SuspendLayout();
@@ -265,8 +267,7 @@
             this.grp_190F.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tpgLm.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvGFXInfo)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvDisplay)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gfxInfoBindingSource)).BeginInit();
             this.groupBox3.SuspendLayout();
             this.panel1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -280,11 +281,36 @@
             this.tpgList.SuspendLayout();
             this.groupBox6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvList)).BeginInit();
-            this.groupBox5.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.gfxInfoBindingSource)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.displaySpriteBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.collectionSpriteBindingSource)).BeginInit();
+            this.groupBox5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvGFXInfo)).BeginInit();
             this.SuspendLayout();
+            // 
+            // dgvDisplay
+            // 
+            this.dgvDisplay.AllowUserToAddRows = false;
+            this.dgvDisplay.AllowUserToDeleteRows = false;
+            this.dgvDisplay.AllowUserToResizeRows = false;
+            this.dgvDisplay.AutoGenerateColumns = false;
+            this.dgvDisplay.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvDisplay.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvDisplay.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.ExtraBit,
+            this.X_or_index,
+            this.Y_or_value});
+            this.dgvDisplay.DataSource = this.displaySpriteBindingSource;
+            this.dgvDisplay.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
+            this.dgvDisplay.Location = new System.Drawing.Point(203, 298);
+            this.dgvDisplay.MultiSelect = false;
+            this.dgvDisplay.Name = "dgvDisplay";
+            this.dgvDisplay.RowHeadersVisible = false;
+            this.dgvDisplay.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvDisplay.Size = new System.Drawing.Size(163, 116);
+            this.dgvDisplay.TabIndex = 8;
+            // 
+            // displaySpriteBindingSource
+            // 
+            this.displaySpriteBindingSource.DataSource = typeof(CFG.Map16.DisplaySprite);
             // 
             // menuStrip1
             // 
@@ -1254,10 +1280,10 @@
             // tpgLm
             // 
             this.tpgLm.BackColor = System.Drawing.SystemColors.Control;
+            this.tpgLm.Controls.Add(this.dgvGFXInfo);
             this.tpgLm.Controls.Add(this.btnGFXRemove);
             this.tpgLm.Controls.Add(this.btnGFXClone);
             this.tpgLm.Controls.Add(this.btnGFXNew);
-            this.tpgLm.Controls.Add(this.dgvGFXInfo);
             this.tpgLm.Controls.Add(this.btnDisplayDelete);
             this.tpgLm.Controls.Add(this.btnDisplayClone);
             this.tpgLm.Controls.Add(this.btnDisplayNew);
@@ -1297,27 +1323,9 @@
             this.btnGFXNew.Text = "+";
             this.btnGFXNew.UseVisualStyleBackColor = true;
             // 
-            // dgvGFXInfo
+            // gfxInfoBindingSource
             // 
-            this.dgvGFXInfo.AllowUserToAddRows = false;
-            this.dgvGFXInfo.AllowUserToDeleteRows = false;
-            this.dgvGFXInfo.AllowUserToResizeColumns = false;
-            this.dgvGFXInfo.AllowUserToResizeRows = false;
-            this.dgvGFXInfo.AutoGenerateColumns = false;
-            this.dgvGFXInfo.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dgvGFXInfo.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvGFXInfo.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.separateDataGridViewCheckBoxColumn,
-            this.sp0DataGridViewTextBoxColumn,
-            this.sp1DataGridViewTextBoxColumn,
-            this.sp2DataGridViewTextBoxColumn,
-            this.sp3DataGridViewTextBoxColumn});
-            this.dgvGFXInfo.DataSource = this.gfxInfoBindingSource;
-            this.dgvGFXInfo.Location = new System.Drawing.Point(481, 299);
-            this.dgvGFXInfo.Name = "dgvGFXInfo";
-            this.dgvGFXInfo.RowHeadersVisible = false;
-            this.dgvGFXInfo.Size = new System.Drawing.Size(193, 115);
-            this.dgvGFXInfo.TabIndex = 19;
+            this.gfxInfoBindingSource.DataSource = typeof(CFG.Map16.GFXInfo);
             // 
             // btnDisplayDelete
             // 
@@ -1346,28 +1354,6 @@
             this.btnDisplayNew.TabIndex = 18;
             this.btnDisplayNew.Text = "New";
             this.btnDisplayNew.UseVisualStyleBackColor = true;
-            // 
-            // dgvDisplay
-            // 
-            this.dgvDisplay.AllowUserToAddRows = false;
-            this.dgvDisplay.AllowUserToDeleteRows = false;
-            this.dgvDisplay.AllowUserToResizeRows = false;
-            this.dgvDisplay.AutoGenerateColumns = false;
-            this.dgvDisplay.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dgvDisplay.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvDisplay.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.ExtraBit,
-            this.X_or_index,
-            this.Y_or_value});
-            this.dgvDisplay.DataSource = this.displaySpriteBindingSource;
-            this.dgvDisplay.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
-            this.dgvDisplay.Location = new System.Drawing.Point(203, 298);
-            this.dgvDisplay.MultiSelect = false;
-            this.dgvDisplay.Name = "dgvDisplay";
-            this.dgvDisplay.RowHeadersVisible = false;
-            this.dgvDisplay.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvDisplay.Size = new System.Drawing.Size(163, 116);
-            this.dgvDisplay.TabIndex = 8;
             // 
             // groupBox3
             // 
@@ -1507,6 +1493,42 @@
             this.tableLayoutPanel1.Size = new System.Drawing.Size(159, 104);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
+            // dsSP4
+            // 
+            this.dsSP4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dsSP4.Location = new System.Drawing.Point(3, 81);
+            this.dsSP4.Name = "dsSP4";
+            this.dsSP4.Size = new System.Drawing.Size(153, 20);
+            this.dsSP4.TabIndex = 3;
+            this.dsSP4.FileLoaded += new System.EventHandler(this.Ds_FileLoaded);
+            // 
+            // dsSP3
+            // 
+            this.dsSP3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dsSP3.Location = new System.Drawing.Point(3, 55);
+            this.dsSP3.Name = "dsSP3";
+            this.dsSP3.Size = new System.Drawing.Size(153, 20);
+            this.dsSP3.TabIndex = 2;
+            this.dsSP3.FileLoaded += new System.EventHandler(this.Ds_FileLoaded);
+            // 
+            // dsSP2
+            // 
+            this.dsSP2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dsSP2.Location = new System.Drawing.Point(3, 29);
+            this.dsSP2.Name = "dsSP2";
+            this.dsSP2.Size = new System.Drawing.Size(153, 20);
+            this.dsSP2.TabIndex = 1;
+            this.dsSP2.FileLoaded += new System.EventHandler(this.Ds_FileLoaded);
+            // 
+            // dsSP1
+            // 
+            this.dsSP1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dsSP1.Location = new System.Drawing.Point(3, 3);
+            this.dsSP1.Name = "dsSP1";
+            this.dsSP1.Size = new System.Drawing.Size(153, 20);
+            this.dsSP1.TabIndex = 0;
+            this.dsSP1.FileLoaded += new System.EventHandler(this.Ds_FileLoaded);
+            // 
             // cmbTilesets
             // 
             this.cmbTilesets.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -1604,6 +1626,13 @@
             this.txtBottomRight.TabIndex = 8;
             this.txtBottomRight.Text = "FFF";
             // 
+            // map16Editor1
+            // 
+            this.map16Editor1.Location = new System.Drawing.Point(6, 19);
+            this.map16Editor1.Name = "map16Editor1";
+            this.map16Editor1.Size = new System.Drawing.Size(278, 256);
+            this.map16Editor1.TabIndex = 0;
+            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.chbExtraByte);
@@ -1627,11 +1656,11 @@
             // chbExtraByte
             // 
             this.chbExtraByte.AutoSize = true;
-            this.chbExtraByte.Location = new System.Drawing.Point(115, 245);
+            this.chbExtraByte.Location = new System.Drawing.Point(7, 256);
             this.chbExtraByte.Name = "chbExtraByte";
-            this.chbExtraByte.Size = new System.Drawing.Size(74, 17);
+            this.chbExtraByte.Size = new System.Drawing.Size(167, 17);
             this.chbExtraByte.TabIndex = 8;
-            this.chbExtraByte.Text = "Extra Byte";
+            this.chbExtraByte.Text = "Use Extra Byte instead of X/Y";
             this.chbExtraByte.UseVisualStyleBackColor = true;
             // 
             // nudY
@@ -1658,11 +1687,18 @@
             this.nudX.Size = new System.Drawing.Size(35, 20);
             this.nudX.TabIndex = 7;
             // 
+            // spriteEditor1
+            // 
+            this.spriteEditor1.Location = new System.Drawing.Point(6, 19);
+            this.spriteEditor1.Name = "spriteEditor1";
+            this.spriteEditor1.Size = new System.Drawing.Size(176, 176);
+            this.spriteEditor1.TabIndex = 1;
+            // 
             // rtbDesc
             // 
-            this.rtbDesc.Location = new System.Drawing.Point(6, 265);
+            this.rtbDesc.Location = new System.Drawing.Point(6, 295);
             this.rtbDesc.Name = "rtbDesc";
-            this.rtbDesc.Size = new System.Drawing.Size(176, 140);
+            this.rtbDesc.Size = new System.Drawing.Size(176, 110);
             this.rtbDesc.TabIndex = 6;
             this.rtbDesc.Text = "";
             // 
@@ -1670,9 +1706,9 @@
             // 
             this.cmbGrid.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbGrid.FormattingEnabled = true;
-            this.cmbGrid.Location = new System.Drawing.Point(109, 201);
+            this.cmbGrid.Location = new System.Drawing.Point(78, 201);
             this.cmbGrid.Name = "cmbGrid";
-            this.cmbGrid.Size = new System.Drawing.Size(73, 21);
+            this.cmbGrid.Size = new System.Drawing.Size(60, 21);
             this.cmbGrid.TabIndex = 2;
             // 
             // label9
@@ -1687,7 +1723,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(1, 249);
+            this.label6.Location = new System.Drawing.Point(6, 276);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(63, 13);
             this.label6.TabIndex = 5;
@@ -1705,7 +1741,7 @@
             // chbExtraBit
             // 
             this.chbExtraBit.AutoSize = true;
-            this.chbExtraBit.Location = new System.Drawing.Point(118, 227);
+            this.chbExtraBit.Location = new System.Drawing.Point(118, 228);
             this.chbExtraBit.Name = "chbExtraBit";
             this.chbExtraBit.Size = new System.Drawing.Size(65, 17);
             this.chbExtraBit.TabIndex = 3;
@@ -1801,11 +1837,62 @@
             this.dgvList.Size = new System.Drawing.Size(661, 263);
             this.dgvList.TabIndex = 2;
             // 
+            // dataGridViewTextBoxColumn1
+            // 
+            this.dataGridViewTextBoxColumn1.DataPropertyName = "Name";
+            this.dataGridViewTextBoxColumn1.FillWeight = 175F;
+            this.dataGridViewTextBoxColumn1.HeaderText = "Name";
+            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            this.dataGridViewTextBoxColumn1.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            // 
+            // extraBitDataGridViewCheckBoxColumn1
+            // 
+            this.extraBitDataGridViewCheckBoxColumn1.DataPropertyName = "ExtraBit";
+            this.extraBitDataGridViewCheckBoxColumn1.FillWeight = 70F;
+            this.extraBitDataGridViewCheckBoxColumn1.HeaderText = "Extra Bit";
+            this.extraBitDataGridViewCheckBoxColumn1.Name = "extraBitDataGridViewCheckBoxColumn1";
+            // 
+            // extraPropertyByte1DataGridViewTextBoxColumn
+            // 
+            this.extraPropertyByte1DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte1";
+            dataGridViewCellStyle37.Format = "X2";
+            this.extraPropertyByte1DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle37;
+            this.extraPropertyByte1DataGridViewTextBoxColumn.FillWeight = 50F;
+            this.extraPropertyByte1DataGridViewTextBoxColumn.HeaderText = "Ex1";
+            this.extraPropertyByte1DataGridViewTextBoxColumn.Name = "extraPropertyByte1DataGridViewTextBoxColumn";
+            // 
+            // extraPropertyByte2DataGridViewTextBoxColumn
+            // 
+            this.extraPropertyByte2DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte2";
+            dataGridViewCellStyle38.Format = "X2";
+            this.extraPropertyByte2DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle38;
+            this.extraPropertyByte2DataGridViewTextBoxColumn.FillWeight = 50F;
+            this.extraPropertyByte2DataGridViewTextBoxColumn.HeaderText = "Ex2";
+            this.extraPropertyByte2DataGridViewTextBoxColumn.Name = "extraPropertyByte2DataGridViewTextBoxColumn";
+            // 
+            // extraPropertyByte3DataGridViewTextBoxColumn
+            // 
+            this.extraPropertyByte3DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte3";
+            dataGridViewCellStyle39.Format = "X2";
+            this.extraPropertyByte3DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle39;
+            this.extraPropertyByte3DataGridViewTextBoxColumn.FillWeight = 50F;
+            this.extraPropertyByte3DataGridViewTextBoxColumn.HeaderText = "Ex3";
+            this.extraPropertyByte3DataGridViewTextBoxColumn.Name = "extraPropertyByte3DataGridViewTextBoxColumn";
+            // 
+            // extraPropertyByte4DataGridViewTextBoxColumn
+            // 
+            this.extraPropertyByte4DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte4";
+            dataGridViewCellStyle40.Format = "X2";
+            this.extraPropertyByte4DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle40;
+            this.extraPropertyByte4DataGridViewTextBoxColumn.FillWeight = 50F;
+            this.extraPropertyByte4DataGridViewTextBoxColumn.HeaderText = "Ex4";
+            this.extraPropertyByte4DataGridViewTextBoxColumn.Name = "extraPropertyByte4DataGridViewTextBoxColumn";
+            // 
             // extraPropertyByte5DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte5DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte5";
-            dataGridViewCellStyle9.Format = "X2";
-            this.extraPropertyByte5DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle9;
+            dataGridViewCellStyle41.Format = "X2";
+            this.extraPropertyByte5DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle41;
             this.extraPropertyByte5DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte5DataGridViewTextBoxColumn.HeaderText = "Ex5";
             this.extraPropertyByte5DataGridViewTextBoxColumn.Name = "extraPropertyByte5DataGridViewTextBoxColumn";
@@ -1813,8 +1900,8 @@
             // extraPropertyByte6DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte6DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte6";
-            dataGridViewCellStyle10.Format = "X2";
-            this.extraPropertyByte6DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle10;
+            dataGridViewCellStyle42.Format = "X2";
+            this.extraPropertyByte6DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle42;
             this.extraPropertyByte6DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte6DataGridViewTextBoxColumn.HeaderText = "Ex6";
             this.extraPropertyByte6DataGridViewTextBoxColumn.Name = "extraPropertyByte6DataGridViewTextBoxColumn";
@@ -1822,8 +1909,8 @@
             // extraPropertyByte7DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte7DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte7";
-            dataGridViewCellStyle11.Format = "X2";
-            this.extraPropertyByte7DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle11;
+            dataGridViewCellStyle43.Format = "X2";
+            this.extraPropertyByte7DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle43;
             this.extraPropertyByte7DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte7DataGridViewTextBoxColumn.HeaderText = "Ex7";
             this.extraPropertyByte7DataGridViewTextBoxColumn.Name = "extraPropertyByte7DataGridViewTextBoxColumn";
@@ -1831,8 +1918,8 @@
             // extraPropertyByte8DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte8DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte8";
-            dataGridViewCellStyle12.Format = "X2";
-            this.extraPropertyByte8DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle12;
+            dataGridViewCellStyle44.Format = "X2";
+            this.extraPropertyByte8DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle44;
             this.extraPropertyByte8DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte8DataGridViewTextBoxColumn.HeaderText = "Ex8";
             this.extraPropertyByte8DataGridViewTextBoxColumn.Name = "extraPropertyByte8DataGridViewTextBoxColumn";
@@ -1840,8 +1927,8 @@
             // extraPropertyByte9DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte9DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte9";
-            dataGridViewCellStyle13.Format = "X2";
-            this.extraPropertyByte9DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle13;
+            dataGridViewCellStyle45.Format = "X2";
+            this.extraPropertyByte9DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle45;
             this.extraPropertyByte9DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte9DataGridViewTextBoxColumn.HeaderText = "Ex9";
             this.extraPropertyByte9DataGridViewTextBoxColumn.Name = "extraPropertyByte9DataGridViewTextBoxColumn";
@@ -1849,8 +1936,8 @@
             // extraPropertyByte10DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte10DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte10";
-            dataGridViewCellStyle14.Format = "X2";
-            this.extraPropertyByte10DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle14;
+            dataGridViewCellStyle46.Format = "X2";
+            this.extraPropertyByte10DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle46;
             this.extraPropertyByte10DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte10DataGridViewTextBoxColumn.HeaderText = "Ex10";
             this.extraPropertyByte10DataGridViewTextBoxColumn.Name = "extraPropertyByte10DataGridViewTextBoxColumn";
@@ -1858,8 +1945,8 @@
             // extraPropertyByte11DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte11DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte11";
-            dataGridViewCellStyle15.Format = "X2";
-            this.extraPropertyByte11DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle15;
+            dataGridViewCellStyle47.Format = "X2";
+            this.extraPropertyByte11DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle47;
             this.extraPropertyByte11DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte11DataGridViewTextBoxColumn.HeaderText = "Ex11";
             this.extraPropertyByte11DataGridViewTextBoxColumn.Name = "extraPropertyByte11DataGridViewTextBoxColumn";
@@ -1867,11 +1954,15 @@
             // extraPropertyByte12DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte12DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte12";
-            dataGridViewCellStyle16.Format = "X2";
-            this.extraPropertyByte12DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle16;
+            dataGridViewCellStyle48.Format = "X2";
+            this.extraPropertyByte12DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle48;
             this.extraPropertyByte12DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte12DataGridViewTextBoxColumn.HeaderText = "Ex12";
             this.extraPropertyByte12DataGridViewTextBoxColumn.Name = "extraPropertyByte12DataGridViewTextBoxColumn";
+            // 
+            // collectionSpriteBindingSource
+            // 
+            this.collectionSpriteBindingSource.DataSource = typeof(CFG.CollectionSprite);
             // 
             // groupBox5
             // 
@@ -2155,6 +2246,28 @@
             this.txtListExProp3.Text = "FF";
             this.txtListExProp3.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Txt_Hex_KeyPress);
             // 
+            // dgvGFXInfo
+            // 
+            this.dgvGFXInfo.AllowUserToAddRows = false;
+            this.dgvGFXInfo.AllowUserToDeleteRows = false;
+            this.dgvGFXInfo.AllowUserToResizeColumns = false;
+            this.dgvGFXInfo.AllowUserToResizeRows = false;
+            this.dgvGFXInfo.AutoGenerateColumns = false;
+            this.dgvGFXInfo.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvGFXInfo.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvGFXInfo.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.separateDataGridViewCheckBoxColumn,
+            this.sp0DataGridViewTextBoxColumn,
+            this.sp1DataGridViewTextBoxColumn,
+            this.sp2DataGridViewTextBoxColumn,
+            this.sp3DataGridViewTextBoxColumn});
+            this.dgvGFXInfo.DataSource = this.gfxInfoBindingSource;
+            this.dgvGFXInfo.Location = new System.Drawing.Point(489, 299);
+            this.dgvGFXInfo.Name = "dgvGFXInfo";
+            this.dgvGFXInfo.RowHeadersVisible = false;
+            this.dgvGFXInfo.Size = new System.Drawing.Size(180, 109);
+            this.dgvGFXInfo.TabIndex = 23;
+            // 
             // separateDataGridViewCheckBoxColumn
             // 
             this.separateDataGridViewCheckBoxColumn.DataPropertyName = "Separate";
@@ -2164,147 +2277,38 @@
             // sp0DataGridViewTextBoxColumn
             // 
             this.sp0DataGridViewTextBoxColumn.DataPropertyName = "Sp0";
-            dataGridViewCellStyle1.NullValue = "0x7F";
-            this.sp0DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle33.Format = "X02";
+            dataGridViewCellStyle33.NullValue = "7F";
+            this.sp0DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle33;
             this.sp0DataGridViewTextBoxColumn.HeaderText = "Sp0";
             this.sp0DataGridViewTextBoxColumn.Name = "sp0DataGridViewTextBoxColumn";
             // 
             // sp1DataGridViewTextBoxColumn
             // 
             this.sp1DataGridViewTextBoxColumn.DataPropertyName = "Sp1";
-            dataGridViewCellStyle2.NullValue = "0x7F";
-            this.sp1DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle34.Format = "X02";
+            dataGridViewCellStyle34.NullValue = "7F";
+            this.sp1DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle34;
             this.sp1DataGridViewTextBoxColumn.HeaderText = "Sp1";
             this.sp1DataGridViewTextBoxColumn.Name = "sp1DataGridViewTextBoxColumn";
             // 
             // sp2DataGridViewTextBoxColumn
             // 
             this.sp2DataGridViewTextBoxColumn.DataPropertyName = "Sp2";
-            dataGridViewCellStyle3.NullValue = "0x7F";
-            this.sp2DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle35.Format = "X02";
+            dataGridViewCellStyle35.NullValue = "7F";
+            this.sp2DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle35;
             this.sp2DataGridViewTextBoxColumn.HeaderText = "Sp2";
             this.sp2DataGridViewTextBoxColumn.Name = "sp2DataGridViewTextBoxColumn";
             // 
             // sp3DataGridViewTextBoxColumn
             // 
             this.sp3DataGridViewTextBoxColumn.DataPropertyName = "Sp3";
-            dataGridViewCellStyle4.NullValue = "0x7F";
-            this.sp3DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle36.Format = "X02";
+            dataGridViewCellStyle36.NullValue = "7F";
+            this.sp3DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle36;
             this.sp3DataGridViewTextBoxColumn.HeaderText = "Sp3";
             this.sp3DataGridViewTextBoxColumn.Name = "sp3DataGridViewTextBoxColumn";
-            // 
-            // gfxInfoBindingSource
-            // 
-            this.gfxInfoBindingSource.DataSource = typeof(CFG.Map16.GFXInfo);
-            // 
-            // displaySpriteBindingSource
-            // 
-            this.displaySpriteBindingSource.DataSource = typeof(CFG.Map16.DisplaySprite);
-            // 
-            // dsSP4
-            // 
-            this.dsSP4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dsSP4.Location = new System.Drawing.Point(3, 81);
-            this.dsSP4.Name = "dsSP4";
-            this.dsSP4.Size = new System.Drawing.Size(153, 20);
-            this.dsSP4.TabIndex = 3;
-            this.dsSP4.FileLoaded += new System.EventHandler(this.Ds_FileLoaded);
-            // 
-            // dsSP3
-            // 
-            this.dsSP3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dsSP3.Location = new System.Drawing.Point(3, 55);
-            this.dsSP3.Name = "dsSP3";
-            this.dsSP3.Size = new System.Drawing.Size(153, 20);
-            this.dsSP3.TabIndex = 2;
-            this.dsSP3.FileLoaded += new System.EventHandler(this.Ds_FileLoaded);
-            // 
-            // dsSP2
-            // 
-            this.dsSP2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dsSP2.Location = new System.Drawing.Point(3, 29);
-            this.dsSP2.Name = "dsSP2";
-            this.dsSP2.Size = new System.Drawing.Size(153, 20);
-            this.dsSP2.TabIndex = 1;
-            this.dsSP2.FileLoaded += new System.EventHandler(this.Ds_FileLoaded);
-            // 
-            // dsSP1
-            // 
-            this.dsSP1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dsSP1.Location = new System.Drawing.Point(3, 3);
-            this.dsSP1.Name = "dsSP1";
-            this.dsSP1.Size = new System.Drawing.Size(153, 20);
-            this.dsSP1.TabIndex = 0;
-            this.dsSP1.FileLoaded += new System.EventHandler(this.Ds_FileLoaded);
-            // 
-            // map16Editor1
-            // 
-            this.map16Editor1.Location = new System.Drawing.Point(6, 19);
-            this.map16Editor1.Name = "map16Editor1";
-            this.map16Editor1.Size = new System.Drawing.Size(278, 256);
-            this.map16Editor1.TabIndex = 0;
-            // 
-            // spriteEditor1
-            // 
-            this.spriteEditor1.Location = new System.Drawing.Point(6, 19);
-            this.spriteEditor1.Name = "spriteEditor1";
-            this.spriteEditor1.Size = new System.Drawing.Size(176, 176);
-            this.spriteEditor1.TabIndex = 1;
-            // 
-            // dataGridViewTextBoxColumn1
-            // 
-            this.dataGridViewTextBoxColumn1.DataPropertyName = "Name";
-            this.dataGridViewTextBoxColumn1.FillWeight = 175F;
-            this.dataGridViewTextBoxColumn1.HeaderText = "Name";
-            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
-            this.dataGridViewTextBoxColumn1.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            // 
-            // extraBitDataGridViewCheckBoxColumn1
-            // 
-            this.extraBitDataGridViewCheckBoxColumn1.DataPropertyName = "ExtraBit";
-            this.extraBitDataGridViewCheckBoxColumn1.FillWeight = 70F;
-            this.extraBitDataGridViewCheckBoxColumn1.HeaderText = "Extra Bit";
-            this.extraBitDataGridViewCheckBoxColumn1.Name = "extraBitDataGridViewCheckBoxColumn1";
-            // 
-            // extraPropertyByte1DataGridViewTextBoxColumn
-            // 
-            this.extraPropertyByte1DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte1";
-            dataGridViewCellStyle5.Format = "X2";
-            this.extraPropertyByte1DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle5;
-            this.extraPropertyByte1DataGridViewTextBoxColumn.FillWeight = 50F;
-            this.extraPropertyByte1DataGridViewTextBoxColumn.HeaderText = "Ex1";
-            this.extraPropertyByte1DataGridViewTextBoxColumn.Name = "extraPropertyByte1DataGridViewTextBoxColumn";
-            // 
-            // extraPropertyByte2DataGridViewTextBoxColumn
-            // 
-            this.extraPropertyByte2DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte2";
-            dataGridViewCellStyle6.Format = "X2";
-            this.extraPropertyByte2DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle6;
-            this.extraPropertyByte2DataGridViewTextBoxColumn.FillWeight = 50F;
-            this.extraPropertyByte2DataGridViewTextBoxColumn.HeaderText = "Ex2";
-            this.extraPropertyByte2DataGridViewTextBoxColumn.Name = "extraPropertyByte2DataGridViewTextBoxColumn";
-            // 
-            // extraPropertyByte3DataGridViewTextBoxColumn
-            // 
-            this.extraPropertyByte3DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte3";
-            dataGridViewCellStyle7.Format = "X2";
-            this.extraPropertyByte3DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle7;
-            this.extraPropertyByte3DataGridViewTextBoxColumn.FillWeight = 50F;
-            this.extraPropertyByte3DataGridViewTextBoxColumn.HeaderText = "Ex3";
-            this.extraPropertyByte3DataGridViewTextBoxColumn.Name = "extraPropertyByte3DataGridViewTextBoxColumn";
-            // 
-            // extraPropertyByte4DataGridViewTextBoxColumn
-            // 
-            this.extraPropertyByte4DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte4";
-            dataGridViewCellStyle8.Format = "X2";
-            this.extraPropertyByte4DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle8;
-            this.extraPropertyByte4DataGridViewTextBoxColumn.FillWeight = 50F;
-            this.extraPropertyByte4DataGridViewTextBoxColumn.HeaderText = "Ex4";
-            this.extraPropertyByte4DataGridViewTextBoxColumn.Name = "extraPropertyByte4DataGridViewTextBoxColumn";
-            // 
-            // collectionSpriteBindingSource
-            // 
-            this.collectionSpriteBindingSource.DataSource = typeof(CFG.CollectionSprite);
             // 
             // ExtraBit
             // 
@@ -2337,6 +2341,8 @@
             this.MaximizeBox = false;
             this.Name = "CFG_Editor";
             this.Text = "CFG Editor";
+            ((System.ComponentModel.ISupportInitialize)(this.dgvDisplay)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.displaySpriteBindingSource)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.tpgDefault.ResumeLayout(false);
@@ -2370,8 +2376,7 @@
             this.grp_190F.PerformLayout();
             this.tabControl1.ResumeLayout(false);
             this.tpgLm.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvGFXInfo)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvDisplay)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gfxInfoBindingSource)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
@@ -2390,11 +2395,10 @@
             this.tpgList.ResumeLayout(false);
             this.groupBox6.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvList)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.collectionSpriteBindingSource)).EndInit();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.gfxInfoBindingSource)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.displaySpriteBindingSource)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.collectionSpriteBindingSource)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvGFXInfo)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -2495,7 +2499,6 @@
         private System.Windows.Forms.CheckBox chbUseText;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.RichTextBox rtbDesc;
-        private System.Windows.Forms.DataGridView dgvDisplay;
         private System.Windows.Forms.BindingSource displaySpriteBindingSource;
         private System.Windows.Forms.NumericUpDown nudX;
         private System.Windows.Forms.Label label6;
@@ -2589,8 +2592,9 @@
         private System.Windows.Forms.Button btnGFXRemove;
         private System.Windows.Forms.Button btnGFXClone;
         private System.Windows.Forms.Button btnGFXNew;
-        private System.Windows.Forms.DataGridView dgvGFXInfo;
         private System.Windows.Forms.BindingSource gfxInfoBindingSource;
+        private System.Windows.Forms.DataGridView dgvDisplay;
+        private System.Windows.Forms.DataGridView dgvGFXInfo;
         private System.Windows.Forms.DataGridViewCheckBoxColumn separateDataGridViewCheckBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn sp0DataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn sp1DataGridViewTextBoxColumn;
