@@ -26,3 +26,5 @@ make_modern.bat
 pixi
 build
 .idea
+.vs
+CMakeSettings.json
