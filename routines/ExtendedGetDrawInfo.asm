@@ -6,30 +6,32 @@
     TAY
    
 ?.noIndex
-    LDA $1747|!Base2,x
+    LDA !extended_x_speed,x
     AND #$80
     EOR #$80
     LSR
     STA $00
-    LDA $171F|!Base2,x
+    LDA !extended_x_low,x
     SEC
     SBC $1A
     STA $01
-    LDA $1733|!Base2,x
+    LDA !extended_x_high,x
     SBC $1B
     BNE ?.erasespr
-    LDA $1715|!Base2,x
+    LDA !extended_y_low,x
     SEC
     SBC $1C
     STA $02
-    LDA $1729|!Base2,x
-    ADC $1D
-    BEQ ?.neg
+    LDA !extended_y_high,x
+    SBC $1D
+    BNE ?.vert_offscreen
     LDA $02
     CMP #$F0
     BCS ?.erasespr
     RTL
-?.neg
+?.vert_offscreen
+    CMP #$FF
+    BNE ?.erasespr ; erase: not within 1 screen above top of screen
     LDA $02
     CMP #$C0
     BCC ?.erasespr
@@ -37,7 +39,7 @@
     BCC ?.hidespr
     RTL
 ?.erasespr
-    STZ $170B|!Base2,x    ; delete sprite.
+    STZ !extended_num,x    ; delete sprite.
 ?.hidespr
     LDA #$F0    ; prevent OAM flicker
     STA $02

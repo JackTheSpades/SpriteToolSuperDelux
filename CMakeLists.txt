@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(pixi VERSION 1.32)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CURRENT_SOURCE_DIR "src")
 set(PIXI_SOURCE_FILES "")
@@ -60,7 +60,7 @@ else()
     set(CMAKE_GENERATOR "Visual Studio 16 2019")
     target_link_options(pixi PRIVATE /INCREMENTAL:NO /NODEFAULTLIB:MSVCRT)
     message(STATUS "MSVC detected, adding compile flags")
-    target_compile_options(pixi PRIVATE /MT /Wall /std:c++17)
+    target_compile_options(pixi PRIVATE /MT /Wall /std:c++20)
     target_compile_options(pixi PRIVATE
             # generic & extremely noisy warnings which do (almost) nothing useful
             # not to say that most come from code which I have no control over

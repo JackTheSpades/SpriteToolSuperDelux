@@ -55,7 +55,7 @@ macro CallExtCape(label)
 
 	BNE ?runCustom
 	PLY : PLX
-	LDA $170B|!addr,x
+	LDA !extended_num,x
 	JML $02963D|!BankB	 ; if custom but without pointer, run vanilla code for backwards compatibility (it will have the old bug but eh)
 	?runCustom
 

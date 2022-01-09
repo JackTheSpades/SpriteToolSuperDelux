@@ -6,23 +6,23 @@ OAMPtr:	db $90,$94,$98,$9C,$A0,$A4,$A8,$AC
 ExtGetDrawInfo2:
 	LDY.w OAMPtr,x
 ExtGetDraw2_NoIndex:
-	LDA $1747|!addr,x
+	LDA !extended_x_speed,x
 	AND #$80
 	EOR #$80
 	LSR
 	STA $00
-	LDA $171F|!addr,x
+	LDA !extended_x_low,x
 	SEC
 	SBC $1A
 	STA $01
-	LDA $1733|!addr,x
+	LDA !extended_x_high,x
 	SBC $1B
 	BNE .erasespr
-+	LDA $1715|!addr,x
++	LDA !extended_y_low,x
 	SEC
 	SBC $1C
 	STA $02
-	LDA $1729|!addr,x
+	LDA !extended_y_high,x
 	ADC $1D
 	BEQ .neg
 	LDA $02
@@ -36,7 +36,7 @@ ExtGetDraw2_NoIndex:
 	BCC .hidespr
 	RTS
 .erasespr
-	STZ $170B|!addr,x	; delete sprite.
+	STZ !extended_num,x	; delete sprite.
 .hidespr
 	LDA #$F0	; prevent OAM flicker
 	STA $02
@@ -44,12 +44,12 @@ ExtGetDraw2_NoIndex:
 
 ;; sprite x + y speed handler; has gravity.
 SpriteSpd:
-	LDA $173D|!base2,x
+	LDA !extended_y_speed,x
 	CMP #$40
 	BPL SpriteSpdNoGravity
 	CLC
 	ADC #$03
-	STA $173D|!base2,x
+	STA !extended_y_speed,x
 
 ;; sprite x + y speed handler; no gravity.
 SpriteSpdNoGravity:
@@ -60,7 +60,7 @@ SpriteXSpd:
 	PHK
 	PEA.w .donex-1
 	PEA.w $B889-1
-	JML $02B554|!base3
+	JML $02B554|!bank
 .donex	RTS
 
 ;; original sprite y speed handler.
@@ -68,38 +68,38 @@ SpriteYSpd:
 	PHK
 	PEA.w .doney-1
 	PEA.w $B889-1
-	JML $02B560|!base3
+	JML $02B560|!bank
 .doney	RTS
 
 ;; extended sprite -> mario interaction.
 Hit_Mario:
-	LDA $171F|!addr,x
+	LDA !extended_x_low,x
 	CLC
 	ADC #$03
 	STA $04
-	LDA $1733|!addr,x
+	LDA !extended_x_high,x
 	ADC #$00
 	STA $0A
 	LDA #$0A
 	STA $06
 	STA $07
-	LDA $1715|!addr,x
+	LDA !extended_y_low,x
 	CLC
 	ADC #$03
 	STA $05
-	LDA $1729|!addr,x
+	LDA !extended_y_high,x
 	ADC #$00
 	STA $0B
 	JSL $03B664|!bank
 	JSL $03B72B|!bank
 	BCC .hitmar
 	PHB
-	LDA.b #($02|!bank>>16)
+	LDA.b #$02|!bank8
 	PHA
 	PLB
 	PHK
 	PEA.w .retur-1
 	PEA.w $B889-1
-	JML $02A469|!base3
+	JML $02A469|!bank
 .retur	PLB 
 .hitmar	RTS

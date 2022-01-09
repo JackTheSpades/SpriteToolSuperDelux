@@ -11,19 +11,19 @@ Hammer:
 	BNE SubGfx
 	%Speed()
 	%ExtendedHurt()
-	LDA $1779|!Base2,x
-	LDY $1747|!Base2,x
+	LDA !extended_behind,x
+	LDY !extended_x_speed,x
 	BPL +
 	DEC
 	DEC
 +	INC
-	STA $1779|!Base2,x
+	STA !extended_behind,x
 
 SubGfx:
 
    %ExtendedGetDrawInfo()
 
-	LDA $1779|!Base2,x	; frame is indicated by $1779,x
+	LDA !extended_behind,x	; frame is indicated by $1779,x
 	LSR : LSR
 	AND #$07
 	phx

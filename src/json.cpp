@@ -12,17 +12,6 @@
 
 using json = nlohmann::json;
 
-// string clone.
-// takes a c-string and returns a point to a new one. Needs to be deleted manually.
-char *strcln(const char *str) {
-    char *ret = new char[strlen(str) + 1];
-    strcpy(ret, str);
-    return ret;
-}
-char *strcln(std::string const &str) {
-    return strcln(str.c_str());
-}
-
 bool read_json_file(sprite *spr, FILE *output) {
 
     json j;
@@ -74,37 +63,33 @@ bool read_json_file(sprite *spr, FILE *output) {
         spr->table.tweak[5] = j190f(j);
 
         std::string decoded = base64_decode(j.at("Map16"));
-        spr->map_block_count = decoded.size() / sizeof(map16);
-        spr->map_data = (map16 *)malloc(sizeof(map16) * spr->map_block_count);
-        memcpy(spr->map_data, decoded.c_str(), spr->map_block_count * sizeof(map16));
+        size_t map_block_count = decoded.size() / sizeof(map16);
+        spr->map_data.resize(map_block_count);
+        memcpy(spr->map_data.data(), decoded.c_str(), map_block_count * sizeof(map16));
         // displays
-        spr->display_count = j.at("Displays").size();
-        spr->displays = new display[spr->display_count];
+        spr->displays.resize(j.at("Displays").size());
         int counter = 0;
         for (auto jdisplay : j.at("Displays")) {
-            display *dis = spr->displays + counter;
+            auto &dis = spr->displays[counter];
 
-            dis->description = strcln(jdisplay.at("Description"));
+            dis.description = jdisplay.at("Description").get<std::string>();
 
-            dis->x = jdisplay.at("X");
-            dis->y = jdisplay.at("Y");
-            dis->x = std::clamp(dis->x, 0, 0x0F);
-            dis->y = std::clamp(dis->y, 0, 0x0F);
-            dis->extra_bit = jdisplay.at("ExtraBit");
+            dis.x = jdisplay.at("X");
+            dis.y = jdisplay.at("Y");
+            dis.x = std::clamp(dis.x, 0, 0x0F);
+            dis.y = std::clamp(dis.y, 0, 0x0F);
+            dis.extra_bit = jdisplay.at("ExtraBit");
 
             if (jdisplay.at("UseText")) {
-                dis->tile_count = 1;
-                dis->tiles = new tile[1];
-                dis->tiles->text = strcln(jdisplay.at("DisplayText"));
+                dis.tiles.push_back({0, 0, 0, jdisplay.at("DisplayText")});
             } else {
-                dis->tile_count = jdisplay.at("Tiles").size();
-                dis->tiles = new tile[dis->tile_count];
+                dis.tiles.resize(jdisplay.at("Tiles").size());
                 int counter2 = 0;
                 for (auto jtile : jdisplay.at("Tiles")) {
-                    tile *til = dis->tiles + counter2;
-                    til->x_offset = jtile.at("X offset");
-                    til->y_offset = jtile.at("Y offset");
-                    til->tile_number = jtile.at("map16 tile");
+                    auto& til = dis.tiles[counter2];
+                    til.x_offset = jtile.at("X offset");
+                    til.y_offset = jtile.at("Y offset");
+                    til.tile_number = jtile.at("map16 tile");
                     counter2++;
                 }
             }
@@ -113,22 +98,21 @@ bool read_json_file(sprite *spr, FILE *output) {
 
         // collections
         counter = 0;
-        spr->collection_count = j.at("Collection").size();
-        spr->collections = new collection[spr->collection_count];
+        spr->collections.reserve(j.at("Collection").size());
         for (auto jCollection : j.at("Collection")) {
-            collection *col = spr->collections + counter;
-            col->name = strcln(jCollection.at("Name"));
-            col->extra_bit = jCollection.at("ExtraBit");
-            for (int i = 1; i <= (col->extra_bit ? spr->extra_byte_count : spr->byte_count); i++) {
+            auto& col = spr->collections.emplace_back();
+            col.name = jCollection.at("Name").get<std::string>();
+            col.extra_bit = jCollection.at("ExtraBit");
+            for (int i = 1; i <= (col.extra_bit ? spr->extra_byte_count : spr->byte_count); i++) {
                 try {
-                    col->prop[i - 1] = jCollection.at("Extra Property Byte " + std::to_string(i));
+                    col.prop[i - 1] = jCollection.at("Extra Property Byte " + std::to_string(i));
                 } catch (const std::out_of_range &) {
-                    col->prop[i - 1] = 0;
+                    col.prop[i - 1] = 0;
                     // if it's not specified in the json just set it at 0, who cares anyway, just add a warning
                     warnings.push_back("Your json file \"" +
                                        std::filesystem::path(spr->cfg_file).filename().generic_string() +
                                        "\" is missing a definition for Extra Property Byte " + std::to_string(i) +
-                                       " at collection \"" + col->name + "\"");
+                                       " at collection \"" + col.name + "\"");
                 }
             }
             counter++;

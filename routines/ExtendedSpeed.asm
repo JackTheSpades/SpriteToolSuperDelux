@@ -14,12 +14,12 @@
 
 ;; sprite x + y speed handler; has gravity.
 ?.SpriteSpd
-    LDA $173D|!Base2,x
+    LDA !extended_y_speed,x
     CMP #$40
     BPL ?.SpriteSpdNoGravity
     CLC
     ADC #$03
-    STA $173D|!Base2,x
+    STA !extended_y_speed,x
 
 ;; sprite x + y speed handler; no gravity.
 ?.SpriteSpdNoGravity
