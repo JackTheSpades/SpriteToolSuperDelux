@@ -1,14 +1,6 @@
-; Routine that changes the map16 tile of a block from inside of a bounce sprite.
-; You'd be better using %InvisibleMap16() and %RevertMap16() instead of this routine.
-;
-; Input: 
-;   A = Map16 to change into ($9C)
-;
-; Output:
-;   N/A
+;# Setups the required information for spawning a Map16 tile from a bounce sprite.
 
 ?main:
-    sta $9C
     lda !bounce_y_low,x
     clc
     adc #$08
@@ -30,7 +22,4 @@
     rol
     and #$01
     sta $1933|!addr
-    phx
-    jsl $00BEB0|!BankB
-    plx
     rtl

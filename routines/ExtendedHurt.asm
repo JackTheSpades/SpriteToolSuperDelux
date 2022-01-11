@@ -22,7 +22,7 @@
     JSL $03B72B|!BankB
     BCC ?.skip
     PHB
-    LDA.b #$02|!Bank8
+    LDA.b #($02|!BankB>>16)
     PHA
     PLB
     PHK
