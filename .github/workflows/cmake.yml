@@ -43,6 +43,13 @@ jobs:
         name: pixi
         path: ${{github.workspace}}/build/pixi
       if: matrix.os == 'ubuntu-latest'
+
+    - name: Upload
+      uses: actions/upload-artifact@v2
+      with:
+        name: pixi
+        path: ${{github.workspace}}/build/pixi
+      if: matrix.os == 'macos-latest'
     
     - name: Setup python
       uses: actions/setup-python@v2
