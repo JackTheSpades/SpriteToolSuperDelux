@@ -32,7 +32,7 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/config.h"
 )
 add_executable(pixi ${PIXI_SOURCE_FILES})
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" or CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if (WIN32)
         message(STATUS "Windows build")
         if (CMAKE_BUILD_TYPE STREQUAL "Debug")  # if debug mode, don't add -s and --gc-sections
