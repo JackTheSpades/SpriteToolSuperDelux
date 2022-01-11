@@ -32,7 +32,7 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/config.h"
 )
 add_executable(pixi ${PIXI_SOURCE_FILES})
-if (CMAKE_COMPILER_IS_GNUCXX)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" or CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if (WIN32)
         message(STATUS "Windows build")
         if (CMAKE_BUILD_TYPE STREQUAL "Debug")  # if debug mode, don't add -s and --gc-sections
@@ -64,7 +64,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
         target_link_libraries(pixi PRIVATE dl)
         target_compile_options(pixi PRIVATE -Wall -Wextra -Wpedantic)
     endif() 
-    message(STATUS "GCC detected, adding compile flags")
+    message(STATUS "GCC/Clang detected, adding compile flags")
 else()
     set(CMAKE_GENERATOR "Visual Studio 16 2019")
     target_link_options(pixi PRIVATE /INCREMENTAL:NO /NODEFAULTLIB:MSVCRT)
