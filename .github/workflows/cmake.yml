@@ -47,7 +47,7 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v2
       with:
-        name: pixi
+        name: pixi_macos
         path: ${{github.workspace}}/build/pixi
       if: matrix.os == 'macos-latest'
     
