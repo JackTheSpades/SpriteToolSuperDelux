@@ -40,7 +40,7 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v2
       with:
-        name: pixi
+        name: pixi_ubuntu
         path: ${{github.workspace}}/build/pixi
       if: matrix.os == 'ubuntu-latest'
 
