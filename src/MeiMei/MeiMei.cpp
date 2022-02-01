@@ -1,11 +1,10 @@
 
+#include <cstdio>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <cstdio>
 #include <string>
-
 
 #include "MeiMei.h"
 
@@ -60,7 +59,7 @@ string escapeDefines(const string &path) {
     return ss.str();
 }
 
-void MeiMei::configureSa1Def(const string& pathToSa1Def) {
+void MeiMei::configureSa1Def(const string &pathToSa1Def) {
     string escapedPath = escapeDefines(pathToSa1Def);
     MeiMei::sa1DefPath = escapedPath;
 }
@@ -147,12 +146,9 @@ int MeiMei::run(ROM &rom) {
     }
 
     if (changeEx || MeiMei::always) {
-        uchar sprAllData[SPR_ADDR_LIMIT];
+        uchar sprAllData[SPR_ADDR_LIMIT]{};
         uchar sprCommonData[3];
-        bool remapped[0x0200];
-        for (int i = 0; i < 0x0200; i++) {
-            remapped[i] = false;
-        }
+        bool remapped[0x0200]{};
 
         for (int lv = 0; lv < 0x200; lv++) {
             if (remapped[lv])
@@ -238,12 +234,8 @@ int MeiMei::run(ROM &rom) {
                 binaryFileName.append(levelAsHex);
                 binaryFileName.append(".bin");
                 std::ofstream binFile(binaryFileName, ios::out | ios::binary);
-
-                if (sprAllData != nullptr) {
-                    uchar *dataPtr = (uchar *)sprAllData;
-                    for (int ara = 0; ara <= nowOfs; ara++) {
-                        binFile << dataPtr[ara];
-                    }
+                for (int ara = 0; ara <= nowOfs; ara++) {
+                    binFile << sprAllData[ara];
                 }
                 binFile.close();
 
