@@ -34,21 +34,27 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: pixi
-        path: ${{github.workspace}}/build/Release/pixi.exe
+        path: |
+          ${{github.workspace}}/build/Release/pixi.exe
+          ${{github.workspace}}/build/Release/pixi_api.dll
       if: matrix.os == 'windows-latest'
     
     - name: Upload
       uses: actions/upload-artifact@v2
       with:
         name: pixi_ubuntu
-        path: ${{github.workspace}}/build/pixi
+        path: |
+          ${{github.workspace}}/build/pixi
+          ${{github.workspace}}/build/libpixi_api.so
       if: matrix.os == 'ubuntu-latest'
 
     - name: Upload
       uses: actions/upload-artifact@v2
       with:
         name: pixi_macos
-        path: ${{github.workspace}}/build/pixi
+        path: |
+          ${{github.workspace}}/build/pixi
+          ${{github.workspace}}/build/libpixi_api.dylib
       if: matrix.os == 'macos-latest'
     
     - name: Setup python

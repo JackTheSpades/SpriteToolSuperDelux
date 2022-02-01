@@ -76,9 +76,9 @@ void clean_sprite_generic(FILE *clean_patch, int table_address, int original_val
         }
 }
 
-template <size_t COUNT> void write_sprite_generic(sprite *list, const char *filename) {
+template <size_t COUNT> void write_sprite_generic(sprite (&list)[COUNT], const char *filename) {
     constexpr auto ASM = FromEnum(PathType::Asm);
-    unsigned char file[COUNT * 3];
+    unsigned char file[COUNT * 3]{};
     for (size_t i = 0; i < COUNT; i++)
         memcpy(file + (i * 3), &list[i].table.main, 3);
     write_all(file, cfg.m_Paths[ASM], filename, COUNT * 3);
@@ -857,17 +857,38 @@ void remove(std::string_view dir, const char *file) {
     delete[] path;
 }
 
-int main(int argc, char *argv[]) {
+#ifdef DLL_BUILD
+#ifdef _WIN32
+#define EXPORT extern "C" __declspec(dllexport)
+#else
+#define EXPORT extern "C" __attribute__((visibility("default")))
+#endif
+#else
+#define EXPORT
+#endif
+
+EXPORT int pixi_run(int argc, char **argv, const char* stdin_name, const char* stdout_name) {
+
+    if (stdin_name) {
+        if (!freopen(stdin_name, "r", stdin))
+            return EXIT_FAILURE;
+    }
+
+    if (stdout_name) {
+        if (!freopen(stdout_name, "w", stdout))
+            return EXIT_FAILURE;
+    }
+
     ROM rom;
     // individual lists containing the sprites for the specific sections
-    sprite *sprite_list = new sprite[MAX_SPRITE_COUNT];
-    sprite *cluster_list = new sprite[SPRITE_COUNT];
-    sprite *extended_list = new sprite[SPRITE_COUNT];
-    sprite *minor_extended_list = new sprite[LESS_SPRITE_COUNT];
-    sprite *bounce_list = new sprite[LESS_SPRITE_COUNT];
-    sprite *smoke_list = new sprite[LESS_SPRITE_COUNT];
-    sprite *spinningcoin_list = new sprite[MINOR_SPRITE_COUNT];
-    sprite *score_list = new sprite[MINOR_SPRITE_COUNT];
+    static sprite sprite_list[MAX_SPRITE_COUNT];
+    static sprite cluster_list[SPRITE_COUNT];
+    static sprite extended_list[SPRITE_COUNT];
+    static sprite minor_extended_list[LESS_SPRITE_COUNT];
+    static sprite bounce_list[LESS_SPRITE_COUNT];
+    static sprite smoke_list[LESS_SPRITE_COUNT];
+    static sprite spinningcoin_list[MINOR_SPRITE_COUNT];
+    static sprite score_list[MINOR_SPRITE_COUNT];
 
     // the list containing the lists...
     std::array<sprite *, FromEnum(ListType::__SIZE__)> sprites_list_list{{sprite_list, extended_list, cluster_list,
@@ -883,7 +904,7 @@ int main(int argc, char *argv[]) {
     unsigned char versionflag[4] = {VERSION, 0x00, 0x00, 0x00};
 
     // map16 for sprite displays
-    map16 *map = new map16[MAP16_SIZE];
+    static map16 map[MAP16_SIZE];
 
     if (argc < 2) {
         atexit(double_click_exit);
@@ -1148,7 +1169,7 @@ int main(int argc, char *argv[]) {
 
     int normal_sprites_size = cfg.PerLevel ? MAX_SPRITE_COUNT : 0x100;
     patch_sprites(extraDefines, sprite_list, normal_sprites_size, rom, cfg.m_Debug.output);
-    for (auto [type, size] : sprite_sizes) {
+    for (const auto &[type, size] : sprite_sizes) {
         patch_sprites(extraDefines, sprites_list_list[FromEnum(type)], static_cast<int>(size), rom, cfg.m_Debug.output);
     }
 
@@ -1200,21 +1221,21 @@ int main(int argc, char *argv[]) {
     } else {
         write_long_table(sprite_list, cfg.m_Paths[ASM], "_DefaultTables.bin", 0x100);
     }
-    unsigned char customstatusptrs[0x100 * 15];
+    unsigned char customstatusptrs[0x100 * 15]{};
     for (int i = 0, j = cfg.PerLevel ? 0x2000 : 0; i < 0x100 * 5; i += 5, j++) {
         memcpy(customstatusptrs + (i * 3), &sprite_list[j].ptrs, 15);
     }
     write_all(customstatusptrs, cfg.m_Paths[ASM], "_CustomStatusPtr.bin", 0x100 * 15);
 
-    write_sprite_generic<SPRITE_COUNT>(cluster_list, "_ClusterPtr.bin");
-    write_sprite_generic<SPRITE_COUNT>(extended_list, "_ExtendedPtr.bin");
-    write_sprite_generic<LESS_SPRITE_COUNT>(minor_extended_list, "_MinorExtendedPtr.bin");
-    write_sprite_generic<LESS_SPRITE_COUNT>(smoke_list, "_SmokePtr.bin");
-    write_sprite_generic<LESS_SPRITE_COUNT>(bounce_list, "_BouncePtr.bin");
-    write_sprite_generic<MINOR_SPRITE_COUNT>(spinningcoin_list, "_SpinningCoinPtr.bin");
-    write_sprite_generic<MINOR_SPRITE_COUNT>(score_list, "_ScorePtr.bin");
+    write_sprite_generic(cluster_list, "_ClusterPtr.bin");
+    write_sprite_generic(extended_list, "_ExtendedPtr.bin");
+    write_sprite_generic(minor_extended_list, "_MinorExtendedPtr.bin");
+    write_sprite_generic(smoke_list, "_SmokePtr.bin");
+    write_sprite_generic(bounce_list, "_BouncePtr.bin");
+    write_sprite_generic(spinningcoin_list, "_SpinningCoinPtr.bin");
+    write_sprite_generic(score_list, "_ScorePtr.bin");
 
-    uint8_t file[SPRITE_COUNT * 3];
+    uint8_t file[SPRITE_COUNT * 3]{};
     for (size_t i = 0; i < SPRITE_COUNT; i++)
         memcpy(file + (i * 3), &extended_list[i].extended_cape_ptr, 3);
     write_all(file, cfg.m_Paths[ASM], "_ExtendedCapePtr.bin", SPRITE_COUNT * 3);
@@ -1232,7 +1253,7 @@ int main(int argc, char *argv[]) {
 
     // extra byte size file
     // plus data for .ssc, .mwt, .mw2 files
-    unsigned char extra_bytes[0x200];
+    unsigned char extra_bytes[0x200]{};
 
 #ifdef ON_WINDOWS
 #define NUL_FILE "nul"
@@ -1466,9 +1487,6 @@ int main(int argc, char *argv[]) {
         PostMessage(window_handle, 0xBECB, 0, IParam);
     }
 #endif
-    for (sprite *ptr : sprites_list_list) {
-        delete[] ptr;
-    }
-    delete[] map;
     return retval;
 }
+
