@@ -84,7 +84,7 @@ void clean_sprite_generic(FILE *clean_patch, int table_address, int original_val
         }
 }
 
-template <size_t COUNT> bool write_sprite_generic(sprite (&list)[COUNT], const char *filename) {
+template <size_t COUNT> [[nodiscard]] bool write_sprite_generic(sprite (&list)[COUNT], const char *filename) {
     constexpr auto ASM = FromEnum(PathType::Asm);
     unsigned char file[COUNT * 3]{};
     for (size_t i = 0; i < COUNT; i++)
@@ -105,7 +105,7 @@ template <typename T> T *from_table(T *table, int level, int number) {
     return nullptr;
 }
 
-bool patch(const char *patch_name_rel, ROM &rom) {
+[[nodiscard]] bool patch(const char *patch_name_rel, ROM &rom) {
     std::string patch_path{patch_name_rel}; //  = std::filesystem::absolute(patch_name_rel).generic_string();
     // clang-format off
     constexpr struct warnsetting disabled_warnings[] {
@@ -153,7 +153,8 @@ bool patch(const char *patch_name_rel, ROM &rom) {
 #endif
     return true;
 }
-bool patch(std::string_view dir, const char *patch_name, ROM &rom) {
+
+[[nodiscard]] bool patch(std::string_view dir, const char *patch_name, ROM &rom) {
     char *path = new char[dir.length() + strlen(patch_name) + 1];
     path[0] = 0;
     strcat(path, dir.data());
@@ -271,7 +272,8 @@ std::string escapeDefines(std::string_view path, const char *repl = "\\!") {
     fprintf(sprite_patch, "namespace nested off\n");
     fclose(sprite_patch);
 
-    patch(TEMP_SPR_FILE, rom);
+    if (!patch(TEMP_SPR_FILE, rom))
+        return false;
     std::map<std::string, int> ptr_map = {
         std::pair<std::string, int>("init", 0x018021),      std::pair<std::string, int>("main", 0x018021),
         std::pair<std::string, int>("cape", 0x000000),      std::pair<std::string, int>("mouth", 0x000000),
@@ -367,7 +369,8 @@ std::string escapeDefines(std::string_view path, const char *repl = "\\!") {
     return true;
 }
 
-bool patch_sprites(std::vector<std::string> &extraDefines, sprite *sprite_list, int size, ROM &rom, FILE *output) {
+[[nodiscard]] bool patch_sprites(std::vector<std::string> &extraDefines, sprite *sprite_list, int size, ROM &rom,
+                                 FILE *output) {
     for (int i = 0; i < size; i++) {
         sprite *spr = sprite_list + i;
         if (!spr->asm_file)
@@ -551,10 +554,12 @@ bool patch_sprites(std::vector<std::string> &extraDefines, sprite *sprite_list, 
 
         // everything else is being cleaned by the main patch itself.
         fclose(clean_patch);
-        patch(path.c_str(), rom);
+        if (!patch(path.c_str(), rom))
+            return false;
     } else if (!strncmp((char *)rom.data + rom.snes_to_pc(rom.pointer_snes(0x02A963 + 1).addr() - 3), "MDK",
                         3)) { // check for old sprite_tool code. (this is annoying)
-        patch((std::string(pathname) + "spritetool_clean.asm").c_str(), rom);
+        if (!patch((std::string(pathname) + "spritetool_clean.asm").c_str(), rom))
+            return false;
         // removes all STAR####MDK tags
         const char *mdk = "MDK"; // sprite tool added "MDK" after the rats tag to find it's insertions...
         int number_of_banks = rom.size / 0x8000;
@@ -890,13 +895,13 @@ std::vector<std::string> listExtraAsm(const std::string &path, bool &has_error) 
     if (is_empty_table(spr, size)) {
         if (!write_all(dummy, dir, filename, 0x10)) {
             return false;
-        } else {
-            for (int i = 0; i < size; i++) {
-                memcpy(file + (i * 0x10), &spr[i].table, 0x10);
-            }
-            if (!write_all(file, dir, filename, size * 0x10))
-                return false;
         }
+    } else {
+        for (int i = 0; i < size; i++) {
+            memcpy(file + (i * 0x10), &spr[i].table, 0x10);
+        }
+        if (!write_all(file, dir, filename, size * 0x10))
+            return false;
     }
     delete[] file;
     return true;
@@ -1277,9 +1282,12 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
         return EXIT_FAILURE;
 
     int normal_sprites_size = cfg.PerLevel ? MAX_SPRITE_COUNT : 0x100;
-    patch_sprites(extraDefines, sprite_list, normal_sprites_size, rom, cfg.m_Debug.output);
+    if (!patch_sprites(extraDefines, sprite_list, normal_sprites_size, rom, cfg.m_Debug.output))
+        return EXIT_FAILURE;
     for (const auto &[type, size] : sprite_sizes) {
-        patch_sprites(extraDefines, sprites_list_list[FromEnum(type)], static_cast<int>(size), rom, cfg.m_Debug.output);
+        if (!patch_sprites(extraDefines, sprites_list_list[FromEnum(type)], static_cast<int>(size), rom,
+                           cfg.m_Debug.output))
+            return EXIT_FAILURE;
     }
 
     if (!warnings.empty() && cfg.Warnings) {
@@ -1540,14 +1548,22 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
     fclose(mw2);
 
     // apply the actual patches
-    patch(cfg.m_Paths[ASM], "main.asm", rom);
-    patch(cfg.m_Paths[ASM], "cluster.asm", rom);
-    patch(cfg.m_Paths[ASM], "extended.asm", rom);
-    patch(cfg.m_Paths[ASM], "minorextended.asm", rom);
-    patch(cfg.m_Paths[ASM], "bounce.asm", rom);
-    patch(cfg.m_Paths[ASM], "smoke.asm", rom);
-    patch(cfg.m_Paths[ASM], "spinningcoin.asm", rom);
-    patch(cfg.m_Paths[ASM], "score.asm", rom);
+    if (!patch(cfg.m_Paths[ASM], "main.asm", rom))
+        return EXIT_FAILURE;
+    if (!patch(cfg.m_Paths[ASM], "cluster.asm", rom))
+        return EXIT_FAILURE;
+    if (!patch(cfg.m_Paths[ASM], "extended.asm", rom))
+        return EXIT_FAILURE;
+    if (!patch(cfg.m_Paths[ASM], "minorextended.asm", rom))
+        return EXIT_FAILURE;
+    if (!patch(cfg.m_Paths[ASM], "bounce.asm", rom))
+        return EXIT_FAILURE;
+    if (!patch(cfg.m_Paths[ASM], "smoke.asm", rom))
+        return EXIT_FAILURE;
+    if (!patch(cfg.m_Paths[ASM], "spinningcoin.asm", rom))
+        return EXIT_FAILURE;
+    if (!patch(cfg.m_Paths[ASM], "score.asm", rom))
+        return EXIT_FAILURE;
 
     std::vector<std::string> extraHijacks = listExtraAsm(cfg.AsmDirPath + "/ExtraHijacks", failed);
     if (failed)
@@ -1557,7 +1573,7 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
         cfg.m_Debug.dprintf("-------- ExtraHijacks prints --------\n", "");
     }
     for (std::string patchUri : extraHijacks) {
-        patch(patchUri.c_str(), rom);
+        if (!patch(patchUri.c_str(), rom)) return EXIT_FAILURE;
         if (cfg.m_Debug.output) {
             auto prints = asar_getprints(&count_extra_prints);
             for (int i = 0; i < count_extra_prints; i++) {
