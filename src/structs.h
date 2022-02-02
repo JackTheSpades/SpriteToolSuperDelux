@@ -136,7 +136,7 @@ struct ROM {
     int header_size;
     MapperType mapper;
 
-    void open(const char *n);
+    [[nodiscard]] bool open(const char *n);
     void close();
 
     int pc_to_snes(int address, bool header = true);

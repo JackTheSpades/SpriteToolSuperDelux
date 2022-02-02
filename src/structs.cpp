@@ -8,14 +8,20 @@ const char *BOOL_STR(bool b) {
     return b ? "true" : "false";
 }
 
-void ROM::open(const char *n) {
+bool ROM::open(const char *n) {
     name = new char[strlen(n) + 1]();
     strcpy(name, n);
     FILE *file = ::open(name, "r+b"); // call global open
+    if (file == nullptr) {
+        data = nullptr;
+        return false;
+    }
     size = static_cast<int>(file_size(file));
     header_size = size & 0x7FFF;
     size -= header_size;
     data = read_all(name, false, MAX_ROM_SIZE + header_size);
+    if (data == nullptr)
+        return false;
     fclose(file);
     real_data = data + header_size;
     if (real_data[0x7fd5] == 0x23) {
@@ -27,10 +33,11 @@ void ROM::open(const char *n) {
     } else {
         mapper = MapperType::lorom;
     }
+    return true;
 }
 
 void ROM::close() {
-    write_all(data, name, size + header_size);
+    (void)write_all(data, name, size + header_size);
     delete[] data;
     delete[] name;
     data = nullptr; // assign to nullptr so that when the dtor is called and these already got freed the delete[] is a

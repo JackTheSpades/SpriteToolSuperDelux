@@ -85,7 +85,7 @@ bool MeiMei::patch(const char *patch_name, ROM &rom) {
     return true;
 }
 
-void MeiMei::initialize(const char *rom_name) {
+bool MeiMei::initialize(const char *rom_name) {
     MeiMei::name = std::string(rom_name);
 
     for (int i = 0; i < 0x400; i++) {
@@ -93,16 +93,19 @@ void MeiMei::initialize(const char *rom_name) {
         nowEx[i] = 0x03;
     }
 
-    prev.open(MeiMei::name.c_str());
+    if (!prev.open(MeiMei::name.c_str()))
+        return false;
     if (prev.read_byte(0x07730F) == 0x42) {
         int addr = prev.snes_to_pc(prev.read_long(0x07730C), false);
         prev.read_data(prevEx, 0x0400, addr);
     }
+    return true;
 }
 
 int MeiMei::run() {
     ROM rom;
-    rom.open(MeiMei::name.c_str());
+    if (!rom.open(MeiMei::name.c_str()))
+        return 1;
 
     if (!asar_init()) {
         error("Error: Asar library is missing or couldn't be initialized, please redownload the tool or add the dll.\n",
@@ -126,7 +129,8 @@ int MeiMei::run() {
 
 int MeiMei::run(ROM &rom) {
     ROM now;
-    now.open(MeiMei::name.c_str());
+    if (!now.open(MeiMei::name.c_str()))
+        return 1;
     if (prev.read_byte(0x07730F) == 0x42) {
         int addr = now.snes_to_pc(now.read_long(0x07730C), false);
         now.read_data(nowEx, 0x0400, addr);

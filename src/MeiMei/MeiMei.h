@@ -16,7 +16,7 @@ class MeiMei {
     static int run(ROM &rom);
 
   public:
-    static void initialize(const char *n);
+    [[nodiscard]] static bool initialize(const char *n);
     static int run();
     static void setDebug();
     static void setAlwaysRemap();

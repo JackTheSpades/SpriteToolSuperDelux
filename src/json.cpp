@@ -21,7 +21,7 @@ bool read_json_file(sprite *spr, FILE *output) {
             if (output)
                 fprintf(output, "Json file with name %s wasn't found, exiting\n", spr->cfg_file);
             printf("\"%s\" wasn't found, make sure to have the correct filenames in your list file\n", spr->cfg_file);
-            exit(-1);
+            return false;
         }
         instr >> j;
     } catch (const std::exception &e) {
@@ -34,7 +34,7 @@ bool read_json_file(sprite *spr, FILE *output) {
                    "screenshot of this error: %s\n",
                    spr->cfg_file, e.what());
         }
-        exit(-1);
+        return false;
     }
 
     try {
