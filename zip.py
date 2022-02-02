@@ -103,8 +103,9 @@ with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
         pixizip.write(to_asm_folder(asm_folder_file))
 
     # misc
-    pixizip.write("readme.txt")
-    pixizip.write("changelog.txt")
+    pixizip.write("README.html")
+    pixizip.write("CHANGELOG.html")
+    pixizip.write("CONTRIBUTING.html")
     pixizip.write("removedResources.txt")
 
 print("pixi.zip created")

@@ -41,6 +41,6 @@ For C++ files, the following rules apply:
 
 For C# files, the following rules apply:
 
-- Don't miuse LINQ
+- Don't misuse LINQ
 - Keep the same style as existing code
 - Keep the code as simple as you can and touch it as little as possible

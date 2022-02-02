@@ -8,6 +8,8 @@ Artifacts of each commit can be found [here](https://www.atarismwc.com/pixi_rele
 
 If you're a developer looking to contribute to this project, please see the [contribution guide](CONTRIBUTING.md).
 
+The changelog is available [here](CHANGELOG.md).
+
 ReadMe Contents:
 
 - The List File
@@ -367,39 +369,39 @@ ReadMe Contents:
 - Common Errors
   The vast majority of the time, xkas code will work just fine with Asar, the assembler that PIXI uses exclusively.
 
-      If you do get errors trying to use a sprite that worked fine in the xkas-based SpriteTool, here are some common sources:
+  If you do get errors trying to use a sprite that worked fine in the xkas-based SpriteTool, here are some common sources:
 
-      - JMP (label,x) or JSR (label,x)
-      Asar does not want to guess at the size of these instructions. You will have to append ".w" to the JMP/JSR instruction,
-      to let Asar know that the pointers are 2 bytes in size (or a "word", hence the "w"). This would look like this corrected:
+  - JMP (label,x) or JSR (label,x)
+    Asar does not want to guess at the size of these instructions. You will have to append ".w" to the JMP/JSR instruction,
+    to let Asar know that the pointers are 2 bytes in size (or a "word", hence the "w"). This would look like this corrected:
 
-          `JMP.w (label,x) or JSR.w (label,x)`
+        `JMP.w (label,x) or JSR.w (label,x)`
 
-      - JMP $xxxxxx
-      xkas accepted the JMP $xxxxxx instruction, despite it technically not existing. JMP is intended to jump to addresses in
-      the same bank as the instruction, but $xxxxxx (note the 6 bytes) points at an absolute place in the ROM. To fix this,
-      change it to use the absolute JML command instead, like this:
-      `JML $xxxxxx`
+  - JMP $xxxxxx
+    xkas accepted the JMP $xxxxxx instruction, despite it technically not existing. JMP is intended to jump to addresses in
+    the same bank as the instruction, but $xxxxxx (note the 6 bytes) points at an absolute place in the ROM. To fix this,
+    change it to use the absolute JML command instead, like this:
+    `JML $xxxxxx`
 
-      - Faulty Math or Wrong Register size (inserts fine but crashes in-game)
-      xkas and Asar handle assembler math a little differently. If your sprite assembles fine but ends up crashing, this will
-      often be the fault of them disagreeing on how to read a bit of math. Asar tries to go the logical route while xkas does
-      its own thing.
-      If this happens to you, search for occurences of assembler math (such as LDA #$08+05^$FF or LDA #!define<<(!otherdefine\*8))
-      and specify the register size as before. Usually this means appending ".b" to the instruction (for example
-      LDA.b #!define<<(!otherdefine\*8)), but in other cases it might also be ".w" or ".l". Sometimes the math arguments
-      themselves have to be rewritten too, which might be a little harder.
+  - Faulty Math or Wrong Register size (inserts fine but crashes in-game)
+    xkas and Asar handle assembler math a little differently. If your sprite assembles fine but ends up crashing, this will
+    often be the fault of them disagreeing on how to read a bit of math. Asar tries to go the logical route while xkas does
+    its own thing.
+    If this happens to you, search for occurences of assembler math (such as LDA #$08+05^$FF or LDA #!define<<(!otherdefine\*8))
+    and specify the register size as before. Usually this means appending ".b" to the instruction (for example
+    LDA.b #!define<<(!otherdefine\*8)), but in other cases it might also be ".w" or ".l". Sometimes the math arguments
+    themselves have to be rewritten too, which might be a little harder.
 
-          If you can't figure it out yourself due to lack of ASM knowledge, feel free to ask on the SMWCentral forums.
+        If you can't figure it out yourself due to lack of ASM knowledge, feel free to ask on the SMWCentral forums.
 
-      - incsrc/incbin file not found
-      Romi's sprite_tool handled the insertion of sprites slightly differently than PIXI. That is, it created a copy of the sprite in the main
-      directory of the exe and then patched it, whereas PIXI just creates temp file which references the original sprite.
-      As a result, old sprites that use the incsrc or incbin command had to take the full path to the sprite into accound but PIXI doesn't.
-      Example:
-      ```
-      Romi:
-      	incbin "sprites/data.bin"
-      PIXI:
-      	incbin "data.bin"
-      ```
+  - incsrc/incbin file not found
+    Romi's sprite_tool handled the insertion of sprites slightly differently than PIXI. That is, it created a copy of the sprite in the main
+    directory of the exe and then patched it, whereas PIXI just creates temp file which references the original sprite.
+    As a result, old sprites that use the incsrc or incbin command had to take the full path to the sprite into accound but PIXI doesn't.
+    Example:
+    ```
+    Romi:
+    incbin "sprites/data.bin"
+    PIXI:
+    incbin "data.bin"
+    ```
