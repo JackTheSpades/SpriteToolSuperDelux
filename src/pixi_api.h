@@ -1,7 +1,6 @@
 #pragma once
-#include <stdbool.h>
 
-#ifdef DLL_BUILD
+#ifndef PIXI_EXE_BUILD
 #ifndef _WIN32
 #define pixifunc extern "C"
 #else

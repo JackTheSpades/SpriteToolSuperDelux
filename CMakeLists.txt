@@ -122,10 +122,10 @@ endif()
 target_link_libraries(pixi PRIVATE ${PIXI_LINK_LIBRARIES})
 target_link_options(pixi PRIVATE ${PIXI_LINK_OPTIONS})
 target_compile_options(pixi PRIVATE ${PIXI_COMPILE_OPTIONS})
-target_compile_definitions(pixi PRIVATE ${PIXI_COMPILE_DEFINITIONS})
+target_compile_definitions(pixi PRIVATE ${PIXI_COMPILE_DEFINITIONS} PIXI_EXE_BUILD)
 
 target_link_libraries(pixi PRIVATE ${PIXI_LINK_LIBRARIES})
 target_link_options(pixi_api PRIVATE ${PIXI_LINK_OPTIONS})
 target_compile_options(pixi_api PRIVATE ${PIXI_COMPILE_OPTIONS})
-target_compile_definitions(pixi_api PRIVATE ${PIXI_COMPILE_DEFINITIONS} DLL_BUILD)
+target_compile_definitions(pixi_api PRIVATE ${PIXI_COMPILE_DEFINITIONS})
 
