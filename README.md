@@ -4,7 +4,8 @@
 
 PIXI is a tool to insert custom sprites into Super Mario World ROMs.
 It assembles using Asar, meaning TRASM sprites are not supported.
-Artifacts of each commit can be found [here](https://www.atarismwc.com/pixi_releases/)
+Artifacts of each commit can be found [here](https://github.com/JackTheSpades/SpriteToolSuperDelux/actions),
+just click on the commit you want to download the binary for and scroll to the Artifacts section.
 
 If you're a developer looking to contribute to this project, please see the [contribution guide](CONTRIBUTING.md).
 
@@ -405,3 +406,22 @@ ReadMe Contents:
     PIXI:
     incbin "data.bin"
     ```
+
+## Aknowledgements
+
+### Maintainers
+- 2017: JackTheSpades
+- 2018: RpgHacker
+- 2018-2020: Tattletale
+- 2020-Present: Atari2.0
+
+### Other contributors:
+- KevinM
+- tim-burget
+- dtothefourth
+- Super Maks 64
+- randomdude999
+- akaginite
+- Lx5
+- spooonsss
+- and others...

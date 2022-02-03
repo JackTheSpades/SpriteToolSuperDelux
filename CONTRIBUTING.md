@@ -3,12 +3,17 @@
 ## General rules:
 
 - Decently descriptive commit messages (with descriptions if necessary).
-- The GitHub actions runner on Ubuntu does a quite expensive test on each run. This can be skipped by adding `[NoTest]` add the beginning of the title of the commit message. This is recommended to add when your changes only affect the CFG Editor, since the expensive test only affects Pixi.
+- The GitHub actions runner on Ubuntu does a quite expensive test on each run. This can be skipped by adding `[NoTest]` at the beginning of the title of the commit message. This is recommended to add when your changes only affect the CFG Editor, since the expensive test only affects Pixi.
 - Use spaces for everything, no tabs. 4 spaces per tab.
 - Avoid breaking changes unless they give a huge benefit.
 - Don't be rude and don't insult/disrespect other people's code.
 
 Since this is a multi-part project I'll illustrate rules based on language.
+
+Note that newer code follows these rules. 
+Since this project passed in multiple people's hands, some old code will not follow these rules.
+This however does not mean you shouldn't follow them. 
+All of the old code will get converted to rule-following code sooner or later.
 
 ## ASM:
 
