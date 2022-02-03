@@ -37,7 +37,7 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/json_const.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/config.h"
 
-    "${CMAKE_CURRENT_SOURCE_DIR}/pixi_api.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/api_bindings/pixi_api.h"
 )
 add_executable(pixi "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp" ${PIXI_SOURCE_FILES})
 add_library(pixi_api SHARED ${PIXI_SOURCE_FILES})
