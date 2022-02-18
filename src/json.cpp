@@ -4,8 +4,7 @@
 #include "paths.h"
 #include "structs.h"
 #include "json/base64.h"
-#include "json/json.hpp"
-
+#include <nlohmann/json.hpp>
 #include <algorithm>
 #include <cstring>
 #include <fstream>

@@ -29,24 +29,36 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle11 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle12 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle13 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle14 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle15 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle16 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CFG_Editor));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle37 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle38 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle39 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle40 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle41 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle42 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle43 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle44 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle45 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle46 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle47 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle48 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle33 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle34 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle35 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle36 = new System.Windows.Forms.DataGridViewCellStyle();
             this.dgvDisplay = new System.Windows.Forms.DataGridView();
+            this.ExtraBit = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.X_or_index = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Y_or_value = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.disptypeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.descriptionDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.extraBitDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.customBitDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.checkDispTypeDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.xorindexDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.yorvalueDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.displayTextDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.useTextDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.displaySpriteBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -141,10 +153,16 @@
             this.chb_190F_01 = new System.Windows.Forms.CheckBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tpgLm = new System.Windows.Forms.TabPage();
+            this.dgvGFXInfo = new System.Windows.Forms.DataGridView();
+            this.separateDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.sp0DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.sp1DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.sp2DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.sp3DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.gfxInfoBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.btnGFXRemove = new System.Windows.Forms.Button();
             this.btnGFXClone = new System.Windows.Forms.Button();
             this.btnGFXNew = new System.Windows.Forms.Button();
-            this.gfxInfoBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.btnDisplayDelete = new System.Windows.Forms.Button();
             this.btnDisplayClone = new System.Windows.Forms.Button();
             this.btnDisplayNew = new System.Windows.Forms.Button();
@@ -235,15 +253,6 @@
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.txtListExProp3 = new System.Windows.Forms.TextBox();
-            this.dgvGFXInfo = new System.Windows.Forms.DataGridView();
-            this.separateDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.sp0DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.sp1DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.sp2DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.sp3DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ExtraBit = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.X_or_index = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Y_or_value = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDisplay)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.displaySpriteBindingSource)).BeginInit();
             this.menuStrip1.SuspendLayout();
@@ -267,6 +276,7 @@
             this.grp_190F.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tpgLm.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvGFXInfo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gfxInfoBindingSource)).BeginInit();
             this.groupBox3.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -283,7 +293,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvList)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.collectionSpriteBindingSource)).BeginInit();
             this.groupBox5.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvGFXInfo)).BeginInit();
             this.SuspendLayout();
             // 
             // dgvDisplay
@@ -297,7 +306,16 @@
             this.dgvDisplay.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.ExtraBit,
             this.X_or_index,
-            this.Y_or_value});
+            this.Y_or_value,
+            this.disptypeDataGridViewTextBoxColumn,
+            this.descriptionDataGridViewTextBoxColumn,
+            this.extraBitDataGridViewCheckBoxColumn,
+            this.customBitDataGridViewCheckBoxColumn,
+            this.checkDispTypeDataGridViewCheckBoxColumn,
+            this.xorindexDataGridViewTextBoxColumn,
+            this.yorvalueDataGridViewTextBoxColumn,
+            this.displayTextDataGridViewTextBoxColumn,
+            this.useTextDataGridViewCheckBoxColumn});
             this.dgvDisplay.DataSource = this.displaySpriteBindingSource;
             this.dgvDisplay.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.dgvDisplay.Location = new System.Drawing.Point(203, 298);
@@ -307,6 +325,79 @@
             this.dgvDisplay.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvDisplay.Size = new System.Drawing.Size(163, 116);
             this.dgvDisplay.TabIndex = 8;
+            // 
+            // ExtraBit
+            // 
+            this.ExtraBit.DataPropertyName = "ExtraBit";
+            this.ExtraBit.HeaderText = "ExtraBit";
+            this.ExtraBit.Name = "ExtraBit";
+            // 
+            // X_or_index
+            // 
+            this.X_or_index.DataPropertyName = "X_or_index";
+            this.X_or_index.HeaderText = "X";
+            this.X_or_index.Name = "X_or_index";
+            // 
+            // Y_or_value
+            // 
+            this.Y_or_value.DataPropertyName = "Y_or_value";
+            this.Y_or_value.HeaderText = "Y";
+            this.Y_or_value.Name = "Y_or_value";
+            // 
+            // disptypeDataGridViewTextBoxColumn
+            // 
+            this.disptypeDataGridViewTextBoxColumn.DataPropertyName = "disp_type";
+            this.disptypeDataGridViewTextBoxColumn.HeaderText = "disp_type";
+            this.disptypeDataGridViewTextBoxColumn.Name = "disptypeDataGridViewTextBoxColumn";
+            // 
+            // descriptionDataGridViewTextBoxColumn
+            // 
+            this.descriptionDataGridViewTextBoxColumn.DataPropertyName = "Description";
+            this.descriptionDataGridViewTextBoxColumn.HeaderText = "Description";
+            this.descriptionDataGridViewTextBoxColumn.Name = "descriptionDataGridViewTextBoxColumn";
+            // 
+            // extraBitDataGridViewCheckBoxColumn
+            // 
+            this.extraBitDataGridViewCheckBoxColumn.DataPropertyName = "ExtraBit";
+            this.extraBitDataGridViewCheckBoxColumn.HeaderText = "ExtraBit";
+            this.extraBitDataGridViewCheckBoxColumn.Name = "extraBitDataGridViewCheckBoxColumn";
+            // 
+            // customBitDataGridViewCheckBoxColumn
+            // 
+            this.customBitDataGridViewCheckBoxColumn.DataPropertyName = "CustomBit";
+            this.customBitDataGridViewCheckBoxColumn.HeaderText = "CustomBit";
+            this.customBitDataGridViewCheckBoxColumn.Name = "customBitDataGridViewCheckBoxColumn";
+            // 
+            // checkDispTypeDataGridViewCheckBoxColumn
+            // 
+            this.checkDispTypeDataGridViewCheckBoxColumn.DataPropertyName = "CheckDispType";
+            this.checkDispTypeDataGridViewCheckBoxColumn.HeaderText = "CheckDispType";
+            this.checkDispTypeDataGridViewCheckBoxColumn.Name = "checkDispTypeDataGridViewCheckBoxColumn";
+            this.checkDispTypeDataGridViewCheckBoxColumn.ReadOnly = true;
+            // 
+            // xorindexDataGridViewTextBoxColumn
+            // 
+            this.xorindexDataGridViewTextBoxColumn.DataPropertyName = "X_or_index";
+            this.xorindexDataGridViewTextBoxColumn.HeaderText = "X_or_index";
+            this.xorindexDataGridViewTextBoxColumn.Name = "xorindexDataGridViewTextBoxColumn";
+            // 
+            // yorvalueDataGridViewTextBoxColumn
+            // 
+            this.yorvalueDataGridViewTextBoxColumn.DataPropertyName = "Y_or_value";
+            this.yorvalueDataGridViewTextBoxColumn.HeaderText = "Y_or_value";
+            this.yorvalueDataGridViewTextBoxColumn.Name = "yorvalueDataGridViewTextBoxColumn";
+            // 
+            // displayTextDataGridViewTextBoxColumn
+            // 
+            this.displayTextDataGridViewTextBoxColumn.DataPropertyName = "DisplayText";
+            this.displayTextDataGridViewTextBoxColumn.HeaderText = "DisplayText";
+            this.displayTextDataGridViewTextBoxColumn.Name = "displayTextDataGridViewTextBoxColumn";
+            // 
+            // useTextDataGridViewCheckBoxColumn
+            // 
+            this.useTextDataGridViewCheckBoxColumn.DataPropertyName = "UseText";
+            this.useTextDataGridViewCheckBoxColumn.HeaderText = "UseText";
+            this.useTextDataGridViewCheckBoxColumn.Name = "useTextDataGridViewCheckBoxColumn";
             // 
             // displaySpriteBindingSource
             // 
@@ -1296,6 +1387,74 @@
             this.tpgLm.TabIndex = 1;
             this.tpgLm.Text = "Lunar Magic";
             // 
+            // dgvGFXInfo
+            // 
+            this.dgvGFXInfo.AllowUserToAddRows = false;
+            this.dgvGFXInfo.AllowUserToDeleteRows = false;
+            this.dgvGFXInfo.AllowUserToResizeColumns = false;
+            this.dgvGFXInfo.AllowUserToResizeRows = false;
+            this.dgvGFXInfo.AutoGenerateColumns = false;
+            this.dgvGFXInfo.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvGFXInfo.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvGFXInfo.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.separateDataGridViewCheckBoxColumn,
+            this.sp0DataGridViewTextBoxColumn,
+            this.sp1DataGridViewTextBoxColumn,
+            this.sp2DataGridViewTextBoxColumn,
+            this.sp3DataGridViewTextBoxColumn});
+            this.dgvGFXInfo.DataSource = this.gfxInfoBindingSource;
+            this.dgvGFXInfo.Location = new System.Drawing.Point(489, 299);
+            this.dgvGFXInfo.Name = "dgvGFXInfo";
+            this.dgvGFXInfo.RowHeadersVisible = false;
+            this.dgvGFXInfo.Size = new System.Drawing.Size(180, 109);
+            this.dgvGFXInfo.TabIndex = 23;
+            // 
+            // separateDataGridViewCheckBoxColumn
+            // 
+            this.separateDataGridViewCheckBoxColumn.DataPropertyName = "Separate";
+            this.separateDataGridViewCheckBoxColumn.HeaderText = "Sep.";
+            this.separateDataGridViewCheckBoxColumn.Name = "separateDataGridViewCheckBoxColumn";
+            // 
+            // sp0DataGridViewTextBoxColumn
+            // 
+            this.sp0DataGridViewTextBoxColumn.DataPropertyName = "Sp0";
+            dataGridViewCellStyle1.Format = "X02";
+            dataGridViewCellStyle1.NullValue = "7F";
+            this.sp0DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle1;
+            this.sp0DataGridViewTextBoxColumn.HeaderText = "Sp0";
+            this.sp0DataGridViewTextBoxColumn.Name = "sp0DataGridViewTextBoxColumn";
+            // 
+            // sp1DataGridViewTextBoxColumn
+            // 
+            this.sp1DataGridViewTextBoxColumn.DataPropertyName = "Sp1";
+            dataGridViewCellStyle2.Format = "X02";
+            dataGridViewCellStyle2.NullValue = "7F";
+            this.sp1DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle2;
+            this.sp1DataGridViewTextBoxColumn.HeaderText = "Sp1";
+            this.sp1DataGridViewTextBoxColumn.Name = "sp1DataGridViewTextBoxColumn";
+            // 
+            // sp2DataGridViewTextBoxColumn
+            // 
+            this.sp2DataGridViewTextBoxColumn.DataPropertyName = "Sp2";
+            dataGridViewCellStyle3.Format = "X02";
+            dataGridViewCellStyle3.NullValue = "7F";
+            this.sp2DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle3;
+            this.sp2DataGridViewTextBoxColumn.HeaderText = "Sp2";
+            this.sp2DataGridViewTextBoxColumn.Name = "sp2DataGridViewTextBoxColumn";
+            // 
+            // sp3DataGridViewTextBoxColumn
+            // 
+            this.sp3DataGridViewTextBoxColumn.DataPropertyName = "Sp3";
+            dataGridViewCellStyle4.Format = "X02";
+            dataGridViewCellStyle4.NullValue = "7F";
+            this.sp3DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle4;
+            this.sp3DataGridViewTextBoxColumn.HeaderText = "Sp3";
+            this.sp3DataGridViewTextBoxColumn.Name = "sp3DataGridViewTextBoxColumn";
+            // 
+            // gfxInfoBindingSource
+            // 
+            this.gfxInfoBindingSource.DataSource = typeof(CFG.Map16.GFXInfo);
+            // 
             // btnGFXRemove
             // 
             this.btnGFXRemove.Location = new System.Drawing.Point(447, 354);
@@ -1322,10 +1481,6 @@
             this.btnGFXNew.TabIndex = 20;
             this.btnGFXNew.Text = "+";
             this.btnGFXNew.UseVisualStyleBackColor = true;
-            // 
-            // gfxInfoBindingSource
-            // 
-            this.gfxInfoBindingSource.DataSource = typeof(CFG.Map16.GFXInfo);
             // 
             // btnDisplayDelete
             // 
@@ -1413,7 +1568,7 @@
             // 
             this.tsb8x8Mode.CheckOnClick = true;
             this.tsb8x8Mode.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb8x8Mode.Image = ((System.Drawing.Image)(resources.GetObject("tsb8x8Mode.Image")));
+            this.tsb8x8Mode.Image = global::CFG.Properties.Resources._8x8t;
             this.tsb8x8Mode.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsb8x8Mode.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb8x8Mode.Name = "tsb8x8Mode";
@@ -1423,7 +1578,7 @@
             // tsb8x8Editor
             // 
             this.tsb8x8Editor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb8x8Editor.Image = ((System.Drawing.Image)(resources.GetObject("tsb8x8Editor.Image")));
+            this.tsb8x8Editor.Image = global::CFG.Properties.Resources._8x8;
             this.tsb8x8Editor.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsb8x8Editor.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb8x8Editor.Name = "tsb8x8Editor";
@@ -1435,7 +1590,7 @@
             // 
             this.tsbGrid.CheckOnClick = true;
             this.tsbGrid.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbGrid.Image = ((System.Drawing.Image)(resources.GetObject("tsbGrid.Image")));
+            this.tsbGrid.Image = global::CFG.Properties.Resources.grid;
             this.tsbGrid.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsbGrid.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbGrid.Name = "tsbGrid";
@@ -1446,7 +1601,7 @@
             // 
             this.tsbPage.CheckOnClick = true;
             this.tsbPage.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbPage.Image = ((System.Drawing.Image)(resources.GetObject("tsbPage.Image")));
+            this.tsbPage.Image = global::CFG.Properties.Resources.page;
             this.tsbPage.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsbPage.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbPage.Name = "tsbPage";
@@ -1456,7 +1611,7 @@
             // tsbPalette
             // 
             this.tsbPalette.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbPalette.Image = ((System.Drawing.Image)(resources.GetObject("tsbPalette.Image")));
+            this.tsbPalette.Image = global::CFG.Properties.Resources.palette;
             this.tsbPalette.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsbPalette.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbPalette.Name = "tsbPalette";
@@ -1855,8 +2010,8 @@
             // extraPropertyByte1DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte1DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte1";
-            dataGridViewCellStyle37.Format = "X2";
-            this.extraPropertyByte1DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle37;
+            dataGridViewCellStyle5.Format = "X2";
+            this.extraPropertyByte1DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle5;
             this.extraPropertyByte1DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte1DataGridViewTextBoxColumn.HeaderText = "Ex1";
             this.extraPropertyByte1DataGridViewTextBoxColumn.Name = "extraPropertyByte1DataGridViewTextBoxColumn";
@@ -1864,8 +2019,8 @@
             // extraPropertyByte2DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte2DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte2";
-            dataGridViewCellStyle38.Format = "X2";
-            this.extraPropertyByte2DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle38;
+            dataGridViewCellStyle6.Format = "X2";
+            this.extraPropertyByte2DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle6;
             this.extraPropertyByte2DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte2DataGridViewTextBoxColumn.HeaderText = "Ex2";
             this.extraPropertyByte2DataGridViewTextBoxColumn.Name = "extraPropertyByte2DataGridViewTextBoxColumn";
@@ -1873,8 +2028,8 @@
             // extraPropertyByte3DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte3DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte3";
-            dataGridViewCellStyle39.Format = "X2";
-            this.extraPropertyByte3DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle39;
+            dataGridViewCellStyle7.Format = "X2";
+            this.extraPropertyByte3DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle7;
             this.extraPropertyByte3DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte3DataGridViewTextBoxColumn.HeaderText = "Ex3";
             this.extraPropertyByte3DataGridViewTextBoxColumn.Name = "extraPropertyByte3DataGridViewTextBoxColumn";
@@ -1882,8 +2037,8 @@
             // extraPropertyByte4DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte4DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte4";
-            dataGridViewCellStyle40.Format = "X2";
-            this.extraPropertyByte4DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle40;
+            dataGridViewCellStyle8.Format = "X2";
+            this.extraPropertyByte4DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle8;
             this.extraPropertyByte4DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte4DataGridViewTextBoxColumn.HeaderText = "Ex4";
             this.extraPropertyByte4DataGridViewTextBoxColumn.Name = "extraPropertyByte4DataGridViewTextBoxColumn";
@@ -1891,8 +2046,8 @@
             // extraPropertyByte5DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte5DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte5";
-            dataGridViewCellStyle41.Format = "X2";
-            this.extraPropertyByte5DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle41;
+            dataGridViewCellStyle9.Format = "X2";
+            this.extraPropertyByte5DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle9;
             this.extraPropertyByte5DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte5DataGridViewTextBoxColumn.HeaderText = "Ex5";
             this.extraPropertyByte5DataGridViewTextBoxColumn.Name = "extraPropertyByte5DataGridViewTextBoxColumn";
@@ -1900,8 +2055,8 @@
             // extraPropertyByte6DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte6DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte6";
-            dataGridViewCellStyle42.Format = "X2";
-            this.extraPropertyByte6DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle42;
+            dataGridViewCellStyle10.Format = "X2";
+            this.extraPropertyByte6DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle10;
             this.extraPropertyByte6DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte6DataGridViewTextBoxColumn.HeaderText = "Ex6";
             this.extraPropertyByte6DataGridViewTextBoxColumn.Name = "extraPropertyByte6DataGridViewTextBoxColumn";
@@ -1909,8 +2064,8 @@
             // extraPropertyByte7DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte7DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte7";
-            dataGridViewCellStyle43.Format = "X2";
-            this.extraPropertyByte7DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle43;
+            dataGridViewCellStyle11.Format = "X2";
+            this.extraPropertyByte7DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle11;
             this.extraPropertyByte7DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte7DataGridViewTextBoxColumn.HeaderText = "Ex7";
             this.extraPropertyByte7DataGridViewTextBoxColumn.Name = "extraPropertyByte7DataGridViewTextBoxColumn";
@@ -1918,8 +2073,8 @@
             // extraPropertyByte8DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte8DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte8";
-            dataGridViewCellStyle44.Format = "X2";
-            this.extraPropertyByte8DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle44;
+            dataGridViewCellStyle12.Format = "X2";
+            this.extraPropertyByte8DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle12;
             this.extraPropertyByte8DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte8DataGridViewTextBoxColumn.HeaderText = "Ex8";
             this.extraPropertyByte8DataGridViewTextBoxColumn.Name = "extraPropertyByte8DataGridViewTextBoxColumn";
@@ -1927,8 +2082,8 @@
             // extraPropertyByte9DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte9DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte9";
-            dataGridViewCellStyle45.Format = "X2";
-            this.extraPropertyByte9DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle45;
+            dataGridViewCellStyle13.Format = "X2";
+            this.extraPropertyByte9DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle13;
             this.extraPropertyByte9DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte9DataGridViewTextBoxColumn.HeaderText = "Ex9";
             this.extraPropertyByte9DataGridViewTextBoxColumn.Name = "extraPropertyByte9DataGridViewTextBoxColumn";
@@ -1936,8 +2091,8 @@
             // extraPropertyByte10DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte10DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte10";
-            dataGridViewCellStyle46.Format = "X2";
-            this.extraPropertyByte10DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle46;
+            dataGridViewCellStyle14.Format = "X2";
+            this.extraPropertyByte10DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle14;
             this.extraPropertyByte10DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte10DataGridViewTextBoxColumn.HeaderText = "Ex10";
             this.extraPropertyByte10DataGridViewTextBoxColumn.Name = "extraPropertyByte10DataGridViewTextBoxColumn";
@@ -1945,8 +2100,8 @@
             // extraPropertyByte11DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte11DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte11";
-            dataGridViewCellStyle47.Format = "X2";
-            this.extraPropertyByte11DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle47;
+            dataGridViewCellStyle15.Format = "X2";
+            this.extraPropertyByte11DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle15;
             this.extraPropertyByte11DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte11DataGridViewTextBoxColumn.HeaderText = "Ex11";
             this.extraPropertyByte11DataGridViewTextBoxColumn.Name = "extraPropertyByte11DataGridViewTextBoxColumn";
@@ -1954,8 +2109,8 @@
             // extraPropertyByte12DataGridViewTextBoxColumn
             // 
             this.extraPropertyByte12DataGridViewTextBoxColumn.DataPropertyName = "ExtraPropertyByte12";
-            dataGridViewCellStyle48.Format = "X2";
-            this.extraPropertyByte12DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle48;
+            dataGridViewCellStyle16.Format = "X2";
+            this.extraPropertyByte12DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle16;
             this.extraPropertyByte12DataGridViewTextBoxColumn.FillWeight = 50F;
             this.extraPropertyByte12DataGridViewTextBoxColumn.HeaderText = "Ex12";
             this.extraPropertyByte12DataGridViewTextBoxColumn.Name = "extraPropertyByte12DataGridViewTextBoxColumn";
@@ -2246,88 +2401,6 @@
             this.txtListExProp3.Text = "FF";
             this.txtListExProp3.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Txt_Hex_KeyPress);
             // 
-            // dgvGFXInfo
-            // 
-            this.dgvGFXInfo.AllowUserToAddRows = false;
-            this.dgvGFXInfo.AllowUserToDeleteRows = false;
-            this.dgvGFXInfo.AllowUserToResizeColumns = false;
-            this.dgvGFXInfo.AllowUserToResizeRows = false;
-            this.dgvGFXInfo.AutoGenerateColumns = false;
-            this.dgvGFXInfo.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dgvGFXInfo.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvGFXInfo.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.separateDataGridViewCheckBoxColumn,
-            this.sp0DataGridViewTextBoxColumn,
-            this.sp1DataGridViewTextBoxColumn,
-            this.sp2DataGridViewTextBoxColumn,
-            this.sp3DataGridViewTextBoxColumn});
-            this.dgvGFXInfo.DataSource = this.gfxInfoBindingSource;
-            this.dgvGFXInfo.Location = new System.Drawing.Point(489, 299);
-            this.dgvGFXInfo.Name = "dgvGFXInfo";
-            this.dgvGFXInfo.RowHeadersVisible = false;
-            this.dgvGFXInfo.Size = new System.Drawing.Size(180, 109);
-            this.dgvGFXInfo.TabIndex = 23;
-            // 
-            // separateDataGridViewCheckBoxColumn
-            // 
-            this.separateDataGridViewCheckBoxColumn.DataPropertyName = "Separate";
-            this.separateDataGridViewCheckBoxColumn.HeaderText = "Sep.";
-            this.separateDataGridViewCheckBoxColumn.Name = "separateDataGridViewCheckBoxColumn";
-            // 
-            // sp0DataGridViewTextBoxColumn
-            // 
-            this.sp0DataGridViewTextBoxColumn.DataPropertyName = "Sp0";
-            dataGridViewCellStyle33.Format = "X02";
-            dataGridViewCellStyle33.NullValue = "7F";
-            this.sp0DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle33;
-            this.sp0DataGridViewTextBoxColumn.HeaderText = "Sp0";
-            this.sp0DataGridViewTextBoxColumn.Name = "sp0DataGridViewTextBoxColumn";
-            // 
-            // sp1DataGridViewTextBoxColumn
-            // 
-            this.sp1DataGridViewTextBoxColumn.DataPropertyName = "Sp1";
-            dataGridViewCellStyle34.Format = "X02";
-            dataGridViewCellStyle34.NullValue = "7F";
-            this.sp1DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle34;
-            this.sp1DataGridViewTextBoxColumn.HeaderText = "Sp1";
-            this.sp1DataGridViewTextBoxColumn.Name = "sp1DataGridViewTextBoxColumn";
-            // 
-            // sp2DataGridViewTextBoxColumn
-            // 
-            this.sp2DataGridViewTextBoxColumn.DataPropertyName = "Sp2";
-            dataGridViewCellStyle35.Format = "X02";
-            dataGridViewCellStyle35.NullValue = "7F";
-            this.sp2DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle35;
-            this.sp2DataGridViewTextBoxColumn.HeaderText = "Sp2";
-            this.sp2DataGridViewTextBoxColumn.Name = "sp2DataGridViewTextBoxColumn";
-            // 
-            // sp3DataGridViewTextBoxColumn
-            // 
-            this.sp3DataGridViewTextBoxColumn.DataPropertyName = "Sp3";
-            dataGridViewCellStyle36.Format = "X02";
-            dataGridViewCellStyle36.NullValue = "7F";
-            this.sp3DataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle36;
-            this.sp3DataGridViewTextBoxColumn.HeaderText = "Sp3";
-            this.sp3DataGridViewTextBoxColumn.Name = "sp3DataGridViewTextBoxColumn";
-            // 
-            // ExtraBit
-            // 
-            this.ExtraBit.DataPropertyName = "ExtraBit";
-            this.ExtraBit.HeaderText = "ExtraBit";
-            this.ExtraBit.Name = "ExtraBit";
-            // 
-            // X_or_index
-            // 
-            this.X_or_index.DataPropertyName = "X_or_index";
-            this.X_or_index.HeaderText = "X";
-            this.X_or_index.Name = "X_or_index";
-            // 
-            // Y_or_value
-            // 
-            this.Y_or_value.DataPropertyName = "Y_or_value";
-            this.Y_or_value.HeaderText = "Y";
-            this.Y_or_value.Name = "Y_or_value";
-            // 
             // CFG_Editor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2376,6 +2449,7 @@
             this.grp_190F.PerformLayout();
             this.tabControl1.ResumeLayout(false);
             this.tpgLm.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvGFXInfo)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gfxInfoBindingSource)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
@@ -2398,7 +2472,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.collectionSpriteBindingSource)).EndInit();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvGFXInfo)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -2603,5 +2676,14 @@
         private System.Windows.Forms.DataGridViewCheckBoxColumn ExtraBit;
         private System.Windows.Forms.DataGridViewTextBoxColumn X_or_index;
         private System.Windows.Forms.DataGridViewTextBoxColumn Y_or_value;
+        private System.Windows.Forms.DataGridViewTextBoxColumn disptypeDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn descriptionDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn extraBitDataGridViewCheckBoxColumn;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn customBitDataGridViewCheckBoxColumn;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn checkDispTypeDataGridViewCheckBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn xorindexDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn yorvalueDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn displayTextDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn useTextDataGridViewCheckBoxColumn;
     }
 }

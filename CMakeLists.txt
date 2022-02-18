@@ -4,11 +4,28 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CURRENT_SOURCE_DIR "src")
 set(PIXI_SOURCE_FILES "")
+include(FetchContent)
 
 set(PIXI_LINK_LIBRARIES "")
 set(PIXI_LINK_OPTIONS "")
 set(PIXI_COMPILE_OPTIONS "")
 set(PIXI_COMPILE_DEFINITIONS "")
+
+FetchContent_Declare(json
+  URL https://github.com/nlohmann/json/releases/download/v3.10.5/json.tar.xz
+)
+
+FetchContent_GetProperties(json)
+
+if(NOT json_POPULATED)
+  FetchContent_Populate(json)
+  add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
+
+list(
+    APPEND PIXI_LINK_LIBRARIES
+    "nlohmann_json::nlohmann_json"
+)
 
 list(
     APPEND PIXI_SOURCE_FILES
@@ -33,7 +50,6 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/MeiMei/MeiMei.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/asar/asardll.h" 
     "${CMAKE_CURRENT_SOURCE_DIR}/json/base64.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/json/json.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/json_const.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/config.h"
 
@@ -124,7 +140,7 @@ target_link_options(pixi PRIVATE ${PIXI_LINK_OPTIONS})
 target_compile_options(pixi PRIVATE ${PIXI_COMPILE_OPTIONS})
 target_compile_definitions(pixi PRIVATE ${PIXI_COMPILE_DEFINITIONS} PIXI_EXE_BUILD)
 
-target_link_libraries(pixi PRIVATE ${PIXI_LINK_LIBRARIES})
+target_link_libraries(pixi_api PRIVATE ${PIXI_LINK_LIBRARIES})
 target_link_options(pixi_api PRIVATE ${PIXI_LINK_OPTIONS})
 target_compile_options(pixi_api PRIVATE ${PIXI_COMPILE_OPTIONS})
 target_compile_definitions(pixi_api PRIVATE ${PIXI_COMPILE_DEFINITIONS})

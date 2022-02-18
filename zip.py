@@ -1,8 +1,31 @@
-#!/usr/bin/python
-
 import os
 import zipfile
 import re
+
+
+def build_asar_dll(asar_ver):
+    import requests
+    import shutil
+
+    original_path = os.getcwd()
+    url = f"https://github.com/RPGHacker/asar/archive/refs/tags/v{asar_ver}.zip"
+    print(f"Downloading {url}")
+    r = requests.get(url)
+    with open("asar.zip", "wb") as f:
+        f.write(r.content)
+    print("Extracting asar.zip")
+    with zipfile.ZipFile("asar.zip", "r") as zip_ref:
+        zip_ref.extractall()
+    os.remove("asar.zip")
+    print("Building asar.dll")
+    os.chdir(f"asar-{asar_ver}")
+    os.mkdir("build")
+    os.chdir("build")
+    os.system("cmake -A x64 ../src")
+    os.system("cmake --build . --config Release")
+    os.rename("asar/Release/asar.dll", os.path.join(original_path, "asar.dll"))
+    os.chdir(original_path)
+    shutil.rmtree(f"asar-{asar_ver}")
 
 
 def isExcludeFile(path, excludes):
@@ -53,9 +76,7 @@ def filter_for(folder_name):
 
 
 cfgexe = "src/CFG Editor/CFG Editor/bin/Release/CFG Editor.exe"
-pixiexe = "build/Release/pixi.exe"
-
-os.rename(pixiexe, "pixi.exe")
+pixiexe = "out/build/x64-Release/pixi.exe"
 
 with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
 
@@ -82,7 +103,9 @@ with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
         ),
         "Newtonsoft.Json.dll",
     )
-    pixizip.write("pixi.exe")
+    pixizip.write(pixiexe.replace("/", os.sep), "pixi.exe")
+    if not os.path.exists("asar.dll"):
+        build_asar_dll("1.81")
     pixizip.write("asar.dll")
 
     # asm

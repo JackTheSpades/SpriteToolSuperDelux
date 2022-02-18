@@ -276,6 +276,11 @@
   <ItemGroup>
     <None Include="Resources\SpriteList.txt" />
     <None Include="Resources\Letters.png" />
+    <Content Include="Resources\Icons\8x8.png" />
+    <Content Include="Resources\Icons\8x8t.png" />
+    <Content Include="Resources\Icons\grid.png" />
+    <Content Include="Resources\Icons\page.png" />
+    <Content Include="Resources\Icons\palette.png" />
     <Content Include="VioletEgg.ico" />
   </ItemGroup>
   <ItemGroup>
