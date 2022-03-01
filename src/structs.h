@@ -30,11 +30,11 @@ struct pointer {
     pointer(const pointer &) = default;
     ~pointer() = default;
 
-    bool is_empty() {
+    bool is_empty() const {
         return lowbyte == RTL_LOW && highbyte == RTL_HIGH && bankbyte == RTL_BANK;
     }
 
-    int addr() {
+    int addr() const {
         return (bankbyte << 16) + (highbyte << 8) + lowbyte;
     }
 };
