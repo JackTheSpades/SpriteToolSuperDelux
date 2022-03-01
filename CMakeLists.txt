@@ -53,10 +53,21 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/json_const.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/config.h"
 
+    "${CMAKE_CURRENT_SOURCE_DIR}/pixi_information_impl.cpp"
+
     "${CMAKE_CURRENT_SOURCE_DIR}/api_bindings/pixi_api.h"
 )
 add_executable(pixi "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp" ${PIXI_SOURCE_FILES})
-add_library(pixi_api SHARED ${PIXI_SOURCE_FILES})
+
+if (PIXI_LIBRARY_TYPE STREQUAL "STATIC")
+    list(APPEND PIXI_COMPILE_DEFINITIONS
+    "PIXI_STATIC_LIB"
+    )
+else()
+    set(PIXI_LIBRARY_TYPE "SHARED")
+endif()
+
+add_library(pixi_api ${PIXI_LIBRARY_TYPE} ${PIXI_SOURCE_FILES})
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if (WIN32)
         message(STATUS "Windows build (on Clang/MINGW)")
