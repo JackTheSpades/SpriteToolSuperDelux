@@ -103,11 +103,13 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 else()
     set(CMAKE_GENERATOR "Visual Studio 16 2019")
     message(STATUS "MSVC detected, adding compile flags")
-    list(APPEND PIXI_LINK_OPTIONS /INCREMENTAL:NO /NODEFAULTLIB:MSVCRT)
     list(APPEND PIXI_COMPILE_DEFINITIONS _CRT_SECURE_NO_WARNINGS)
-    list(APPEND PIXI_COMPILE_OPTIONS /Wall /std:c++20)
-    set_property(TARGET pixi PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    set_property(TARGET pixi_api PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    if (PIXI_LIBRARY_TYPE STREQUAL "SHARED")
+        set(PIXI_MSVC_LIB_TYPE "/MD$<$<CONFIG:Debug>:d>")
+    else()
+        set(PIXI_MSVC_LIB_TYPE "/MT$<$<CONFIG:Debug>:d>")
+    endif()
+    list(APPEND PIXI_COMPILE_OPTIONS /Wall /std:c++20 ${PIXI_MSVC_LIB_TYPE})
     list(APPEND PIXI_COMPILE_OPTIONS
             # generic & extremely noisy warnings which do (almost) nothing useful
             # not to say that most come from code which I have no control over
