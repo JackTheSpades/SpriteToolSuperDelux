@@ -1,12 +1,12 @@
 import os
 import zipfile
 import re
+import glob
+import requests
+import shutil
 
 
 def build_asar_dll(asar_ver):
-    import requests
-    import shutil
-
     original_path = os.getcwd()
     url = f"https://github.com/RPGHacker/asar/archive/refs/tags/v{asar_ver}.zip"
     print(f"Downloading {url}")
@@ -23,7 +23,8 @@ def build_asar_dll(asar_ver):
     os.chdir("build")
     os.system("cmake -A x64 ../src")
     os.system("cmake --build . --config Release")
-    os.rename("asar/Release/asar.dll", os.path.join(original_path, "asar.dll"))
+    asar_dll_path = glob.glob("**/asar.dll", recursive=True)[0]
+    os.rename(asar_dll_path, os.path.join(original_path, "asar.dll"))
     os.chdir(original_path)
     shutil.rmtree(f"asar-{asar_ver}")
 
@@ -76,7 +77,7 @@ def filter_for(folder_name):
 
 
 cfgexe = "src/CFG Editor/CFG Editor/bin/Release/CFG Editor.exe"
-pixiexe = "out/build/x64-Release/pixi.exe"
+pixiexe = glob.glob('**/pixi.exe', recursive=True)[0]
 
 with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
 
