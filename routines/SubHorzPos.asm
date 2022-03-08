@@ -1,6 +1,3 @@
-;Routine that spawns a normal or custom sprite with initial speed at the position (+offset)
-;of the calling sprite and returns the sprite index in Y
-
 ;Input:  None
 ;
 ;Output: Y   = 0 => Mario to the right of the sprite,
