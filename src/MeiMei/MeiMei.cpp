@@ -46,8 +46,8 @@ std::string escapeDefines(const std::string &path) {
     return ss.str();
 }
 
-void MeiMei::configureSa1Def(const string &pathToSa1Def) {
-    string escapedPath = escapeDefines(pathToSa1Def);
+void MeiMei::configureSa1Def(const std::string &pathToSa1Def) {
+    std::string escapedPath = escapeDefines(pathToSa1Def);
     MeiMei::sa1DefPath = escapedPath;
 }
 
@@ -134,8 +134,8 @@ int MeiMei::run(ROM &rom) {
     }
 
     if (changeEx || MeiMei::always) {
-        uchar sprAllData[SPR_ADDR_LIMIT]{};
-        uchar sprCommonData[3];
+        uint8_t sprAllData[SPR_ADDR_LIMIT]{};
+        uint8_t sprCommonData[3];
         bool remapped[0x0200]{};
 
         for (int lv = 0; lv < 0x200; lv++) {
@@ -218,7 +218,7 @@ int MeiMei::run(ROM &rom) {
                 std::string binaryFileName("_tmp_bin_");
                 binaryFileName.append(levelAsHex);
                 binaryFileName.append(".bin");
-                std::ofstream binFile(binaryFileName, ios::out | ios::binary);
+                std::ofstream binFile(binaryFileName, std::ios::out | std::ios::binary);
                 for (int ara = 0; ara <= nowOfs; ara++) {
                     binFile << sprAllData[ara];
                 }
