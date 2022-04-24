@@ -10,14 +10,6 @@
 
 #include "../asar/asardll.h"
 
-#include "../structs.h"
-
-using namespace std;
-
-typedef unsigned int uint;
-typedef unsigned short ushort;
-typedef unsigned char uchar;
-
 constexpr auto SPR_ADDR_LIMIT = 0x800;
 
 #define ERR(msg)                                                                                                       \
@@ -27,13 +19,8 @@ constexpr auto SPR_ADDR_LIMIT = 0x800;
     }
 
 #define ASSERT_SPR_DATA_ADDR_SIZE(val)                                                                                 \
-    if (val >= SPR_ADDR_LIMIT)                                                                                         \
+    if ((val) >= SPR_ADDR_LIMIT)                                                                                         \
         ERR("Sprite data is too large!");
-
-void wait() {
-    fflush(stdin);
-    getc(stdin);
-}
 
 void MeiMei::setAlwaysRemap() {
     MeiMei::always = true;
@@ -47,8 +34,8 @@ void MeiMei::setKeepTemp() {
     MeiMei::keepTemp = true;
 }
 
-string escapeDefines(const string &path) {
-    stringstream ss("");
+std::string escapeDefines(const std::string &path) {
+    std::stringstream ss("");
     for (char c : path) {
         if (c == '!') {
             ss << "\\!";
@@ -59,8 +46,8 @@ string escapeDefines(const string &path) {
     return ss.str();
 }
 
-void MeiMei::configureSa1Def(const string &pathToSa1Def) {
-    string escapedPath = escapeDefines(pathToSa1Def);
+void MeiMei::configureSa1Def(const std::string &pathToSa1Def) {
+    std::string escapedPath = escapeDefines(pathToSa1Def);
     MeiMei::sa1DefPath = escapedPath;
 }
 
@@ -78,7 +65,7 @@ bool MeiMei::patch(const char *patch_name, ROM &rom) {
         int print_count = 0;
         const char *const *prints = asar_getprints(&print_count);
         for (int i = 0; i < print_count; ++i) {
-            cout << "\t" << prints[i] << endl;
+            std::cout << "\t" << prints[i] << '\n';
         }
     }
 
@@ -88,10 +75,8 @@ bool MeiMei::patch(const char *patch_name, ROM &rom) {
 bool MeiMei::initialize(const char *rom_name) {
     MeiMei::name = std::string(rom_name);
 
-    for (int i = 0; i < 0x400; i++) {
-        prevEx[i] = 0x03;
-        nowEx[i] = 0x03;
-    }
+    memset(prevEx, 0x03, 0x400);
+    memset(nowEx, 0x03, 0x400);
 
     if (!prev.open(MeiMei::name.c_str()))
         return false;
@@ -106,7 +91,6 @@ int MeiMei::run() {
     ROM rom;
     if (!rom.open(MeiMei::name.c_str()))
         return 1;
-
     if (!asar_init()) {
         error("Error: Asar library is missing or couldn't be initialized, please redownload the tool or add the dll.\n",
               "");
@@ -150,8 +134,8 @@ int MeiMei::run(ROM &rom) {
     }
 
     if (changeEx || MeiMei::always) {
-        uchar sprAllData[SPR_ADDR_LIMIT]{};
-        uchar sprCommonData[3];
+        uint8_t sprAllData[SPR_ADDR_LIMIT]{};
+        uint8_t sprCommonData[3];
         bool remapped[0x0200]{};
 
         for (int lv = 0; lv < 0x200; lv++) {
@@ -161,23 +145,21 @@ int MeiMei::run(ROM &rom) {
             int sprAddrSNES = (now.read_byte(0x077100 + lv) << 16) + now.read_word(0x02EC00 + lv * 2);
             int sprAddrPC = now.snes_to_pc(sprAddrSNES, false);
             if (sprAddrPC == -1) {
-                ERR("Sprite Data has invalid address.");
+                ERR("Sprite Data has invalid address.")
             }
 
-            for (int i = 0; i < SPR_ADDR_LIMIT; i++) {
-                sprAllData[i] = 0;
-            }
-
+            memset(sprAllData, 0, SPR_ADDR_LIMIT);
+            
             sprAllData[0] = now.read_byte(sprAddrPC);
             int prevOfs = 1;
             int nowOfs = 1;
-            bool exlevelFlag = sprAllData[0] & (uchar)0x20;
+            bool exlevelFlag = sprAllData[0] & (uint8_t)0x20;
             bool changeData = false;
 
             while (true) {
                 now.read_data(sprCommonData, 3, sprAddrPC + prevOfs);
                 if (nowOfs >= SPR_ADDR_LIMIT - 3) {
-                    ERR("Sprite data is too large!");
+                    ERR("Sprite data is too large!")
                 }
 
                 if (sprCommonData[0] == 0xFF) {
@@ -206,38 +188,37 @@ int MeiMei::run(ROM &rom) {
                     int i;
                     for (i = 3; i < prevEx[sprNum]; i++) {
                         sprAllData[nowOfs++] = now.read_byte(sprAddrPC + prevOfs + i);
-                        ASSERT_SPR_DATA_ADDR_SIZE(nowOfs);
+                        ASSERT_SPR_DATA_ADDR_SIZE(nowOfs)
                     }
                     for (; i < nowEx[sprNum]; i++) {
                         sprAllData[nowOfs++] = 0x00;
-                        ASSERT_SPR_DATA_ADDR_SIZE(nowOfs);
+                        ASSERT_SPR_DATA_ADDR_SIZE(nowOfs)
                     }
                 } else if (nowEx[sprNum] < prevEx[sprNum]) {
                     changeData = true;
                     for (int i = 3; i < nowEx[sprNum]; i++) {
                         sprAllData[nowOfs++] = now.read_byte(sprAddrPC + prevOfs + i);
-                        ASSERT_SPR_DATA_ADDR_SIZE(nowOfs);
+                        ASSERT_SPR_DATA_ADDR_SIZE(nowOfs)
                     }
                 } else {
                     for (int i = 3; i < nowEx[sprNum]; i++) {
                         sprAllData[nowOfs++] = now.read_byte(sprAddrPC + prevOfs + i);
-                        ASSERT_SPR_DATA_ADDR_SIZE(nowOfs);
+                        ASSERT_SPR_DATA_ADDR_SIZE(nowOfs)
                     }
                 }
                 prevOfs += prevEx[sprNum];
             }
 
-            prevOfs++;
             if (changeData) {
-                stringstream ss;
-                ss << uppercase << hex << lv;
-                string levelAsHex = ss.str();
+                std::stringstream ss;
+                ss << std::uppercase << std::hex << lv;
+                std::string levelAsHex = ss.str();
 
                 // create sprite data binary
                 std::string binaryFileName("_tmp_bin_");
                 binaryFileName.append(levelAsHex);
                 binaryFileName.append(".bin");
-                std::ofstream binFile(binaryFileName, ios::out | ios::binary);
+                std::ofstream binFile(binaryFileName, std::ios::out | std::ios::binary);
                 for (int ara = 0; ara <= nowOfs; ara++) {
                     binFile << sprAllData[ara];
                 }
@@ -247,7 +228,7 @@ int MeiMei::run(ROM &rom) {
                 std::string fileName("_tmp_");
                 fileName.append(levelAsHex);
                 fileName.append(".asm");
-                std::ofstream spriteDataPatch(fileName, ios::out | ios::binary);
+                std::ofstream spriteDataPatch(fileName, std::ios::out | std::ios::binary);
 
                 std::string binaryLabel("SpriteData");
                 binaryLabel.append(levelAsHex);
@@ -261,34 +242,34 @@ int MeiMei::run(ROM &rom) {
                 std::string levelWordAddress = oss.str();
 
                 // create actual asar patch
-                spriteDataPatch << "incsrc \"" << MeiMei::sa1DefPath << "\"" << endl << endl;
+                spriteDataPatch << "incsrc \"" << MeiMei::sa1DefPath << "\"" << "\n" << '\n';
                 spriteDataPatch << "!oldDataPointer = read2($" << levelWordAddress << ")|(read1($" << levelBankAddress
-                                << ")<<16)" << endl;
-                spriteDataPatch << "!oldDataSize = read2(pctosnes(snestopc(!oldDataPointer)-4))+1" << endl;
-                spriteDataPatch << "autoclean !oldDataPointer" << endl << endl;
+                                << ")<<16)" << '\n';
+                spriteDataPatch << "!oldDataSize = read2(pctosnes(snestopc(!oldDataPointer)-4))+1" << '\n';
+                spriteDataPatch << "autoclean !oldDataPointer" << "\n" << '\n';
 
-                spriteDataPatch << "org $" << levelBankAddress << endl;
-                spriteDataPatch << "\tdb " << binaryLabel << ">>16" << endl << endl;
+                spriteDataPatch << "org $" << levelBankAddress << '\n';
+                spriteDataPatch << "\tdb " << binaryLabel << ">>16" << "\n" << '\n';
 
-                spriteDataPatch << "org $" << levelWordAddress << endl;
-                spriteDataPatch << "\tdw " << binaryLabel << endl << endl;
+                spriteDataPatch << "org $" << levelWordAddress << '\n';
+                spriteDataPatch << "\tdw " << binaryLabel << "\n" << '\n';
 
-                spriteDataPatch << "freedata cleaned" << endl;
-                spriteDataPatch << binaryLabel << ":" << endl;
-                spriteDataPatch << "\t!newDataPointer = " << binaryLabel << endl;
-                spriteDataPatch << "\tincbin " << binaryFileName << endl;
-                spriteDataPatch << binaryLabel << "_end:" << endl;
+                spriteDataPatch << "freedata cleaned" << '\n';
+                spriteDataPatch << binaryLabel << ":" << '\n';
+                spriteDataPatch << "\t!newDataPointer = " << binaryLabel << '\n';
+                spriteDataPatch << "\tincbin " << binaryFileName << '\n';
+                spriteDataPatch << binaryLabel << "_end:" << '\n';
 
                 spriteDataPatch << "\tprint \"Data pointer  $\",hex(!oldDataPointer),\" : $\",hex(!newDataPointer)"
-                                << endl;
+                                << '\n';
                 spriteDataPatch << "\tprint \"Data size     $\",hex(!oldDataSize),\" : $\",hex(" << binaryLabel
-                                << "_end-" << binaryLabel << "-1)" << endl;
+                                << "_end-" << binaryLabel << "-1)" << '\n';
 
                 spriteDataPatch.close();
 
                 if (MeiMei::debug) {
-                    cout << "__________________________________" << endl;
-                    cout << "Fixing sprite data for level " << levelAsHex << endl;
+                    std::cout << "__________________________________" << '\n';
+                    std::cout << "Fixing sprite data for level " << levelAsHex << '\n';
                 }
 
                 if (!MeiMei::patch(fileName.c_str(), rom)) {
@@ -296,7 +277,7 @@ int MeiMei::run(ROM &rom) {
                 }
 
                 if (MeiMei::debug) {
-                    cout << "Done!" << endl;
+                    std::cout << "Done!" << '\n';
                 }
 
                 if (!MeiMei::keepTemp) {
@@ -309,7 +290,7 @@ int MeiMei::run(ROM &rom) {
         }
 
         if (MeiMei::debug) {
-            cout << "__________________________________" << endl << endl;
+            std::cout << "__________________________________" << "\n" << '\n';
         }
 
         printf("Sprite data remapped successfully.\n");

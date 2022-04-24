@@ -176,10 +176,10 @@ EXPORT int pixi_display_extra_bit(pixi_display_t pixi_display_ptr) {
     return pixi_display_ptr->extra_bit;
 }
 EXPORT int pixi_display_x(pixi_display_t pixi_display_ptr) {
-    return pixi_display_ptr->x;
+    return pixi_display_ptr->x_or_index;
 }
 EXPORT int pixi_display_y(pixi_display_t pixi_display_ptr) {
-    return pixi_display_ptr->y;
+    return pixi_display_ptr->y_or_value;
 }
 
 // Collection information APIs

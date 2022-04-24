@@ -25,7 +25,7 @@ unsigned char *read_all(const char *file_name, bool text_mode, unsigned int mini
         return nullptr;
     }
     size_t size = file_size(file);
-    unsigned char *file_data = new unsigned char[(size < minimum_size ? minimum_size : size) + (text_mode * 2)]();
+    unsigned char *file_data = new unsigned char[(size < minimum_size ? minimum_size : size) + (text_mode * 2)];
     if (fread(file_data, 1, size, file) != size) {
         error("%s could not be fully read.  Please check file permissions.", file_name);
         delete[] file_data;

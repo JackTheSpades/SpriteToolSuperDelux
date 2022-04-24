@@ -11,11 +11,9 @@
 #include "asar/asardll.h"
 #include "cfg.h"
 #include "config.h"
-#include "file_io.h"
 #include "json.h"
 #include "map16.h"
 #include "paths.h"
-#include "structs.h"
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 #define WIN32_LEAN_AND_MEAN
@@ -147,7 +145,7 @@ template <typename T> T *from_table(T *table, int level, int number) {
     int warn_count = 0;
     const errordata *loc_warnings = asar_getwarnings(&warn_count);
     for (int i = 0; i < warn_count; i++)
-        warnings.push_back(std::string(loc_warnings[i].fullerrdata));
+        warnings.emplace_back(loc_warnings[i].fullerrdata);
 #ifdef DEBUGMSG
     debug_print("Success\n");
 #endif
@@ -176,7 +174,7 @@ FILE *get_debug_output(int argc, char *argv[], int *i) {
         const std::string name = argv[(*i) + 2];
         (*i) += 2;
         if (name.find(".smc") != std::string::npos ||
-            name.find("-") == 0) { // failsafe in case the user forgets to specify the debug output file (we check if
+            name.find('-') == 0) { // failsafe in case the user forgets to specify the debug output file (we check if
                                    // it's a rom or another cmd line option)
             (*i)--; // fallback to stdout and decrement i to keep reading the rest of the cmd line options
             printf("Output debug file specified was invalid or missing, printing to screen...\n");
@@ -187,7 +185,6 @@ FILE *get_debug_output(int argc, char *argv[], int *i) {
                 printf("Couldn't open or create the output file, printing to screen...\n");
                 return stdout;
             } else {
-                cfg.m_Debug.outfile = name;
                 return fp; // everything went smoothly, return proper file handler
             }
         }
@@ -299,21 +296,21 @@ std::string escapeDefines(std::string_view path, const char *repl = "\\!") {
 
     for (int i = 0; i < print_count; i++) {
         if (!strncmp(prints[i], "INIT", 4))
-            ptr_map["init"] = strtol(prints[i] + 4, NULL, 16);
+            ptr_map["init"] = strtol(prints[i] + 4, nullptr, 16);
         else if (!strncmp(prints[i], "MAIN", 4))
-            ptr_map["main"] = strtol(prints[i] + 4, NULL, 16);
+            ptr_map["main"] = strtol(prints[i] + 4, nullptr, 16);
         else if (!strncmp(prints[i], "CAPE", 4) && spr->sprite_type == 1)
-            ptr_map["cape"] = strtol(prints[i] + 4, NULL, 16);
+            ptr_map["cape"] = strtol(prints[i] + 4, nullptr, 16);
         else if (!strncmp(prints[i], "CARRIABLE", 9) && spr->sprite_type == 0)
-            ptr_map["carriable"] = strtol(prints[i] + 9, NULL, 16);
+            ptr_map["carriable"] = strtol(prints[i] + 9, nullptr, 16);
         else if (!strncmp(prints[i], "CARRIED", 7) && spr->sprite_type == 0)
-            ptr_map["carried"] = strtol(prints[i] + 7, NULL, 16);
+            ptr_map["carried"] = strtol(prints[i] + 7, nullptr, 16);
         else if (!strncmp(prints[i], "KICKED", 6) && spr->sprite_type == 0)
-            ptr_map["kicked"] = strtol(prints[i] + 6, NULL, 16);
+            ptr_map["kicked"] = strtol(prints[i] + 6, nullptr, 16);
         else if (!strncmp(prints[i], "MOUTH", 5) && spr->sprite_type == 0)
-            ptr_map["mouth"] = strtol(prints[i] + 5, NULL, 16);
+            ptr_map["mouth"] = strtol(prints[i] + 5, nullptr, 16);
         else if (!strncmp(prints[i], "GOAL", 4) && spr->sprite_type == 0)
-            ptr_map["goal"] = strtol(prints[i] + 4, NULL, 16);
+            ptr_map["goal"] = strtol(prints[i] + 4, nullptr, 16);
         else if (!strncmp(prints[i], "VERG", 4)) {
             // if the user has put $ to indicate the hex number we skip it
             // we always parse the version as a decimal
@@ -618,7 +615,7 @@ bool areConfigFlagsToggled() {
     return cfg.PerLevel || cfg.disable255Sprites || true; // for now config is recreated on all runs
 }
 
-bool create_config_file(const std::string path) {
+bool create_config_file(const std::string &path) {
     if (areConfigFlagsToggled()) {
         FILE *config = open(path.c_str(), "w");
         if (config == nullptr)
@@ -647,7 +644,7 @@ std::vector<std::string> listExtraAsm(const std::string &path, bool &has_error) 
         error("Trying to read folder \"%s\" returned \"%s\", aborting insertion\n", path.c_str(), err.what());
         has_error = true;
     }
-    if (extraDefines.size() > 0)
+    if (!extraDefines.empty())
         std::sort(extraDefines.begin(), extraDefines.end());
     return extraDefines;
 }
@@ -726,7 +723,7 @@ std::vector<std::string> listExtraAsm(const std::string &path, bool &has_error) 
     char cfgname[FILENAME_MAX] = {0};
     char cline[1024]; // i'll boldly assume that nobody is gonna have a 1024 characters line
     const char *dir = nullptr;
-    while (fgets(cline, 1024, listStream) != NULL) {
+    while (fgets(cline, 1024, listStream) != nullptr) {
         line = cline;
         int read_until = -1;
         sprite *sprite_list = sprite_lists[FromEnum(type)];
@@ -890,7 +887,7 @@ std::vector<std::string> listExtraAsm(const std::string &path, bool &has_error) 
 [[nodiscard]] bool write_long_table(sprite *spr, std::string_view dir, std::string_view filename, int size = 0x800) {
     unsigned char dummy[0x10] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                                  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-    unsigned char *file = new unsigned char[size * 0x10];
+    auto *file = new unsigned char[size * 0x10];
 
     if (is_empty_table(spr, size)) {
         if (!write_all(dummy, dir, filename, 0x10)) {
@@ -996,7 +993,7 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
 #ifdef ON_WINDOWS
     std::string lm_handle;
     uint16_t verification_code = 0;
-    HWND window_handle = 0;
+    HWND window_handle = nullptr;
 #endif
     // first is version x.xx, others are preserved
     unsigned char versionflag[4] = {VERSION_FULL, 0x00, 0x00, 0x00};
@@ -1103,7 +1100,7 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
         } else if (!strcmp(argv[i], "-k")) {
             cfg.KeepFiles = true;
         } else if (!strcmp(argv[i], "-nr")) {
-            cfg.Routines = std::clamp(std::atoi(argv[i + 1]), DEFAULT_ROUTINES, MAX_ROUTINES);
+            cfg.Routines = std::clamp((int)std::strtol(argv[i + 1], nullptr, 10), DEFAULT_ROUTINES, MAX_ROUTINES);
             i++;
         } else if (!strcmp(argv[i], "-pl")) {
             cfg.PerLevel = true;
@@ -1129,7 +1126,7 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
 #ifdef ON_WINDOWS
         else if (!strcmp(argv[i], "-lm-handle")) {
             lm_handle = argv[i + 1];
-            window_handle = (HWND)std::stoull(lm_handle, 0, 16);
+            window_handle = (HWND)std::stoull(lm_handle, nullptr, 16);
             verification_code = (uint16_t)(std::stoi(lm_handle.substr(lm_handle.find_first_of(':') + 1), 0, 16));
             i++;
         }
@@ -1431,7 +1428,7 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
             fputc(0x00, mw2);
         } else {
             fs_size--; // -1 to skip the 0xFF byte at the end
-            unsigned char *mw2_data = new unsigned char[fs_size];
+            auto *mw2_data = new unsigned char[fs_size];
             size_t read_size = fread(mw2_data, 1, fs_size, fp);
             if (read_size != fs_size) {
                 error("Couldn't fully read file %s, please check file permissions",
@@ -1451,7 +1448,7 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
         read_map16(map, cfg.m_Extensions[FromEnum(ExtType::S16)].c_str());
 
     for (int i = 0; i < 0x100; i++) {
-        sprite *spr = from_table<sprite>(sprite_list, 0x200, i);
+        sprite *spr = from_table(sprite_list, 0x200, i);
 
         // sprite pointer being null indicates per-level sprite
         if (!spr || (cfg.PerLevel && i >= 0xB0 && i < 0xC0)) {
@@ -1480,17 +1477,38 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
 
                     // 4 digit hex value. First is Y pos (0-F) then X (0-F) then custom/extra bit combination
                     // here custom bit is always set (because why the fuck not?)
-                    int ref = d.y * 0x1000 + d.x * 0x100 + 0x20 + (d.extra_bit ? 0x10 : 0);
-
                     // if no description (or empty) just asm filename instead.
-                    if (!d.description.empty())
-                        fprintf(ssc, "%02X %04X %s\n", i, ref, d.description.c_str());
-                    else
-                        fprintf(ssc, "%02X %04X %s\n", i, ref, spr->asm_file);
+                    int ref = 0;
+                    if (spr->disp_type == display_type::ExtensionByte) {
+                        ref = 0x20 + (d.extra_bit ? 0x10 : 0);
+                        if (!d.description.empty())
+                            fprintf(ssc, "%02X %1X%02X%02X %s\n", i, d.x_or_index, d.y_or_value, ref,
+                                    d.description.c_str());
+                        else
+                            fprintf(ssc, "%02X %1X%02X%02X %s\n", i, d.x_or_index, d.y_or_value, ref, spr->asm_file);
+                    } else {
+                        ref = d.y_or_value * 0x1000 + d.x_or_index * 0x100 + 0x20 + (d.extra_bit ? 0x10 : 0);
+                        if (!d.description.empty())
+                            fprintf(ssc, "%02X %04X %s\n", i, ref, d.description.c_str());
+                        else
+                            fprintf(ssc, "%02X %04X %s\n", i, ref, spr->asm_file);
+                    }
+
+                    if (!d.gfx_files.empty()) {
+                        fprintf(ssc, "%02X 8 ", i);
+                        for (const auto &gfx : d.gfx_files) {
+                            fprintf(ssc, "%X,%X,%X,%X ", gfx.gfx_files[0], gfx.gfx_files[1], gfx.gfx_files[2],
+                                    gfx.gfx_files[3]);
+                        }
+                        fprintf(ssc, "\n");
+                    }
 
                     // loop over tiles and append them into the output.
-                    fprintf(ssc, "%02X %04X", i, ref + 2);
-                    for (const auto &t : d.tiles) {
+                    if (spr->disp_type == display_type::ExtensionByte)
+                        fprintf(ssc, "%02X %1X%02X%02X", i, d.x_or_index, d.y_or_value, ref + 2);
+                    else
+                        fprintf(ssc, "%02X %04X", i, ref + 2);
+                    for (const auto& t : d.tiles) {
                         if (!t.text.empty()) {
                             fprintf(ssc, " 0,0,*%s*", t.text.c_str());
                             break;
@@ -1569,7 +1587,7 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
     if (failed)
         return EXIT_FAILURE;
     int count_extra_prints = 0;
-    if (cfg.m_Debug.output && extraHijacks.size() > 0) {
+    if (cfg.m_Debug.output && !extraHijacks.empty()) {
         cfg.m_Debug.dprintf("-------- ExtraHijacks prints --------\n", "");
     }
     for (std::string patchUri : extraHijacks) {

@@ -24,7 +24,7 @@ bool read_json_file(sprite *spr, FILE *output) {
         }
         instr >> j;
     } catch (const std::exception &e) {
-        if (strstr(e.what(), "parse error") != NULL) {
+        if (strstr(e.what(), "parse error") != nullptr) {
             printf("An error was encountered while parsing %s, please make sure that the json file has the correct "
                    "format. (error: %s)",
                    spr->cfg_file, e.what());
@@ -66,26 +66,60 @@ bool read_json_file(sprite *spr, FILE *output) {
         spr->map_data.resize(map_block_count);
         memcpy(spr->map_data.data(), decoded.c_str(), map_block_count * sizeof(map16));
         // displays
+        auto disp_type = j.at("DisplayType").get<std::string>();
+        if (disp_type == "XY") {
+            spr->disp_type = display_type::XYPosition;
+        } else if (disp_type == "ExByte") {
+            spr->disp_type = display_type::ExtensionByte;
+        } else {
+            throw std::domain_error("Unknown type of display " + disp_type);
+        }
         spr->displays.resize(j.at("Displays").size());
         int counter = 0;
-        for (auto jdisplay : j.at("Displays")) {
+        for (auto &jdisplay : j.at("Displays")) {
             auto &dis = spr->displays[counter];
 
             dis.description = jdisplay.at("Description").get<std::string>();
 
-            dis.x = jdisplay.at("X");
-            dis.y = jdisplay.at("Y");
-            dis.x = std::clamp(dis.x, 0, 0x0F);
-            dis.y = std::clamp(dis.y, 0, 0x0F);
-            dis.extra_bit = jdisplay.at("ExtraBit");
+            if (spr->disp_type == display_type::ExtensionByte) {
+                dis.x_or_index = jdisplay.at("Index");
+                dis.x_or_index =
+                    std::clamp(dis.x_or_index, 0, (dis.extra_bit ? spr->extra_byte_count : spr->byte_count)) + 3;
+                dis.y_or_value = jdisplay.at("Value");
+            } else {
+                dis.x_or_index = jdisplay.at("X");
+                dis.y_or_value = jdisplay.at("Y");
+                dis.x_or_index = std::clamp(dis.x_or_index, 0, 0x0F);
+                dis.y_or_value = std::clamp(dis.y_or_value, 0, 0x0F);
+            }
+
+            // for each X,Y or extension byte based appearance check if they have gfx information
+            auto gfxinfo = jdisplay.find("GFXInfo");
+            if (gfxinfo != jdisplay.end()) {
+                auto &gfxarray = *gfxinfo;
+                dis.gfx_files.resize(gfxarray.size());
+                size_t n = 0;
+                for (const auto &gfx : gfxarray) {
+                    bool separate = gfx.at("Separate");
+                    for (int gfx_idx = 0; gfx_idx < 4; gfx_idx++) {
+                        try {
+                            dis.gfx_files[n].gfx_files[gfx_idx] =
+                                gfx.at(std::to_string(gfx_idx)).get<int>() | (separate ? 0x8000 : 0);
+                        } catch (const std::out_of_range &) {
+                            dis.gfx_files[n].gfx_files[gfx_idx] = 0x7F;
+                        }
+                    }
+                    n++;
+                }
+            }
 
             if (jdisplay.at("UseText")) {
                 dis.tiles.push_back({0, 0, 0, jdisplay.at("DisplayText")});
             } else {
                 dis.tiles.resize(jdisplay.at("Tiles").size());
                 int counter2 = 0;
-                for (auto jtile : jdisplay.at("Tiles")) {
-                    auto& til = dis.tiles[counter2];
+                for (auto &jtile : jdisplay.at("Tiles")) {
+                    auto &til = dis.tiles[counter2];
                     til.x_offset = jtile.at("X offset");
                     til.y_offset = jtile.at("Y offset");
                     til.tile_number = jtile.at("map16 tile");
@@ -97,9 +131,9 @@ bool read_json_file(sprite *spr, FILE *output) {
 
         // collections
         counter = 0;
-        spr->collections.reserve(j.at("Collection").size());
-        for (auto jCollection : j.at("Collection")) {
-            auto& col = spr->collections.emplace_back();
+        spr->collections.resize(j.at("Collection").size());
+        for (auto &jCollection : j.at("Collection")) {
+            auto &col = spr->collections.emplace_back();
             col.name = jCollection.at("Name").get<std::string>();
             col.extra_bit = jCollection.at("ExtraBit");
             for (int i = 1; i <= (col.extra_bit ? spr->extra_byte_count : spr->byte_count); i++) {
@@ -123,8 +157,7 @@ bool read_json_file(sprite *spr, FILE *output) {
 
         return true;
     } catch (const std::exception &e) {
-        if (output)
-            fprintf(output, "Error when parsing json: %s", e.what());
+        fprintf(output, "Error when parsing json: %s\n", e.what());
         return false;
     }
 }
