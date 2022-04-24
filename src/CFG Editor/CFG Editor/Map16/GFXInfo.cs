@@ -35,40 +35,17 @@ namespace CFG.Map16
         private int _Sp2 = 0x7F;
         private int _Sp3 = 0x7F;
 
-        class SPSerializer : JsonConverter
-        {
-            public override bool CanConvert(Type objectType)
-            {
-                return objectType == typeof(int);
-            }
-
-            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-            {
-                var token = JToken.ReadFrom(reader);
-                if (token.Type == JTokenType.Integer)
-                    return (int)token;
-                return null;
-            }
-
-            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-            {
-                if (value == null || (int)value == 0x7F)
-                    return;
-                serializer.Serialize(writer, (int)value);
-            }
-        }
-
-        [JsonProperty(PropertyName = "0")]
-        [JsonConverter(typeof(SPSerializer))]
+        [JsonProperty(PropertyName = "0", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [DefaultValue(0x7F)]
         public int Sp0 { get => _Sp0; set => _Sp0 = value; }
-        [JsonProperty(PropertyName = "1")]
-        [JsonConverter(typeof(SPSerializer))]
+        [JsonProperty(PropertyName = "1", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [DefaultValue(0x7F)]
         public int Sp1 { get => _Sp1; set => _Sp1 = value; }
-        [JsonProperty(PropertyName = "2")]
-        [JsonConverter(typeof(SPSerializer))]
+        [JsonProperty(PropertyName = "2", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [DefaultValue(0x7F)]
         public int Sp2 { get => _Sp2; set => _Sp2 = value; }
-        [JsonProperty(PropertyName = "3")]
-        [JsonConverter(typeof(SPSerializer))]
+        [JsonProperty(PropertyName = "3", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [DefaultValue(0x7F)]
         public int Sp3 { get => _Sp3; set => _Sp3 = value; }
 
 
