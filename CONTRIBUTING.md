@@ -30,6 +30,7 @@ For asm files, the following rules apply:
 - Keep things containerized, don't let macro bleed out labels in the top level, use macro labels
 - Indent code by 4 spaces even at top level, code all the way at the left of the page is weird, labels can be at the very left
 - Avoid comments unless absolutely necessary, especially in the middle of code
+- Use either all uppercase or all lowercase for opcodes. For example, don't use `LdA`. In general, try to keep the style of the code you're adding consistent with the style of the code that surrounds it, so if in the file you're changing everything is uppercase use uppercase, lowercase if the opposite is true.
 
 ## C++:
 
@@ -38,10 +39,11 @@ For C++ files, the following rules apply:
 - Use modern C++ code style. Prefer newer C++17/C++20 idioms over old C-style code
 - Don't abuse templates too much
 - Don't `using namespace std;`
-- Don't use external libraries unless you have to (e.g. writing an entire json parser)
+- Don't use external libraries unless you have to (e.g. using an external library to avoid writing an entire json parser is ok)
 - Avoid abusing the preprocessor to hell and back (macro galore is a no-no)
 - If you can use the `std::` for something, use it, don't reinvent the wheel
-
+- Avoid UB names (e.g. __foo or _Foo)
+- Avoid allocations and raw pointers when possible.
 ## C#:
 
 For C# files, the following rules apply:

@@ -77,6 +77,9 @@
         Avoid comments unless absolutely necessary, especially in the middle of
         code
       </li>
+      <li>
+        Use either all uppercase or all lowercase for opcodes. For example, don&#39;t use <code>LdA</code>. In general, try to keep the style of the code you&#39;re adding consistent with the style of the code that surrounds it, so if in the file you&#39;re changing everything is uppercase use uppercase, lowercase if the opposite is true.
+      </li>
     </ul>
     <h2 id="c-">C++:</h2>
     <p>For C++ files, the following rules apply:</p>
@@ -88,8 +91,7 @@
       <li>Don&#39;t abuse templates too much</li>
       <li>Don&#39;t <code>using namespace std;</code></li>
       <li>
-        Don&#39;t use external libraries unless you have to (e.g. writing an
-        entire json parser)
+        Don&#39;t use external libraries unless you have to (e.g. using an external library to avoid writing an entire json parser is ok)
       </li>
       <li>
         Avoid abusing the preprocessor to hell and back (macro galore is a
@@ -98,6 +100,12 @@
       <li>
         If you can use the <code>std::</code> for something, use it, don&#39;t
         reinvent the wheel
+      </li>
+      <li>
+        Avoid UB names for variables and defines (e.g. __foo or _Foo)
+      </li>
+      <li>
+        Avoid allocations and raw pointers when possible.
       </li>
     </ul>
     <h2 id="c-">C#:</h2>
