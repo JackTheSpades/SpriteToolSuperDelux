@@ -1,13 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32126.315
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CFG Editor Project", "CFG Editor\CFG Editor Project.csproj", "{DCCC92C0-DAAD-4A7F-AC97-8AFBCC508D56}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CFG Editor Tests", "CFG Editor Tests\CFG Editor Tests.csproj", "{3F37288B-4467-40E4-AE4C-C9B7EB9371D2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Build Json Cpp", "Build Json Cpp\Build Json Cpp.csproj", "{19663E5B-B77E-45C7-B84C-ECD33C36CA65}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,12 +21,11 @@ Global
 		{3F37288B-4467-40E4-AE4C-C9B7EB9371D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F37288B-4467-40E4-AE4C-C9B7EB9371D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F37288B-4467-40E4-AE4C-C9B7EB9371D2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{19663E5B-B77E-45C7-B84C-ECD33C36CA65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{19663E5B-B77E-45C7-B84C-ECD33C36CA65}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{19663E5B-B77E-45C7-B84C-ECD33C36CA65}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{19663E5B-B77E-45C7-B84C-ECD33C36CA65}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5D239928-5F86-4F8B-82A4-42E0761A80D8}
 	EndGlobalSection
 EndGlobal

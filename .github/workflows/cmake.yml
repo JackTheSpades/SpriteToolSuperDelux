@@ -12,7 +12,7 @@ jobs:
     
     strategy:
       matrix:
-        os: [ windows-latest, ubuntu-latest ]
+        os: [ windows-latest, ubuntu-latest, macos-latest ]
     
     steps:
     - uses: actions/checkout@v2
@@ -24,13 +24,6 @@ jobs:
       shell: bash
       working-directory: ${{github.workspace}}/build
       run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
-      if: matrix.os == 'ubuntu-latest'
-    
-    - name: Configure CMake
-      shell: bash
-      working-directory: ${{github.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
-      if: matrix.os == 'windows-latest'
 
     - name: Build
       working-directory: ${{github.workspace}}/build
@@ -41,15 +34,28 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: pixi
-        path: ${{github.workspace}}/build/Release/pixi.exe
+        path: |
+          ${{github.workspace}}/build/Release/pixi.exe
+          ${{github.workspace}}/build/Release/pixi_api.dll
       if: matrix.os == 'windows-latest'
     
     - name: Upload
       uses: actions/upload-artifact@v2
       with:
-        name: pixi
-        path: ${{github.workspace}}/build/pixi
+        name: pixi_ubuntu
+        path: |
+          ${{github.workspace}}/build/pixi
+          ${{github.workspace}}/build/libpixi_api.so
       if: matrix.os == 'ubuntu-latest'
+
+    - name: Upload
+      uses: actions/upload-artifact@v2
+      with:
+        name: pixi_macos
+        path: |
+          ${{github.workspace}}/build/pixi
+          ${{github.workspace}}/build/libpixi_api.dylib
+      if: matrix.os == 'macos-latest'
     
     - name: Setup python
       uses: actions/setup-python@v2
@@ -67,11 +73,36 @@ jobs:
       working-directory: ${{github.workspace}}/test
       shell: bash
       run: bash pixi_test.sh
-      if: matrix.os == 'ubuntu-latest'
+      if: "matrix.os == 'ubuntu-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
     
     - name: Upload test results
       uses: actions/upload-artifact@v2
       with:
         name: test-result
         path: ${{github.workspace}}/test/results.zip
-      if: matrix.os == 'ubuntu-latest'
+      if: "matrix.os == 'ubuntu-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
+    
+    - name: Setup msbuild
+      uses: microsoft/setup-msbuild@v1
+      if: matrix.os == 'windows-latest'
+    
+    - name: Setup nuget
+      uses: actions/setup-dotnet@v1
+      if: matrix.os == 'windows-latest'
+    
+    - name: Build CFG Editor
+      shell: powershell
+      run: |
+        cd "${{github.workspace}}/src/CFG Editor"
+        nuget restore "CFG Editor.sln"
+        msbuild.exe "CFG Editor.sln" -p:Configuration=Release
+        Compress-Archive "${{github.workspace}}/src/CFG Editor/CFG Editor/bin/Release/CFG Editor.exe","${{github.workspace}}/src/CFG Editor/CFG Editor/bin/Release/Newtonsoft.Json.dll" ${{github.workspace}}/cfgeditor.zip
+      if: matrix.os == 'windows-latest'
+    
+    - name: Upload CFG Editor executable
+      uses: actions/upload-artifact@v2
+      with:
+        name: "CFG Editor"
+        path: ${{github.workspace}}/cfgeditor.zip
+      if: matrix.os == 'windows-latest'
+

@@ -13,6 +13,7 @@ freecode
 Main:
     LDA !smoke_num,x
     BEQ .return                     ; original code
+    AND #$7F
 
     CMP.b #!SmokeOffset             ; check if custom
     BCC .original

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<meta charset="UTF-8" />
+<html>
+  <head>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0 auto;
+        max-width: 960px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1 id="contributing">CONTRIBUTING</h1>
+    <h2 id="general-rules-">General rules:</h2>
+    <ul>
+      <li>
+        Decently descriptive commit messages (with descriptions if necessary).
+      </li>
+      <li>
+        The GitHub actions runner on Ubuntu does a quite expensive test on each
+        run. This can be skipped by adding <code>[NoTest]</code> at the
+        beginning of the title of the commit message. This is recommended to add
+        when your changes only affect the CFG Editor, since the expensive test
+        only affects Pixi.
+      </li>
+      <li>Use spaces for everything, no tabs. 4 spaces per tab.</li>
+      <li>Avoid breaking changes unless they give a huge benefit.</li>
+      <li>
+        Don&#39;t be rude and don&#39;t insult/disrespect other people&#39;s
+        code.
+      </li>
+    </ul>
+    <p>
+        Since this is a multi-part project I&#39;ll illustrate rules based on
+        language.<br />
+        Note that newer code follows these rules.<br />
+        Since this project passed in multiple people's hands, some old code will not follow these rules.<br />
+        This however does not mean you shouldn't follow them.<br />
+        All of the old code will get converted to rule-following code sooner or later.<br />
+    </p>
+    <h2 id="asm-">ASM:</h2>
+    <p>For asm files, the following rules apply:</p>
+    <ul>
+      <li>!snake_case for defines</li>
+      <li>%PascalCase() for macros/functions</li>
+      <li>camelCase for labels</li>
+      <li>Have label names be descriptive</li>
+      <li>
+        Avoid abbreviations if you can unless they&#39;re very widely used, keep
+        names of everything under 30 characters
+      </li>
+      <li>
+        Try to always separate sub-routines into macros when possible if you
+        want to avoid the cost of JSR-RTS but still reap the benefits of the
+        readability of separation
+      </li>
+      <li>
+        Use +/- labels sparingly, use them only when skipping a single
+        instruction, 2 at most, and only a single level, seeing ++++ only makes
+        code hard to read
+      </li>
+      <li>
+        Avoid loading magic constants (e.g. LDA #$45), give them a define name
+        that states clearly what they are
+      </li>
+      <li>
+        Keep things containerized, don&#39;t let macro bleed out labels in the
+        top level, use macro labels
+      </li>
+      <li>
+        Indent code by 4 spaces even at top level, code all the way at the left
+        of the page is weird, labels can be at the very left
+      </li>
+      <li>
+        Avoid comments unless absolutely necessary, especially in the middle of
+        code
+      </li>
+    </ul>
+    <h2 id="c-">C++:</h2>
+    <p>For C++ files, the following rules apply:</p>
+    <ul>
+      <li>
+        Use modern C++ code style. Prefer newer C++17/C++20 idioms over old
+        C-style code
+      </li>
+      <li>Don&#39;t abuse templates too much</li>
+      <li>Don&#39;t <code>using namespace std;</code></li>
+      <li>
+        Don&#39;t use external libraries unless you have to (e.g. writing an
+        entire json parser)
+      </li>
+      <li>
+        Avoid abusing the preprocessor to hell and back (macro galore is a
+        no-no)
+      </li>
+      <li>
+        If you can use the <code>std::</code> for something, use it, don&#39;t
+        reinvent the wheel
+      </li>
+    </ul>
+    <h2 id="c-">C#:</h2>
+    <p>For C# files, the following rules apply:</p>
+    <ul>
+      <li>Don&#39;t misuse LINQ</li>
+      <li>Keep the same style as existing code</li>
+      <li>
+        Keep the code as simple as you can and touch it as little as possible
+      </li>
+    </ul>
+  </body>
+</html>

@@ -28,3 +28,4 @@ build
 .idea
 .vs
 CMakeSettings.json
+StructLayoutSettings.json

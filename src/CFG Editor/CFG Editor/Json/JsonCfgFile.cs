@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,12 @@ using System.Threading.Tasks;
 
 namespace CFG.Json
 {
+    public enum DisplayType
+    {
+        XY,
+        ExtraByte
+    }
+
     public class JsonCfgFile
     {
         [JsonProperty(PropertyName = "$1656")]
@@ -41,10 +48,42 @@ namespace CFG.Json
 
         [JsonProperty(PropertyName = "Map16")]
         public byte[] Map16 { get; set; }
+
         [JsonProperty(PropertyName = "Displays")]
         public List<Map16.DisplaySprite> Displays { get; set; }
+
         [JsonProperty(PropertyName = "Collection")]
         public List<CollectionSprite> Collection { get; set; }
+
+        [JsonProperty(PropertyName = "GFXInfo")]
+        public List<Map16.GFXInfo> GFXInfos { get; set; }
+
+        class DisplayTypeConverter : JsonConverter
+        {
+            public override bool CanConvert(Type objectType)
+            {
+                return (objectType == typeof(string));
+            }
+
+            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+            {
+                var token = JToken.Load(reader);
+                if (token.Type == JTokenType.String)
+                {
+                    return token.ToString() == "ExByte" ? DisplayType.ExtraByte : DisplayType.XY;
+                }
+                return null;
+            }
+
+            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            {
+                serializer.Serialize(writer, (DisplayType)value == DisplayType.ExtraByte ? "ExByte" : "XY");
+            }
+        }
+
+        [JsonProperty(PropertyName = "DisplayType", Required = Required.Default, Order = 0)]
+        [JsonConverter(typeof(DisplayTypeConverter))]
+        public DisplayType DisplayType { get; set; } = DisplayType.XY;
 
         public JsonCfgFile() { }
         public JsonCfgFile(CfgFile cfgFile)
@@ -68,15 +107,18 @@ namespace CFG.Json
 
             Map16 = cfgFile.CustomMap16Data;
             Displays = new List<CFG.Map16.DisplaySprite>();
+            DisplayType = cfgFile.DispType;
             foreach(var display in cfgFile.DisplayEntries)
             {
                 var newDisplay = (CFG.Map16.DisplaySprite)display.Clone();
                 bool useText = display.UseText;
                 newDisplay.DisplayText = newDisplay.DisplayText.Replace("\n", @"\n");
                 newDisplay.UseText = useText;
+                newDisplay.disp_type = DisplayType;
                 Displays.Add(newDisplay);
             }
             Collection = new List<CollectionSprite>(cfgFile.CollectionEntries);
+            GFXInfos = new List<Map16.GFXInfo>(cfgFile.GFXInfos);
         }
 
         public void FillData(CfgFile cfgFile)
@@ -97,6 +139,7 @@ namespace CFG.Json
 
             cfgFile.ByteCount = ByteCount;
             cfgFile.ExByteCount = ExByteCount;
+            cfgFile.DispType = DisplayType;
 
             cfgFile.CustomMap16Data = Map16;
 
@@ -106,12 +149,20 @@ namespace CFG.Json
                 bool useText = ds.UseText;
                 ds.DisplayText = ds.DisplayText.Replace(@"\n", "\n");
                 ds.UseText = useText;
+                ds.disp_type = DisplayType;
                 cfgFile.DisplayEntries.Add(ds);
             }
 
             cfgFile.CollectionEntries.Clear();
             foreach (var cs in Collection)
                 cfgFile.CollectionEntries.Add(cs);
+
+            cfgFile.GFXInfos.Clear();
+            if (GFXInfos != null)
+            {
+                foreach (var cs in GFXInfos)
+                    cfgFile.GFXInfos.Add(cs);
+            }
         }
     }
 }

@@ -1,11 +1,10 @@
 
+#include <cstdio>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <cstdio>
 #include <string>
-
 
 #include "MeiMei.h"
 
@@ -47,8 +46,8 @@ std::string escapeDefines(const std::string &path) {
     return ss.str();
 }
 
-void MeiMei::configureSa1Def(const std::string& pathToSa1Def) {
-    std::string escapedPath = escapeDefines(pathToSa1Def);
+void MeiMei::configureSa1Def(const string &pathToSa1Def) {
+    string escapedPath = escapeDefines(pathToSa1Def);
     MeiMei::sa1DefPath = escapedPath;
 }
 
@@ -73,23 +72,25 @@ bool MeiMei::patch(const char *patch_name, ROM &rom) {
     return true;
 }
 
-void MeiMei::initialize(const char *rom_name) {
+bool MeiMei::initialize(const char *rom_name) {
     MeiMei::name = std::string(rom_name);
 
     memset(prevEx, 0x03, 0x400);
     memset(nowEx, 0x03, 0x400);
 
-    prev.open(MeiMei::name.c_str());
+    if (!prev.open(MeiMei::name.c_str()))
+        return false;
     if (prev.read_byte(0x07730F) == 0x42) {
         int addr = prev.snes_to_pc(prev.read_long(0x07730C), false);
         prev.read_data(prevEx, 0x0400, addr);
     }
+    return true;
 }
 
 int MeiMei::run() {
-    ROM rom{};
-    rom.open(MeiMei::name.c_str());
-
+    ROM rom;
+    if (!rom.open(MeiMei::name.c_str()))
+        return 1;
     if (!asar_init()) {
         error("Error: Asar library is missing or couldn't be initialized, please redownload the tool or add the dll.\n",
               "");
@@ -111,8 +112,9 @@ int MeiMei::run() {
 }
 
 int MeiMei::run(ROM &rom) {
-    ROM now{};
-    now.open(MeiMei::name.c_str());
+    ROM now;
+    if (!now.open(MeiMei::name.c_str()))
+        return 1;
     if (prev.read_byte(0x07730F) == 0x42) {
         int addr = now.snes_to_pc(now.read_long(0x07730C), false);
         now.read_data(nowEx, 0x0400, addr);
@@ -132,10 +134,9 @@ int MeiMei::run(ROM &rom) {
     }
 
     if (changeEx || MeiMei::always) {
-        uint8_t sprAllData[SPR_ADDR_LIMIT];
-        uint8_t sprCommonData[3];
-        bool remapped[0x0200];
-        memset(remapped, 0, 0x200);
+        uchar sprAllData[SPR_ADDR_LIMIT]{};
+        uchar sprCommonData[3];
+        bool remapped[0x0200]{};
 
         for (int lv = 0; lv < 0x200; lv++) {
             if (remapped[lv])
@@ -217,11 +218,9 @@ int MeiMei::run(ROM &rom) {
                 std::string binaryFileName("_tmp_bin_");
                 binaryFileName.append(levelAsHex);
                 binaryFileName.append(".bin");
-                std::ofstream binFile(binaryFileName, std::ios::out | std::ios::binary);
-
-                auto *dataPtr = (uint8_t *)sprAllData;
+                std::ofstream binFile(binaryFileName, ios::out | ios::binary);
                 for (int ara = 0; ara <= nowOfs; ara++) {
-                    binFile << dataPtr[ara];
+                    binFile << sprAllData[ara];
                 }
                 binFile.close();
 

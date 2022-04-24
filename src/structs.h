@@ -29,7 +29,6 @@ struct pointer {
     }
     pointer(const pointer &) = default;
     ~pointer() = default;
-
     [[nodiscard]] bool is_empty() const {
         return lowbyte == RTL_LOW && highbyte == RTL_HIGH && bankbyte == RTL_BANK;
     }
@@ -144,7 +143,7 @@ struct ROM {
     int header_size;
     MapperType mapper;
 
-    void open(const char *n);
+    [[nodiscard]] bool open(const char *n);
     void close();
 
     int pc_to_snes(int address, bool header = true) const;

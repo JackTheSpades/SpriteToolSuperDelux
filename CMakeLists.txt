@@ -1,9 +1,32 @@
-cmake_minimum_required(VERSION 3.10)
-project(pixi VERSION 1.32)
+cmake_minimum_required(VERSION 3.15)
+project(pixi VERSION 1.32 LANGUAGES CXX C)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CURRENT_SOURCE_DIR "src")
 set(PIXI_SOURCE_FILES "")
+include(FetchContent)
+
+set(PIXI_LINK_LIBRARIES "")
+set(PIXI_LINK_OPTIONS "")
+set(PIXI_COMPILE_OPTIONS "")
+set(PIXI_COMPILE_DEFINITIONS "")
+
+FetchContent_Declare(json
+  URL https://github.com/nlohmann/json/releases/download/v3.10.5/json.tar.xz
+)
+
+FetchContent_GetProperties(json)
+
+if(NOT json_POPULATED)
+  FetchContent_Populate(json)
+  add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
+
+list(
+    APPEND PIXI_LINK_LIBRARIES
+    "nlohmann_json::nlohmann_json"
+)
+
 list(
     APPEND PIXI_SOURCE_FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/icon.rc"
@@ -27,41 +50,67 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/MeiMei/MeiMei.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/asar/asardll.h" 
     "${CMAKE_CURRENT_SOURCE_DIR}/json/base64.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/json/json.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/json_const.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/config.h"
+
+    "${CMAKE_CURRENT_SOURCE_DIR}/pixi_information_impl.cpp"
+
+    "${CMAKE_CURRENT_SOURCE_DIR}/api_bindings/pixi_api.h"
 )
-add_executable(pixi ${PIXI_SOURCE_FILES})
-if (CMAKE_COMPILER_IS_GNUCXX)
+add_executable(pixi "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp" ${PIXI_SOURCE_FILES})
+
+if (PIXI_LIBRARY_TYPE STREQUAL "STATIC")
+    list(APPEND PIXI_COMPILE_DEFINITIONS
+    "PIXI_STATIC_LIB"
+    )
+else()
+    set(PIXI_LIBRARY_TYPE "SHARED")
+endif()
+
+add_library(pixi_api ${PIXI_LIBRARY_TYPE} ${PIXI_SOURCE_FILES})
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if (WIN32)
-        message(STATUS "Windows build, adding static libraries")
+        message(STATUS "Windows build (on Clang/MINGW)")
+        list(APPEND PIXI_LINK_OPTIONS -static -static-libgcc -static-libstdc++)
+        list(APPEND PIXI_COMPILE_OPTIONS -Wno-deprecated-declarations)
         if (CMAKE_BUILD_TYPE STREQUAL "Debug")  # if debug mode, don't add -s and --gc-sections
             message(STATUS "Building debug mode")
-            target_link_options(pixi PRIVATE -static) 
         else()
             message(STATUS "Building release mode")
-            target_link_options(pixi PRIVATE -static -s -Wl,--gc-sections)
+            list(APPEND PIXI_LINK_OPTIONS -s -Wl,--gc-sections)
         endif()
-        target_link_libraries(pixi PRIVATE -static-libgcc -static-libstdc++)
-        target_compile_options(pixi PRIVATE -Wall -Wextra -Wpedantic)
-    else()
-        message(STATUS "Unix build, not adding static libraries")   # on unix we don't care about -m32, for... some reason I guess
+    elseif(APPLE)
+        message(STATUS "MacOS build")
         if (CMAKE_BUILD_TYPE STREQUAL "Debug")
             message(STATUS "Building debug mode")
         else()
             message(STATUS "Building release mode")
-            target_link_options(pixi PRIVATE -s -Wl,--gc-sections)
         endif()
-        target_link_libraries(pixi PRIVATE dl)
-        target_compile_options(pixi PRIVATE -Wall -Wextra -Wpedantic)
+        list(APPEND PIXI_COMPILE_OPTIONS -Wall -Wextra -Wpedantic)
+        list(APPEND PIXI_LINK_LIBRARIES dl)
+    else()
+        message(STATUS "Unix build")
+        if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+            message(STATUS "Building debug mode")
+        else()
+            message(STATUS "Building release mode")
+            list(APPEND PIXI_LINK_OPTIONS -s -Wl,--gc-sections)
+        endif()
+        list(APPEND PIXI_COMPILE_OPTIONS -Wall -Wextra -Wpedantic)
+        list(APPEND PIXI_LINK_LIBRARIES dl)
     endif() 
-    message(STATUS "GCC detected, adding compile flags")
+    message(STATUS "GCC/Clang detected, adding compile flags")
 else()
     set(CMAKE_GENERATOR "Visual Studio 16 2019")
-    target_link_options(pixi PRIVATE /INCREMENTAL:NO /NODEFAULTLIB:MSVCRT)
     message(STATUS "MSVC detected, adding compile flags")
-    target_compile_options(pixi PRIVATE /MT /Wall /std:c++20)
-    target_compile_options(pixi PRIVATE
+    list(APPEND PIXI_COMPILE_DEFINITIONS _CRT_SECURE_NO_WARNINGS)
+    if (PIXI_LIBRARY_TYPE STREQUAL "SHARED")
+        set(PIXI_MSVC_LIB_TYPE "/MD$<$<CONFIG:Debug>:d>")
+    else()
+        set(PIXI_MSVC_LIB_TYPE "/MT$<$<CONFIG:Debug>:d>")
+    endif()
+    list(APPEND PIXI_COMPILE_OPTIONS /Wall /std:c++20 ${PIXI_MSVC_LIB_TYPE})
+    list(APPEND PIXI_COMPILE_OPTIONS
             # generic & extremely noisy warnings which do (almost) nothing useful
             # not to say that most come from code which I have no control over
             /wd4514 # unreferenced inline function removed
@@ -98,3 +147,14 @@ else()
             /wd4668
 	)
 endif()
+
+target_link_libraries(pixi PRIVATE ${PIXI_LINK_LIBRARIES})
+target_link_options(pixi PRIVATE ${PIXI_LINK_OPTIONS})
+target_compile_options(pixi PRIVATE ${PIXI_COMPILE_OPTIONS})
+target_compile_definitions(pixi PRIVATE ${PIXI_COMPILE_DEFINITIONS} PIXI_EXE_BUILD)
+
+target_link_libraries(pixi_api PRIVATE ${PIXI_LINK_LIBRARIES})
+target_link_options(pixi_api PRIVATE ${PIXI_LINK_OPTIONS})
+target_compile_options(pixi_api PRIVATE ${PIXI_COMPILE_OPTIONS})
+target_compile_definitions(pixi_api PRIVATE ${PIXI_COMPILE_DEFINITIONS})
+

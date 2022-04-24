@@ -8,14 +8,14 @@
 #include <string>
 
 constexpr size_t handler_limit = 6;
-using cfg_handler = void (*)(const std::string &, sprite *);
+using cfg_handler = bool (*)(const std::string &, sprite *);
 
-void cfg_type(const std::string &line, sprite *spr);
-void cfg_actlike(const std::string &line, sprite *spr);
-void cfg_tweak(const std::string &line, sprite *spr);
-void cfg_prop(const std::string &line, sprite *spr);
-void cfg_asm(const std::string &line, sprite *spr);
-void cfg_extra(const std::string &line, sprite *spr);
+bool cfg_type(const std::string &line, sprite *spr);
+bool cfg_actlike(const std::string &line, sprite *spr);
+bool cfg_tweak(const std::string &line, sprite *spr);
+bool cfg_prop(const std::string &line, sprite *spr);
+bool cfg_asm(const std::string &line, sprite *spr);
+bool cfg_extra(const std::string &line, sprite *spr);
 
 bool read_cfg_file(sprite *spr, FILE *output) {
 
@@ -26,6 +26,7 @@ bool read_cfg_file(sprite *spr, FILE *output) {
     std::ifstream cfg_stream(spr->cfg_file);
     if (!cfg_stream) {
         error("Can't find CFG file %s, aborting insertion", spr->cfg_file);
+        return false;
     }
     std::string current_line;
     while (std::getline(cfg_stream, current_line) && line < handlers.size()) {
@@ -33,7 +34,8 @@ bool read_cfg_file(sprite *spr, FILE *output) {
         if (current_line.empty() || current_line.length() == 0)
             continue;
 
-        handlers[line++](current_line.c_str(), spr);
+        if (!handlers[line++](current_line.c_str(), spr))
+            return false;
     };
 
     if (output) {
@@ -43,22 +45,26 @@ bool read_cfg_file(sprite *spr, FILE *output) {
     return true;
 }
 
-void cfg_type(const std::string &line, sprite *spr) {
+bool cfg_type(const std::string &line, sprite *spr) {
     sscanf(line.data(), "%hhx", &spr->table.type);
+    return true;
 }
-void cfg_actlike(const std::string &line, sprite *spr) {
+bool cfg_actlike(const std::string &line, sprite *spr) {
     sscanf(line.data(), "%hhx", &spr->table.actlike);
+    return true;
 }
-void cfg_tweak(const std::string &line, sprite *spr) {
+bool cfg_tweak(const std::string &line, sprite *spr) {
     sscanf(line.data(), "%hhx %hhx %hhx %hhx %hhx %hhx", &spr->table.tweak[0], &spr->table.tweak[1],
            &spr->table.tweak[2], &spr->table.tweak[3], &spr->table.tweak[4], &spr->table.tweak[5]);
+    return true;
 }
-void cfg_prop(const std::string &line, sprite *spr) {
+bool cfg_prop(const std::string &line, sprite *spr) {
     sscanf(line.data(), "%hhx %hhx", &spr->table.extra[0], &spr->table.extra[1]);
+    return true;
 }
-void cfg_asm(const std::string &line, sprite *spr) {
-
+bool cfg_asm(const std::string &line, sprite *spr) {
     spr->asm_file = append_to_dir(spr->cfg_file, line.data());
+    return true;
 }
 
 std::pair<int, int> read_byte_count(const std::string &line) {
@@ -82,12 +88,14 @@ std::pair<int, int> read_byte_count(const std::string &line) {
     return values;
 }
 
-void cfg_extra(const std::string &line, sprite *spr) {
+bool cfg_extra(const std::string &line, sprite *spr) {
     try {
         auto values = read_byte_count(line);
         spr->byte_count = values.first;
         spr->extra_byte_count = values.second;
     } catch (const std::invalid_argument &e) {
         error("Error in reading extra byte settings for file %s, error was \"%s\"\n", spr->cfg_file, e.what());
+        return false;
     }
+    return true;
 }

@@ -172,7 +172,6 @@ endmacro
 ;shooter defines
 %define_base2_address(shoot_num,$1783)		; shooter number -#$BC, also has the extra bit in #$40
 %define_base2_address(shoot_y_low,$178B)
-%define_base2_address(shoot_y_low,$178B)
 %define_base2_address(shoot_y_high,$1793)
 %define_base2_address(shoot_x_low,$179B)
 %define_base2_address(shoot_x_high,$17A3)
@@ -209,6 +208,12 @@ endmacro
 %define_base2_address(extended_timer,$176F)
 %define_base2_address(extended_behind,$1779)
 
+%define_base2_address(extended_table_1,$1765)
+%define_base2_address(extended_table_2,$198C)
+%define_base2_address(extended_table_3,$1996)
+%define_base2_address(extended_table_4,$19A0)
+%define_base2_address(extended_table_5,$19AA)
+
 ;minor extended defines
 %define_base2_address(minor_extended_num,$17F0)
 %define_base2_address(minor_extended_y_low,$17FC)
@@ -221,11 +226,20 @@ endmacro
 %define_base2_address(minor_extended_y_fraction,$1838)
 %define_base2_address(minor_extended_timer,$1850)
 
+%define_base2_address(minor_extended_table_1,$1938)
+%define_base2_address(minor_extended_table_2,$1944)
+%define_base2_address(minor_extended_table_3,$1950)
+
 ;smoke sprite defines
 %define_base2_address(smoke_num,$17C0)
 %define_base2_address(smoke_y_low,$17C4)
 %define_base2_address(smoke_x_low,$17C8)
 %define_base2_address(smoke_timer,$17CC)
+%define_base2_address(smoke_table_1,$195C)
+%define_base2_address(smoke_table_2,$1960)
+%define_base2_address(smoke_table_3,$1964)
+%define_base2_address(smoke_y_high,$1960)
+%define_base2_address(smoke_x_high,$1964)
 
 ;spinning coin sprite defines
 %define_base2_address(spinning_coin_num,$17D0)
@@ -237,6 +251,10 @@ endmacro
 %define_base2_address(spinning_coin_y_high,$17E8)
 %define_base2_address(spinning_coin_x_high,$17EC)
 
+%define_base2_address(spinning_coin_table_1,$1974)
+%define_base2_address(spinning_coin_table_2,$1978)
+%define_base2_address(spinning_coin_table_3,$197C)
+
 ;score sprite defines
 %define_base2_address(score_num,$16E1)
 %define_base2_address(score_y_low,$16E7)
@@ -245,6 +263,9 @@ endmacro
 %define_base2_address(score_y_high,$16F9)
 %define_base2_address(score_y_speed,$16FF)
 %define_base2_address(score_layer,$1705)
+
+%define_base2_address(score_table_1,$1980)
+%define_base2_address(score_table_2,$1986)
 
 ;bounce sprite defines
 %define_base2_address(bounce_num,$1699)
@@ -260,7 +281,14 @@ endmacro
 %define_base2_address(bounce_map16_tile,$16C1)
 %define_base2_address(bounce_timer,$16C5)
 %define_base2_address(bounce_table,$16C9)
+%define_base2_address(bounce_table_1,$16C9)
 %define_base2_address(bounce_properties,$1901)
+
+%define_base2_address(bounce_table_2,$1968)
+%define_base2_address(bounce_table_3,$196C)
+%define_base2_address(bounce_table_4,$1970)
+%define_base2_address(bounce_map16_low,$16C1)
+%define_base2_address(bounce_map16_high,$1968)
 
 ;quake sprite defines
 ; %define_base2_address(quake_num,$16CD)

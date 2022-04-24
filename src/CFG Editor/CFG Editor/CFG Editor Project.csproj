@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CFG</RootNamespace>
     <AssemblyName>CFG Editor</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
@@ -27,6 +27,7 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -109,6 +110,7 @@
     </Compile>
     <Compile Include="Json\JsonCfgFile.cs" />
     <Compile Include="Json\JsonTweaker.cs" />
+    <Compile Include="Map16\GFXInfo.cs" />
     <Compile Include="Map16\Map16Data.cs" />
     <Compile Include="Editors\Map16Editor.cs">
       <SubType>UserControl</SubType>
@@ -156,6 +158,7 @@
     </Compile>
     <None Include="CFG Editor Project_TemporaryKey.pfx" />
     <None Include="packages.config" />
+    <None Include="Properties\DataSources\CFG.Map16.GFXInfo.datasource" />
     <None Include="Properties\DataSources\CFG.Map16.Sprite.datasource" />
     <EmbeddedResource Include="Resources\Graphics\GFX00.bin" />
     <EmbeddedResource Include="Resources\Graphics\GFX01.bin" />
@@ -273,6 +276,11 @@
   <ItemGroup>
     <None Include="Resources\SpriteList.txt" />
     <None Include="Resources\Letters.png" />
+    <Content Include="Resources\Icons\8x8.png" />
+    <Content Include="Resources\Icons\8x8t.png" />
+    <Content Include="Resources\Icons\grid.png" />
+    <Content Include="Resources\Icons\page.png" />
+    <Content Include="Resources\Icons\palette.png" />
     <Content Include="VioletEgg.ico" />
   </ItemGroup>
   <ItemGroup>

@@ -2,7 +2,7 @@ build_script:
   - ps: .\build_script.ps1
 
 after_build:
-  - ps: py .\zip.py
+  - ps: py -m pip install requests; py .\zip.py
 
 artifacts:
   - path: pixi.zip
