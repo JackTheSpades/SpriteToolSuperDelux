@@ -141,7 +141,7 @@ EXPORT pixi_collection_array pixi_sprite_collections(pixi_sprite_t pixi_sprite_p
 }
 
 EXPORT int pixi_sprite_type(pixi_sprite_t pixi_sprite_ptr) {
-    return pixi_sprite_ptr->sprite_type;
+    return static_cast<int>(pixi_sprite_ptr->sprite_type);
 }
 
 // Tile information APIs

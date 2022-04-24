@@ -2,6 +2,7 @@
 #define STRUCTS_H
 
 #include "file_io.h"
+#include "config.h"
 #include <cstring>
 #include <vector>
 #include <string>
@@ -124,8 +125,7 @@ struct sprite {
 
     std::vector<collection> collections{};
 
-    int sprite_type = 0; // 0 = Normal custom sprite, 1 = Extended custom sprite, 2 = Cluster custom sprite, 3 =
-                         // Overworld custom sprite
+    ListType sprite_type = ListType::Sprite; 
     ~sprite();
     void print(FILE *stream);
 };

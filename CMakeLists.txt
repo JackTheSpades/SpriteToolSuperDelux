@@ -11,16 +11,13 @@ set(PIXI_LINK_OPTIONS "")
 set(PIXI_COMPILE_OPTIONS "")
 set(PIXI_COMPILE_DEFINITIONS "")
 
-FetchContent_Declare(json
-  URL https://github.com/nlohmann/json/releases/download/v3.10.5/json.tar.xz
+FetchContent_Declare(
+    json
+    GIT_REPOSITORY https://github.com/nlohmann/json
+    GIT_TAG v3.10.5
 )
 
-FetchContent_GetProperties(json)
-
-if(NOT json_POPULATED)
-  FetchContent_Populate(json)
-  add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
-endif()
+FetchContent_MakeAvailable(json)
 
 list(
     APPEND PIXI_LINK_LIBRARIES

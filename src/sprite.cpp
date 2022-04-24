@@ -3,6 +3,7 @@
 #include <array>
 #include <exception>
 #include <fstream>
+#include <functional>
 #include <map>
 #include <sstream>
 #include <utility>
@@ -70,8 +71,8 @@ template <typename T, size_t N> constexpr size_t array_size(T (&)[N]) {
     return N;
 }
 
-void clean_sprite_generic(FILE *clean_patch, int table_address, int original_value, size_t count, const char *preface,
-                          ROM &rom) {
+void clean_sprite_generic(FILE* clean_patch, int table_address, int original_value, size_t count, const char* preface,
+                          ROM& rom) {
     fprintf(clean_patch, "%s", preface);
     int table = rom.pointer_snes(table_address).addr();
     if (table != original_value) // check with default/uninserted address
@@ -82,7 +83,7 @@ void clean_sprite_generic(FILE *clean_patch, int table_address, int original_val
         }
 }
 
-template <size_t COUNT> [[nodiscard]] bool write_sprite_generic(sprite (&list)[COUNT], const char *filename) {
+template <size_t COUNT> [[nodiscard]] bool write_sprite_generic(sprite (&list)[COUNT], const char* filename) {
     constexpr auto ASM = FromEnum(PathType::Asm);
     unsigned char file[COUNT * 3]{};
     for (size_t i = 0; i < COUNT; i++)
@@ -90,7 +91,7 @@ template <size_t COUNT> [[nodiscard]] bool write_sprite_generic(sprite (&list)[C
     return write_all(file, cfg.m_Paths[ASM], filename, COUNT * 3);
 }
 
-template <typename T> T *from_table(T *table, int level, int number) {
+template <typename T> T* from_table(T* table, int level, int number) {
     if (!cfg.PerLevel)
         return table + number;
 
@@ -103,7 +104,7 @@ template <typename T> T *from_table(T *table, int level, int number) {
     return nullptr;
 }
 
-[[nodiscard]] bool patch(const char *patch_name_rel, ROM &rom) {
+[[nodiscard]] bool patch(const char* patch_name_rel, ROM& rom) {
     std::string patch_path{patch_name_rel}; //  = std::filesystem::absolute(patch_name_rel).generic_string();
     // clang-format off
     constexpr struct warnsetting disabled_warnings[] {
@@ -136,14 +137,14 @@ template <typename T> T *from_table(T *table, int level, int number) {
         debug_print("Failure. Try fetch errors:\n");
 #endif
         int error_count;
-        const errordata *errors = asar_geterrors(&error_count);
+        const errordata* errors = asar_geterrors(&error_count);
         printf("An error has been detected:\n");
         for (int i = 0; i < error_count; i++)
             printf("%s\n", errors[i].fullerrdata);
         return false;
     }
     int warn_count = 0;
-    const errordata *loc_warnings = asar_getwarnings(&warn_count);
+    const errordata* loc_warnings = asar_getwarnings(&warn_count);
     for (int i = 0; i < warn_count; i++)
         warnings.emplace_back(loc_warnings[i].fullerrdata);
 #ifdef DEBUGMSG
@@ -152,8 +153,8 @@ template <typename T> T *from_table(T *table, int level, int number) {
     return true;
 }
 
-[[nodiscard]] bool patch(std::string_view dir, const char *patch_name, ROM &rom) {
-    char *path = new char[dir.length() + strlen(patch_name) + 1];
+[[nodiscard]] bool patch(std::string_view dir, const char* patch_name, ROM& rom) {
+    char* path = new char[dir.length() + strlen(patch_name) + 1];
     path[0] = 0;
     strcat(path, dir.data());
     strcat(path, patch_name);
@@ -162,13 +163,13 @@ template <typename T> T *from_table(T *table, int level, int number) {
     return ret;
 }
 
-void addIncScrToFile(FILE *file, const std::vector<std::string> &toInclude) {
-    for (std::string const &incPath : toInclude) {
+void addIncScrToFile(FILE* file, const std::vector<std::string>& toInclude) {
+    for (std::string const& incPath : toInclude) {
         fprintf(file, "incsrc \"%s\"\n", incPath.c_str());
     }
 }
 
-FILE *get_debug_output(int argc, char *argv[], int *i) {
+FILE* get_debug_output(int argc, char* argv[], int* i) {
 
     if (!strcmp(argv[(*i) + 1], "-out") && (*i) < argc - 3) {
         const std::string name = argv[(*i) + 2];
@@ -180,7 +181,7 @@ FILE *get_debug_output(int argc, char *argv[], int *i) {
             printf("Output debug file specified was invalid or missing, printing to screen...\n");
             return stdout;
         } else {
-            FILE *fp = fopen(name.c_str(), "w"); // try opening the file, in case of failure we just fallback to stdout
+            FILE* fp = fopen(name.c_str(), "w"); // try opening the file, in case of failure we just fallback to stdout
             if (fp == nullptr) {
                 printf("Couldn't open or create the output file, printing to screen...\n");
                 return stdout;
@@ -193,29 +194,24 @@ FILE *get_debug_output(int argc, char *argv[], int *i) {
     }
 }
 
-bool ends_with(const char *str, const char *suffix) {
+constexpr bool ends_with(const char* str, const char* suffix) {
     if (str == nullptr || suffix == nullptr)
         return false;
-
-    size_t str_len = strlen(str);
-    size_t suffix_len = strlen(suffix);
-
-    if (suffix_len > str_len)
-        return false;
-
-    return 0 == strncmp(str + str_len - suffix_len, suffix, suffix_len);
+    std::string_view strv{str};
+    std::string_view suffixv{str};
+    return strv.ends_with(suffixv);
 }
 
-[[nodiscard]] bool create_lm_restore(const char *rom) {
+[[nodiscard]] bool create_lm_restore(const char* rom) {
     char to_write[50];
     sprintf(to_write, "Pixi v%d.%d\t", VERSION_EDITION, VERSION_PARTIAL);
     std::string romname(rom);
     std::string restorename = romname.substr(0, romname.find_last_of('.')) + ".extmod";
 
-    FILE *res = open(restorename.c_str(), "a+");
+    FILE* res = open(restorename.c_str(), "a+");
     if (res) {
         size_t size = file_size(res);
-        char *contents = new char[size + 1];
+        char* contents = new char[size + 1];
         size_t read_size = fread(contents, 1, size, res);
         if (size != read_size) {
             error("Couldn\'t fully read file %s, please check file permissions", restorename.c_str());
@@ -235,7 +231,7 @@ bool ends_with(const char *str, const char *suffix) {
     }
 }
 
-std::string escapeDefines(std::string_view path, const char *repl = "\\!") {
+std::string escapeDefines(std::string_view path, const char* repl = "\\!") {
     std::stringstream ss("");
     for (char c : path) {
         if (c == '!') {
@@ -247,11 +243,11 @@ std::string escapeDefines(std::string_view path, const char *repl = "\\!") {
     return ss.str();
 }
 
-[[nodiscard]] bool patch_sprite(const std::vector<std::string> &extraDefines, sprite *spr, ROM &rom, FILE *output) {
+[[nodiscard]] bool patch_sprite(const std::vector<std::string>& extraDefines, sprite* spr, ROM& rom, FILE* output) {
     std::string escapedDir = escapeDefines(spr->directory);
     std::string escapedAsmfile = escapeDefines(spr->asm_file);
     std::string escapedAsmdir = escapeDefines(cfg.AsmDir);
-    FILE *sprite_patch = open(TEMP_SPR_FILE, "w");
+    FILE* sprite_patch = open(TEMP_SPR_FILE, "w");
     if (sprite_patch == nullptr)
         return false;
     fprintf(sprite_patch, "namespace nested on\n");
@@ -271,16 +267,16 @@ std::string escapeDefines(std::string_view path, const char *repl = "\\!") {
 
     if (!patch(TEMP_SPR_FILE, rom))
         return false;
-    std::map<std::string, int> ptr_map = {
-        std::pair<std::string, int>("init", 0x018021),      std::pair<std::string, int>("main", 0x018021),
-        std::pair<std::string, int>("cape", 0x000000),      std::pair<std::string, int>("mouth", 0x000000),
-        std::pair<std::string, int>("kicked", 0x000000), // null pointers
-        std::pair<std::string, int>("carriable", 0x000000), std::pair<std::string, int>("carried", 0x000000),
-        std::pair<std::string, int>("goal", 0x000000)};
+    std::map<std::string_view, int> ptr_map = {
+        std::pair<std::string_view, int>("INIT", 0x018021),      std::pair<std::string_view, int>("MAIN", 0x018021),
+        std::pair<std::string_view, int>("CAPE", 0x000000),      std::pair<std::string_view, int>("MOUTH", 0x000000),
+        std::pair<std::string_view, int>("KICKED", 0x000000), // null pointers
+        std::pair<std::string_view, int>("CARRIABLE", 0x000000), std::pair<std::string_view, int>("CARRIED", 0x000000),
+        std::pair<std::string_view, int>("GOAL", 0x000000)};
     int print_count = 0;
-    const char *const *asar_prints = asar_getprints(&print_count);
-    char **prints = new char *[print_count];
-    const char **og_ptrs = new const char *[print_count];
+    const char* const* asar_prints = asar_getprints(&print_count);
+    char** prints = new char*[print_count];
+    const char** og_ptrs = new const char*[print_count];
 
     for (int i = 0; i < print_count; i++) { // trim prints since now we can't deal with starting spaces
         prints[i] = new char[strlen(asar_prints[i]) + 1];
@@ -294,53 +290,73 @@ std::string escapeDefines(std::string_view path, const char *repl = "\\!") {
     if (print_count > 2 && output)
         fprintf(output, "Prints:\n");
 
+    using namespace std::string_view_literals;
+
+    struct PointerChecker {
+        const std::string_view name;
+        const std::function<bool(ListType)> check;
+        bool operator()(ListType tp, const char* str) const noexcept {
+            return check(tp) && name == std::string_view{str, std::min(name.size(), strlen(str))};
+        }
+    };
+
+    auto always_true = [](ListType) { return true; };
+    auto normal_only = [](ListType tp) { return tp == ListType::Sprite; };
+    auto extended_only = [](ListType tp) { return tp == ListType::Extended; };
+
+    // clang-format off
+    std::array valid_pointer_names{
+        PointerChecker{"INIT"sv, always_true},
+        PointerChecker{"MAIN"sv, always_true},
+        PointerChecker{"CAPE"sv, extended_only},  
+        PointerChecker{"CARRIABLE"sv, normal_only},
+        PointerChecker{"CARRIED"sv, normal_only}, 
+        PointerChecker{"KICKED"sv, normal_only},
+        PointerChecker{"MOUTH"sv, normal_only},   
+        PointerChecker{"GOAL"sv, normal_only},
+        PointerChecker{"VERG"sv, always_true},
+    };
+    // clang-format on
+
     for (int i = 0; i < print_count; i++) {
-        if (!strncmp(prints[i], "INIT", 4))
-            ptr_map["init"] = strtol(prints[i] + 4, nullptr, 16);
-        else if (!strncmp(prints[i], "MAIN", 4))
-            ptr_map["main"] = strtol(prints[i] + 4, nullptr, 16);
-        else if (!strncmp(prints[i], "CAPE", 4) && spr->sprite_type == 1)
-            ptr_map["cape"] = strtol(prints[i] + 4, nullptr, 16);
-        else if (!strncmp(prints[i], "CARRIABLE", 9) && spr->sprite_type == 0)
-            ptr_map["carriable"] = strtol(prints[i] + 9, nullptr, 16);
-        else if (!strncmp(prints[i], "CARRIED", 7) && spr->sprite_type == 0)
-            ptr_map["carried"] = strtol(prints[i] + 7, nullptr, 16);
-        else if (!strncmp(prints[i], "KICKED", 6) && spr->sprite_type == 0)
-            ptr_map["kicked"] = strtol(prints[i] + 6, nullptr, 16);
-        else if (!strncmp(prints[i], "MOUTH", 5) && spr->sprite_type == 0)
-            ptr_map["mouth"] = strtol(prints[i] + 5, nullptr, 16);
-        else if (!strncmp(prints[i], "GOAL", 4) && spr->sprite_type == 0)
-            ptr_map["goal"] = strtol(prints[i] + 4, nullptr, 16);
-        else if (!strncmp(prints[i], "VERG", 4)) {
-            // if the user has put $ to indicate the hex number we skip it
-            // we always parse the version as a decimal
-            auto required_version = atoi(prints[i] + (prints[i][4] == '$' ? 5 : 4));
-            if (VERSION_PARTIAL < required_version) {
-                printf("The sprite %s requires to be inserted at least with Pixi 1.%d, this is Pixi 1.%d\n",
-                       spr->asm_file, required_version, VERSION_PARTIAL);
-                return false;
+        auto it = std::find_if(valid_pointer_names.begin(), valid_pointer_names.end(),
+                               [&](const PointerChecker& chk) { return chk(spr->sprite_type, prints[i]); });
+        if (it != valid_pointer_names.end()) {
+            const auto& ch = *it;
+            if (ch.name == "VERG"sv) {
+                // if the user has put $ to indicate the hex number we skip it
+                // we always parse the version as a decimal
+                auto required_version = atoi(prints[i] + (prints[i][4] == '$' ? 5 : 4));
+                if (VERSION_PARTIAL < required_version) {
+                    printf("The sprite %s requires to be inserted at least with Pixi 1.%d, this is Pixi 1.%d\n",
+                           spr->asm_file, required_version, VERSION_PARTIAL);
+                    return false;
+                }
+            } else {
+                ptr_map[ch.name] = strtol(prints[i] + ch.name.size(), nullptr, 16);
             }
+
         } else if (output) {
             fprintf(output, "\t%s\n", prints[i]);
         }
     }
-    set_pointer(&spr->table.init, ptr_map["init"]);
-    set_pointer(&spr->table.main, ptr_map["main"]);
+    set_pointer(&spr->table.init, ptr_map["INIT"]);
+    set_pointer(&spr->table.main, ptr_map["MAIN"]);
     if (spr->table.init.is_empty() && spr->table.main.is_empty()) {
         error("Sprite %s had neither INIT nor MAIN defined in its file, insertion has been aborted.", spr->asm_file);
         return false;
     }
-    if (spr->sprite_type == 1) {
-        set_pointer(&spr->extended_cape_ptr, ptr_map["cape"]);
-    } else if (spr->sprite_type == 0) {
-        set_pointer(&spr->ptrs.carried, ptr_map["carried"]);
-        set_pointer(&spr->ptrs.carriable, ptr_map["carriable"]);
-        set_pointer(&spr->ptrs.kicked, ptr_map["kicked"]);
-        set_pointer(&spr->ptrs.mouth, ptr_map["mouth"]);
-        set_pointer(&spr->ptrs.goal, ptr_map["goal"]);
+    if (spr->sprite_type == ListType::Extended) {
+        set_pointer(&spr->extended_cape_ptr, ptr_map["CAPE"]);
+    } else if (spr->sprite_type == ListType::Sprite) {
+        set_pointer(&spr->ptrs.carried, ptr_map["CARRIED"]);
+        set_pointer(&spr->ptrs.carriable, ptr_map["CARRIABLE"]);
+        set_pointer(&spr->ptrs.kicked, ptr_map["KICKED"]);
+        set_pointer(&spr->ptrs.mouth, ptr_map["MOUTH"]);
+        set_pointer(&spr->ptrs.goal, ptr_map["GOAL"]);
     }
     if (output) {
-        if (spr->sprite_type == 0)
+        if (spr->sprite_type == ListType::Sprite)
             fprintf(output,
                     "\tINIT: $%06X\n\tMAIN: $%06X\n"
                     "\tCARRIABLE: $%06X\n\tCARRIED: $%06X\n\tKICKED: $%06X\n"
@@ -348,7 +364,7 @@ std::string escapeDefines(std::string_view path, const char *repl = "\\!") {
                     "\n__________________________________\n",
                     spr->table.init.addr(), spr->table.main.addr(), spr->ptrs.carriable.addr(),
                     spr->ptrs.carried.addr(), spr->ptrs.kicked.addr(), spr->ptrs.mouth.addr(), spr->ptrs.goal.addr());
-        else if (spr->sprite_type == 1)
+        else if (spr->sprite_type == ListType::Extended)
             fprintf(output,
                     "\tINIT: $%06X\n\tMAIN: $%06X\n\tCAPE: $%06X"
                     "\n__________________________________\n",
@@ -366,10 +382,10 @@ std::string escapeDefines(std::string_view path, const char *repl = "\\!") {
     return true;
 }
 
-[[nodiscard]] bool patch_sprites(std::vector<std::string> &extraDefines, sprite *sprite_list, int size, ROM &rom,
-                                 FILE *output) {
+[[nodiscard]] bool patch_sprites(std::vector<std::string>& extraDefines, sprite* sprite_list, int size, ROM& rom,
+                                 FILE* output) {
     for (int i = 0; i < size; i++) {
-        sprite *spr = sprite_list + i;
+        sprite* spr = sprite_list + i;
         if (!spr->asm_file)
             continue;
 
@@ -426,11 +442,11 @@ std::string escapeDefines(std::string_view path, const char *repl = "\\!") {
     return true;
 }
 
-[[nodiscard]] bool clean_hack(ROM &rom, std::string_view pathname) {
-    if (!strncmp((char *)rom.data + rom.snes_to_pc(0x02FFE2), "STSD", 4)) { // already installed load old tables
+[[nodiscard]] bool clean_hack(ROM& rom, std::string_view pathname) {
+    if (!strncmp((char*)rom.data + rom.snes_to_pc(0x02FFE2), "STSD", 4)) { // already installed load old tables
 
         std::string path = cfg.AsmDir + "_cleanup.asm";
-        FILE *clean_patch = open(path.c_str(), "w");
+        FILE* clean_patch = open(path.c_str(), "w");
         if (clean_patch == nullptr)
             return false;
 
@@ -553,15 +569,15 @@ std::string escapeDefines(std::string_view path, const char *repl = "\\!") {
         fclose(clean_patch);
         if (!patch(path.c_str(), rom))
             return false;
-    } else if (!strncmp((char *)rom.data + rom.snes_to_pc(rom.pointer_snes(0x02A963 + 1).addr() - 3), "MDK",
+    } else if (!strncmp((char*)rom.data + rom.snes_to_pc(rom.pointer_snes(0x02A963 + 1).addr() - 3), "MDK",
                         3)) { // check for old sprite_tool code. (this is annoying)
         if (!patch((std::string(pathname) + "spritetool_clean.asm").c_str(), rom))
             return false;
         // removes all STAR####MDK tags
-        const char *mdk = "MDK"; // sprite tool added "MDK" after the rats tag to find it's insertions...
+        const char* mdk = "MDK"; // sprite tool added "MDK" after the rats tag to find it's insertions...
         int number_of_banks = rom.size / 0x8000;
         for (int i = 0x10; i < number_of_banks; ++i) {
-            char *bank = (char *)(rom.real_data + i * 0x8000);
+            char* bank = (char*)(rom.real_data + i * 0x8000);
 
             int bank_offset = 8;
             while (true) {
@@ -615,9 +631,9 @@ bool areConfigFlagsToggled() {
     return cfg.PerLevel || cfg.disable255Sprites || true; // for now config is recreated on all runs
 }
 
-bool create_config_file(const std::string &path) {
+bool create_config_file(const std::string& path) {
     if (areConfigFlagsToggled()) {
-        FILE *config = open(path.c_str(), "w");
+        FILE* config = open(path.c_str(), "w");
         if (config == nullptr)
             return false;
         fprintf(config, "!PerLevel = %d\n", (int)cfg.PerLevel);
@@ -627,20 +643,20 @@ bool create_config_file(const std::string &path) {
     return true;
 }
 
-std::vector<std::string> listExtraAsm(const std::string &path, bool &has_error) {
+std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) {
     has_error = false;
     std::vector<std::string> extraDefines;
     if (!std::filesystem::exists(cleanPathTrail(path))) {
         return extraDefines;
     }
     try {
-        for (auto &file : std::filesystem::directory_iterator(path)) {
+        for (auto& file : std::filesystem::directory_iterator(path)) {
             std::string spath = file.path().generic_string();
             if (nameEndWithAsmExtension(spath)) {
                 extraDefines.push_back(spath);
             }
         }
-    } catch (const std::filesystem::filesystem_error &err) {
+    } catch (const std::filesystem::filesystem_error& err) {
         error("Trying to read folder \"%s\" returned \"%s\", aborting insertion\n", path.c_str(), err.what());
         has_error = true;
     }
@@ -649,9 +665,9 @@ std::vector<std::string> listExtraAsm(const std::string &path, bool &has_error) 
     return extraDefines;
 }
 
-[[nodiscard]] bool create_shared_patch(const std::string &routine_path) {
+[[nodiscard]] bool create_shared_patch(const std::string& routine_path) {
     std::string escapedRoutinepath = escapeDefines(routine_path, R"(\\\!)");
-    FILE *shared_patch = open("shared.asm", "w");
+    FILE* shared_patch = open("shared.asm", "w");
     if (shared_patch == nullptr)
         return false;
     fprintf(shared_patch, "macro include_once(target, base, offset)\n"
@@ -679,7 +695,7 @@ std::vector<std::string> listExtraAsm(const std::string &path, bool &has_error) 
         return false;
     }
     try {
-        for (const auto &routine_file : std::filesystem::directory_iterator(routine_path)) {
+        for (const auto& routine_file : std::filesystem::directory_iterator(routine_path)) {
             std::string name(routine_file.path().filename().generic_string());
             if (routine_count > DEFAULT_ROUTINES) {
                 error("More than 100 routines located. Please remove some. \n", "");
@@ -687,7 +703,7 @@ std::vector<std::string> listExtraAsm(const std::string &path, bool &has_error) 
             }
             if (nameEndWithAsmExtension(name)) {
                 name = name.substr(0, name.length() - 4);
-                const char *charName = name.c_str();
+                const char* charName = name.c_str();
                 fprintf(shared_patch,
                         "!%s = 0\n"
                         "macro %s()\n"
@@ -699,7 +715,7 @@ std::vector<std::string> listExtraAsm(const std::string &path, bool &has_error) 
                 routine_count++;
             }
         }
-    } catch (const std::filesystem::filesystem_error &err) {
+    } catch (const std::filesystem::filesystem_error& err) {
         error("Trying to read folder \"%s\" returned \"%s\", aborting insertion\n", routine_path.c_str(), err.what());
         return false;
     }
@@ -708,25 +724,24 @@ std::vector<std::string> listExtraAsm(const std::string &path, bool &has_error) 
     return true;
 }
 
-[[nodiscard]] bool populate_sprite_list(const Paths &paths,
-                                        const std::array<sprite *, FromEnum(ListType::__SIZE__)> &sprite_lists,
-                                        std::string_view listPath, FILE *output) {
-    FILE *listStream = open(listPath.data(), "r");
-    if (listStream == nullptr)
+[[nodiscard]] bool populate_sprite_list(const Paths& paths,
+                                        const std::array<sprite*, FromEnum(ListType::__SIZE__)>& sprite_lists,
+                                        std::string_view listPath, FILE* output) {
+    using namespace std::string_view_literals;
+    std::ifstream listStream{listPath.data()};
+    if (!listStream)
         return false;
     unsigned int sprite_id, level;
     int lineno = 0;
     int read_res;
     std::string line;
     ListType type = ListType::Sprite;
-    sprite *spr = nullptr;
+    sprite* spr = nullptr;
     char cfgname[FILENAME_MAX] = {0};
-    char cline[1024]; // i'll boldly assume that nobody is gonna have a 1024 characters line
-    const char *dir = nullptr;
-    while (fgets(cline, 1024, listStream) != nullptr) {
-        line = cline;
+    const char* dir = nullptr;
+    while (std::getline(listStream, line)) {
         int read_until = -1;
-        sprite *sprite_list = sprite_lists[FromEnum(type)];
+        sprite* sprite_list = sprite_lists[FromEnum(type)];
         // possible line formats: xxx:yy filename.<cfg/json/asm> [; ...]
         //						  yy filename.<cfg/json/asm> [; ...]
         // 						  TYPE: [; ...]
@@ -745,22 +760,17 @@ std::vector<std::string> listExtraAsm(const std::string &path, bool &has_error) 
             }
             strcpy(cfgname, line.c_str() + read_until);
         } else if (line.find(':') == line.length() - 1) { // if it's the last char in the string, it's a type change
-            if (line == "SPRITE:") {
-                type = ListType::Sprite;
-            } else if (line == "CLUSTER:") {
-                type = ListType::Cluster;
-            } else if (line == "EXTENDED:") {
-                type = ListType::Extended;
-            } else if (line == "MINOREXTENDED:") {
-                type = ListType::MinorExtended;
-            } else if (line == "BOUNCE:") {
-                type = ListType::Bounce;
-            } else if (line == "SMOKE:") {
-                type = ListType::Smoke;
-            } else if (line == "SPINNINGCOIN:") {
-                type = ListType::SpinningCoin;
-            } else if (line == "SCORE:") {
-                type = ListType::Score;
+            using svt = std::pair<std::string_view, ListType>;
+            constexpr std::array typeArray{
+                svt{"SPRITE:"sv, ListType::Sprite},     svt{"CLUSTER:"sv, ListType::Cluster},
+                svt{"EXTENDED:"sv, ListType::Extended}, svt{"MINOREXTENDED:"sv, ListType::MinorExtended},
+                svt{"BOUNCE:"sv, ListType::Bounce},     svt{"BOUNCE:"sv, ListType::Bounce},
+                svt{"SMOKE:"sv, ListType::Smoke},       svt{"SPINNINGCOIN:"sv, ListType::SpinningCoin},
+                svt{"SCORE:"sv, ListType::Score}};
+            auto it = std::find_if(typeArray.begin(), typeArray.end(),
+                                   [&line](const svt& svtl) { return svtl.first == line; });
+            if (it != typeArray.end()) {
+                type = it->second;
             }
             continue;
         } else { // if there's a ':' but it's not at the end, it may be a per level sprite
@@ -777,7 +787,7 @@ std::vector<std::string> listExtraAsm(const std::string &path, bool &has_error) 
             strcpy(cfgname, line.c_str() + read_until);
         }
 
-        char *dot = strrchr(cfgname, '.');
+        char* dot = strrchr(cfgname, '.');
         if (dot == nullptr) {
             error("Error on line %d: missing extension on filename %s\n", lineno, cfgname);
             return false;
@@ -818,7 +828,7 @@ std::vector<std::string> listExtraAsm(const std::string &path, bool &has_error) 
         spr->line = lineno;
         spr->level = level;
         spr->number = sprite_id;
-        spr->sprite_type = FromEnum(type);
+        spr->sprite_type = type;
 
         // set the directory for the desired type
         if (type != ListType::Sprite)
@@ -833,7 +843,7 @@ std::vector<std::string> listExtraAsm(const std::string &path, bool &has_error) 
         }
         spr->directory = dir;
 
-        char *fullFileName = new char[strlen(dir) + strlen(cfgname) + 1];
+        char* fullFileName = new char[strlen(dir) + strlen(cfgname) + 1];
         strcpy(fullFileName, dir);
         strcat(fullFileName, cfgname);
 
@@ -884,10 +894,10 @@ std::vector<std::string> listExtraAsm(const std::string &path, bool &has_error) 
 // spr      = sprite array
 // filename = duh
 // size     = number of sprites to loop over
-[[nodiscard]] bool write_long_table(sprite *spr, std::string_view dir, std::string_view filename, int size = 0x800) {
+[[nodiscard]] bool write_long_table(sprite* spr, std::string_view dir, std::string_view filename, int size = 0x800) {
     unsigned char dummy[0x10] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                                  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-    auto *file = new unsigned char[size * 0x10];
+    auto* file = new unsigned char[size * 0x10];
 
     if (is_empty_table(spr, size)) {
         if (!write_all(dummy, dir, filename, 0x10)) {
@@ -904,21 +914,21 @@ std::vector<std::string> listExtraAsm(const std::string &path, bool &has_error) 
     return true;
 }
 
-FILE *open_subfile(ROM &rom, const char *ext, const char *mode) {
-    char *name = new char[strlen(rom.name) + 1];
+FILE* open_subfile(ROM& rom, const char* ext, const char* mode) {
+    char* name = new char[strlen(rom.name) + 1];
     strcpy(name, rom.name);
-    char *dot = strrchr(name, '.');
+    char* dot = strrchr(name, '.');
     strcpy(dot + 1, ext);
 #ifdef DEBUGMSG
     debug_print("\ttry opening %s mode %s\n", name, mode);
 #endif
-    FILE *r = open(name, mode);
+    FILE* r = open(name, mode);
     delete[] name;
     return r;
 }
 
-void remove(std::string_view dir, const char *file) {
-    char *path = new char[dir.length() + strlen(file) + 1];
+void remove(std::string_view dir, const char* file) {
+    char* path = new char[dir.length() + strlen(file) + 1];
     path[0] = 0;
     strcat(path, dir.data());
     strcat(path, file);
@@ -942,6 +952,20 @@ void remove(std::string_view dir, const char *file) {
 struct RAIIOpenFileIOReplace {
     bool replaced_stdin;
     bool replaced_stdout;
+
+    bool replace_stdin(const char* file) {
+        if (!freopen(file, "r", stdin))
+            return false;
+        replaced_stdin = true;
+        return true;
+    }
+    bool replace_stdout(const char* file) {
+        if (!freopen(file, "r", stdout))
+            return false;
+        replaced_stdout = true;
+        return true;
+    }
+
     ~RAIIOpenFileIOReplace() {
         if (replaced_stdin) {
             fclose(stdin);
@@ -960,18 +984,16 @@ EXPORT int pixi_check_api_version(int version_edition, int version_major, int ve
     return version_edition == VERSION_EDITION && version_major == VERSION_MAJOR && version_minor == VERSION_MINOR;
 }
 
-EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *stdout_name) {
+EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* stdout_name) {
     RAIIOpenFileIOReplace iofilecloser{false, false};
     if (stdin_name) {
-        if (!freopen(stdin_name, "r", stdin))
+        if (!iofilecloser.replace_stdin(stdin_name))
             return EXIT_FAILURE;
-        iofilecloser.replaced_stdin = true;
     }
 
     if (stdout_name) {
-        if (!freopen(stdout_name, "w", stdout))
+        if (!iofilecloser.replace_stdout(stdout_name))
             return EXIT_FAILURE;
-        iofilecloser.replaced_stdout = true;
     }
 
     ROM rom;
@@ -986,9 +1008,9 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
     static sprite score_list[MINOR_SPRITE_COUNT];
 
     // the list containing the lists...
-    std::array<sprite *, FromEnum(ListType::__SIZE__)> sprites_list_list{{sprite_list, extended_list, cluster_list,
-                                                                          minor_extended_list, bounce_list, smoke_list,
-                                                                          spinningcoin_list, score_list}};
+    std::array<sprite*, FromEnum(ListType::__SIZE__)> sprites_list_list{{sprite_list, extended_list, cluster_list,
+                                                                         minor_extended_list, bounce_list, smoke_list,
+                                                                         spinningcoin_list, score_list}};
 
 #ifdef ON_WINDOWS
     std::string lm_handle;
@@ -1014,7 +1036,7 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
     //------------------------------------------------------------------------------------------
     // handle arguments passed to tool
     //------------------------------------------------------------------------------------------
-
+    // TODO: replace this with an actual argument parser...
     for (int i = 1; i < argc; i++) {
 
 #define SET_PATH(str, index)                                                                                           \
@@ -1281,7 +1303,7 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
     int normal_sprites_size = cfg.PerLevel ? MAX_SPRITE_COUNT : 0x100;
     if (!patch_sprites(extraDefines, sprite_list, normal_sprites_size, rom, cfg.m_Debug.output))
         return EXIT_FAILURE;
-    for (const auto &[type, size] : sprite_sizes) {
+    for (const auto& [type, size] : sprite_sizes) {
         if (!patch_sprites(extraDefines, sprites_list_list[FromEnum(type)], static_cast<int>(size), rom,
                            cfg.m_Debug.output))
             return EXIT_FAILURE;
@@ -1289,7 +1311,7 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
 
     if (!warnings.empty() && cfg.Warnings) {
         printf("One or more warnings have been detected:\n");
-        for (const std::string &warning : warnings) {
+        for (const std::string& warning : warnings) {
             printf("%s\n", warning.c_str());
         }
         printf("Do you want to continue insertion anyway? [Y/n] (Default is yes):\n");
@@ -1392,10 +1414,10 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
 #ifdef DEBUGMSG
     debug_print("Try create romname files.\n");
 #endif
-    FILE *s16 = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "wb") : open_subfile(rom, "s16", "wb");
-    FILE *ssc = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "w") : open_subfile(rom, "ssc", "w");
-    FILE *mwt = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "w") : open_subfile(rom, "mwt", "w");
-    FILE *mw2 = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "wb") : open_subfile(rom, "mw2", "wb");
+    FILE* s16 = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "wb") : open_subfile(rom, "s16", "wb");
+    FILE* ssc = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "w") : open_subfile(rom, "ssc", "w");
+    FILE* mwt = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "w") : open_subfile(rom, "mwt", "w");
+    FILE* mw2 = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "wb") : open_subfile(rom, "mw2", "wb");
 #ifdef DEBUGMSG
     debug_print("Romname files opened.\n");
 #endif
@@ -1419,7 +1441,7 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
     }
 
     if (!cfg.m_Extensions[FromEnum(ExtType::Mw2)].empty()) {
-        FILE *fp = open(cfg.m_Extensions[FromEnum(ExtType::Mw2)].c_str(), "rb");
+        FILE* fp = open(cfg.m_Extensions[FromEnum(ExtType::Mw2)].c_str(), "rb");
         if (fp == nullptr)
             return EXIT_FAILURE;
         size_t fs_size = file_size(fp);
@@ -1428,7 +1450,7 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
             fputc(0x00, mw2);
         } else {
             fs_size--; // -1 to skip the 0xFF byte at the end
-            auto *mw2_data = new unsigned char[fs_size];
+            auto* mw2_data = new unsigned char[fs_size];
             size_t read_size = fread(mw2_data, 1, fs_size, fp);
             if (read_size != fs_size) {
                 error("Couldn't fully read file %s, please check file permissions",
@@ -1448,7 +1470,7 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
         read_map16(map, cfg.m_Extensions[FromEnum(ExtType::S16)].c_str());
 
     for (int i = 0; i < 0x100; i++) {
-        sprite *spr = from_table(sprite_list, 0x200, i);
+        sprite* spr = from_table(sprite_list, 0x200, i);
 
         // sprite pointer being null indicates per-level sprite
         if (!spr || (cfg.PerLevel && i >= 0xB0 && i < 0xC0)) {
@@ -1473,7 +1495,7 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
                 memcpy(map + map16_tile, spr->map_data.data(), spr->map_data.size() * sizeof(map16));
 
                 //----- ssc / display -----------------------------------------------
-                for (const auto &d : spr->displays) {
+                for (const auto& d : spr->displays) {
 
                     // 4 digit hex value. First is Y pos (0-F) then X (0-F) then custom/extra bit combination
                     // here custom bit is always set (because why the fuck not?)
@@ -1496,7 +1518,7 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
 
                     if (!d.gfx_files.empty()) {
                         fprintf(ssc, "%02X 8 ", i);
-                        for (const auto &gfx : d.gfx_files) {
+                        for (const auto& gfx : d.gfx_files) {
                             fprintf(ssc, "%X,%X,%X,%X ", gfx.gfx_files[0], gfx.gfx_files[1], gfx.gfx_files[2],
                                     gfx.gfx_files[3]);
                         }
@@ -1527,7 +1549,7 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
 
                 //----- mwt,mw2 / collection ------------------------------------------
                 int counter_collections = 0;
-                for (const auto &c : spr->collections) {
+                for (const auto& c : spr->collections) {
                     // mw2
                     // build 3 byte level format
                     char c1 = 0x79 + (c.extra_bit ? 0x04 : 0);
@@ -1591,7 +1613,8 @@ EXPORT int pixi_run(int argc, char **argv, const char *stdin_name, const char *s
         cfg.m_Debug.dprintf("-------- ExtraHijacks prints --------\n", "");
     }
     for (std::string patchUri : extraHijacks) {
-        if (!patch(patchUri.c_str(), rom)) return EXIT_FAILURE;
+        if (!patch(patchUri.c_str(), rom))
+            return EXIT_FAILURE;
         if (cfg.m_Debug.output) {
             auto prints = asar_getprints(&count_extra_prints);
             for (int i = 0; i < count_extra_prints; i++) {

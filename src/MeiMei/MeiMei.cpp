@@ -19,7 +19,7 @@ constexpr auto SPR_ADDR_LIMIT = 0x800;
     }
 
 #define ASSERT_SPR_DATA_ADDR_SIZE(val)                                                                                 \
-    if ((val) >= SPR_ADDR_LIMIT)                                                                                         \
+    if ((val) >= SPR_ADDR_LIMIT)                                                                                       \
         ERR("Sprite data is too large!");
 
 void MeiMei::setAlwaysRemap() {
@@ -34,7 +34,7 @@ void MeiMei::setKeepTemp() {
     MeiMei::keepTemp = true;
 }
 
-std::string escapeDefines(const std::string &path) {
+std::string escapeDefines(const std::string& path) {
     std::stringstream ss("");
     for (char c : path) {
         if (c == '!') {
@@ -46,15 +46,15 @@ std::string escapeDefines(const std::string &path) {
     return ss.str();
 }
 
-void MeiMei::configureSa1Def(const std::string &pathToSa1Def) {
+void MeiMei::configureSa1Def(const std::string& pathToSa1Def) {
     std::string escapedPath = escapeDefines(pathToSa1Def);
     MeiMei::sa1DefPath = escapedPath;
 }
 
-bool MeiMei::patch(const char *patch_name, ROM &rom) {
-    if (!asar_patch(patch_name, (char *)rom.real_data, MAX_ROM_SIZE, &rom.size)) {
+bool MeiMei::patch(const char* patch_name, ROM& rom) {
+    if (!asar_patch(patch_name, (char*)rom.real_data, MAX_ROM_SIZE, &rom.size)) {
         int error_count;
-        const errordata *errors = asar_geterrors(&error_count);
+        const errordata* errors = asar_geterrors(&error_count);
         printf("An error has been detected:\n");
         for (int i = 0; i < error_count; i++)
             printf("%s\n", errors[i].fullerrdata);
@@ -63,7 +63,7 @@ bool MeiMei::patch(const char *patch_name, ROM &rom) {
 
     if (MeiMei::debug) {
         int print_count = 0;
-        const char *const *prints = asar_getprints(&print_count);
+        const char* const* prints = asar_getprints(&print_count);
         for (int i = 0; i < print_count; ++i) {
             std::cout << "\t" << prints[i] << '\n';
         }
@@ -72,7 +72,7 @@ bool MeiMei::patch(const char *patch_name, ROM &rom) {
     return true;
 }
 
-bool MeiMei::initialize(const char *rom_name) {
+bool MeiMei::initialize(const char* rom_name) {
     MeiMei::name = std::string(rom_name);
 
     memset(prevEx, 0x03, 0x400);
@@ -111,7 +111,7 @@ int MeiMei::run() {
     return returnValue;
 }
 
-int MeiMei::run(ROM &rom) {
+int MeiMei::run(ROM& rom) {
     ROM now;
     if (!now.open(MeiMei::name.c_str()))
         return 1;
@@ -149,7 +149,7 @@ int MeiMei::run(ROM &rom) {
             }
 
             memset(sprAllData, 0, SPR_ADDR_LIMIT);
-            
+
             sprAllData[0] = now.read_byte(sprAddrPC);
             int prevOfs = 1;
             int nowOfs = 1;
@@ -242,14 +242,20 @@ int MeiMei::run(ROM &rom) {
                 std::string levelWordAddress = oss.str();
 
                 // create actual asar patch
-                spriteDataPatch << "incsrc \"" << MeiMei::sa1DefPath << "\"" << "\n" << '\n';
+                spriteDataPatch << "incsrc \"" << MeiMei::sa1DefPath << "\""
+                                << "\n"
+                                << '\n';
                 spriteDataPatch << "!oldDataPointer = read2($" << levelWordAddress << ")|(read1($" << levelBankAddress
                                 << ")<<16)" << '\n';
                 spriteDataPatch << "!oldDataSize = read2(pctosnes(snestopc(!oldDataPointer)-4))+1" << '\n';
-                spriteDataPatch << "autoclean !oldDataPointer" << "\n" << '\n';
+                spriteDataPatch << "autoclean !oldDataPointer"
+                                << "\n"
+                                << '\n';
 
                 spriteDataPatch << "org $" << levelBankAddress << '\n';
-                spriteDataPatch << "\tdb " << binaryLabel << ">>16" << "\n" << '\n';
+                spriteDataPatch << "\tdb " << binaryLabel << ">>16"
+                                << "\n"
+                                << '\n';
 
                 spriteDataPatch << "org $" << levelWordAddress << '\n';
                 spriteDataPatch << "\tdw " << binaryLabel << "\n" << '\n';
@@ -290,7 +296,9 @@ int MeiMei::run(ROM &rom) {
         }
 
         if (MeiMei::debug) {
-            std::cout << "__________________________________" << "\n" << '\n';
+            std::cout << "__________________________________"
+                      << "\n"
+                      << '\n';
         }
 
         printf("Sprite data remapped successfully.\n");
