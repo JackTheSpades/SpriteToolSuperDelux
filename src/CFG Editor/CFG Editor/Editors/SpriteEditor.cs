@@ -334,6 +334,9 @@ namespace CFG.Map16
             if (UseText)
                 return;
 
+            if (Sprite is null)
+                return;
+
             if (e.Button == System.Windows.Forms.MouseButtons.Right)
             {
                 int xPix = e.X / GridSize;

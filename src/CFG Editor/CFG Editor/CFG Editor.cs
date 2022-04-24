@@ -93,6 +93,8 @@ namespace CFG
         readonly BindingList<ComboBoxItem> types_list = new BindingList<ComboBoxItem>();
         readonly BindingList<ComboBoxItem> sprites_list = new BindingList<ComboBoxItem>();
         readonly Map16Resources resources = new Map16.Map16Resources();
+        Editors.PaletteEditorForm paletteEditorForm = null;
+        Editors.Tile8x8EditorForm tile8X8EditorForm = null;
 
         FileType FileType;
         byte[] RomData = null;
@@ -384,13 +386,6 @@ namespace CFG
             tsbGrid.CheckedChanged += (_, __) => map16Editor1.ShowGrid = tsbGrid.Checked;
             tsbPage.CheckedChanged += (_, __) => map16Editor1.PrintPage = tsbPage.Checked;
 
-            tsbPalette.Click += (_, __) =>
-            {
-                var palette_editor = new Editors.PaletteEditorForm(resources);
-                palette_editor.PaletteChanged += (___, e) => map16Editor1.Map.PaletteChanged(e.Row);
-                palette_editor.Show();
-            };
-
             #endregion
 
             #region Custom List Tab
@@ -447,10 +442,11 @@ namespace CFG
                     MessageBox.Show("An error occured while trying to read the file.\n\n" + ex.Message, "Unexpected Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-#if DEBUG
-            testToolStripMenuItem.Visible = true;
-#endif
+        }
 
+        private void PaletteEditorForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            paletteEditorForm = null;
         }
 
         private void DgvGFXInfo_DataError(object sender, DataGridViewDataErrorEventArgs e)
@@ -939,20 +935,42 @@ namespace CFG
 
         private void TsbPalette_Click(object sender, EventArgs e)
         {
-            var p = new Editors.PaletteEditorForm(resources);
-            p.ShowDialog();
+            if (paletteEditorForm is null)
+            {
+                paletteEditorForm = new Editors.PaletteEditorForm(resources);
+                paletteEditorForm.PaletteChanged += (___, ev) => map16Editor1.Map.PaletteChanged(ev.Row);
+                paletteEditorForm.ShowDialog();
+                paletteEditorForm.FormClosed += PaletteEditorForm_FormClosed;
+            }
+            else
+            {
+                paletteEditorForm.Activate();
+                paletteEditorForm.Focus();
+            }
         }
 
         private void ViewTile8x8ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var t = new Editors.Tile8x8EditorForm(resources);
-            t.Show();
+
         }
 
         private void Tsb8x8Editor_Click(object sender, EventArgs e)
         {
-            var t = new Editors.Tile8x8EditorForm(resources);
-            t.Show();
+            if (tile8X8EditorForm is null)
+            {
+                tile8X8EditorForm = new Editors.Tile8x8EditorForm(resources);
+                tile8X8EditorForm.FormClosed += Tile8X8EditorForm_FormClosed;
+                tile8X8EditorForm.Show();
+            } else
+            {
+                tile8X8EditorForm.Activate();
+                tile8X8EditorForm.Focus();
+            }
+        }
+
+        private void Tile8X8EditorForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            tile8X8EditorForm = null;
         }
     }
 
