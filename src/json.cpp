@@ -66,13 +66,18 @@ bool read_json_file(sprite *spr, FILE *output) {
         spr->map_data.resize(map_block_count);
         memcpy(spr->map_data.data(), decoded.c_str(), map_block_count * sizeof(map16));
         // displays
-        auto disp_type = j.at("DisplayType").get<std::string>();
-        if (disp_type == "XY") {
-            spr->disp_type = display_type::XYPosition;
-        } else if (disp_type == "ExByte") {
-            spr->disp_type = display_type::ExtensionByte;
+        auto disp_type_it = j.find("DisplayType");
+        if (disp_type_it != j.end()) {
+            auto disp_type = disp_type_it->get<std::string>();
+            if (disp_type == "XY") {
+                spr->disp_type = display_type::XYPosition;
+            } else if (disp_type == "ExByte") {
+                spr->disp_type = display_type::ExtensionByte;
+            } else {
+                throw std::domain_error("Unknown type of display " + disp_type);
+            }
         } else {
-            throw std::domain_error("Unknown type of display " + disp_type);
+            spr->disp_type = display_type::XYPosition;
         }
         spr->displays.resize(j.at("Displays").size());
         int counter = 0;
@@ -157,7 +162,10 @@ bool read_json_file(sprite *spr, FILE *output) {
 
         return true;
     } catch (const std::exception &e) {
-        fprintf(output, "Error when parsing json: %s\n", e.what());
+        if (output)
+            fprintf(output, "Error when parsing json: %s\n", e.what());
+        else
+            fprintf(stdout, "Error when parsing json: %s\n", e.what());
         return false;
     }
 }
