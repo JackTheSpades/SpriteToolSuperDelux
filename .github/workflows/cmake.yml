@@ -16,6 +16,11 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+
+    - name: Get branch name
+      id: branch-name
+      uses: tj-actions/branch-names@v5.2
+
     - name: Setup compilers
       run:  |
             sudo apt update
@@ -88,7 +93,7 @@ jobs:
     - name: Test
       working-directory: ${{github.workspace}}/test
       shell: bash
-      run: bash pixi_test.sh
+      run: bash pixi_test.sh ${{steps.branch-name.outputs.current_branch}}
       if: "matrix.os == 'ubuntu-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
     
     - name: Upload test results

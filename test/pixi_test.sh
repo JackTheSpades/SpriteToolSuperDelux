@@ -1,4 +1,14 @@
 # download base file
+argc=$#
+
+if [ "$argc" -lt "1" ]; then
+    echo "Using master branch"
+    branch="master"
+else
+    echo "Using $1 branch"
+    branch=$1
+fi
+
 wget www.atarismwc.com/base.smc
 
 # build latest pixi release along with zip and move in main directory
@@ -28,7 +38,10 @@ mv pixi.zip ../pixi_latest.zip
 cd ..
 
 # clone current pixi repo and build zip
-git clone https://github.com/JackTheSpades/SpriteToolSuperDelux 
+CC=gcc-11
+CXX=g++-11
+git clone https://github.com/JackTheSpades/SpriteToolSuperDelux
+git checkout $branch
 cp asar_latest/asar/libasar.so SpriteToolSuperDelux/libasar.so
 cp zip_pixi_rasp.py SpriteToolSuperDelux/zip_pixi_rasp.py
 cd SpriteToolSuperDelux
