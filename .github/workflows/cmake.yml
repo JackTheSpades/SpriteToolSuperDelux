@@ -30,6 +30,16 @@ jobs:
       shell: bash
       working-directory: ${{github.workspace}}/build
       run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      if: matrix.os != 'ubuntu-latest'
+    
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      env:
+        CC: gcc-11
+        CXX: g++-11
+      if: matrix.os == 'ubuntu-latest'
 
     - name: Build
       working-directory: ${{github.workspace}}/build
