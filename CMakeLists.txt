@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(pixi VERSION 1.32 LANGUAGES CXX C)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(TOP_LEVEL_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 set(CMAKE_CURRENT_SOURCE_DIR "src")
 set(PIXI_SOURCE_FILES "")
 include(FetchContent)
@@ -37,6 +38,7 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/MeiMei/MeiMei.cpp" 
     "${CMAKE_CURRENT_SOURCE_DIR}/asar/asardll.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/json/base64.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/argparser.cpp"
 
     "${CMAKE_CURRENT_SOURCE_DIR}/cfg.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/file_io.h"
@@ -49,6 +51,7 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/json/base64.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/json_const.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/config.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/argparser.h"
 
     "${CMAKE_CURRENT_SOURCE_DIR}/pixi_information_impl.cpp"
 
@@ -155,3 +158,7 @@ target_link_options(pixi_api PRIVATE ${PIXI_LINK_OPTIONS})
 target_compile_options(pixi_api PRIVATE ${PIXI_COMPILE_OPTIONS})
 target_compile_definitions(pixi_api PRIVATE ${PIXI_COMPILE_DEFINITIONS})
 
+add_custom_command(TARGET pixi POST_BUILD 
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${TOP_LEVEL_DIR}/asar.dll" $<TARGET_FILE_DIR:pixi>
+)

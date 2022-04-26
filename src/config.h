@@ -4,11 +4,14 @@
 #include <cstdio>
 #include <string>
 
+constexpr int DEFAULT_ROUTINES = 100;
+#define MAX_ROUTINES 310
+
 constexpr size_t operator""_sz(unsigned long long n) {
     return n;
 }
 
-enum class PathType : int {
+enum class PathType : size_t {
     Routines,
     Sprites,
     Generators,
@@ -26,7 +29,7 @@ enum class PathType : int {
     __SIZE__ // this is here as a shorthand for counting how many elements are in the enum
 };
 
-enum class ExtType : int { Ssc, Mwt, Mw2, S16, __SIZE__ };
+enum class ExtType : size_t { Ssc, Mwt, Mw2, S16, __SIZE__ };
 
 enum class ListType : int { Sprite, Extended, Cluster, MinorExtended, Bounce, Smoke, SpinningCoin, Score, __SIZE__ };
 
@@ -35,9 +38,9 @@ template <typename T> constexpr auto FromEnum(T val) {
 }
 
 struct Debug {
-    FILE *output = nullptr;
+    FILE* output = nullptr;
 
-    template <typename... Args> inline void dprintf(const char *format, Args... args) {
+    template <typename... Args> inline void dprintf(const char* format, Args... args) {
         if (this->output)
             fprintf(this->output, format, args...);
     }
@@ -48,8 +51,8 @@ struct Debug {
     }
 };
 
-struct Paths {
-    static constexpr int ArrSize = FromEnum(PathType::__SIZE__);
+class Paths {
+    static constexpr size_t ArrSize = FromEnum(PathType::__SIZE__);
     std::string list{"list.txt"};
     std::string pasm{"asm/"};
     std::string sprites{"sprites/"};
@@ -64,40 +67,60 @@ struct Paths {
     std::string score{"misc_sprites/score/"};
     std::string routines{"routines/"};
 
-    inline constexpr std::string &operator[](size_t index) noexcept {
-        std::array<std::string *, ArrSize> paths{&routines, &sprites,      &generators, &shooters,      &list,
-                                                 &pasm,     &extended,     &cluster,    &minorextended, &bounce,
-                                                 &smoke,    &spinningcoin, &score};
+    std::array<std::string*, ArrSize> paths{&routines, &sprites,      &generators, &shooters,      &list,
+                                            &pasm,     &extended,     &cluster,    &minorextended, &bounce,
+                                            &smoke,    &spinningcoin, &score};
+
+  public:
+    inline constexpr std::string& operator[](size_t index) noexcept {
         index = std::clamp(index, 0_sz, paths.size() - 1_sz);
         return *paths[index];
     };
 
-    inline constexpr const std::string &operator[](size_t index) const noexcept {
-        std::array<const std::string *, ArrSize> paths{&routines, &sprites,      &generators, &shooters,      &list,
-                                                       &pasm,     &extended,     &cluster,    &minorextended, &bounce,
-                                                       &smoke,    &spinningcoin, &score};
+    inline constexpr std::string& operator[](PathType index) noexcept {
+        auto sindex = std::clamp(FromEnum(index), 0_sz, paths.size() - 1_sz);
+        return *paths[sindex];
+    };
+
+    inline constexpr const std::string& operator[](size_t index) const noexcept {
         index = std::clamp(index, 0_sz, paths.size() - 1_sz);
         return *paths[index];
+    };
+
+    inline constexpr const std::string& operator[](PathType index) const noexcept {
+        auto sindex = std::clamp(FromEnum(index), 0_sz, paths.size() - 1_sz);
+        return *paths[sindex];
     };
 };
 
-struct Extensions {
-    static constexpr int ArrSize = FromEnum(ExtType::__SIZE__);
+class Extensions {
+    static constexpr size_t ArrSize = FromEnum(ExtType::__SIZE__);
     std::string ssc{};
     std::string mwt{};
     std::string mw2{};
     std::string s16{};
 
-    inline constexpr std::string &operator[](size_t index) noexcept {
-        std::array<std::string *, ArrSize> exts{&ssc, &mwt, &mw2, &s16};
+    std::array<std::string*, ArrSize> exts{&ssc, &mwt, &mw2, &s16};
+
+  public:
+    inline constexpr std::string& operator[](size_t index) noexcept {
         index = std::clamp(index, 0_sz, exts.size() - 1_sz);
         return *exts[index];
     };
 
-    inline constexpr const std::string &operator[](size_t index) const noexcept {
-        std::array<const std::string *, ArrSize> exts{&ssc, &mwt, &mw2, &s16};
+    inline constexpr const std::string& operator[](size_t index) const noexcept {
         index = std::clamp(index, 0_sz, exts.size() - 1_sz);
         return *exts[index];
+    };
+
+    inline constexpr std::string& operator[](ExtType index) noexcept {
+        auto sindex = std::clamp(FromEnum(index), 0_sz, exts.size() - 1_sz);
+        return *exts[sindex];
+    };
+
+    inline constexpr const std::string& operator[](ExtType index) const noexcept {
+        auto sindex = std::clamp(FromEnum(index), 0_sz, exts.size() - 1_sz);
+        return *exts[sindex];
     };
 };
 
@@ -108,14 +131,15 @@ struct PixiConfig {
     Debug m_Debug{};
     Paths m_Paths{};
     Extensions m_Extensions{};
+    bool DebugEnabled = false;
     bool KeepFiles = false;
     bool PerLevel = false;
     bool disable255Sprites = false;
     bool Warnings = false;
-    bool ExtMod = true;
+    bool ExtModDisabled = false;
     bool DisableMeiMei = false;
     bool DisableAllExtensionFiles = false;
-    int Routines = 100;
+    int Routines = DEFAULT_ROUTINES;
     std::string AsmDir{};
     std::string AsmDirPath{};
 

@@ -136,9 +136,9 @@ enum class MapperType { lorom, sa1rom, fullsa1rom };
 
 struct ROM {
     inline static const int sa1banks[8] = {0 << 20, 1 << 20, -1, -1, 2 << 20, 3 << 20, -1, -1};
-    unsigned char *data;
-    unsigned char *real_data;
-    char *name;
+    unsigned char *data = nullptr;
+    unsigned char *real_data = nullptr;
+    char *name = nullptr;
     int size;
     int header_size;
     MapperType mapper;

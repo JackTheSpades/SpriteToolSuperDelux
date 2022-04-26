@@ -18,8 +18,8 @@ class MeiMei {
   public:
     [[nodiscard]] static bool initialize(const char *n);
     static int run();
-    static void setDebug();
-    static void setAlwaysRemap();
-    static void setKeepTemp();
+    static bool& Debug();
+    static bool& AlwaysRemap();
+    static bool& KeepTemp();
     static void configureSa1Def(const std::string& pathToSa1Def);
 };
