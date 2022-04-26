@@ -16,6 +16,12 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+    - name: Setup compilers
+      run:  |
+            sudo apt update
+            sudo apt install gcc-11 g++-11
+      shell: bash
+      if: matrix.os == 'ubuntu-latest'
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
