@@ -5,6 +5,7 @@
 #include <utility>
 #include <variant>
 #include <vector>
+#include <concepts>
 
 
 struct no_value_tag {};
@@ -128,5 +129,5 @@ class argparser {
         } else {
             static_assert(dependant_false<T>, "Invalid get() call");
         }
-    };
+    }
 };
