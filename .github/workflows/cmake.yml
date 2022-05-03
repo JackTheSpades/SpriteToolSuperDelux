@@ -67,12 +67,13 @@ jobs:
         msbuild.exe "CFG Editor.sln" -p:Configuration=Release
         Compress-Archive "${{github.workspace}}/src/CFG Editor/CFG Editor/bin/Release/CFG Editor.exe","${{github.workspace}}/src/CFG Editor/CFG Editor/bin/Release/Newtonsoft.Json.dll" ${{github.workspace}}/cfgeditor.zip
       if: matrix.os == 'windows-latest'
-    
-    - name: Create pixi.zip release
+        
+    - name: Setup python
       uses: actions/setup-python@v3
       with:
-        python-version: '3.x'
-      shell: bash
+        python-version: '3.9'
+
+    - name: Create pixi.zip release
       run: python ${{github.workspace}}/zip.py
 
     - name: Upload
@@ -80,12 +81,6 @@ jobs:
       with:
         name: pixi_${{matrix.os}}
         path: ${{github.workspace}}/pixi.zip
-    
-    - name: Setup python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.9'
-      if: matrix.os == 'ubuntu-latest'
     
     - name: Install python packages
       run: |
