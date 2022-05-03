@@ -28,6 +28,7 @@
 #define STRIMPL(x) #x
 #define STR(x) STRIMPL(x)
 
+// Remember to change the .rc file too when you're changing these values
 constexpr unsigned char VERSION_EDITION = 1;
 constexpr unsigned char VERSION_MAJOR = 3;
 constexpr unsigned char VERSION_MINOR = 2;

@@ -2,32 +2,28 @@ import os
 import zipfile
 import re
 import glob
-import requests
-import shutil
+import sys
 
 
-def build_asar_dll(asar_ver):
-    original_path = os.getcwd()
-    url = f"https://github.com/RPGHacker/asar/archive/refs/tags/v{asar_ver}.zip"
-    print(f"Downloading {url}")
-    r = requests.get(url)
-    with open("asar.zip", "wb") as f:
-        f.write(r.content)
-    print("Extracting asar.zip")
-    with zipfile.ZipFile("asar.zip", "r") as zip_ref:
-        zip_ref.extractall()
-    os.remove("asar.zip")
-    print("Building asar.dll")
-    os.chdir(f"asar-{asar_ver}")
-    os.mkdir("build")
-    os.chdir("build")
-    os.system("cmake -A x64 ../src")
-    os.system("cmake --build . --config Release")
-    asar_dll_path = glob.glob("**/asar.dll", recursive=True)[0]
-    os.rename(asar_dll_path, os.path.join(original_path, "asar.dll"))
-    os.chdir(original_path)
-    shutil.rmtree(f"asar-{asar_ver}")
+def asar_lib_name():
+    if sys.platform == 'linux':
+        return "libasar.so"
+    elif sys.platform == 'win32':
+        return "asar.dll"
+    elif sys.platform == 'darwin':
+        return "libasar.dylib"
+    else:
+        raise Exception("Unsupported platform: " + sys.platform)
 
+def pixi_exe_name():
+    if sys.platform == 'linux':
+        return "pixi"
+    elif sys.platform == 'win32':
+        return "pixi.exe"
+    elif sys.platform == 'darwin':
+        return "pixi"
+    else:
+        raise Exception("Unsupported platform: " + sys.platform)
 
 def isExcludeFile(path, excludes):
     if excludes is None:
@@ -77,7 +73,8 @@ def filter_for(folder_name):
 
 
 cfgexe = "src/CFG Editor/CFG Editor/bin/Release/CFG Editor.exe"
-pixiexe = glob.glob('**/pixi.exe', recursive=True)[0]
+pixiexe = glob.glob(f'{os.getcwd()}{os.sep}**{os.sep}{pixi_exe_name()}', recursive=True)[0]
+asarlib = glob.glob(f'{os.getcwd()}{os.sep}**{os.sep}{asar_lib_name()}', recursive=True)[0]
 
 with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
 
@@ -97,17 +94,17 @@ with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
         zipdir(folder_name, pixizip, filter_for(folder_name))
 
     # exe
-    pixizip.write(cfgexe.replace("/", os.sep), "CFG Editor.exe")
-    pixizip.write(
-        os.path.join(
-            os.path.dirname(cfgexe.replace("/", os.sep)), "Newtonsoft.Json.dll"
-        ),
-        "Newtonsoft.Json.dll",
-    )
-    pixizip.write(pixiexe.replace("/", os.sep), "pixi.exe")
-    if not os.path.exists("asar.dll"):
-        build_asar_dll("1.81")
-    pixizip.write("asar.dll")
+    # add cfg editor only on windows
+    if sys.platform == 'win32':
+        pixizip.write(cfgexe.replace("/", os.sep), "CFG Editor.exe")
+        pixizip.write(
+            os.path.join(
+                os.path.dirname(cfgexe.replace("/", os.sep)), "Newtonsoft.Json.dll"
+            ),
+            "Newtonsoft.Json.dll",
+        )
+    pixizip.write(pixiexe.replace("/", os.sep), pixi_exe_name())
+    pixizip.write(asarlib.replace("/", os.sep), asar_lib_name())
 
     # asm
     for asm_folder_file in [
