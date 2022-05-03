@@ -153,17 +153,9 @@ target_compile_options(pixi_api PRIVATE ${PIXI_COMPILE_OPTIONS})
 target_compile_definitions(pixi_api PRIVATE ${PIXI_COMPILE_DEFINITIONS})
 
 set(asar_shared_lib "${CMAKE_SHARED_LIBRARY_PREFIX}asar${CMAKE_SHARED_LIBRARY_SUFFIX}")
-
-if (WIN32)
-    if (NOT EXISTS "$<TARGET_FILE_DIR:pixi>/${asar_shared_lib}")
-        message(STATUS "Downloading asar shared library")
-        download_dll("https://github.com/RPGHacker/asar/releases/download/v1.81/asar181.zip" "asar181")
-    endif()
-else()
-    if (NOT EXISTS "$<TARGET_FILE_DIR:pixi>/${asar_shared_lib}")
-        message(STATUS "Downloading asar shared library")
-        build_dll("https://github.com/RPGHacker/asar/archive/refs/tags/v1.81.tar.gz" "asar181")
-    endif()
+if (NOT EXISTS "$<TARGET_FILE_DIR:pixi>/${asar_shared_lib}")
+    message(STATUS "Downloading asar shared library")
+    build_dll("https://github.com/RPGHacker/asar/archive/refs/tags/v1.81.tar.gz" "asar181")
 endif()
 
 add_custom_command(TARGET pixi POST_BUILD 
