@@ -104,8 +104,10 @@ int ROM::snes_to_pc(int address, bool header) const {
     return address + (header ? header_size : 0);
 }
 
-pointer ROM::pointer_snes(int address, int addrsize, int bank) const {
-    return pointer(::get_pointer(data, snes_to_pc(address), addrsize, bank));
+pointer ROM::pointer_snes(int address, int bank) const {
+    int pc_address = snes_to_pc(address);
+    int ptr = (data[pc_address]) | (data[pc_address + 1] << 8) | (data[pc_address + 2] << 16);
+    return pointer{ptr | (bank << 16)};
 }
 
 unsigned char ROM::read_byte(int addr) const {
@@ -124,38 +126,21 @@ void ROM::read_data(unsigned char *dst, size_t wsize, int addr) const {
     memcpy(dst, real_data + addr, wsize);
 }
 
-void set_pointer(pointer *p, int address) {
-    p->lowbyte = (unsigned char)(address & 0xFF);
-    p->highbyte = (unsigned char)((address >> 8) & 0xFF);
-    p->bankbyte = (unsigned char)((address >> 16) & 0xFF);
-}
-
 ROM::~ROM() {
     delete[] data;
     delete[] name;
 }
 
-bool is_empty_table(sprite *spr, int size) {
-    for (int i = 0; i < size; i++) {
-        if (!spr[i].table.init.is_empty() || !spr[i].table.main.is_empty())
+bool is_empty_table(std::span<sprite> sprites) {
+    for (const auto& sprite : sprites) {
+        if (sprite.has_empty_table())
             return false;
     }
     return true;
 }
 
-int get_pointer(const unsigned char *data, int address, int size, int bank) {
-    address = (data[address]) | (data[address + 1] << 8) | ((data[address + 2] << 16) * (size - 2));
-    return address | (bank << 16);
-}
-
-char *trim(char *text) {
-    while (isspace(*text)) { // trim front
-        text++;
-    }
-    for (int i = static_cast<int>(strlen(text)); isspace(text[i - 1]); i--) { // trim back
-        text[i - 1] = 0;
-    }
-    return text;
+bool sprite::has_empty_table() const {
+    return table.init.is_empty() && table.main.is_empty();
 }
 
 sprite::~sprite() {

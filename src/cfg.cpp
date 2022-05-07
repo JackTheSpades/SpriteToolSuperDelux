@@ -79,10 +79,12 @@ std::pair<int, int> read_byte_count(const std::string &line) {
         int second = std::stoi(line.substr(pos + 1), nullptr, 16);
         values.first = first;
         values.second = second;
-    } catch (...) {
-        throw std::invalid_argument("Hex values for extra byte count in CFG file were wrongly formatted");
+    } catch (const std::invalid_argument&) {
+        throw std::invalid_argument("Hex values for extra byte count in CFG file were not valid base 16 integers");
+    } catch (const std::out_of_range&) {
+        throw std::invalid_argument("Hex values for extra byte count in CFG file were out of range of a valid integer");
     }
-    if (values.first > 12 || values.second > 12) {
+    if (values.first > 12 || values.second > 12 || values.first < 0 || values.second < 0) {
         throw std::invalid_argument("Hex value for extra byte count in CFG file out of range, valid range is 00-0C");
     }
     return values;
@@ -90,9 +92,9 @@ std::pair<int, int> read_byte_count(const std::string &line) {
 
 bool cfg_extra(const std::string &line, sprite *spr) {
     try {
-        auto values = read_byte_count(line);
-        spr->byte_count = values.first;
-        spr->extra_byte_count = values.second;
+        auto [bc, ebc] = read_byte_count(line);
+        spr->byte_count = bc;
+        spr->extra_byte_count = ebc;
     } catch (const std::invalid_argument &e) {
         error("Error in reading extra byte settings for file %s, error was \"%s\"\n", spr->cfg_file, e.what());
         return false;

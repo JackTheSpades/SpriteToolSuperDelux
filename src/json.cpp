@@ -4,35 +4,55 @@
 #include "paths.h"
 #include "structs.h"
 #include "json/base64.h"
-#include <nlohmann/json.hpp>
 #include <algorithm>
 #include <cstring>
 #include <fstream>
+#include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
-bool read_json_file(sprite *spr, FILE *output) {
+#define GITHUB_ISSUE_LINK "https://github.com/JackTheSpades/SpriteToolSuperDelux/issues/new"
+
+bool read_json_file(sprite* spr, FILE* output) {
 
     json j;
     try {
         std::ifstream instr(spr->cfg_file);
         if (!instr) {
-            if (output)
-                fprintf(output, "Json file with name %s wasn't found, exiting\n", spr->cfg_file);
-            printf("\"%s\" wasn't found, make sure to have the correct filenames in your list file\n", spr->cfg_file);
+            printf("JSON file \"%s\" wasn't found, make sure to have the correct filenames in your list file\n",
+                   spr->cfg_file);
             return false;
         }
         instr >> j;
-    } catch (const std::exception &e) {
-        if (strstr(e.what(), "parse error") != nullptr) {
-            printf("An error was encountered while parsing %s, please make sure that the json file has the correct "
-                   "format. (error: %s)",
-                   spr->cfg_file, e.what());
-        } else {
-            printf("An unknown error has occurred while parsing %s, please contact the developer providing a "
-                   "screenshot of this error: %s\n",
-                   spr->cfg_file, e.what());
+    } catch (const json::parse_error& err) {
+        // https://json.nlohmann.me/api/basic_json/operator_gtgt/#exceptions
+        switch (err.id) {
+        case 101:
+            printf("Unexpected token in json file %s, please make sure that the json file has the correct format. "
+                   "Error: %s",
+                   spr->cfg_file, err.what());
+            break;
+        case 102:
+            printf("Unicode conversion failure or surrogate error in json file %s, please make sure that the json file "
+                   "has the correct format. Error: %s",
+                   spr->cfg_file, err.what());
+            break;
+        case 103:
+            printf("Unicode conversion failure in json file %s, please make sure that the json file has the correct "
+                   "format. Error: %s",
+                   spr->cfg_file, err.what());
+            break;
+        default:
+            printf("An unexpected json parsing error was encountered (from file %s), please make sure that the json "
+                   "file has the correct format. Error: %s",
+                   spr->cfg_file, err.what());
+            break;
         }
+        return false;
+    } catch (const std::exception& e) {
+        printf("An unknown error has occurred while parsing json file %s, please report the issue at " GITHUB_ISSUE_LINK
+               " (provide as much info as possible): %s\n",
+               spr->cfg_file, e.what());
         return false;
     }
 
@@ -81,8 +101,8 @@ bool read_json_file(sprite *spr, FILE *output) {
         }
         spr->displays.resize(j.at("Displays").size());
         int counter = 0;
-        for (auto &jdisplay : j.at("Displays")) {
-            auto &dis = spr->displays[counter];
+        for (auto& jdisplay : j.at("Displays")) {
+            auto& dis = spr->displays[counter];
 
             dis.description = jdisplay.at("Description").get<std::string>();
 
@@ -101,16 +121,16 @@ bool read_json_file(sprite *spr, FILE *output) {
             // for each X,Y or extension byte based appearance check if they have gfx information
             auto gfxinfo = jdisplay.find("GFXInfo");
             if (gfxinfo != jdisplay.end()) {
-                auto &gfxarray = *gfxinfo;
+                auto& gfxarray = *gfxinfo;
                 dis.gfx_files.resize(gfxarray.size());
                 size_t n = 0;
-                for (const auto &gfx : gfxarray) {
+                for (const auto& gfx : gfxarray) {
                     bool separate = gfx.at("Separate");
                     for (int gfx_idx = 0; gfx_idx < 4; gfx_idx++) {
                         try {
                             dis.gfx_files[n].gfx_files[gfx_idx] =
                                 gfx.at(std::to_string(gfx_idx)).get<int>() | (separate ? 0x8000 : 0);
-                        } catch (const std::out_of_range &) {
+                        } catch (const std::out_of_range&) {
                             dis.gfx_files[n].gfx_files[gfx_idx] = 0x7F;
                         }
                     }
@@ -123,8 +143,8 @@ bool read_json_file(sprite *spr, FILE *output) {
             } else {
                 dis.tiles.resize(jdisplay.at("Tiles").size());
                 int counter2 = 0;
-                for (auto &jtile : jdisplay.at("Tiles")) {
-                    auto &til = dis.tiles[counter2];
+                for (auto& jtile : jdisplay.at("Tiles")) {
+                    auto& til = dis.tiles[counter2];
                     til.x_offset = jtile.at("X offset");
                     til.y_offset = jtile.at("Y offset");
                     til.tile_number = jtile.at("map16 tile");
@@ -137,14 +157,14 @@ bool read_json_file(sprite *spr, FILE *output) {
         // collections
         counter = 0;
         spr->collections.resize(j.at("Collection").size());
-        for (auto &jCollection : j.at("Collection")) {
-            auto &col = spr->collections.emplace_back();
+        for (auto& jCollection : j.at("Collection")) {
+            auto& col = spr->collections.emplace_back();
             col.name = jCollection.at("Name").get<std::string>();
             col.extra_bit = jCollection.at("ExtraBit");
             for (int i = 1; i <= (col.extra_bit ? spr->extra_byte_count : spr->byte_count); i++) {
                 try {
                     col.prop[i - 1] = jCollection.at("Extra Property Byte " + std::to_string(i));
-                } catch (const std::out_of_range &) {
+                } catch (const std::out_of_range&) {
                     col.prop[i - 1] = 0;
                     // if it's not specified in the json just set it at 0, who cares anyway, just add a warning
                     warnings.push_back("Your json file \"" +
@@ -161,11 +181,12 @@ bool read_json_file(sprite *spr, FILE *output) {
         }
 
         return true;
-    } catch (const std::exception &e) {
-        if (output)
-            fprintf(output, "Error when parsing json: %s\n", e.what());
-        else
-            fprintf(stdout, "Error when parsing json: %s\n", e.what());
+    } catch (const std::exception& e) {
+        // there are too many exception types to catch, so just catch everything
+        // most of them will probably come from here https://json.nlohmann.me/api/basic_json/at/#exceptions
+        printf("Unexpected error when parsing json file %s: %s, report this at " GITHUB_ISSUE_LINK
+               " (include as much info as possible)\n",
+               spr->cfg_file, e.what());
         return false;
     }
 }
