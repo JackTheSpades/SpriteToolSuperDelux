@@ -36,6 +36,9 @@ enum class ListType : int { Sprite, Extended, Cluster, MinorExtended, Bounce, Sm
 template <typename T> constexpr auto FromEnum(T val) {
     return static_cast<std::underlying_type_t<T>>(val);
 }
+template <typename T> constexpr auto ToEnum(std::underlying_type_t<T> val) {
+    return static_cast<T>(val);
+}
 
 struct Debug {
     FILE* output = nullptr;
@@ -67,29 +70,19 @@ class Paths {
     std::string score{"misc_sprites/score/"};
     std::string routines{"routines/"};
 
-    std::array<std::string*, ArrSize> paths{&routines, &sprites,      &generators, &shooters,      &list,
-                                            &pasm,     &extended,     &cluster,    &minorextended, &bounce,
-                                            &smoke,    &spinningcoin, &score};
+    std::array<std::reference_wrapper<std::string>, ArrSize> paths{
+        routines, sprites,       generators, shooters, list,         pasm, extended,
+        cluster,  minorextended, bounce,     smoke,    spinningcoin, score};
 
   public:
-    inline constexpr std::string& operator[](size_t index) noexcept {
-        index = std::clamp(index, 0_sz, paths.size() - 1_sz);
-        return *paths[index];
-    };
-
     inline constexpr std::string& operator[](PathType index) noexcept {
         auto sindex = std::clamp(FromEnum(index), 0_sz, paths.size() - 1_sz);
-        return *paths[sindex];
-    };
-
-    inline constexpr const std::string& operator[](size_t index) const noexcept {
-        index = std::clamp(index, 0_sz, paths.size() - 1_sz);
-        return *paths[index];
+        return paths[sindex];
     };
 
     inline constexpr const std::string& operator[](PathType index) const noexcept {
         auto sindex = std::clamp(FromEnum(index), 0_sz, paths.size() - 1_sz);
-        return *paths[sindex];
+        return paths[sindex];
     };
 };
 
@@ -100,41 +93,51 @@ class Extensions {
     std::string mw2{};
     std::string s16{};
 
-    std::array<std::string*, ArrSize> exts{&ssc, &mwt, &mw2, &s16};
+    std::array<std::reference_wrapper<std::string>, ArrSize> exts{ssc, mwt, mw2, s16};
 
   public:
-    inline constexpr std::string& operator[](size_t index) noexcept {
-        index = std::clamp(index, 0_sz, exts.size() - 1_sz);
-        return *exts[index];
-    };
-
-    inline constexpr const std::string& operator[](size_t index) const noexcept {
-        index = std::clamp(index, 0_sz, exts.size() - 1_sz);
-        return *exts[index];
-    };
-
     inline constexpr std::string& operator[](ExtType index) noexcept {
         auto sindex = std::clamp(FromEnum(index), 0_sz, exts.size() - 1_sz);
-        return *exts[sindex];
+        return exts[sindex];
     };
 
     inline constexpr const std::string& operator[](ExtType index) const noexcept {
         auto sindex = std::clamp(FromEnum(index), 0_sz, exts.size() - 1_sz);
-        return *exts[sindex];
+        return exts[sindex];
     };
 };
 
-struct PixiConfig {
-
-    PixiConfig() = default;
+class PixiConfig {
 
     Debug m_Debug{};
     Paths m_Paths{};
     Extensions m_Extensions{};
+
+  public:
+    PixiConfig() = default;
+    Debug& debug() {
+        return m_Debug;
+    }
+
+    std::string& operator[](PathType pt) {
+        return m_Paths[pt];
+    }
+    const std::string& operator[](PathType pt) const {
+        return m_Paths[pt];
+    }
+    std::string& operator[](ExtType pt) {
+        return m_Extensions[pt];
+    }
+    const std::string& operator[](ExtType pt) const {
+        return m_Extensions[pt];
+    }
+    const auto& GetPaths() const {
+        return m_Paths;
+    }
     bool DebugEnabled = false;
     bool KeepFiles = false;
     bool PerLevel = false;
-    bool disable255Sprites = false;
+    bool Disable255Sprites = false;
     bool Warnings = false;
     bool ExtModDisabled = false;
     bool DisableMeiMei = false;
@@ -142,8 +145,4 @@ struct PixiConfig {
     int Routines = DEFAULT_ROUTINES;
     std::string AsmDir{};
     std::string AsmDirPath{};
-
-    ~PixiConfig() {
-        this->m_Debug.~Debug();
-    }
 };
