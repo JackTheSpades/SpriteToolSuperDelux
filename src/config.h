@@ -131,7 +131,7 @@ class PixiConfig {
     const std::string& operator[](ExtType pt) const {
         return m_Extensions[pt];
     }
-    const auto& Paths() const {
+    const auto& GetPaths() const {
         return m_Paths;
     }
     bool DebugEnabled = false;

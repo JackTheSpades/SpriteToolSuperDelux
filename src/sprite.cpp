@@ -1180,7 +1180,7 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
     std::vector<std::string> extraDefines = listExtraAsm(cfg.AsmDirPath + "/ExtraDefines", failed);
     if (failed)
         return EXIT_FAILURE;
-    if (!populate_sprite_list(cfg.Paths(), sprites_list_list, cfg[PathType::List], cfg.debug().output))
+    if (!populate_sprite_list(cfg.GetPaths(), sprites_list_list, cfg[PathType::List], cfg.debug().output))
         return EXIT_FAILURE;
 
     if (!clean_hack(rom, cfg[PathType::Asm]))
