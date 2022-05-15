@@ -54,6 +54,8 @@ struct Debug {
     }
 };
 
+using strref = std::reference_wrapper<std::string>;
+
 class Paths {
     static constexpr size_t ArrSize = FromEnum(PathType::__SIZE__);
     std::string list{"list.txt"};
@@ -70,9 +72,10 @@ class Paths {
     std::string score{"misc_sprites/score/"};
     std::string routines{"routines/"};
 
-    std::array<std::reference_wrapper<std::string>, ArrSize> paths{
-        routines, sprites,       generators, shooters, list,         pasm, extended,
-        cluster,  minorextended, bounce,     smoke,    spinningcoin, score};
+    std::array<strref, ArrSize> paths{strref{routines},      strref{sprites}, strref{generators}, strref{shooters},
+                                      strref{list},          strref{pasm},    strref{extended},   strref{cluster},
+                                      strref{minorextended}, strref{bounce},  strref{smoke},      strref{spinningcoin},
+                                      strref{score}};
 
   public:
     inline constexpr std::string& operator[](PathType index) noexcept {
@@ -93,7 +96,7 @@ class Extensions {
     std::string mw2{};
     std::string s16{};
 
-    std::array<std::reference_wrapper<std::string>, ArrSize> exts{ssc, mwt, mw2, s16};
+    std::array<strref, ArrSize> exts{strref{ssc}, strref{mwt}, strref{mw2}, strref{s16}};
 
   public:
     inline constexpr std::string& operator[](ExtType index) noexcept {
