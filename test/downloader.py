@@ -10,6 +10,7 @@ from shutil import copyfile, rmtree, copytree
 import subprocess
 import re
 import traceback
+import sys
 
 types = {
     'standard': (46, 14),
@@ -41,7 +42,7 @@ def download():
                 with sess.get(uri) as res:
                     soup = BeautifulSoup(res.text, 'html.parser')
                 links = ['https:' + link['href'] for link in soup.find_all('a', href=re.compile('dl.smwcentral.net'))]
-                print(name, links)
+                print(f"Downloading {name} sprites page {page + 1} of {pages} ({len(links)} sprites)")
                 for link in links:
                     submission_id = link.split('/')[-2]
                     sublink = 'https://www.smwcentral.net/?p=section&a=details&id=' + submission_id
@@ -154,7 +155,7 @@ def test_normal_sprites():
         copyfile('pixi/base_latest.smc', 'pixi/work_latest.smc')
         wrkdir = os.getcwd()
         os.chdir('pixi')
-        print(f'{i+1} out of {len(folders)}')
+        print(f'Testing sprite {i+1} out of {len(folders)}')
         sprite_folder_id = int(folder.split('/')[-1])
         for out_file, names in which_to_exec.items():
             pixi_exe, rom_name = names
@@ -186,7 +187,11 @@ def test_normal_sprites():
     return successes, errors, differences
 
 try:
-    download()
+    if sys.argv[1] == "false":
+        print("Downloading sprites")
+        download()
+    else:
+        print("Using cached sprites")
     create_list_files()
     success, error, diff = test_normal_sprites()
     for filename in ['result_current.json', 'result_latest.json']:

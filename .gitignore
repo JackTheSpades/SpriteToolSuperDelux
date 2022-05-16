@@ -30,3 +30,8 @@ build
 CMakeSettings.json
 StructLayoutSettings.json
 pixi.aps
+test/*
+!test/check_diff.py
+!test/zip_pixi_rasp.py
+!test/downloader.py
+!test/pixi_test.sh
