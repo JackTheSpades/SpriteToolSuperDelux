@@ -48,6 +48,9 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/config.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/argparser.h"
 
+    "${CMAKE_CURRENT_SOURCE_DIR}/libconsole/libconsole.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/libconsole/libconsole.cpp"
+    
     "${CMAKE_CURRENT_SOURCE_DIR}/pixi_information_impl.cpp"
 
     "${CMAKE_CURRENT_SOURCE_DIR}/api_bindings/pixi_api.h"
@@ -97,13 +100,30 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     message(STATUS "GCC/Clang detected, adding compile flags")
 else()
     message(STATUS "MSVC detected, adding compile flags")
-    list(APPEND PIXI_COMPILE_DEFINITIONS _CRT_SECURE_NO_WARNINGS)
+    list(APPEND PIXI_COMPILE_DEFINITIONS 
+        _CRT_SECURE_NO_WARNINGS 
+        UNICODE 
+        _UNICODE
+        WIN32_LEAN_AND_MEAN
+        VC_EXTRALEAN
+        NOMINMAX
+        ON_WINDOWS
+    )
+    # manifest file only runs on msvc
+    if (WIN32 AND NOT CMAKE_COMPILER_IS_GNUCXX)
+        add_custom_command(
+            TARGET pixi
+            POST_BUILD
+            COMMAND mt.exe -manifest ${CMAKE_CURRENT_SOURCE_DIR}/pixi.manifest -outputresource:$<TARGET_FILE:pixi>
+            COMMENT "Applying manifest file"
+        )
+    endif()
     if (PIXI_LIBRARY_TYPE STREQUAL "SHARED")
         set(PIXI_MSVC_LIB_TYPE "/MD$<$<CONFIG:Debug>:d>")
     else()
         set(PIXI_MSVC_LIB_TYPE "/MT$<$<CONFIG:Debug>:d>")
     endif()
-    list(APPEND PIXI_COMPILE_OPTIONS /Wall /std:c++20 ${PIXI_MSVC_LIB_TYPE})
+    list(APPEND PIXI_COMPILE_OPTIONS /utf-8 /Wall /std:c++20 ${PIXI_MSVC_LIB_TYPE})
     list(APPEND PIXI_COMPILE_OPTIONS
             # generic & extremely noisy warnings which do (almost) nothing useful
             # not to say that most come from code which I have no control over

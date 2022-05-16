@@ -29,3 +29,4 @@ build
 .vs
 CMakeSettings.json
 StructLayoutSettings.json
+pixi.aps

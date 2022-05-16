@@ -177,7 +177,7 @@ bool read_json_file(sprite* spr, FILE* output) {
         }
 
         if (output) {
-            fprintf(output, "Parsed %s\n", spr->cfg_file);
+            cfprintf(output, "Parsed %s\n", spr->cfg_file);
         }
 
         return true;
