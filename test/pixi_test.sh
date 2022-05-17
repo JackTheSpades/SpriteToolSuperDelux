@@ -61,9 +61,9 @@ cd ..
 CC=gcc-11
 CXX=g++-11
 git clone $repourl
-git checkout $branch
 cp asar_latest/asar/libasar.so SpriteToolSuperDelux/libasar.so
 cd SpriteToolSuperDelux
+git checkout $branch
 mkdir build
 cd build
 cmake .. && make
@@ -124,3 +124,4 @@ res=$(python3 check_diff.py)
 rm result_current.json
 rm result_latest.json
 rm differences.json
+rm base.smc

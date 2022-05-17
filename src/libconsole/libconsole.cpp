@@ -6,8 +6,9 @@
 #include <cstdlib>
 #ifdef ON_WINDOWS
 #include <Windows.h>
+#include <io.h>
+#include <bit>
 #endif
-#include <clocale>
 
 namespace libconsole {
 
@@ -17,6 +18,10 @@ template <typename Tp> struct tbuf {
     size_t m_size;
     tbuf(size_t size) {
         m_size = size;
+        buffer = new Tp[size];
+    }
+    tbuf(int size) {
+        m_size = static_cast<size_t>(size);
         buffer = new Tp[size];
     }
     operator Tpp() {
@@ -44,6 +49,9 @@ HANDLE map_handle(handle hdl) {
     }
     return NULL;
 }
+HANDLE handle_from_file(FILE* ptr) {
+    return std::bit_cast<HANDLE>(_get_osfhandle(_fileno(ptr)));
+}
 #else
 FILE* map_handle(handle hdl) {
     switch (hdl) {
@@ -54,12 +62,13 @@ FILE* map_handle(handle hdl) {
     case handle::in:
         return stdin;
     }
-    return nullptr;
+    return NULL;
 }
 #endif
 
 bool init() {
 #ifdef ON_WINDOWS
+    AllocConsole();
     UINT codepage = GetConsoleCP();
     if (codepage != CP_UTF8) {
         if (!SetConsoleCP(CP_UTF8))
@@ -71,35 +80,60 @@ bool init() {
     return true;
 }
 
-bool read(char* buffer, size_t bufsize, handle hdl) {
+#ifdef ON_WINDOWS
+BOOL GenericRead(HANDLE hdl, wchar_t* wbuffer, DWORD wbufsize, char* buffer, DWORD bufsize, LPDWORD read) {
+    // https://github.com/rust-lang/rust/blob/7355d971a954ed63293e4191f6677f60c1bc07d9/library/std/src/sys/windows/stdio.rs#L78
+    DWORD mode = 0;
+    BOOL res = GetConsoleMode(hdl, &mode);
+    if (res)
+        return ReadConsole(hdl, wbuffer, wbufsize, read, NULL);
+    else {
+        return ReadFile(hdl, buffer, bufsize, read, NULL);
+    }
+}
+BOOL GenericWrite(HANDLE hdl, const wchar_t* wbuffer, DWORD wbufsize, const char* buffer, DWORD bufsize, LPDWORD written) {
+    // https://github.com/rust-lang/rust/blob/7355d971a954ed63293e4191f6677f60c1bc07d9/library/std/src/sys/windows/stdio.rs#L78
+    DWORD mode = 0;
+    BOOL res = GetConsoleMode(hdl, &mode);
+    if (res)
+        return WriteConsole(hdl, wbuffer, wbufsize, written, NULL);
+    else
+        return WriteFile(hdl, buffer, bufsize, written, NULL);
+}
+#endif
+
+bool read(char* buffer, int bufsize, handle hdl) {
 #ifdef ON_WINDOWS
     wctbuf wstr{bufsize};
-
-    DWORD read{};
-
-    if (!ReadConsole(map_handle(hdl), wstr, bufsize, &read, NULL))
+    DWORD read = 0; 
+    HANDLE real_hdl = map_handle(hdl);
+    if (BOOL ptr = GenericRead(real_hdl, wstr, bufsize, buffer, bufsize, &read); !ptr)
         return false;
-
-    int size = WideCharToMultiByte(CP_UTF8, 0, wstr, read, buffer, bufsize, NULL, NULL);
-    buffer[size] = 0;
+    DWORD mode = 0;
+    if (GetConsoleMode(real_hdl, &mode)) {
+        int size = WideCharToMultiByte(CP_UTF8, 0, wstr, read, buffer, bufsize, NULL, NULL);
+        buffer[size] = '\0';
+    } else {
+        buffer[read] = '\0';
+    }
 #else
     fgets(buffer, bufsize, map_handle(hdl));
 #endif
     return true;
 }
 
-bool write(const char* buffer, size_t bufsize, handle hdl) {
+bool write(const char* buffer, int bufsize, handle hdl) {
 #ifdef ON_WINDOWS 
     int convertResult = MultiByteToWideChar(CP_UTF8, 0, buffer, bufsize, NULL, 0);
     if (convertResult <= 0) {
         return false;
     } else {
-        wctbuf wstr{static_cast<size_t>(convertResult)};
+        wctbuf wstr{convertResult};
+        DWORD written = 0;
         int conv = MultiByteToWideChar(CP_UTF8, 0, buffer, bufsize, wstr, convertResult);
-        DWORD written{};
-        if (!WriteConsole(map_handle(hdl), wstr, conv, &written, NULL))
+        if (auto ret = GenericWrite(map_handle(hdl), wstr, conv, buffer, bufsize, &written); !ret)
             return false;
-        return written == conv;
+        return conv == written;
     }
 #else
     fwrite(buffer, 1, bufsize, map_handle(hdl));
@@ -108,29 +142,29 @@ bool write(const char* buffer, size_t bufsize, handle hdl) {
 }
 
 #ifdef ON_WINDOWS
-bool write_handle(const char* buffer, size_t bufsize, HANDLE hdl) {
+bool write_handle(const char* buffer, int bufsize, FILE* fp) {
     int convertResult = MultiByteToWideChar(CP_UTF8, 0, buffer, bufsize, NULL, 0);
     if (convertResult <= 0) {
         return false;
     } else {
-        wctbuf wstr{static_cast<size_t>(convertResult)};
+        wctbuf wstr{convertResult};
+        DWORD written = 0;
         int conv = MultiByteToWideChar(CP_UTF8, 0, buffer, bufsize, wstr, convertResult);
-        DWORD written{};
-        if (!WriteConsole(hdl, wstr, conv, &written, NULL))
+        if (auto ret = GenericWrite(handle_from_file(fp), wstr, conv, buffer, bufsize, &written); !ret)
             return false;
-        return written == conv;
+        return conv == written;
     }
 }
 
 bool write_args(const char* fmt, handle hdl, va_list list) {
-    size_t needed = _vscprintf_l(fmt, nullptr, list);
+    int needed = _vscprintf_l(fmt, nullptr, list);
     tbuf<char> buf{needed + 1}; 
     _vsprintf_l(buf, fmt, nullptr, list);
     return write(buf, needed + 1, hdl);
 }
 
-bool write_args_handle(const char* fmt, HANDLE hdl, va_list list) {
-    size_t needed = _vscprintf_l(fmt, nullptr, list);
+bool write_args_handle(const char* fmt, FILE* hdl, va_list list) {
+    int needed = _vscprintf_l(fmt, nullptr, list);
     tbuf<char> buf{needed + 1};
     _vsprintf_l(buf, fmt, nullptr, list);
     return write_handle(buf, needed + 1, hdl);
