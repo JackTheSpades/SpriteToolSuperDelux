@@ -39,13 +39,18 @@ using wctbuf = tbuf<wchar_t>;
 
 #ifdef ON_WINDOWS
 HANDLE map_handle(handle hdl) {
+    static struct { 
+        HANDLE err = GetStdHandle(STD_ERROR_HANDLE);
+        HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+        HANDLE in = GetStdHandle(STD_INPUT_HANDLE);
+    } cached_handles;
     switch (hdl) {
     case handle::err:
-        return GetStdHandle(STD_ERROR_HANDLE);
+        return cached_handles.err;
     case handle::out:
-        return GetStdHandle(STD_OUTPUT_HANDLE);
+        return cached_handles.out;
     case handle::in:
-        return GetStdHandle(STD_INPUT_HANDLE);
+        return cached_handles.in;
     }
     return NULL;
 }
@@ -133,7 +138,7 @@ bool write(const char* buffer, int bufsize, handle hdl) {
         int conv = MultiByteToWideChar(CP_UTF8, 0, buffer, bufsize, wstr, convertResult);
         if (auto ret = GenericWrite(map_handle(hdl), wstr, conv, buffer, bufsize, &written); !ret)
             return false;
-        return conv == written;
+        return static_cast<DWORD>(conv) == written;
     }
 #else
     fwrite(buffer, 1, bufsize, map_handle(hdl));
@@ -152,7 +157,7 @@ bool write_handle(const char* buffer, int bufsize, FILE* fp) {
         int conv = MultiByteToWideChar(CP_UTF8, 0, buffer, bufsize, wstr, convertResult);
         if (auto ret = GenericWrite(handle_from_file(fp), wstr, conv, buffer, bufsize, &written); !ret)
             return false;
-        return conv == written;
+        return static_cast<DWORD>(conv) == written;
     }
 }
 

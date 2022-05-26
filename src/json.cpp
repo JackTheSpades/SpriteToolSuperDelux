@@ -151,7 +151,20 @@ bool read_json_file(sprite* spr, FILE* output) {
                     counter2++;
                 }
             }
+
+            dis.extra_bit = jdisplay.at("ExtraBit").get<bool>();
             counter++;
+        }
+
+        // verify that all displays use the same extension byte index
+        if (spr->displays.size() > 0 && spr->disp_type == display_type::ExtensionByte) {
+            auto first_index = spr->displays.front().x_or_index;
+            if (!std::all_of(spr->displays.begin(), spr->displays.end(),
+                             [first_index](const display& disp) { return disp.x_or_index == first_index; })) {
+                cprintf("JSON logic error in %s: \nWhen using the extension byte display type, all of the displays "
+                        "of one sprite must use the same extension byte index.\n", spr->cfg_file);
+                return false;
+            }
         }
 
         // collections
@@ -184,9 +197,9 @@ bool read_json_file(sprite* spr, FILE* output) {
     } catch (const std::exception& e) {
         // there are too many exception types to catch, so just catch everything
         // most of them will probably come from here https://json.nlohmann.me/api/basic_json/at/#exceptions
-        printf("Unexpected error when parsing json file %s: %s, report this at " GITHUB_ISSUE_LINK
-               " (include as much info as possible)\n",
-               spr->cfg_file, e.what());
+        cprintf("Unexpected error when parsing json file %s: %s, report this at " GITHUB_ISSUE_LINK
+                " (include as much info as possible)\n",
+                spr->cfg_file, e.what());
         return false;
     }
 }
