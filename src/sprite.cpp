@@ -822,13 +822,13 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
             spr->asm_file = fullFileName;
         } else {
             spr->cfg_file = fullFileName;
-            if (!strcmp(dot, "cfg") || !strcmp(dot, ".CFG")) {
+            if (!strcmp(dot, "cfg") || !strcmp(dot, "CFG")) {
                 if (!read_cfg_file(spr, output)) {
                     error("Error on list line %d: Cannot parse CFG file %s.\n", lineno, spr->cfg_file);
                     return false;
                 }
 
-            } else if (!strcmp(dot, "json")) {
+            } else if (!strcmp(dot, "json") || !strcmp(dot, "JSON")) {
                 if (!read_json_file(spr, output)) {
                     error("Error on list line %d: Cannot parse JSON file %s.\n", lineno, spr->cfg_file);
                     return false;
