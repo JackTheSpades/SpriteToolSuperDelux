@@ -196,6 +196,6 @@ size_t bytelen(const char* buffer) {
     return std::strlen(buffer);
 }
 bool isspace(const char ch) {
-    return (ch == '\r' || ch == '\n' || ch == ' ' || ch == '\v' || ch == '\f');
+    return (ch == '\r' || ch == '\n' || ch == ' ' || ch == '\v' || ch == '\f' || ch == '\t');
 }
 } // namespace libconsole
