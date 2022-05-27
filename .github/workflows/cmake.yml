@@ -84,20 +84,31 @@ jobs:
     
     - name: Install python packages
       run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install beautifulsoup4 requests
-      if: matrix.os == 'ubuntu-latest'
+        python -m pip install --upgrade pip
+        python -m pip install beautifulsoup4 requests
 
-    - name: Test
+    - name: Test (linux)
       working-directory: ${{github.workspace}}/test
       shell: bash
-      run: bash pixi_test.sh ${{steps.branch-name.outputs.current_branch}}
+      run: bash pixi_test.sh ${{steps.branch-name.outputs.current_branch}} remote
+      env:
+        CC: gcc-11
+        CXX: g++-11
       if: "matrix.os == 'ubuntu-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
-    
+
+    - name: Test (windows)
+      working-directory: ${{github.workspace}}/test
+      shell: pwsh
+      run: |
+        choco upgrade mingw
+        Set-Alias py python
+        ./pixi_test.ps1 ${{steps.branch-name.outputs.current_branch}} remote
+      if: "matrix.os == 'windows-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
+
     - name: Upload test results
       uses: actions/upload-artifact@v2
       with:
-        name: test-result
+        name: test-result-${{matrix.os}}
         path: ${{github.workspace}}/test/results.zip
-      if: "matrix.os == 'ubuntu-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
+      if: "matrix.os != 'macos-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
 

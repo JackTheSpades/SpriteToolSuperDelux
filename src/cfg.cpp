@@ -39,7 +39,7 @@ bool read_cfg_file(sprite *spr, FILE *output) {
     };
 
     if (output) {
-        fprintf(output, "Parsed: %s, %zu lines\n", spr->cfg_file, line - 1);
+        cfprintf(output, "Parsed: %s, %zu lines\n", spr->cfg_file, line - 1);
     }
 
     return true;

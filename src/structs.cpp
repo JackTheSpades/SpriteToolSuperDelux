@@ -3,14 +3,16 @@
 #include <cstring>
 #include <iomanip>
 #include <sstream>
+#include "libconsole/libconsole.h"
 
 const char *BOOL_STR(bool b) {
     return b ? "true" : "false";
 }
 
-bool ROM::open(const char *n) {
-    name = new char[strlen(n) + 1]();
-    strcpy(name, n);
+bool ROM::open(const char* n) {
+    size_t len = libconsole::bytelen(n) + 1;
+    name = new char[len];
+    std::memcpy(name, n, len);
     FILE *file = ::open(name, "r+b"); // call global open
     if (file == nullptr) {
         data = nullptr;
@@ -151,22 +153,22 @@ sprite::~sprite() {
 }
 
 void sprite::print(FILE *stream) {
-    fprintf(stream, "Type:       %02X\n", table.type);
-    fprintf(stream, "ActLike:    %02X\n", table.actlike);
-    fprintf(stream, "Tweak:      %02X, %02X, %02X, %02X, %02X, %02X\n", table.tweak[0], table.tweak[1], table.tweak[2],
+    cfprintf(stream, "Type:       %02X\n", table.type);
+    cfprintf(stream, "ActLike:    %02X\n", table.actlike);
+    cfprintf(stream, "Tweak:      %02X, %02X, %02X, %02X, %02X, %02X\n", table.tweak[0], table.tweak[1], table.tweak[2],
             table.tweak[3], table.tweak[4], table.tweak[5]);
 
     // not needed for tweaks
     if (table.type) {
-        fprintf(stream, "Extra:      %02X, %02X\n", table.extra[0], table.extra[1]);
-        fprintf(stream, "ASM File:   %s\n", asm_file);
-        fprintf(stream, "Byte Count: %d, %d\n", byte_count, extra_byte_count);
+        cfprintf(stream, "Extra:      %02X, %02X\n", table.extra[0], table.extra[1]);
+        cfprintf(stream, "ASM File:   %s\n", asm_file);
+        cfprintf(stream, "Byte Count: %d, %d\n", byte_count, extra_byte_count);
     }
 
     if (!map_data.empty()) {
-        fprintf(stream, "Map16:\n");
+        cfprintf(stream, "Map16:\n");
         auto print_map16 = [stream](const map16 &map) {
-            fprintf(stream, "\t%02X, %02X, %02X, %02X, %02X, %02X, %02X, %02X\n", map.top_left.tile, map.top_left.prop,
+            cfprintf(stream, "\t%02X, %02X, %02X, %02X, %02X, %02X, %02X, %02X\n", map.top_left.tile, map.top_left.prop,
                     map.bottom_left.tile, map.bottom_left.prop, map.top_right.tile, map.top_right.prop,
                     map.bottom_right.tile, map.bottom_right.prop);
         };
@@ -176,21 +178,21 @@ void sprite::print(FILE *stream) {
     }
 
     if (!displays.empty()) {
-        fprintf(stream, "Displays:\n");
+        cfprintf(stream, "Displays:\n");
         for (const auto &d : displays) {
-            fprintf(stream, "\tX: %d, Y: %d, Extra-Bit: %s\n", d.x_or_index, d.y_or_value, BOOL_STR(d.extra_bit));
-            fprintf(stream, "\tDescription: %s\n", d.description.c_str());
+            cfprintf(stream, "\tX: %d, Y: %d, Extra-Bit: %s\n", d.x_or_index, d.y_or_value, BOOL_STR(d.extra_bit));
+            cfprintf(stream, "\tDescription: %s\n", d.description.c_str());
             for (const auto &t : d.tiles) {
                 if (t.text.size())
-                    fprintf(stream, "\t\t%d,%d,*%s*\n", t.x_offset, t.y_offset, t.text.c_str());
+                    cfprintf(stream, "\t\t%d,%d,*%s*\n", t.x_offset, t.y_offset, t.text.c_str());
                 else
-                    fprintf(stream, "\t\t%d,%d,%X\n", t.x_offset, t.y_offset, t.tile_number);
+                    cfprintf(stream, "\t\t%d,%d,%X\n", t.x_offset, t.y_offset, t.tile_number);
             }
         }
     }
 
     if (!collections.empty()) {
-        fprintf(stream, "Collections:\n");
+        cfprintf(stream, "Collections:\n");
         for (const auto &c : collections) {
             std::stringstream coll;
             coll << "\tExtra-Bit: " << BOOL_STR(c.extra_bit) << ", Property Bytes: ( ";
@@ -199,7 +201,7 @@ void sprite::print(FILE *stream) {
                      << " ";
             }
             coll << ") Name: " << c.name << std::endl;
-            fprintf(stream, "%s", coll.str().c_str());
+            cfprintf(stream, "%s", coll.str().c_str());
         }
     }
 }

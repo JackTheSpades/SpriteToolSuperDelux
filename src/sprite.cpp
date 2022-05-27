@@ -14,15 +14,12 @@
 #include "cfg.h"
 #include "config.h"
 #include "json.h"
+#include "libconsole/libconsole.h"
 #include "map16.h"
 #include "paths.h"
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-#define WIN32_LEAN_AND_MEAN
-#define VC_EXTRALEAN
-#define NOMINMAX
+#ifdef ON_WINDOWS
 #include <windows.h>
-#define ON_WINDOWS
 #endif
 
 #define STRIMPL(x) #x
@@ -135,9 +132,9 @@ template <typename T> T* from_table(T* table, int level, int number) {
     if (!asar_patch_ex(&params)) {
         int error_count;
         const errordata* errors = asar_geterrors(&error_count);
-        printf("An error has been detected while applying patch %s:\n", patch_path.c_str());
+        cprintf("An error has been detected while applying patch %s:\n", patch_path.c_str());
         for (int i = 0; i < error_count; i++)
-            printf("%s\n", errors[i].fullerrdata);
+            cprintf("%s\n", errors[i].fullerrdata);
         return false;
     }
     int warn_count = 0;
@@ -252,9 +249,9 @@ std::string escapeDefines(std::string_view path, const char* repl = "\\!") {
     }
 
     if (output)
-        fprintf(output, "%s\n", spr->asm_file);
+        cfprintf(output, "%s\n", spr->asm_file);
     if (print_count > 2 && output)
-        fprintf(output, "Prints:\n");
+        cfprintf(output, "Prints:\n");
 
     using namespace std::string_view_literals;
 
@@ -294,7 +291,7 @@ std::string escapeDefines(std::string_view path, const char* repl = "\\!") {
                 // we always parse the version as a decimal
                 auto required_version = std::atoi(prints[i].c_str() + (prints[i][4] == '$' ? 5 : 4));
                 if (VERSION_PARTIAL < required_version) {
-                    printf("The sprite %s requires to be inserted at least with Pixi 1.%d, this is Pixi 1.%d\n",
+                    cprintf("The sprite %s requires to be inserted at least with Pixi 1.%d, this is Pixi 1.%d\n",
                            spr->asm_file, required_version, VERSION_PARTIAL);
                     return false;
                 }
@@ -303,7 +300,7 @@ std::string escapeDefines(std::string_view path, const char* repl = "\\!") {
             }
 
         } else if (output) {
-            fprintf(output, "\t%s\n", prints[i].c_str());
+            cfprintf(output, "\t%s\n", prints[i].c_str());
         }
     }
     spr->table.init = ptr_map["INIT"];
@@ -323,7 +320,7 @@ std::string escapeDefines(std::string_view path, const char* repl = "\\!") {
     }
     if (output) {
         if (spr->sprite_type == ListType::Sprite)
-            fprintf(output,
+            cfprintf(output,
                     "\tINIT: $%06X\n\tMAIN: $%06X\n"
                     "\tCARRIABLE: $%06X\n\tCARRIED: $%06X\n\tKICKED: $%06X\n"
                     "\tMOUTH: $%06X\n\tGOAL: $%06X"
@@ -331,12 +328,12 @@ std::string escapeDefines(std::string_view path, const char* repl = "\\!") {
                     spr->table.init.addr(), spr->table.main.addr(), spr->ptrs.carriable.addr(),
                     spr->ptrs.carried.addr(), spr->ptrs.kicked.addr(), spr->ptrs.mouth.addr(), spr->ptrs.goal.addr());
         else if (spr->sprite_type == ListType::Extended)
-            fprintf(output,
+            cfprintf(output,
                     "\tINIT: $%06X\n\tMAIN: $%06X\n\tCAPE: $%06X"
                     "\n__________________________________\n",
                     spr->table.init.addr(), spr->table.main.addr(), spr->extended_cape_ptr.addr());
         else
-            fprintf(output,
+            cfprintf(output,
                     "\tINIT: $%06X\n\tMAIN: $%06X\n"
                     "\n__________________________________\n",
                     spr->table.init.addr(), spr->table.main.addr());
@@ -572,15 +569,15 @@ std::string escapeDefines(std::string_view path, const char* repl = "\\!") {
                 else if ((size - 8 + inverted) != 0x10000) { // (not old tag either =>) bad tag
                     char answer;
                     int pc = i * 0x8000 + offset - 8 + rom.header_size;
-                    printf("size: %04X, inverted: %04X\n", size - 8, inverted);
-                    printf("Bad sprite_tool RATS tag detected at $%06X / 0x%05X. Remove anyway (y/n) ",
+                    cprintf("size: %04X, inverted: %04X\n", size - 8, inverted);
+                    cprintf("Bad sprite_tool RATS tag detected at $%06X / 0x%05X. Remove anyway (y/n) ",
                            rom.pc_to_snes(pc), pc);
                     int read_values = scanf("%c", &answer);
                     if ((answer != 'Y' && answer != 'y') || read_values != 1)
                         continue;
                 }
 
-                // printf("Clear %04X bytes from $%06X / 0x%05X.\n", size, rom.pc_to_snes(pc), pc);
+                // cprintf("Clear %04X bytes from $%06X / 0x%05X.\n", size, rom.pc_to_snes(pc), pc);
                 memset(bank + offset - 8, 0, size);
                 bank_offset = offset - 8 + size;
             }
@@ -683,7 +680,7 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
         error("Trying to read folder \"%s\" returned \"%s\", aborting insertion\n", routine_path.c_str(), err.what());
         return false;
     }
-    printf("%d Shared routines registered in \"%s\"\n", routine_count, routine_path.data());
+    cprintf("%d Shared routines registered in \"%s\"\n", routine_count, routine_path.data());
     fclose(shared_patch);
     return true;
 }
@@ -693,8 +690,10 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                                         std::string_view listPath, FILE* output) {
     using namespace std::string_view_literals;
     std::ifstream listStream{listPath.data()};
-    if (!listStream)
+    if (!listStream) {
+        error("Could not open list file \"%s\" for reading", listPath.data());
         return false;
+    }
     unsigned int sprite_id, level;
     int lineno = 0;
     int read_res;
@@ -744,8 +743,8 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                 return false;
             }
             if (!cfg.PerLevel) {
-                error("Trying to insert per level sprites without using the -pl flag, at list line %d: \"%s\"\n", lineno,
-                      line.c_str());
+                error("Trying to insert per level sprites without using the -pl flag, at list line %d: \"%s\"\n",
+                      lineno, line.c_str());
                 return false;
             }
             strcpy(cfgname, line.c_str() + read_until);
@@ -841,13 +840,13 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
         }
 
         if (output) {
-            fprintf(output, "Read from list line %d\n", spr->line);
+            cfprintf(output, "Read from list line %d\n", spr->line);
             if (spr->level != 0x200)
-                fprintf(output, "Number %02X for level %03X\n", spr->number, spr->level);
+                cfprintf(output, "Number %02X for level %03X\n", spr->number, spr->level);
             else
-                fprintf(output, "Number %02X\n", spr->number);
+                cfprintf(output, "Number %02X\n", spr->number);
             spr->print(output);
-            fprintf(output, "\n--------------------------------------\n");
+            cfprintf(output, "\n--------------------------------------\n");
         }
 
         // if sprite is tweak, set init and main pointer to contents of ROM pointer table.
@@ -964,7 +963,8 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
         if (!iofilecloser.replace_stdout(stdout_name))
             return EXIT_FAILURE;
     }
-
+    if (!libconsole::init())
+        return EXIT_FAILURE;
     ROM rom;
     // individual lists containing the sprites for the specific sections
     static sprite sprite_list[MAX_SPRITE_COUNT];
@@ -1083,14 +1083,25 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
     //------------------------------------------------------------------------------------------
 
     if (optparser.unmatched().empty()) {
-        printf("Enter a ROM file name, or drag and drop the ROM here: ");
+        cprintf("Enter a ROM file name, or drag and drop the ROM here: ");
         char ROM_name[FILENAME_MAX];
-        if (fgets(ROM_name, FILENAME_MAX, stdin)) {
-            size_t length = strlen(ROM_name) - 1;
-            ROM_name[length] = 0;
+        if (libconsole::read(ROM_name, FILENAME_MAX, libconsole::handle::in)) {
+            size_t length = libconsole::bytelen(ROM_name);
+            if (length == 0) {
+                error("Rom name can't be empty");
+                return EXIT_FAILURE;
+            }
+            // remove ending whitespace (\r\n)
+            while (length > 0 && libconsole::isspace(ROM_name[length - 1])) {
+                ROM_name[--length] = '\0';
+            }
+            if (length == 0) {
+                error("Rom name can't be empty");
+                return EXIT_FAILURE;
+            }
             if ((ROM_name[0] == '"' && ROM_name[length - 1] == '"') ||
                 (ROM_name[0] == '\'' && ROM_name[length - 1] == '\'')) {
-                ROM_name[length - 1] = 0;
+                ROM_name[length - 1] = '\0';
                 for (int i = 0; ROM_name[i]; i++) {
                     ROM_name[i] = ROM_name[i + 1]; // no buffer overflow there are two null chars.
                 }
@@ -1111,9 +1122,9 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
     if (version > VERSION_FULL && version != 0xFF) {
         int edition = version / 100;
         int partial = version % (edition * 100);
-        printf("The ROM has been patched with a newer version of PIXI (%d.%d) already.\n", edition, partial);
-        printf("This is version %d.%d\n", VERSION_EDITION, VERSION_PARTIAL);
-        printf("Please get a newer version.");
+        cprintf("The ROM has been patched with a newer version of PIXI (%d.%d) already.\n", edition, partial);
+        cprintf("This is version %d.%d\n", VERSION_EDITION, VERSION_PARTIAL);
+        cprintf("Please get a newer version.");
         rom.close();
         asar_close();
         return EXIT_FAILURE;
@@ -1121,14 +1132,14 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
 
     auto lm_edit_ptr = rom.pointer_snes(0x06F624); // thanks p4plus2
     if (lm_edit_ptr.addr() == 0xFFFFFF) {
-        printf("You're inserting Pixi without having modified a level in Lunar Magic, this will cause bugs\nDo you "
+        cprintf("You're inserting Pixi without having modified a level in Lunar Magic, this will cause bugs\nDo you "
                "want to abort insertion now [y/n]?\nIf you choose 'n', to fix the bugs just reapply Pixi after having "
                "modified a level\n");
         char c = (char)getchar();
         if (tolower(c) == 'y') {
             rom.close();
             asar_close();
-            printf("Insertion was stopped, press any button to exit...\n");
+            cprintf("Insertion was stopped, press any button to exit...\n");
             getchar();
             return EXIT_FAILURE;
         }
@@ -1137,7 +1148,7 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
 
     unsigned char vram_jump = rom.data[rom.snes_to_pc(0x00F6E4)];
     if (vram_jump != 0x5C) {
-        printf("You haven't installed the VRAM optimization patch in Lunar Magic, this will cause many features of "
+        cprintf("You haven't installed the VRAM optimization patch in Lunar Magic, this will cause many features of "
                "Pixi to work incorrectly, insertion was aborted...\n");
         getchar();
         return EXIT_FAILURE;
@@ -1175,7 +1186,8 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
     //------------------------------------------------------------------------------------------
     // regular stuff
     //------------------------------------------------------------------------------------------
-    create_config_file(cfg.AsmDirPath + "/config.asm");
+    if (!create_config_file(cfg.AsmDirPath + "/config.asm"))
+        return EXIT_FAILURE;
     bool failed = true;
     std::vector<std::string> extraDefines = listExtraAsm(cfg.AsmDirPath + "/ExtraDefines", failed);
     if (failed)
@@ -1199,15 +1211,15 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
     }
 
     if (!warnings.empty() && cfg.Warnings) {
-        printf("One or more warnings have been detected:\n");
+        cprintf("One or more warnings have been detected:\n");
         for (const std::string& warning : warnings) {
-            printf("%s\n", warning.c_str());
+            cprintf("%s\n", warning.c_str());
         }
-        printf("Do you want to continue insertion anyway? [Y/n] (Default is yes):\n");
+        cprintf("Do you want to continue insertion anyway? [Y/n] (Default is yes):\n");
         char c = (char)getchar();
         if (tolower(c) == 'n') {
             asar_close();
-            printf("Insertion was stopped, press any button to exit...\n");
+            cprintf("Insertion was stopped, press any button to exit...\n");
             getchar();
             return EXIT_FAILURE;
         }
@@ -1342,8 +1354,7 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
             auto* mw2_data = new unsigned char[fs_size];
             size_t read_size = fread(mw2_data, 1, fs_size, fp);
             if (read_size != fs_size) {
-                error("Couldn't fully read file %s, please check file permissions",
-                      cfg[ExtType::Mw2].c_str());
+                error("Couldn't fully read file %s, please check file permissions", cfg[ExtType::Mw2].c_str());
                 return EXIT_FAILURE;
             }
             fclose(fp);
@@ -1539,7 +1550,7 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
         remove(asm_path, "_cleanup.asm");
     }
 
-    printf("\nAll sprites applied successfully!\n");
+    cprintf("\nAll sprites applied successfully!\n");
 
     if (!cfg.ExtModDisabled)
         if (!create_lm_restore(rom.name))

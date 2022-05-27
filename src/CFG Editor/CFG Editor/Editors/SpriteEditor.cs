@@ -18,6 +18,12 @@ namespace CFG.Map16
     {
         private Point SelectedPoint;
         private Map16Data Map16Data;
+        private CFG_Editor parent_editor;
+
+        public void SetParentEditor(CFG_Editor editor)
+        {
+            parent_editor = editor;
+        }
 
         [DefaultValue(null)]
         public Map16Editor Map16Editor
@@ -267,6 +273,9 @@ namespace CFG.Map16
                 UpdateUseText();
                 UpdateGrid(GridSize);
             }
+            parent_editor.DgvDisplay.EndEdit();
+            parent_editor.DgvDisplay.Update();
+            parent_editor.DgvDisplay.Refresh();
             UpdateSpriteScreen(pcbSprite.Size);
         }
 

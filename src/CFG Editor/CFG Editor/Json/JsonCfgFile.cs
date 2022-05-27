@@ -40,7 +40,7 @@ namespace CFG.Json
         public byte ExProp1 { get; set; }
         [JsonProperty("Extra Property Byte 2")]
         public byte ExProp2 { get; set; }
-        
+
         [JsonProperty("Additional Byte Count (extra bit clear)")]
         public byte ByteCount { get; set; }
         [JsonProperty("Additional Byte Count (extra bit set)")]
@@ -108,7 +108,7 @@ namespace CFG.Json
             Map16 = cfgFile.CustomMap16Data;
             Displays = new List<CFG.Map16.DisplaySprite>();
             DisplayType = cfgFile.DispType;
-            foreach(var display in cfgFile.DisplayEntries)
+            foreach (var display in cfgFile.DisplayEntries)
             {
                 var newDisplay = (CFG.Map16.DisplaySprite)display.Clone();
                 bool useText = display.UseText;
@@ -151,6 +151,15 @@ namespace CFG.Json
                 ds.UseText = useText;
                 ds.disp_type = DisplayType;
                 cfgFile.DisplayEntries.Add(ds);
+            }
+
+            if (DisplayType == DisplayType.ExtraByte && Displays.Count > 0)
+            {
+                var first_idx = Displays[0].X_or_index;
+                if (!Displays.All(d => d.X_or_index == first_idx))
+                {
+                    throw new Exception($"The JSON file is invalid. If the sprite's display type is ExByte, all of the displays for that sprite must have the same index.");
+                }
             }
 
             cfgFile.CollectionEntries.Clear();

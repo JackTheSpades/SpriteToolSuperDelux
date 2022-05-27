@@ -3,6 +3,7 @@
 #include <array>
 #include <cstdio>
 #include <string>
+#include "libconsole/libconsole.h"
 
 constexpr int DEFAULT_ROUTINES = 100;
 #define MAX_ROUTINES 310
@@ -45,7 +46,7 @@ struct Debug {
 
     template <typename... Args> inline void dprintf(const char* format, Args... args) {
         if (this->output)
-            fprintf(this->output, format, args...);
+            cfprintf(this->output, format, args...);
     }
 
     ~Debug() {
