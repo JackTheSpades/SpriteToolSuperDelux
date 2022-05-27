@@ -10,6 +10,7 @@ from shutil import copyfile, rmtree, copytree
 import subprocess
 import re
 import traceback
+import sys
 
 types = {
     'standard': (46, 14),
@@ -27,6 +28,13 @@ list_types = {
     'extended': ('EXTENDED:', 0)
 }
 
+def executable_name(name: str) -> str:
+    if sys.platform == 'win32':
+        return name + '.exe'
+    elif sys.platform == 'linux':
+        return name
+    elif sys.platform == 'darwin':
+        return name
 
 def download():
     with requests.Session() as sess:
@@ -41,7 +49,7 @@ def download():
                 with sess.get(uri) as res:
                     soup = BeautifulSoup(res.text, 'html.parser')
                 links = ['https:' + link['href'] for link in soup.find_all('a', href=re.compile('dl.smwcentral.net'))]
-                print(name, links)
+                print(f"Downloading {name} sprites page {page + 1} of {pages} ({len(links)} sprites)")
                 for link in links:
                     submission_id = link.split('/')[-2]
                     sublink = 'https://www.smwcentral.net/?p=section&a=details&id=' + submission_id
@@ -64,19 +72,21 @@ def create_list_files():
         typename, start_id = info
         zipfiles = glob.glob(name + '/*.zip')
         folders = [zname.rstrip('.zip') for zname in zipfiles]
-        for zname in zipfiles:
-            with ZipFile(zname) as z:
-                try:
-                    z.extractall(zname.rstrip('.zip'))
-                except Exception as e:
-                    print(f'Extracting failed for {zname} in {name} because {e}')
+        # if not using cached, extract zips, do nothing otherwise.
+        if sys.argv[1] == "false":
+            for zname in zipfiles:
+                with ZipFile(zname) as z:
+                    try:
+                        z.extractall(zname.rstrip('.zip'))
+                    except Exception as e:
+                        print(f'Extracting failed for {zname} in {name} because {e}')
         for folder in folders:
             if name in ['standard', 'shooter', 'generator']:
                 sprites = glob.glob(folder + '/**/*.cfg', recursive=True) + \
                           glob.glob(folder + '/**/*.json', recursive=True)
             else:
                 sprites = glob.glob(folder + '/**/*.asm', recursive=True)
-            spid = folder.split('/')[-1]
+            spid = folder.split(os.sep)[-1]
             with open(f'{folder}/list{spid}.txt', 'w') as f:
                 f.write(typename + '\n')
                 f.write('\n'.join(f"{index + start_id:02X} {os.path.relpath(sprite, folder)}"
@@ -96,9 +106,9 @@ def get_routines(errors):
 
 
 def exec_pixi(*, pixi_executable, current_rom, listname):
-    proc = subprocess.Popen([pixi_executable, '-w', '-l', listname, current_rom],
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (stdout, _) = proc.communicate()
+    proc = subprocess.Popen([pixi_executable, '-l', listname, current_rom],
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+    (stdout, _) = proc.communicate(input=b'yes\n')
     retval = proc.returncode
     good = True
     if retval != 0:
@@ -110,8 +120,8 @@ def exec_pixi(*, pixi_executable, current_rom, listname):
                 if os.path.basename(file) == routine:
                     copyfile(file, 'routines/' + routine)
         proc = subprocess.Popen([pixi_executable, '-l', listname, current_rom],
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (stdout, _) = proc.communicate()
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+        (stdout, _) = proc.communicate(input=b'yes\n')
         retval = proc.returncode
         if retval != 0:
             good = False
@@ -121,8 +131,8 @@ def exec_pixi(*, pixi_executable, current_rom, listname):
 def test_normal_sprites():
     differences = {}
     which_to_exec = {
-        'result_current.json': ['./pixi_current', 'work_current.smc'],
-        'result_latest.json': ['./pixi_latest', 'work_latest.smc']
+        'result_current.json': [executable_name('./pixi_current'), 'work_current.smc'],
+        'result_latest.json': [executable_name('./pixi_latest'), 'work_latest.smc']
     }
     errors = {
         'result_current.json': {},
@@ -133,11 +143,11 @@ def test_normal_sprites():
         'result_latest.json':{}        
     }
     base = 'standard'
-    folders = [folder.rstrip('/') for folder in glob.glob(base + '/*/')]
+    folders = [folder.rstrip(os.sep) for folder in glob.glob(base + '/*/')]
     copyfile('pixi/sprites/_header.asm', '_header.asm')
     copytree('pixi/routines', 'routines')
     for i, folder in enumerate(folders):
-        listname = 'list' + folder.split('/')[-1] + '.txt'
+        listname = 'list' + folder.split(os.sep)[-1] + '.txt'
         copyfile(folder + '/' + listname, 'pixi/' + listname)
         rmtree('pixi/sprites/')
         rmtree('pixi/routines/')
@@ -149,13 +159,13 @@ def test_normal_sprites():
                 for file in glob.glob(rdir + '*'):
                     copyfile(file, 'pixi/routines/' + os.path.basename(file))
         copyfile('_header.asm', 'pixi/sprites/_header.asm')
-        os.remove('pixi/sprites/list' + folder.split('/')[-1] + '.txt')
+        os.remove('pixi/sprites/list' + folder.split(os.sep)[-1] + '.txt')
         copyfile('pixi/base_current.smc', 'pixi/work_current.smc')
         copyfile('pixi/base_latest.smc', 'pixi/work_latest.smc')
         wrkdir = os.getcwd()
         os.chdir('pixi')
-        print(f'{i+1} out of {len(folders)}')
-        sprite_folder_id = int(folder.split('/')[-1])
+        print(f'Testing sprite {i+1} out of {len(folders)}')
+        sprite_folder_id = int(folder.split(os.sep)[-1])
         for out_file, names in which_to_exec.items():
             pixi_exe, rom_name = names
             good, stdout = exec_pixi(pixi_executable=pixi_exe, current_rom=rom_name, listname=listname)
@@ -186,7 +196,11 @@ def test_normal_sprites():
     return successes, errors, differences
 
 try:
-    download()
+    if sys.argv[1] == "false":
+        print("Downloading sprites")
+        download()
+    else:
+        print("Using cached sprites")
     create_list_files()
     success, error, diff = test_normal_sprites()
     for filename in ['result_current.json', 'result_latest.json']:

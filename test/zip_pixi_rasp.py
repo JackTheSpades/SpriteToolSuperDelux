@@ -1,7 +1,23 @@
 import os
 import zipfile
 import re
+import sys
 
+def executable_name(name: str) -> str:
+    if sys.platform == 'win32':
+        return name + '.exe'
+    elif sys.platform == 'linux':
+        return name
+    elif sys.platform == 'darwin':
+        return name
+
+def library_name(name: str) -> str:
+    if sys.platform == 'win32':
+        return name + '.dll'
+    elif sys.platform == 'linux':
+        return 'lib' + name + '.so'
+    elif sys.platform == 'darwin':
+        return 'lib' + name + '.dylib'
 
 def isExcludeFile(path, excludes):
     if excludes is None:
@@ -51,9 +67,9 @@ folder_filter_map = {
 def filter_for(folder_name):
     return folder_filter_map.get(folder_name, keep_header_filter)(folder_name)
 
-pixiexe = "build/pixi"
+pixiexe = executable_name("build/pixi")
 
-os.rename(pixiexe, "pixi")
+os.rename(pixiexe, executable_name("pixi"))
 
 with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
 
@@ -72,8 +88,8 @@ with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
     ]:
         zipdir(folder_name, pixizip, filter_for(folder_name))
 
-    pixizip.write("pixi")
-    pixizip.write("libasar.so")
+    pixizip.write(executable_name("pixi"))
+    pixizip.write(library_name("asar"))
 
     # asm
     for asm_folder_file in [

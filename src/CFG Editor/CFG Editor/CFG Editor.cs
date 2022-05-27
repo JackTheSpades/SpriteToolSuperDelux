@@ -95,6 +95,7 @@ namespace CFG
         readonly Map16Resources resources = new Map16.Map16Resources();
         Editors.PaletteEditorForm paletteEditorForm = null;
         Editors.Tile8x8EditorForm tile8X8EditorForm = null;
+        NumericUpDown extraByteIndexUpDown = null;
 
         FileType FileType;
         byte[] RomData = null;
@@ -105,11 +106,48 @@ namespace CFG
             spriteEditor1.Sprite = (DisplaySprite)displaySpriteBindingSource.Current;
         }
 
+        public DataGridView DgvDisplay => dgvDisplay;
+
         public void CheckedExtraByteChanged(object _, EventArgs __)
         {
             Data.DispType = chbExtraByte.Checked ? Json.DisplayType.ExtraByte : Json.DisplayType.XY;
+            if (Data.DispType == Json.DisplayType.ExtraByte)
+            {
+                if (extraByteIndexUpDown == null)
+                {
+                    extraByteIndexUpDown = new NumericUpDown();
+                    ((ISupportInitialize)extraByteIndexUpDown).BeginInit();
+                    groupBox1.Controls.Add(extraByteIndexUpDown);
+                    extraByteIndexUpDown.Minimum = 0;
+                    extraByteIndexUpDown.Maximum = 11;
+                    extraByteIndexUpDown.Location = nudX.Location;
+                    extraByteIndexUpDown.Name = "extraBytIndexNud";
+                    extraByteIndexUpDown.Value = 0;
+                    extraByteIndexUpDown.Size = nudX.Size;
+                    extraByteIndexUpDown.TabIndex = nudX.TabIndex;
+                    extraByteIndexUpDown.Margin = nudX.Margin;
+                    ((ISupportInitialize)extraByteIndexUpDown).EndInit();
+                    extraByteIndexUpDown.ValueChanged += ExtraByteIndexUpDown_ValueChanged;
+                }
+                nudX.Hide();
+                extraByteIndexUpDown.Show();
+            } else
+            {
+                extraByteIndexUpDown.Hide();
+                nudX.Show();
+            }
             foreach (var entry in Data.DisplayEntries)
+            {
                 entry.disp_type = Data.DispType;
+            }
+        }
+
+        private void ExtraByteIndexUpDown_ValueChanged(object sender, EventArgs e)
+        {
+            foreach (var entry in Data.DisplayEntries)
+            {
+                entry.X_or_index = (int)(sender as NumericUpDown).Value;
+            }
         }
 
         public CFG_Editor(string[] args)
@@ -127,6 +165,7 @@ namespace CFG
 
 
             InitializeComponent();
+            spriteEditor1.SetParentEditor(this);
             dgvGFXInfo.Columns[0].ReadOnly = false;
             dgvGFXInfo.Columns[1].ReadOnly = false;
             dgvGFXInfo.Columns[2].ReadOnly = false;
@@ -337,7 +376,7 @@ namespace CFG
             BindToSourceDisplay(nudX, displaySpriteBindingSource, ctrl => ctrl.Value, ds => ds.X_or_index);
             BindToSourceDisplay(nudY, displaySpriteBindingSource, ctrl => ctrl.Value, ds => ds.Y_or_value);
             BindToSourceDisplay(chbExtraBit, displaySpriteBindingSource, ctrl => ctrl.Checked, ds => ds.ExtraBit);
-            BindToSourceDisplay(chbUseText, displaySpriteBindingSource, ctrl => ctrl.Checked, ds => ds.UseText).DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+            BindToSourceDisplay(chbUseText, displaySpriteBindingSource, ctrl => ctrl.Checked, ds => ds.UseText);
             ConnectViewAndButtons(displaySpriteBindingSource, dgvDisplay, btnDisplayNew, btnDisplayClone, btnDisplayDelete);
             displaySpriteBindingSource.CurrentChanged += DisplaySourceCurrentChanged;
 
@@ -499,6 +538,13 @@ namespace CFG
 
         #region Helper Methods
 
+        private void AddNewRowToDisplays(BindingSource source)
+        {
+            Data.DisplayEntries.Add(new DisplaySprite());
+            if (Data.DispType == Json.DisplayType.ExtraByte)
+                Data.DisplayEntries.Last().X_or_index = (int)extraByteIndexUpDown.Value; 
+        }
+
         void ConnectViewAndButtons(BindingSource source, DataGridView dgv, Button btnNew, Button btnClone, Button btnRemove)
         {
             btnRemove.Enabled = false;
@@ -506,7 +552,7 @@ namespace CFG
             dgv.AllowUserToDeleteRows = false;
             source.AllowNew = true;
             //events to control the button/view behaviour for new/clone/delete
-            btnNew.Click += (_, __) => source.AddNew();
+            btnNew.Click += (_, __) => AddNewRowToDisplays(source);
             btnClone.Click += (_, __) => source.Add(((ICloneable)source.Current).Clone());
             btnRemove.Click += (_, __) => source.RemoveCurrent();
 
@@ -551,7 +597,9 @@ namespace CFG
             }
             else
                 objMem = ((MemberExpression)objectMember.Body).GetName();
-            return control.DataBindings.Add(ctrlMem, source, objMem);
+            var binding = control.DataBindings.Add(ctrlMem, source, objMem);
+            binding.DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+            return binding;
         }
 
         /// <summary>

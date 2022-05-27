@@ -17,6 +17,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Get branch name
+      id: branch-name
+      uses: tj-actions/branch-names@v5.2
+
+    - name: Setup compilers
+      run:  |
+            sudo apt update
+            sudo apt install gcc-11 g++-11
+      shell: bash
+      if: matrix.os == 'ubuntu-latest'
+
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
 
@@ -24,64 +35,22 @@ jobs:
       shell: bash
       working-directory: ${{github.workspace}}/build
       run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      if: matrix.os != 'ubuntu-latest'
+    
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      env:
+        CC: gcc-11
+        CXX: g++-11
+      if: matrix.os == 'ubuntu-latest'
 
     - name: Build
       working-directory: ${{github.workspace}}/build
       shell: bash
       run: cmake --build . --config $BUILD_TYPE
-    
-    - name: Upload
-      uses: actions/upload-artifact@v2
-      with:
-        name: pixi
-        path: |
-          ${{github.workspace}}/build/Release/pixi.exe
-          ${{github.workspace}}/build/Release/pixi_api.dll
-      if: matrix.os == 'windows-latest'
-    
-    - name: Upload
-      uses: actions/upload-artifact@v2
-      with:
-        name: pixi_ubuntu
-        path: |
-          ${{github.workspace}}/build/pixi
-          ${{github.workspace}}/build/libpixi_api.so
-      if: matrix.os == 'ubuntu-latest'
 
-    - name: Upload
-      uses: actions/upload-artifact@v2
-      with:
-        name: pixi_macos
-        path: |
-          ${{github.workspace}}/build/pixi
-          ${{github.workspace}}/build/libpixi_api.dylib
-      if: matrix.os == 'macos-latest'
-    
-    - name: Setup python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.9'
-      if: matrix.os == 'ubuntu-latest'
-    
-    - name: Install python packages
-      run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install beautifulsoup4 requests
-      if: matrix.os == 'ubuntu-latest'
-
-    - name: Test
-      working-directory: ${{github.workspace}}/test
-      shell: bash
-      run: bash pixi_test.sh
-      if: "matrix.os == 'ubuntu-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
-    
-    - name: Upload test results
-      uses: actions/upload-artifact@v2
-      with:
-        name: test-result
-        path: ${{github.workspace}}/test/results.zip
-      if: "matrix.os == 'ubuntu-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
-    
     - name: Setup msbuild
       uses: microsoft/setup-msbuild@v1
       if: matrix.os == 'windows-latest'
@@ -98,11 +67,48 @@ jobs:
         msbuild.exe "CFG Editor.sln" -p:Configuration=Release
         Compress-Archive "${{github.workspace}}/src/CFG Editor/CFG Editor/bin/Release/CFG Editor.exe","${{github.workspace}}/src/CFG Editor/CFG Editor/bin/Release/Newtonsoft.Json.dll" ${{github.workspace}}/cfgeditor.zip
       if: matrix.os == 'windows-latest'
-    
-    - name: Upload CFG Editor executable
+        
+    - name: Setup python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.9'
+
+    - name: Create pixi.zip release
+      run: python ${{github.workspace}}/zip.py
+
+    - name: Upload
       uses: actions/upload-artifact@v2
       with:
-        name: "CFG Editor"
-        path: ${{github.workspace}}/cfgeditor.zip
-      if: matrix.os == 'windows-latest'
+        name: pixi_${{matrix.os}}
+        path: ${{github.workspace}}/pixi.zip
+    
+    - name: Install python packages
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install beautifulsoup4 requests
+
+    - name: Test (linux)
+      working-directory: ${{github.workspace}}/test
+      shell: bash
+      run: bash pixi_test.sh ${{steps.branch-name.outputs.current_branch}} remote
+      env:
+        CC: gcc-11
+        CXX: g++-11
+      if: "matrix.os == 'ubuntu-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
+
+    - name: Test (windows)
+      working-directory: ${{github.workspace}}/test
+      shell: pwsh
+      run: |
+        choco upgrade mingw
+        Set-Alias py python
+        ./pixi_test.ps1 ${{steps.branch-name.outputs.current_branch}} remote
+      if: "matrix.os == 'windows-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-result-${{matrix.os}}
+        path: ${{github.workspace}}/test/results.zip
+      if: "matrix.os != 'macos-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
 

@@ -22,16 +22,16 @@ constexpr auto SPR_ADDR_LIMIT = 0x800;
     if ((val) >= SPR_ADDR_LIMIT)                                                                                       \
         ERR("Sprite data is too large!");
 
-void MeiMei::setAlwaysRemap() {
-    MeiMei::always = true;
+bool& MeiMei::AlwaysRemap() {
+    return MeiMei::always;
 }
 
-void MeiMei::setDebug() {
-    MeiMei::debug = true;
+bool& MeiMei::Debug() {
+    return MeiMei::debug;
 }
 
-void MeiMei::setKeepTemp() {
-    MeiMei::keepTemp = true;
+bool& MeiMei::KeepTemp() {
+    return MeiMei::keepTemp;
 }
 
 std::string escapeDefines(const std::string& path) {

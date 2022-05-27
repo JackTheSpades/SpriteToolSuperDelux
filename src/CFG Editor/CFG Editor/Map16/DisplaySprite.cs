@@ -245,6 +245,16 @@ namespace CFG.Map16
             return s;
         }
 
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                var e = new PropertyChangedEventArgs(propertyName);
+                handler(this, e);
+            }
+        }
+
         protected void SetPropertyValue<T>(ref T priv, T val, [CallerMemberName] string caller = "")
         {
             bool pn = priv == null;
@@ -255,7 +265,7 @@ namespace CFG.Map16
             if ((pn && !vn) || !priv.Equals(val))
             {
                 priv = val;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(caller));
+                OnPropertyChanged(caller);
             }
         }
     }

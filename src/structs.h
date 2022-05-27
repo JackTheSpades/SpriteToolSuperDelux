@@ -6,6 +6,7 @@
 #include <cstring>
 #include <vector>
 #include <string>
+#include <span>
 
 // use 16MB ROM size to avoid asar malloc/memcpy on 8MB of data per block.
 constexpr auto MAX_ROM_SIZE = 16 * 1024 * 1024;
@@ -29,6 +30,12 @@ struct pointer {
         bankbyte = (unsigned char)((snes >> 16) & 0xFF);
     }
     pointer(const pointer &) = default;
+    pointer& operator=(int snes) {
+        lowbyte = (unsigned char)(snes & 0xFF);
+        highbyte = (unsigned char)((snes >> 8) & 0xFF);
+        bankbyte = (unsigned char)((snes >> 16) & 0xFF);
+        return *this;
+    }
     ~pointer() = default;
     [[nodiscard]] bool is_empty() const {
         return lowbyte == RTL_LOW && highbyte == RTL_HIGH && bankbyte == RTL_BANK;
@@ -126,19 +133,18 @@ struct sprite {
     std::vector<collection> collections{};
 
     ListType sprite_type = ListType::Sprite; 
+    bool has_empty_table() const;
     ~sprite();
     void print(FILE *stream);
 };
-
-int get_pointer(const unsigned char *data, int address, int size = 3, int bank = 0x00);
 
 enum class MapperType { lorom, sa1rom, fullsa1rom };
 
 struct ROM {
     inline static const int sa1banks[8] = {0 << 20, 1 << 20, -1, -1, 2 << 20, 3 << 20, -1, -1};
-    unsigned char *data;
-    unsigned char *real_data;
-    char *name;
+    unsigned char *data = nullptr;
+    unsigned char *real_data = nullptr;
+    char *name = nullptr;
     int size;
     int header_size;
     MapperType mapper;
@@ -149,7 +155,7 @@ struct ROM {
     int pc_to_snes(int address, bool header = true) const;
     int snes_to_pc(int address, bool header = true) const;
 
-    pointer pointer_snes(int address, int size = 3, int bank = 0x00) const;
+    pointer pointer_snes(int address, int bank = 0x00) const;
     unsigned char read_byte(int addr) const;
     unsigned short read_word(int addr) const;
     unsigned int read_long(int addr) const;
@@ -157,8 +163,6 @@ struct ROM {
     ~ROM();
 };
 
-void set_pointer(pointer *p, int address);
-bool is_empty_table(sprite *spr, int size);
-char *trim(char *text);
+bool is_empty_table(std::span<sprite> sprites);
 
 #endif

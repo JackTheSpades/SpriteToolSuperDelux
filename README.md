@@ -9,6 +9,8 @@ just click on the commit you want to download the binary for and scroll to the A
 
 If you're a developer looking to contribute to this project, please see the [contribution guide](CONTRIBUTING.md).
 
+If you are using a custom pixi build (read: with modification to either C++ code or asm code), do not report issues here unless you can prove said issues also happen on an unmodified official version of the tool, reported issues that derive from external coding modifications will be ignored and closed.
+
 The changelog is available [here](CHANGELOG.md).
 
 ReadMe Contents:

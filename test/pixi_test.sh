@@ -1,4 +1,31 @@
 # download base file
+argc=$#
+
+if [ "$argc" -eq "2" ]; then
+    repotype=$2
+else
+    repotype="remote"
+fi
+
+if [ "$argc" -lt "1" ]; then
+    echo "Using master branch"
+    branch="master"
+else
+    echo "Using $1 branch"
+    branch=$1
+fi
+
+if [ "$repotype" = "remote" ]; then
+    echo "Using remote repository"
+    repourl="https://github.com/JackTheSpades/SpriteToolSuperDelux"
+elif [ "$repotype" = "local" ]; then
+    echo "Using local repository"
+    repourl=".. SpriteToolSuperDelux"
+else
+    echo "Wrong repository type"
+    exit 1
+fi
+
 wget www.atarismwc.com/base.smc
 
 # build latest pixi release along with zip and move in main directory
@@ -7,6 +34,9 @@ mkdir latest && tar xf latest.tar.gz -C latest --strip-components 1
 rm latest.tar.gz
 cp zip_pixi_rasp.py latest/zip_pixi_rasp.py
 cd latest
+spritecontents=$(cat src/sprite.cpp)
+line=$'#include <vector>\n'
+echo "$line$spritecontents" > src/sprite.cpp
 make
 mkdir build
 mv pixi build/pixi
@@ -28,15 +58,17 @@ mv pixi.zip ../pixi_latest.zip
 cd ..
 
 # clone current pixi repo and build zip
-git clone https://github.com/JackTheSpades/SpriteToolSuperDelux 
+CC=gcc-11
+CXX=g++-11
+git clone $repourl
 cp asar_latest/asar/libasar.so SpriteToolSuperDelux/libasar.so
-cp zip_pixi_rasp.py SpriteToolSuperDelux/zip_pixi_rasp.py
 cd SpriteToolSuperDelux
+git checkout $branch
 mkdir build
 cd build
 cmake .. && make
 cd ..
-python3 zip_pixi_rasp.py
+python3 zip.py
 mv pixi.zip ../pixi.zip
 cd ..
 
@@ -60,9 +92,23 @@ mv downloader_test/pixi/pixi downloader_test/pixi/pixi_current
 cp pixi_latest/pixi downloader_test/pixi/pixi_latest
 cp base.smc downloader_test/pixi/base_current.smc
 cp base.smc downloader_test/pixi/base_latest.smc
-cd downloader_test
-yes | python3 downloader.py
-cd ..
+if [ -d ".sprites_dl_cache" ]; then
+    cp -r .sprites_dl_cache/* downloader_test
+    cd downloader_test 
+    yes | python3 downloader.py "true"
+    cd ..
+else
+    mkdir .sprites_dl_cache
+    cd downloader_test 
+    yes | python3 downloader.py "false"
+    cd ..
+    cp -r downloader_test/standard .sprites_dl_cache
+    cp -r downloader_test/shooter .sprites_dl_cache
+    cp -r downloader_test/generator .sprites_dl_cache
+    cp -r downloader_test/cluster .sprites_dl_cache
+    cp -r downloader_test/extended .sprites_dl_cache
+fi
+
 mv downloader_test/result_current.json result_current.json
 mv downloader_test/result_latest.json result_latest.json
 mv downloader_test/differences.json differences.json
@@ -78,3 +124,4 @@ res=$(python3 check_diff.py)
 rm result_current.json
 rm result_latest.json
 rm differences.json
+rm base.smc
