@@ -131,7 +131,8 @@ namespace CFG
                 }
                 nudX.Hide();
                 extraByteIndexUpDown.Show();
-            } else
+            }
+            else
             {
                 extraByteIndexUpDown.Hide();
                 nudX.Show();
@@ -538,11 +539,18 @@ namespace CFG
 
         #region Helper Methods
 
-        private void AddNewRowToDisplays(BindingSource source)
+        private void AddNewRowToDataSource(BindingSource source)
         {
-            Data.DisplayEntries.Add(new DisplaySprite());
-            if (Data.DispType == Json.DisplayType.ExtraByte)
-                Data.DisplayEntries.Last().X_or_index = (int)extraByteIndexUpDown.Value; 
+            if (source.DataMember == nameof(CfgFile.CollectionEntries) || source.DataMember == nameof(CfgFile.GFXInfos))
+            {
+                source.AddNew();
+            }
+            else
+            {
+                Data.DisplayEntries.Add(new DisplaySprite());
+                if (Data.DispType == Json.DisplayType.ExtraByte)
+                    Data.DisplayEntries.Last().X_or_index = (int)extraByteIndexUpDown.Value;
+            }
         }
 
         void ConnectViewAndButtons(BindingSource source, DataGridView dgv, Button btnNew, Button btnClone, Button btnRemove)
@@ -552,7 +560,7 @@ namespace CFG
             dgv.AllowUserToDeleteRows = false;
             source.AllowNew = true;
             //events to control the button/view behaviour for new/clone/delete
-            btnNew.Click += (_, __) => AddNewRowToDisplays(source);
+            btnNew.Click += (_, __) => AddNewRowToDataSource(source);
             btnClone.Click += (_, __) => source.Add(((ICloneable)source.Current).Clone());
             btnRemove.Click += (_, __) => source.RemoveCurrent();
 
@@ -570,7 +578,7 @@ namespace CFG
 
             dgv.AllowUserToDeleteRowsChanged += (_, __) =>
                 btnRemove.Enabled = dgv.AllowUserToDeleteRows;
-            
+
         }
 
         private Binding BindToSourceCollection<TCon, TProp>(TCon control, BindingSource source, Expression<Func<TCon, TProp>> controlMember, Expression<Func<CollectionSprite, TProp>> objectMember)
@@ -1009,7 +1017,8 @@ namespace CFG
                 tile8X8EditorForm = new Editors.Tile8x8EditorForm(resources);
                 tile8X8EditorForm.FormClosed += Tile8X8EditorForm_FormClosed;
                 tile8X8EditorForm.Show();
-            } else
+            }
+            else
             {
                 tile8X8EditorForm.Activate();
                 tile8X8EditorForm.Focus();
