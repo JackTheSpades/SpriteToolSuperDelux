@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 1.40 (TBD)
+- (Atari2.0) Fix list.txt parsing bug when paths would get wrongly split for containing spaces.
+- (Atari2.0) Now pixi also prints warnings that asar gives instead of silently ignoring them.
+- (Atari2.0) Fixed oversight in extra byte count assignment
+- (Atari2.0) Updated circle routines to fix sign issues with large radii on LoRom.
+- (Atari2.0) Better error messages in general.
+- (Atari2.0) Fixed extended sprites cape interaction.
+- (lx5, Atari2.0) Added support for minor sprite types (minor extended, bounce, spinningcoin, etc.)
+- (Atari2.0) Fix misplaced bracket causing ExtendedHurt routine to send Yoshi always to the right.
+- (KevinM) Extended/Cluster defines update (details [here](https://github.com/JackTheSpades/SpriteToolSuperDelux/commit/0e0d4d24dee1066118635da3824fc648f71bd630)) 
+- (spooonsss) ExtendedGetDrawInfo: properly despawn when extended sprite is vertically offscreen 
+- (Atari2.0) Add all of the LM3.30 ssc/mwt features. More details in README.md
+- (lx5) Updated cluster sprites routines
+- (Atari2.0) Added utf-8 paths support on Windows. This should fix any issues with paths containing non-ascii characters.
+- (Atari2.0) Completely overhaul the build system, use CMake, enable building pixi as a .dll, add APIs for python, c and c#.
+
 ## Version 1.32 (January 23, 2021):
 
 - (Atari2.0) Fixes spritetool_clean.asm not being in the asm/ folder.
