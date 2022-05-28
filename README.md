@@ -145,13 +145,12 @@ ReadMe Contents:
       Usage: pixi <options> <ROM>
       Options are:
       -d              Enable debug output
-      -out <filename>	This can be placed after "-d" and with it you can define a file to redirect the debug output instead of the prompt. This flag only works if the debug output flag is enabled.
       -k              Keep debug files
       -l  <listpath>  Specify a custom list file (Default: list.txt)
       -pl				Per level sprites - will insert perlevel sprite code
       -npl            Same as the current default, no sprite per level will be inserted, left dangling for compatibility reasons
       -d255spl		disables 255 sprite per level support (won't do the 1938 remap)
-        -w              Enable asar warnings check, recommended to use when developing sprites
+      -w              Enable asar warnings check, recommended to use when developing sprites
 
       -a  <asm>       Specify a custom asm directory (Default asm/)
 
@@ -263,6 +262,33 @@ ReadMe Contents:
   unlike CFG files, embed additional information that can be used by PIXI to automatically generate .ssc, .mwt,
   .mw2 and .s16 files for you. The CFG Editor has also been updated with a graphical user interface inspired by
   Lunar Magic that lets you edit that embedded information intuitively.
+
+  As of Pixi 1.4, JSON files now support the new LM3.30 sprite tooltips features.
+  It is recommended to use the CFG Editor as the format for the JSON information is quite convoluted.
+  For the separate appearance based on the extension byte, the following format is used:
+  ```json
+  "DisplayType": "ExByte",
+  "Displays" {
+      [
+      "Value": <value>,
+      "Index": <index>
+      // the rest of the options are the same as the other display type.
+      ]
+  }
+  ```
+  For the custom sprite GFX:
+  ```json
+  "GFXInfo": [
+      {
+          "Separate": <bool>,
+          "0": <gfx number>,
+          "1": <gfx number>,
+          "2": <gfx number>,
+          "3": <gfx number>,
+      }
+  ]
+  ```
+  For more information, refer to the LM manual, section Custom Tooltips for Sprites in the Technical Information.
 
 - Shared Routines
   If you have used GPS before, the shared routines in PIXI work exactly like the ones there.

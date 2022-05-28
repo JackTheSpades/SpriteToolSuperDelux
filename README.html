@@ -171,14 +171,12 @@ body {
 <pre><code>Usage: pixi &lt;options&gt; &lt;ROM&gt;
 Options are:
 -d              Enable debug output
--out &lt;filename&gt;    This can be placed after <span class="hljs-string">"-d"</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">with</span> it you can define a file <span class="hljs-keyword">to</span> redirect the debug output instead <span class="hljs-keyword">of</span> the prompt. 
-                   This flag only works <span class="hljs-keyword">if</span> the debug output flag <span class="hljs-keyword">is</span> enabled.
 -k              Keep debug files
 -l  &lt;listpath&gt;  Specify a <span class="hljs-keyword">custom</span> list file (<span class="hljs-keyword">Default</span>: list.txt)
 -pl                Per level sprites - will insert perlevel sprite code
 -npl            Same <span class="hljs-keyword">as</span> the current <span class="hljs-keyword">default</span>, no sprite per level will be inserted, left dangling <span class="hljs-keyword">for</span> compatibility reasons
 -d255spl        disables <span class="hljs-number">255</span> sprite per level support (won<span class="hljs-comment">'t do the 1938 remap)</span>
-  -w              Enable asar warnings check, recommended <span class="hljs-keyword">to</span> use <span class="hljs-keyword">when</span> developing sprites
+-w              Enable asar warnings check, recommended <span class="hljs-keyword">to</span> use <span class="hljs-keyword">when</span> developing sprites
 
 -a  &lt;asm&gt;       Specify a <span class="hljs-keyword">custom</span> asm directory (<span class="hljs-keyword">Default</span> asm/)
 
@@ -311,7 +309,33 @@ They are all still considered pixi options <span class="hljs-keyword">by</span> 
             (there exist a lot of tools and libraries using JSON files). In the case of PIXI in particular, JSON files,
             unlike CFG files, embed additional information that can be used by PIXI to automatically generate .ssc, .mwt,
             .mw2 and .s16 files for you. The CFG Editor has also been updated with a graphical user interface inspired by
-            Lunar Magic that lets you edit that embedded information intuitively.
+            Lunar Magic that lets you edit that embedded information intuitively.<br>
+            As of Pixi 1.4, JSON files now support the new LM3.30 sprite tooltips features.
+            It is recommended to use the CFG Editor as the format for the JSON information is quite convoluted.
+            For the separate appearance based on the extension byte, the following format is used:<br>
+            <pre><code>
+                "DisplayType": "ExByte",
+                "Displays" {
+                    [
+                    "Value": &lt;value&gt;,
+                    "Index": &lt;index&gt;
+                    // the rest of the options are the same as the other display type.
+                    ]
+                }
+            </code></pre><br>
+            For the custom sprite GFX:<br>
+            <pre><code>
+                "GFXInfo": [
+                    {
+                        "Separate": &lt;bool&gt;,
+                        "0": &lt;gfx number&gt;,
+                        "1": &lt;gfx number&gt;,
+                        "2": &lt;gfx number&gt;,
+                        "3": &lt;gfx number&gt;,
+                    }
+                ]
+            </code></pre>
+            For more information, refer to the LM manual, section Custom Tooltips for Sprites in the Technical Information.
         </p>
     </li>
     <li>
