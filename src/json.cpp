@@ -171,7 +171,7 @@ bool read_json_file(sprite* spr, FILE* output) {
         counter = 0;
         spr->collections.resize(j.at("Collection").size());
         for (auto& jCollection : j.at("Collection")) {
-            auto& col = spr->collections.emplace_back();
+            auto& col = spr->collections[counter];
             col.name = jCollection.at("Name").get<std::string>();
             col.extra_bit = jCollection.at("ExtraBit");
             for (int i = 1; i <= (col.extra_bit ? spr->extra_byte_count : spr->byte_count); i++) {
