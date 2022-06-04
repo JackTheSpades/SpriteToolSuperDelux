@@ -26,6 +26,12 @@ else
     exit 1
 fi
 
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    asar_shared_name="libasar.dylib"
+else
+    asar_shared_name="libasar.so"
+fi
+
 wget www.atarismwc.com/base.smc
 
 # build latest pixi release along with zip and move in main directory
@@ -37,6 +43,9 @@ cd latest
 spritecontents=$(cat src/sprite.cpp)
 line=$'#include <vector>\n'
 echo "$line$spritecontents" > src/sprite.cpp
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' s/"-Wl,--gc-sections"//g Makefile
+fi
 make
 mkdir build
 mv pixi build/pixi
@@ -50,8 +59,8 @@ cd asar_latest
 cmake src && make
 cd ..
 
-# move libasar.so in latest and build zip
-cp asar_latest/asar/libasar.so latest/libasar.so
+# move libasar in latest and build zip
+cp asar_latest/asar/$asar_shared_name latest/$asar_shared_name
 cd latest
 python3 zip_pixi_rasp.py
 mv pixi.zip ../pixi_latest.zip
@@ -61,7 +70,7 @@ cd ..
 CC=gcc-11
 CXX=g++-11
 git clone $repourl
-cp asar_latest/asar/libasar.so SpriteToolSuperDelux/libasar.so
+cp asar_latest/asar/$asar_shared_name SpriteToolSuperDelux/$asar_shared_name
 cd SpriteToolSuperDelux
 git checkout $branch
 mkdir build
@@ -99,28 +108,39 @@ if [ -d ".sprites_dl_cache" ]; then
     cd ..
 else
     mkdir .sprites_dl_cache
-    cd downloader_test 
-    yes | python3 downloader.py "false"
+    cd downloader_test
+    if [[ "$OSTYPE" != "darwin"* ]]; then
+        yes | python3 downloader.py "false"
+    else
+        python3 downloader.py "false"
+    fi
+    echo "Finished testing all sprites"
     cd ..
-    cp -r downloader_test/standard .sprites_dl_cache
-    cp -r downloader_test/shooter .sprites_dl_cache
-    cp -r downloader_test/generator .sprites_dl_cache
-    cp -r downloader_test/cluster .sprites_dl_cache
-    cp -r downloader_test/extended .sprites_dl_cache
+    if [[ "$OSTYPE" != "darwin"* ]]; then
+        cp -r downloader_test/standard .sprites_dl_cache
+        cp -r downloader_test/shooter .sprites_dl_cache
+        cp -r downloader_test/generator .sprites_dl_cache
+        cp -r downloader_test/cluster .sprites_dl_cache
+        cp -r downloader_test/extended .sprites_dl_cache
+     fi
 fi
 
+echo "Moving results"
 mv downloader_test/result_current.json result_current.json
 mv downloader_test/result_latest.json result_latest.json
 mv downloader_test/differences.json differences.json
 
+echo "Deleting temp files"
 rm -rf downloader_test
 rm -rf pixi
 rm -rf pixi_latest
 
 # we have the json with the results
+echo "Producing the result json"
 res=$(python3 check_diff.py)
 
 # final clean up
+echo "Final cleanup"
 rm result_current.json
 rm result_latest.json
 rm differences.json
