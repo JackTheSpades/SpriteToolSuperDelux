@@ -104,6 +104,12 @@ jobs:
         Set-Alias py python
         ./pixi_test.ps1 ${{steps.branch-name.outputs.current_branch}} remote
       if: "matrix.os == 'windows-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
+      
+    - name: Test (macos)
+      working-directory: ${{github.workspace}}/test
+      shell: bash
+      run: bash pixi_test.sh ${{steps.branch-name.outputs.current_branch}} remote
+      if: "matrix.os == 'macos-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
 
     - name: Upload test results
       uses: actions/upload-artifact@v2

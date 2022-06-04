@@ -203,11 +203,16 @@ try:
         print("Using cached sprites")
     create_list_files()
     success, error, diff = test_normal_sprites()
+    print("Finished testing all sprites")
     for filename in ['result_current.json', 'result_latest.json']:
         with open(filename, 'w') as f:
             f.write(json.dumps({'success': success[filename], 'error': error[filename]}, indent=4))
+    print("Written results to file")
     with open('differences.json', 'w') as f:
         f.write(json.dumps(diff, indent=4))
+    print("Written differences to file")
 except Exception as e:
     with open('error_downloader.txt', 'w') as f:
         traceback.print_exception(type(e), e, e.__traceback__, file=f)
+    print("Exception happened " + str(e))
+print("All done!")
