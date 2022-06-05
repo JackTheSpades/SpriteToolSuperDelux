@@ -116,5 +116,5 @@ jobs:
       with:
         name: test-result-${{matrix.os}}
         path: ${{github.workspace}}/test/results.zip
-      if: "matrix.os != 'macos-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
+      if: "!startsWith(github.event.head_commit.message, '[NoTest]')"
 
