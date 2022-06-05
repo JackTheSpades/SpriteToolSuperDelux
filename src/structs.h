@@ -144,12 +144,13 @@ struct ROM {
     inline static const int sa1banks[8] = {0 << 20, 1 << 20, -1, -1, 2 << 20, 3 << 20, -1, -1};
     unsigned char *data = nullptr;
     unsigned char *real_data = nullptr;
-    char *name = nullptr;
+    std::string name;
     int size;
     int header_size;
     MapperType mapper;
 
     [[nodiscard]] bool open(const char *n);
+    [[nodiscard]] bool open();
     void close();
 
     int pc_to_snes(int address, bool header = true) const;

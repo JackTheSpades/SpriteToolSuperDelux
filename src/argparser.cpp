@@ -1,17 +1,76 @@
 #include "argparser.h"
 
+#include <charconv>
 #include <filesystem>
 #include <iostream>
 #include <sstream>
-#include <charconv>
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <limits.h>
+#endif
 
-argparser::argparser(int argc, char** argv) {
+static std::string GetExecutableName() {
+#ifdef _WIN32
+    WCHAR moduleNameW[MAX_PATH]{};
+    if (DWORD sz = GetModuleFileName(NULL, moduleNameW, MAX_PATH); sz == 0) {
+        return {};
+    } else {
+        return std::filesystem::path{moduleNameW}.filename().string();
+    }
+#elif defined(__APPLE__)
+    char exeName[PATH_MAX]{};
+    uint32_t size = 0;
+    if (auto sz = _NSGetExecutablePath(path, &size); sz == -1) {
+        return {};
+    } else {
+        exeName[size] = '\0';
+        return std::filesystem::path{exeName}.filename.string();
+    }
+#else
+    char exeName[PATH_MAX]{};
+    if (auto sz = readlink("/proc/self/exe", exeName, PATH_MAX); sz == -1) {
+        return {};
+    } else {
+        exeName[sz] = '\0';
+        return std::filesystem::path{exeName}.filename().string();
+    }
+#endif
+}
+
+bool argparser::init(const nlohmann::json& args) {
+    m_program_name = GetExecutableName();
+    if (m_program_name.empty())
+        return false;
+    if (args.is_object()) {
+        for (const auto& [key, val] : args.items()) {
+            if (val.is_boolean()) {
+                if (val.get<bool>())
+                    m_arguments.push_back(key);
+            } else if (val.is_number()) {
+                m_arguments.push_back(key);
+                m_arguments.push_back(std::to_string(val.get<int>()));
+            } else if (val.is_string()) {
+                m_arguments.push_back(key);
+                m_arguments.push_back(val);
+            } else {
+                return false;
+            }
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool argparser::init(int argc, char** argv) {
     size_t argcs = static_cast<size_t>(argc);
     m_arguments.reserve(argcs - 1);
     m_program_name = std::filesystem::path{argv[0]}.filename().generic_string();
     for (size_t i = 1; i < argcs; i++) {
         m_arguments.push_back(argv[i]);
     }
+    return true;
 }
 
 void argparser::add_version(uint8_t version_partial, uint8_t version_edition) {

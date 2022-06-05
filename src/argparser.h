@@ -7,6 +7,7 @@
 #include <vector>
 #include <concepts>
 #include <string>
+#include "nlohmann/json.hpp"
 
 
 struct no_value_tag {};
@@ -22,7 +23,7 @@ concept option_type = std::same_as<T, int_ref> || std::same_as<T, string_ref> ||
 class argparser {
     std::vector<std::string> m_unmatched_arguments;
     std::string m_program_name;
-    std::vector<std::string_view> m_arguments{};
+    std::vector<std::string> m_arguments{};
 
     using arg_iter_t = decltype(m_arguments)::iterator;
     struct option {
@@ -71,8 +72,9 @@ class argparser {
 
   public:
     static constexpr inline auto no_value = no_value_tag{};
-
-    argparser(int argc, char** argv);
+    argparser() = default;
+    bool init(const nlohmann::json& args);
+    bool init(int argc, char** argv);
     void add_version(uint8_t version_partial, uint8_t version_edition);
     void allow_unmatched(size_t quantity = option::npos);
     const std::vector<std::string>& unmatched() const {
