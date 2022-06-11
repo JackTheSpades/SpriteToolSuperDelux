@@ -29,7 +29,7 @@ static std::string GetExecutableName() {
         return {};
     } else {
         exeName[size] = '\0';
-        return std::filesystem::path{exeName}.filename.string();
+        return std::filesystem::path{exeName}.filename().string();
     }
 #else
     char exeName[PATH_MAX]{};
