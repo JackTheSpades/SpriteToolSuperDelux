@@ -132,7 +132,7 @@ jobs:
         env:
           CC: gcc-11
           CXX: g++-11
-          ARTIFACT_PATH: ${{steps.download.outputs.download-path}}
+          ARTIFACT_PATH: ${{steps.download.outputs.download-path}}/pixi.zip
         if: matrix.os == 'ubuntu-latest'
 
       - name: Test (windows)
@@ -143,7 +143,7 @@ jobs:
           Set-Alias py python
           ./pixi_test.ps1 ${{steps.branch-name.outputs.current_branch}} remote
         env:
-          ARTIFACT_PATH: ${{steps.download.outputs.download-path}}
+          ARTIFACT_PATH: ${{steps.download.outputs.download-path}}/pixi.zip
         if: matrix.os == 'windows-latest'
 
       - name: Upload test results
