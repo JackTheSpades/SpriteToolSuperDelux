@@ -6,7 +6,11 @@
 #include <sstream>
 #ifdef _WIN32
 #include <Windows.h>
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
+#include <limits.h>
 #else
+#include <unistd.h>
 #include <limits.h>
 #endif
 
