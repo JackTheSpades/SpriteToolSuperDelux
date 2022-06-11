@@ -85,7 +85,7 @@ jobs:
   test:
 
     runs-on: ${{ matrix.os }}
-
+    needs: build
     if: "!startsWith(github.event.head_commit.message, '[NoTest]')"
 
     strategy:
