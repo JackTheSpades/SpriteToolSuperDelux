@@ -21,7 +21,7 @@ static std::string GetExecutableName() {
 #elif defined(__APPLE__)
     char exeName[PATH_MAX]{};
     uint32_t size = 0;
-    if (auto sz = _NSGetExecutablePath(path, &size); sz == -1) {
+    if (auto sz = _NSGetExecutablePath(exeName, &size); sz == -1) {
         return {};
     } else {
         exeName[size] = '\0';
