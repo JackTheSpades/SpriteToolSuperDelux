@@ -105,7 +105,9 @@ unzip pixi_latest.zip -d pixi_latest
 # delete temp files
 Remove-Item -Recurse -Force latest
 Remove-Item -Recurse -Force asar_latest
-Remove-Item -Recurse -Force SpriteToolSuperDelux
+if (!$env:ARTIFACT_PATH) {
+    Remove-Item -Recurse -Force SpriteToolSuperDelux
+}
 Remove-Item pixi.zip
 Remove-Item pixi_latest.zip
 
