@@ -75,23 +75,28 @@ Move-Item pixi.zip ../pixi_latest.zip
 Set-Location ..
 
 # clone current pixi repo and build zip
-git clone $repourl
-Set-Location SpriteToolSuperDelux
-git checkout $branch
-Set-Location ..
-Copy-Item asar_latest/asar/MinSizeRel/asar.dll SpriteToolSuperDelux/asar.dll
-Set-Location SpriteToolSuperDelux
-mkdir build
-Set-Location build
-cmake ..
-cmake --build . --config Release
-Set-Location ..
-$cont = Get-Content zip.py
-$newcont = $cont[0..96] + $cont[105..($cont.Length-1)]
-Set-Content $newcont -Path zip.py
-py zip.py
-Move-Item pixi.zip ../pixi.zip
-Set-Location ..
+if ($env:ARTIFACT_PATH) {
+    $artifact_path = $env:ARTIFACT_PATH
+    Move-Item $artifact_path pixi.zip
+} else {
+    git clone $repourl
+    Set-Location SpriteToolSuperDelux
+    git checkout $branch
+    Set-Location ..
+    Copy-Item asar_latest/asar/MinSizeRel/asar.dll SpriteToolSuperDelux/asar.dll
+    Set-Location SpriteToolSuperDelux
+    mkdir build
+    Set-Location build
+    cmake ..
+    cmake --build . --config Release
+    Set-Location ..
+    $cont = Get-Content zip.py
+    $newcont = $cont[0..96] + $cont[105..($cont.Length-1)]
+    Set-Content $newcont -Path zip.py
+    py zip.py
+    Move-Item pixi.zip ../pixi.zip
+    Set-Location ..
+}
 
 # unzip both pixi zips (latest stable and current)
 unzip pixi.zip -d pixi

@@ -82,33 +82,65 @@ jobs:
         name: pixi_${{matrix.os}}
         path: ${{github.workspace}}/pixi.zip
     
-    - name: Install python packages
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install beautifulsoup4 requests
+  test:
 
-    - name: Test (linux)
-      working-directory: ${{github.workspace}}/test
-      shell: bash
-      run: bash pixi_test.sh ${{steps.branch-name.outputs.current_branch}} remote
-      env:
-        CC: gcc-11
-        CXX: g++-11
-      if: "matrix.os == 'ubuntu-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
+    runs-on: ${{ matrix.os }}
 
-    - name: Test (windows)
-      working-directory: ${{github.workspace}}/test
-      shell: pwsh
-      run: |
-        choco upgrade mingw
-        Set-Alias py python
-        ./pixi_test.ps1 ${{steps.branch-name.outputs.current_branch}} remote
-      if: "matrix.os == 'windows-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
+    if: "!startsWith(github.event.head_commit.message, '[NoTest]')"
 
-    - name: Upload test results
-      uses: actions/upload-artifact@v2
-      with:
-        name: test-result-${{matrix.os}}
-        path: ${{github.workspace}}/test/results.zip
-      if: "matrix.os != 'macos-latest' && !startsWith(github.event.head_commit.message, '[NoTest]')"
+    strategy:
+      matrix:
+        os: [ windows-latest, ubuntu-latest, macos-latest ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download build artifact
+        id: download
+        uses: actions/download-artifact@v3.0.0
+        with:
+          name: pixi_${{matrix.os}}
+          path: ${{github.workspace}}/pixi.zip
+      
+      - name: Echo artifact path
+        run: echo ${{steps.download.outputs.download-path}}
+
+      - name: Setup python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
+
+      - name: Install python packages
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install beautifulsoup4 requests
+
+      - name: Test (linux)
+        working-directory: ${{github.workspace}}/test
+        shell: bash
+        run: bash pixi_test.sh ${{steps.branch-name.outputs.current_branch}} remote
+        env:
+          CC: gcc-11
+          CXX: g++-11
+        env:
+          ARTIFACT_PATH: ${{steps.download.outputs.download-path}}
+        if: matrix.os == 'ubuntu-latest'
+
+      - name: Test (windows)
+        working-directory: ${{github.workspace}}/test
+        shell: pwsh
+        run: |
+          choco upgrade mingw
+          Set-Alias py python
+          ./pixi_test.ps1 ${{steps.branch-name.outputs.current_branch}} remote
+        env:
+          ARTIFACT_PATH: ${{steps.download.outputs.download-path}}
+        if: matrix.os == 'windows-latest'
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-result-${{matrix.os}}
+          path: ${{github.workspace}}/test/results.zip
+        if: matrix.os != 'macos-latest'
 
