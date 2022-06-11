@@ -122,7 +122,6 @@ jobs:
         env:
           CC: gcc-11
           CXX: g++-11
-        env:
           ARTIFACT_PATH: ${{steps.download.outputs.download-path}}
         if: matrix.os == 'ubuntu-latest'
 
