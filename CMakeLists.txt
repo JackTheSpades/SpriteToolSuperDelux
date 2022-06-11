@@ -3,6 +3,7 @@ project(pixi VERSION 1.32 LANGUAGES CXX C)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(TOP_LEVEL_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+option(PIXI_CI_BUILD "Set to true if this is a CI build, not to publish." OFF)
 
 include(FetchContent)
 set(CMAKE_TLS_VERIFY TRUE)
@@ -32,7 +33,7 @@ function(build_dll url filename)
 	endif()
 
 	execute_process(
-		COMMAND ${CMAKE_COMMAND} ${cmake_platform} -DCMAKE_BUILD_TYPE=MinSizeRel
+		COMMAND ${CMAKE_COMMAND} ${cmake_platform} -DCMAKE_BUILD_TYPE=MinSizeRel -S .
 		WORKING_DIRECTORY ${primary_cmakelists_dir}
 	)
 	execute_process(

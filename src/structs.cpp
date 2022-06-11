@@ -11,9 +11,20 @@ const char *BOOL_STR(bool b) {
 
 bool ROM::open(const char* n) {
     size_t len = libconsole::bytelen(n) + 1;
-    name = new char[len];
-    std::memcpy(name, n, len);
-    FILE *file = ::open(name, "r+b"); // call global open
+    name.resize(len);
+    std::memcpy(name.data(), n, len);
+    return open();
+}
+
+void ROM::close() {
+    (void)write_all(data, name, size + header_size);
+    delete[] data;
+    data = nullptr; // assign to nullptr so that when the dtor is called and these already got freed the delete[] is a
+                    // no-op
+}
+
+bool ROM::open() {
+    FILE* file = ::open(name.data(), "r+b"); // call global open
     if (file == nullptr) {
         data = nullptr;
         return false;
@@ -21,7 +32,7 @@ bool ROM::open(const char* n) {
     size = static_cast<int>(file_size(file));
     header_size = size & 0x7FFF;
     size -= header_size;
-    data = read_all(name, false, MAX_ROM_SIZE + header_size);
+    data = read_all(name.data(), false, MAX_ROM_SIZE + header_size);
     if (data == nullptr)
         return false;
     fclose(file);
@@ -36,15 +47,6 @@ bool ROM::open(const char* n) {
         mapper = MapperType::lorom;
     }
     return true;
-}
-
-void ROM::close() {
-    (void)write_all(data, name, size + header_size);
-    delete[] data;
-    delete[] name;
-    data = nullptr; // assign to nullptr so that when the dtor is called and these already got freed the delete[] is a
-                    // no-op
-    name = nullptr;
 }
 
 // stolen from GPS, as most of the rest of the code of this cursed tool
@@ -130,7 +132,6 @@ void ROM::read_data(unsigned char *dst, size_t wsize, int addr) const {
 
 ROM::~ROM() {
     delete[] data;
-    delete[] name;
 }
 
 bool is_empty_table(std::span<sprite> sprites) {

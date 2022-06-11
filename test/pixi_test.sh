@@ -66,20 +66,24 @@ python3 zip_pixi_rasp.py
 mv pixi.zip ../pixi_latest.zip
 cd ..
 
-# clone current pixi repo and build zip
-CC=gcc-11
-CXX=g++-11
-git clone $repourl
-cp asar_latest/asar/$asar_shared_name SpriteToolSuperDelux/$asar_shared_name
-cd SpriteToolSuperDelux
-git checkout $branch
-mkdir build
-cd build
-cmake .. && make
-cd ..
-python3 zip.py
-mv pixi.zip ../pixi.zip
-cd ..
+if [[ -z "${ARTIFACT_PATH}" ]]; then
+    # clone current pixi repo and build zip
+    CC=gcc-11
+    CXX=g++-11
+    git clone $repourl
+    cp asar_latest/asar/$asar_shared_name SpriteToolSuperDelux/$asar_shared_name
+    cd SpriteToolSuperDelux
+    git checkout $branch
+    mkdir build
+    cd build
+    cmake .. && make
+    cd ..
+    python3 zip.py
+    mv pixi.zip ../pixi.zip
+    cd ..
+else
+    cp "${ARTIFACT_PATH}" pixi.zip
+fi
 
 # unzip both pixi zips (latest stable and current)
 unzip pixi.zip -d pixi

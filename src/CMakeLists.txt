@@ -7,6 +7,19 @@ set(PIXI_LINK_OPTIONS "")
 set(PIXI_COMPILE_OPTIONS "")
 set(PIXI_COMPILE_DEFINITIONS "")
 
+set(PIXI_VERSION_EDITION 1)
+set(PIXI_VERSION_MAJOR 3)
+set(PIXI_VERSION_MINOR 2)
+string(TIMESTAMP PIXI_VERSION_DEBUG "%Y%m%d_%H-%M-%S" UTC)
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR PIXI_CI_BUILD)
+    list(APPEND PIXI_COMPILE_DEFINITIONS PIXI_DEV_BUILD=true)
+    set(PIXI_RC_VERSION_DEBUG ${PIXI_VERSION_DEBUG})
+else()
+    list(APPEND PIXI_COMPILE_DEFINITIONS PIXI_DEV_BUILD=false)
+    set(PIXI_RC_VERSION_DEBUG "0")
+endif()
+
 FetchContent_Declare(
     json
     GIT_REPOSITORY https://github.com/nlohmann/json
@@ -19,6 +32,34 @@ list(
     APPEND PIXI_LINK_LIBRARIES
     "nlohmann_json::nlohmann_json"
 )
+
+SET(PIXI_RC_CONTENTS "1 ICON \"Pixi.ico\" 
+
+1 VERSIONINFO 
+      FILEVERSION     ${PIXI_VERSION_EDITION}, ${PIXI_VERSION_MAJOR}, ${PIXI_VERSION_MINOR}, ${PIXI_RC_VERSION_DEBUG} 
+      PRODUCTVERSION  ${PIXI_VERSION_EDITION}, ${PIXI_VERSION_MAJOR}, ${PIXI_VERSION_MINOR}, ${PIXI_RC_VERSION_DEBUG} 
+{
+    BLOCK \"StringFileInfo\" 
+    {
+        BLOCK \"040904b0\" // en-US with UTF-8
+        {
+            VALUE \"CompanyName\", \"Pixi developers\\0\" 
+            VALUE \"FileDescription\", \"SMW custom sprites inserter\\0\"
+            VALUE \"FileVersion\", \"v${PIXI_VERSION_EDITION}.${PIXI_VERSION_MAJOR}${PIXI_VERSION_MINOR}_${PIXI_RC_VERSION_DEBUG}\\0\"
+            VALUE \"InternalName\", \"pixi\\0\" 
+            VALUE \"OriginalFilename\", \"pixi.exe\\0\" 
+            VALUE \"ProductName\", \"Pixi\\0\" 
+            VALUE \"ProductVersion\", \"v${PIXI_VERSION_EDITION}.${PIXI_VERSION_MAJOR}${PIXI_VERSION_MINOR}_${PIXI_RC_VERSION_DEBUG}\\0\"
+        }
+    }
+    BLOCK \"VarFileInfo\" 
+    {
+        VALUE \"Translation\", 0x409, 1200 // en-US with UTF-8
+    }
+}"
+)
+
+file(WRITE "${CMAKE_CURRENT_SOURCE_DIR}/pixi.rc" "${PIXI_RC_CONTENTS}")
 
 list(
     APPEND PIXI_SOURCE_FILES
@@ -161,6 +202,13 @@ else()
             /wd4668
 	)
 endif()
+
+list(APPEND PIXI_COMPILE_DEFINITIONS
+    PIXI_VERSION_EDITION=${PIXI_VERSION_EDITION}
+    PIXI_VERSION_MAJOR=${PIXI_VERSION_MAJOR}
+    PIXI_VERSION_MINOR=${PIXI_VERSION_MINOR}
+    PIXI_VERSION_DEBUG=${PIXI_VERSION_DEBUG}
+)
 
 target_link_libraries(pixi PRIVATE ${PIXI_LINK_LIBRARIES})
 target_link_options(pixi PRIVATE ${PIXI_LINK_OPTIONS})

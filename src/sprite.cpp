@@ -26,9 +26,10 @@
 #define STR(x) STRIMPL(x)
 
 // Remember to change the .rc file too when you're changing these values
-constexpr unsigned char VERSION_EDITION = 1;
-constexpr unsigned char VERSION_MAJOR = 3;
-constexpr unsigned char VERSION_MINOR = 2;
+constexpr unsigned char VERSION_EDITION = PIXI_VERSION_EDITION;
+constexpr unsigned char VERSION_MAJOR = PIXI_VERSION_MAJOR;
+constexpr unsigned char VERSION_MINOR = PIXI_VERSION_MINOR;
+constexpr const char VERSION_DEBUG[] = STR(PIXI_VERSION_DEBUG);
 constexpr unsigned char VERSION_PARTIAL = VERSION_MAJOR * 10 + VERSION_MINOR;
 constexpr unsigned char VERSION_FULL = VERSION_EDITION * 100 + VERSION_MAJOR * 10 + VERSION_MINOR;
 static_assert(VERSION_FULL <= std::numeric_limits<unsigned char>::max());
@@ -883,8 +884,8 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
 }
 
 FILE* open_subfile(ROM& rom, const char* ext, const char* mode) {
-    char* name = new char[strlen(rom.name) + 1];
-    strcpy(name, rom.name);
+    char* name = new char[rom.name.size() + 1];
+    strcpy(name, rom.name.data());
     char* dot = strrchr(name, '.');
     strcpy(dot + 1, ext);
 #ifdef DEBUGMSG
@@ -988,16 +989,29 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
 #endif
     // first is version x.xx, others are preserved
     unsigned char versionflag[4] = {VERSION_FULL, 0x00, 0x00, 0x00};
-
+    bool version_requested = false;
     // map16 for sprite displays
     static map16 map[MAP16_SIZE];
-
-    argparser optparser{argc, argv};
+    argparser optparser{};
+    if (std::filesystem::exists("pixi_settings.json")) {
+        std::ifstream settings_file{"pixi_settings.json"};
+        nlohmann::json j;
+        settings_file >> j;
+        if (!optparser.init(j)) {
+            error("JSON format of Pixi settings is wrong.");
+        }
+    } else {
+        optparser.init(argc, argv);
+    }
     optparser.add_version(VERSION_PARTIAL, VERSION_EDITION);
     optparser.allow_unmatched(1);
     optparser.add_usage_string("pixi <options> [ROM]");
     optparser
+        .add_option("-v", "Print version information", version_requested)
+        .add_option("--version", "Print version information", version_requested)
+        .add_option("-rom", "ROMFILE", "ROM file, when the -r is not given, it is assumed to be the last argument", rom.name)
         .add_option("-d", "Enable debug output, the option flag -out only works when this is set", cfg.DebugEnabled)
+        .add_option("--debug", "Enable debug output, the option flag -out only works when this is set", cfg.DebugEnabled)
         .add_option("-k", "Keep debug files", cfg.KeepFiles)
         .add_option("-l", "list path", "Specify a custom list file", cfg[PathType::List])
         .add_option("-pl", "Per level sprites - will insert perlevel sprite code", cfg.PerLevel)
@@ -1039,6 +1053,13 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
                     lm_handle)
 #endif
         ;
+
+    // DEV_BUILD means either debug build or CI build.
+    if constexpr (PIXI_DEV_BUILD) {
+        cprintf("Pixi development version %d.%d - %s\n", VERSION_EDITION, VERSION_PARTIAL, VERSION_DEBUG);
+    } else if (version_requested) {
+        cprintf("Pixi version %d.%d\n", VERSION_EDITION, VERSION_PARTIAL);
+    }
 
     if (!asar_init()) {
         error("Error: Asar library is missing or couldn't be initialized, please redownload the tool or add the dll.\n",
@@ -1082,7 +1103,7 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
     // Get ROM name if none has been passed yet.
     //------------------------------------------------------------------------------------------
 
-    if (optparser.unmatched().empty()) {
+    if (optparser.unmatched().empty() && rom.name.empty()) {
         cprintf("Enter a ROM file name, or drag and drop the ROM here: ");
         char ROM_name[FILENAME_MAX];
         if (libconsole::read(ROM_name, FILENAME_MAX, libconsole::handle::in)) {
@@ -1109,8 +1130,11 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
         }
         if (!rom.open(ROM_name))
             return EXIT_FAILURE;
-    } else {
+    } else if (rom.name.empty()) {
         if (!rom.open(optparser.unmatched().front().c_str()))
+            return EXIT_FAILURE;
+    } else {
+        if (!rom.open())
             return EXIT_FAILURE;
     }
 
@@ -1156,7 +1180,7 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
 
     // Initialize MeiMei
     if (!cfg.DisableMeiMei) {
-        if (!MeiMei::initialize(rom.name))
+        if (!MeiMei::initialize(rom.name.data()))
             return EXIT_FAILURE;
     }
 
@@ -1166,7 +1190,7 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
 
     for (size_t i = 0; i < FromEnum(PathType::__SIZE__); i++) {
         if (i == FromEnum(PathType::List))
-            set_paths_relative_to(cfg[ToEnum<PathType>(i)], rom.name);
+            set_paths_relative_to(cfg[ToEnum<PathType>(i)], rom.name.data());
         else
             set_paths_relative_to(cfg[ToEnum<PathType>(i)], argv[0]);
 #ifdef DEBUGMSG
@@ -1177,7 +1201,7 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
     cfg.AsmDirPath = cleanPathTrail(cfg.AsmDir);
 
     for (size_t i = 0; i < FromEnum(ExtType::__SIZE__); i++) {
-        set_paths_relative_to(cfg[ToEnum<ExtType>(i)], rom.name);
+        set_paths_relative_to(cfg[ToEnum<ExtType>(i)], rom.name.data());
 #ifdef DEBUGMSG
         debug_print("extensions[%d] = %s\n", i, cfg.m_Extensions[i].c_str());
 #endif
@@ -1553,7 +1577,7 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
     cprintf("\nAll sprites applied successfully!\n");
 
     if (!cfg.ExtModDisabled)
-        if (!create_lm_restore(rom.name))
+        if (!create_lm_restore(rom.name.data()))
             return EXIT_FAILURE;
     rom.close();
     asar_close();
