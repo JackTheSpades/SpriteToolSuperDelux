@@ -100,10 +100,13 @@ jobs:
         uses: actions/download-artifact@v3.0.0
         with:
           name: pixi_${{matrix.os}}
-          path: ${{github.workspace}}/pixi.zip
+          path: ${{github.workspace}}/build_artifact
       
       - name: Echo artifact path
-        run: echo ${{steps.download.outputs.download-path}}
+        run: |
+          echo ${{steps.download.outputs.download-path}}
+          cd ${{steps.download.outputs.download-path}}
+          ls -r .
 
       - name: Setup python
         uses: actions/setup-python@v3
