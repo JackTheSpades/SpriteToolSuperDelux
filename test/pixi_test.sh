@@ -57,7 +57,7 @@ python3 zip_pixi_rasp.py
 mv pixi.zip ../pixi_latest.zip
 cd ..
 
-if [[ -z "${ARTIFACT_PATH}"]]; then
+if [[ -z "${ARTIFACT_PATH}" ]]; then
     # clone current pixi repo and build zip
     CC=gcc-11
     CXX=g++-11
