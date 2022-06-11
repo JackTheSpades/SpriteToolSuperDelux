@@ -36,3 +36,4 @@ test/*
 !test/downloader.py
 !test/pixi_test.sh
 !test/pixi_test.ps1
+src/pixi.rc

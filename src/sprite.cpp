@@ -26,9 +26,10 @@
 #define STR(x) STRIMPL(x)
 
 // Remember to change the .rc file too when you're changing these values
-constexpr unsigned char VERSION_EDITION = 1;
-constexpr unsigned char VERSION_MAJOR = 3;
-constexpr unsigned char VERSION_MINOR = 2;
+constexpr unsigned char VERSION_EDITION = PIXI_VERSION_EDITION;
+constexpr unsigned char VERSION_MAJOR = PIXI_VERSION_MAJOR;
+constexpr unsigned char VERSION_MINOR = PIXI_VERSION_MINOR;
+constexpr const char VERSION_DEBUG[] = STR(PIXI_VERSION_DEBUG);
 constexpr unsigned char VERSION_PARTIAL = VERSION_MAJOR * 10 + VERSION_MINOR;
 constexpr unsigned char VERSION_FULL = VERSION_EDITION * 100 + VERSION_MAJOR * 10 + VERSION_MINOR;
 static_assert(VERSION_FULL <= std::numeric_limits<unsigned char>::max());
@@ -988,7 +989,7 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
 #endif
     // first is version x.xx, others are preserved
     unsigned char versionflag[4] = {VERSION_FULL, 0x00, 0x00, 0x00};
-
+    bool version_requested = false;
     // map16 for sprite displays
     static map16 map[MAP16_SIZE];
     argparser optparser{};
@@ -1006,8 +1007,11 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
     optparser.allow_unmatched(1);
     optparser.add_usage_string("pixi <options> [ROM]");
     optparser
+        .add_option("-v", "Print version information", version_requested)
+        .add_option("--version", "Print version information", version_requested)
         .add_option("-rom", "ROMFILE", "ROM file, when the -r is not given, it is assumed to be the last argument", rom.name)
         .add_option("-d", "Enable debug output, the option flag -out only works when this is set", cfg.DebugEnabled)
+        .add_option("--debug", "Enable debug output, the option flag -out only works when this is set", cfg.DebugEnabled)
         .add_option("-k", "Keep debug files", cfg.KeepFiles)
         .add_option("-l", "list path", "Specify a custom list file", cfg[PathType::List])
         .add_option("-pl", "Per level sprites - will insert perlevel sprite code", cfg.PerLevel)
@@ -1049,6 +1053,13 @@ EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* s
                     lm_handle)
 #endif
         ;
+
+    // DEV_BUILD means either debug build or CI build.
+    if constexpr (PIXI_DEV_BUILD) {
+        cprintf("Pixi development version %d.%d - %s\n", VERSION_EDITION, VERSION_PARTIAL, VERSION_DEBUG);
+    } else if (version_requested) {
+        cprintf("Pixi version %d.%d\n", VERSION_EDITION, VERSION_PARTIAL);
+    }
 
     if (!asar_init()) {
         error("Error: Asar library is missing or couldn't be initialized, please redownload the tool or add the dll.\n",
