@@ -373,7 +373,7 @@ namespace CFG
             dgvGFXInfo.DataError += DgvGFXInfo_DataError;
 
             //create databindings between display list and controls.
-            BindToSourceDisplay(rtbDesc, displaySpriteBindingSource, ctrl => ctrl.Text, ds => ds.Description);
+            BindToSourceDisplay(rtbDesc, displaySpriteBindingSource, ctrl => ctrl.Text, ds => ds.Description).DataSourceUpdateMode = DataSourceUpdateMode.OnValidation;
             BindToSourceDisplay(nudX, displaySpriteBindingSource, ctrl => ctrl.Value, ds => ds.X_or_index);
             BindToSourceDisplay(nudY, displaySpriteBindingSource, ctrl => ctrl.Value, ds => ds.Y_or_value);
             BindToSourceDisplay(chbExtraBit, displaySpriteBindingSource, ctrl => ctrl.Checked, ds => ds.ExtraBit);
