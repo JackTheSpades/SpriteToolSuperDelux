@@ -13,7 +13,7 @@ import traceback
 import sys
 
 types = {
-    'standard': (46, 14),
+    'standard': (46, 16),
     'shooter': (47, 1),
     'generator': (48, 1),
     'cluster': (64, 1),
