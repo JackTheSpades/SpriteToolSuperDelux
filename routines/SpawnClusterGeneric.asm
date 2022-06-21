@@ -1,7 +1,7 @@
 ; Routine used for spawning cluster sprites with initial speed at the position (+offset)
 ; of the calling sprite and returns the sprite index in Y
-; For a list of minor extended sprites see here: 
-; https://www.smwcentral.net/?p=memorymap&a=detail&game=smw&region=ram&detail=11c9baba28dd
+; For a list of cluster sprites see here: 
+; https://www.smwcentral.net/?p=memorymap&a=detail&game=smw&region=ram&detail=35d69addf335
 
 ; Input:
 ;   A   = number

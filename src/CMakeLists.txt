@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 set(PIXI_SOURCE_FILES "")
 include(FetchContent)
+include(CheckIPOSupported)
 
 set(PIXI_LINK_LIBRARIES "")
 set(PIXI_LINK_OPTIONS "")
@@ -97,6 +98,16 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/api_bindings/pixi_api.h"
 )
 add_executable(pixi "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp" ${PIXI_SOURCE_FILES})
+
+
+check_ipo_supported(RESULT has_ipo OUTPUT ipo_support_error)
+
+if (has_ipo)
+    set_property(TARGET pixi PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+else()
+    message(WARNING "IPO is not supported: ${ipo_support_error}")
+endif()
+
 
 if (PIXI_LIBRARY_TYPE STREQUAL "STATIC")
     list(APPEND PIXI_COMPILE_DEFINITIONS
@@ -230,4 +241,16 @@ add_custom_command(TARGET pixi POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${asar181_LIB_PATH} $<TARGET_FILE_DIR:pixi>
     COMMENT "Copying ${asar181_LIB_PATH} to output directory"
+)
+
+add_custom_command(TARGET pixi POST_BUILD 
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/asm $<TARGET_FILE_DIR:pixi>/asm
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/cluster $<TARGET_FILE_DIR:pixi>/cluster 
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/extended $<TARGET_FILE_DIR:pixi>/extended 
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/generators $<TARGET_FILE_DIR:pixi>/generators 
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/shooters $<TARGET_FILE_DIR:pixi>/shooters 
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/misc_sprites $<TARGET_FILE_DIR:pixi>/misc_sprites 
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/sprites $<TARGET_FILE_DIR:pixi>/sprites 
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/routines $<TARGET_FILE_DIR:pixi>/routines 
+    COMMENT "Copying folders in output directory"
 )
