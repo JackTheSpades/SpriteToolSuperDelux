@@ -90,7 +90,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ windows-latest, ubuntu-latest, macos-latest ]
+        os: [ windows-latest, ubuntu-latest ]
 
     steps:
       - uses: actions/checkout@v3
@@ -145,14 +145,6 @@ jobs:
         env:
           ARTIFACT_PATH: ${{steps.download.outputs.download-path}}/pixi.zip
         if: matrix.os == 'windows-latest'
-     
-      - name: Test (macos)
-        working-directory: ${{github.workspace}}/test
-        shell: bash
-        run: bash pixi_test.sh ${{steps.branch-name.outputs.current_branch}} remote
-        env:
-          ARTIFACT_PATH: ${{steps.download.outputs.download-path}}/pixi.zip
-        if: matrix.os == 'macos-latest'
 
       - name: Upload test results
         uses: actions/upload-artifact@v2
