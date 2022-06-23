@@ -89,6 +89,7 @@ fi
 unzip pixi.zip -d pixi
 unzip pixi_latest.zip -d pixi_latest
 
+echo "Deleting temp files"
 # delete temp files
 rm -rf latest
 rm -rf asar_latest
@@ -96,9 +97,11 @@ rm -rf SpriteToolSuperDelux
 rm pixi.zip
 rm pixi_latest.zip
 
+echo "Creating folder and moving downloader script"
 mkdir downloader_test
 cp downloader.py downloader_test/downloader.py
 
+echo "Moving rom and starting downloader script"
 # move rom and start script
 cp -r pixi downloader_test/pixi
 mv downloader_test/pixi/pixi downloader_test/pixi/pixi_current
