@@ -74,7 +74,7 @@ class argparser {
     static constexpr inline auto no_value = no_value_tag{};
     argparser() = default;
     bool init(const nlohmann::json& args);
-    bool init(int argc, char** argv);
+    bool init(int argc, const char** argv);
     void add_version(uint8_t version_partial, uint8_t version_edition);
     void allow_unmatched(size_t quantity = option::npos);
     const std::vector<std::string>& unmatched() const {

@@ -53,10 +53,8 @@ typedef const pixi_tile_t* pixi_tile_array;
 /// </summary>
 /// <param name="argc">Number of arguments</param>
 /// <param name="argv">Arguments</param>
-/// <param name="stdin">Name of file to use as stdin, pass NULL to get input directly from console</param>
-/// <param name="stdout">Name of file to use as stdout, pass NULL to output directly to console</param>
 /// <returns>Exit code of the program</returns>
-PIXI_IMPORT int pixi_run(int argc, char** argv, const char* stdin_, const char* stdout_);
+PIXI_IMPORT int pixi_run(int argc, const char** argv);
 
 /// <summary>
 /// Returns the API version as 100*edition + 10*major + minor

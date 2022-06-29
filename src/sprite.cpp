@@ -915,36 +915,6 @@ void remove(std::string_view dir, const char* file) {
 #define EXPORT
 #endif
 
-// this is because otherwise, when files are replaced, they would not be closed
-// until the caller of pixi_run was finished.
-// this way they get closed as soon as pixi_run exits
-struct RAIIOpenFileIOReplace {
-    bool replaced_stdin;
-    bool replaced_stdout;
-
-    bool replace_stdin(const char* file) {
-        if (!freopen(file, "r", stdin))
-            return false;
-        replaced_stdin = true;
-        return true;
-    }
-    bool replace_stdout(const char* file) {
-        if (!freopen(file, "r", stdout))
-            return false;
-        replaced_stdout = true;
-        return true;
-    }
-
-    ~RAIIOpenFileIOReplace() {
-        if (replaced_stdin) {
-            fclose(stdin);
-        }
-        if (replaced_stdout) {
-            fclose(stdout);
-        }
-    }
-};
-
 EXPORT int pixi_api_version() {
     return VERSION_FULL;
 }
@@ -953,17 +923,7 @@ EXPORT int pixi_check_api_version(int version_edition, int version_major, int ve
     return version_edition == VERSION_EDITION && version_major == VERSION_MAJOR && version_minor == VERSION_MINOR;
 }
 
-EXPORT int pixi_run(int argc, char** argv, const char* stdin_name, const char* stdout_name) {
-    RAIIOpenFileIOReplace iofilecloser{false, false};
-    if (stdin_name) {
-        if (!iofilecloser.replace_stdin(stdin_name))
-            return EXIT_FAILURE;
-    }
-
-    if (stdout_name) {
-        if (!iofilecloser.replace_stdout(stdout_name))
-            return EXIT_FAILURE;
-    }
+EXPORT int pixi_run(int argc, const char** argv) {
     if (!libconsole::init())
         return EXIT_FAILURE;
     ROM rom;
