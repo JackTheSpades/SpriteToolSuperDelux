@@ -25,7 +25,7 @@
 #define STRIMPL(x) #x
 #define STR(x) STRIMPL(x)
 
-// Remember to change the .rc file too when you're changing these values
+// change these values from the CMakeLists, not here, changes will propagate.
 constexpr unsigned char VERSION_EDITION = PIXI_VERSION_EDITION;
 constexpr unsigned char VERSION_MAJOR = PIXI_VERSION_MAJOR;
 constexpr unsigned char VERSION_MINOR = PIXI_VERSION_MINOR;
