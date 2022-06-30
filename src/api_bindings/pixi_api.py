@@ -29,7 +29,7 @@ def __init_pixi_dll():
     else:
         _pixi = _PixiDll("./libpixi_api.so")
 
-    _pixi.setup_func("run", [c_int, POINTER(c_char_p), c_char_p, c_char_p], c_int)
+    _pixi.setup_func("run", [c_int, POINTER(c_char_p)], c_int)
     _pixi.setup_func("api_version", [], c_int)
     _pixi.setup_func("check_api_version", [c_int, c_int, c_int], c_int)
     _pixi.setup_func("parse_json_sprite", [c_char_p], c_void_p)
@@ -362,21 +362,17 @@ class Sprite:
         return int(_pixi.funcs["sprite_type"](self.data_ptr))
 
 def run(
-    argv: list[list[str]], stdin_file: str = None, stdout_file: str = None
+    argv: list[list[str]]
 ) -> int:
     """
     Run a PIXI program.
 
     :param argv: A list of strings, each of which is an argument to the PIXI program.
-    :param stdin_file: The name of the file to use for stdin.
-    :param stdout_file: The name of the file to use for stdout.
     :return: The return code of the PIXI program.
     """
     argv = (c_char_p * len(argv))(*[arg.encode() for arg in argv])
     argc = c_int(len(argv))
-    stdin_file = c_char_p(stdin_file.encode()) if stdin_file else c_char_p()
-    stdout_file = c_char_p(stdout_file.encode()) if stdout_file else c_char_p()
-    return int(_pixi.funcs["run"](argc, argv, stdin_file, stdout_file))
+    return int(_pixi.funcs["run"](argc, argv))
 
 
 def api_version() -> int:
