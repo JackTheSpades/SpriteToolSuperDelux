@@ -67,6 +67,10 @@ jobs:
         msbuild.exe "CFG Editor.sln" -p:Configuration=Release
         Compress-Archive "${{github.workspace}}/src/CFG Editor/CFG Editor/bin/Release/CFG Editor.exe","${{github.workspace}}/src/CFG Editor/CFG Editor/bin/Release/Newtonsoft.Json.dll" ${{github.workspace}}/cfgeditor.zip
       if: matrix.os == 'windows-latest'
+      
+    - name: Run basic unit tests
+      working-directory: ${{github.workspace}}/build/unittests
+      run: ctest -C $BUILD_TYPE
         
     - name: Setup python
       uses: actions/setup-python@v3

@@ -237,6 +237,8 @@ if (NOT EXISTS "$<TARGET_FILE_DIR:pixi>/${asar_shared_lib}")
     build_dll("https://github.com/RPGHacker/asar/archive/refs/tags/v1.81.tar.gz" "asar181")
 endif()
 
+set_target_properties(pixi PROPERTIES ASAR_LIB_PATH ${asar181_LIB_PATH})
+
 add_custom_command(TARGET pixi POST_BUILD 
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${asar181_LIB_PATH} $<TARGET_FILE_DIR:pixi>

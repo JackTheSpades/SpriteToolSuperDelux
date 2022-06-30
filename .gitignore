@@ -37,3 +37,4 @@ test/*
 !test/pixi_test.sh
 !test/pixi_test.ps1
 src/pixi.rc
+!unittests/testing_files/base.smc
