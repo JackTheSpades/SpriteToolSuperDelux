@@ -710,7 +710,7 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                 const char* charName = name.c_str();
                 g_shared_patch.fprintf("!%s = 0\n"
                                        "macro %s()\n"
-                                       "\t%%include_once(\"%s%s.asm\", %s, $%.2X)\n"
+                                       "\t%%include_once(\"%s%s.asm\", %s, $%02X)\n"
                                        "\tJSL %s\n"
                                        "endmacro\n",
                                        charName, charName, escapedRoutinepath.c_str(), charName, charName,

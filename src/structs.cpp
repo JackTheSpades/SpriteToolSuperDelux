@@ -35,12 +35,15 @@ void patchfile::set_keep(bool pixi, bool meimei) {
 
 void patchfile::fprintf(const char* format, ...) {
     va_list list{};
+    va_list copy{};
     va_start(list, format);
+    va_copy(copy, list);
     size_t needed_space = std::vsnprintf(nullptr, 0, format, list);
     std::string buf{};
     buf.resize(needed_space);
-    std::vsnprintf(buf.data(), buf.size() + 1, format, list);
+    std::vsnprintf(buf.data(), buf.size() + 1, format, copy);
     va_end(list);
+    va_end(copy);
     m_data_stream << buf;
 }
 
