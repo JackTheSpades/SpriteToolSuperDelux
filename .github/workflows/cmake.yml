@@ -70,7 +70,7 @@ jobs:
       
     - name: Run basic unit tests
       working-directory: ${{github.workspace}}/build/unittests
-      run: ctest -C $BUILD_TYPE
+      run: ctest --rerun-failed --output-on-failure -C $BUILD_TYPE
         
     - name: Setup python
       uses: actions/setup-python@v3
