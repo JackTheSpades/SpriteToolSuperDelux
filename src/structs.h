@@ -1,14 +1,14 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
-#include "config.h"
 #include "asar/asardll.h"
+#include "config.h"
 #include <cstring>
-#include <vector>
-#include <string>
-#include <span>
 #include <memory>
+#include <span>
 #include <sstream>
+#include <string>
+#include <vector>
 
 // use 16MB ROM size to avoid asar malloc/memcpy on 8MB of data per block.
 constexpr auto MAX_ROM_SIZE = 16 * 1024 * 1024;
@@ -20,6 +20,21 @@ constexpr auto RTL_LOW = 0x21;
 // 10 per level, 200 level + 100 global
 constexpr auto MAX_SPRITE_COUNT = 0x2100;
 
+namespace {
+
+enum placeholder_enum {
+
+};
+
+
+template <bool T> struct picker {};
+
+template <> struct picker<true> { using t = std::ios::openmode; };
+
+template <> struct picker<false> { using t = placeholder_enum; };
+
+} // namespace
+
 class patchfile {
     std::string m_path{};
     std::stringstream m_data_stream{};
@@ -27,20 +42,23 @@ class patchfile {
     std::unique_ptr<memoryfile> m_vfile;
     bool m_from_meimei = false;
     bool m_binary = false;
-	
+
     static bool s_meimei_keep;
     static bool s_pixi_keep;
 
+    constexpr static bool om_en = std::is_enum_v<std::ios::openmode>;
+    using openmode_t = std::conditional_t<om_en, std::underlying_type_t<picker<om_en>::t>, std::ios::openmode>;
+
   public:
-    enum class openflags : std::ios::openmode {
-		w = std::ios::out,
-		b = std::ios::binary,
-		wb = std::ios::out | std::ios::binary
+    enum class openflags : openmode_t {
+        w = std::ios::out,
+        b = std::ios::binary,
+        wb = std::ios::out | std::ios::binary
     };
     static void set_keep(bool pixi, bool meimei);
     explicit patchfile(const std::string& path, openflags mode = openflags::w, bool from_mei_mei = false);
     patchfile(patchfile&&) noexcept;
-	patchfile& operator=(patchfile&&) = delete;
+    patchfile& operator=(patchfile&&) = delete;
     patchfile& operator=(const patchfile&) = delete;
     patchfile(const patchfile&) = delete;
     const auto& path() const {
@@ -56,7 +74,7 @@ class patchfile {
     void fwrite(const char* bindata, size_t size);
     void fwrite(const unsigned char* bindata, size_t size);
     void close();
-	~patchfile();
+    ~patchfile();
 };
 
 struct pointer {
@@ -70,7 +88,7 @@ struct pointer {
         highbyte = (unsigned char)((snes >> 8) & 0xFF);
         bankbyte = (unsigned char)((snes >> 16) & 0xFF);
     }
-    pointer(const pointer &) = default;
+    pointer(const pointer&) = default;
     pointer& operator=(int snes) {
         lowbyte = (unsigned char)(snes & 0xFF);
         highbyte = (unsigned char)((snes >> 8) & 0xFF);
@@ -162,9 +180,9 @@ struct sprite {
     int byte_count = 0;
     int extra_byte_count = 0;
 
-    const char *directory = nullptr;
-    const char *asm_file = nullptr;
-    const char *cfg_file = nullptr;
+    const char* directory = nullptr;
+    const char* asm_file = nullptr;
+    const char* cfg_file = nullptr;
 
     std::vector<map16> map_data{};
 
@@ -173,7 +191,7 @@ struct sprite {
 
     std::vector<collection> collections{};
 
-    ListType sprite_type = ListType::Sprite; 
+    ListType sprite_type = ListType::Sprite;
     bool has_empty_table() const;
     ~sprite();
     void print();
@@ -183,14 +201,14 @@ enum class MapperType { lorom, sa1rom, fullsa1rom };
 
 struct ROM {
     inline static const int sa1banks[8] = {0 << 20, 1 << 20, -1, -1, 2 << 20, 3 << 20, -1, -1};
-    unsigned char *data = nullptr;
-    unsigned char *real_data = nullptr;
+    unsigned char* data = nullptr;
+    unsigned char* real_data = nullptr;
     std::string name;
     int size;
     int header_size;
     MapperType mapper;
 
-    [[nodiscard]] bool open(const char *n);
+    [[nodiscard]] bool open(const char* n);
     [[nodiscard]] bool open();
     void close();
 
@@ -201,7 +219,7 @@ struct ROM {
     unsigned char read_byte(int addr) const;
     unsigned short read_word(int addr) const;
     unsigned int read_long(int addr) const;
-    void read_data(unsigned char *dst, size_t size, int addr) const;
+    void read_data(unsigned char* dst, size_t size, int addr) const;
     ~ROM();
 };
 
