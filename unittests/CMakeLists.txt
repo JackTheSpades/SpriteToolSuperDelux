@@ -29,4 +29,4 @@ add_custom_command(TARGET PixiUnitTest POST_BUILD
     COMMENT "Copying necessary files in test output directory"
 )
 
-gtest_discover_tests(PixiUnitTest)
+gtest_discover_tests(PixiUnitTest WORKING_DIRECTORY $<TARGET_FILE_DIR:PixiUnitTest>)
