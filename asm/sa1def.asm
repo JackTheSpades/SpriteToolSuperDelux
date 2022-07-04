@@ -1,7 +1,3 @@
-if canreadfile1("config.asm",0) != 0
-	incsrc "config.asm"
-endif
-
 !PerLevel ?= 0
 !Disable255SpritesPerLevel ?= 0
 

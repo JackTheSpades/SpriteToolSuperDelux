@@ -33,4 +33,4 @@ Main:
    
 ;tool generated pointer table
 Ptr:
-    incbin "_ScorePtr.bin"
+    incbin "_scoreptr.bin"

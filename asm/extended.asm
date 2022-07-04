@@ -51,7 +51,7 @@ Main:
 
 ;tool generated pointer table
 Ptr:
-	incbin "_ExtendedPtr.bin"
+	incbin "_extendedptr.bin"
 
 CapePtr:
-	incbin "_ExtendedCapePtr.bin"
+	incbin "_extendedcapeptr.bin"

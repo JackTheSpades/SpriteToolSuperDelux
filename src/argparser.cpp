@@ -1,17 +1,17 @@
 #include "argparser.h"
 
+#include "iohandler.h"
 #include <charconv>
 #include <filesystem>
-#include <iostream>
 #include <sstream>
 #ifdef _WIN32
 #include <Windows.h>
 #elif defined(__APPLE__)
+#include <limits.h>
 #include <mach-o/dyld.h>
-#include <limits.h>
 #else
-#include <unistd.h>
 #include <limits.h>
+#include <unistd.h>
 #endif
 
 static std::string GetExecutableName() {
@@ -91,6 +91,7 @@ void argparser::add_usage_string(std::string_view usage_string) {
 }
 
 bool argparser::parse() {
+    iohandler& io = iohandler::get_global();
     auto help_it =
         std::find_if(m_arguments.begin(), m_arguments.end(), [](const auto& v) { return v == "-h" || v == "--help"; });
     if (help_it != m_arguments.end()) {
@@ -102,22 +103,22 @@ bool argparser::parse() {
         auto it = std::find(m_arguments.begin(), m_arguments.end(), name);
         if (it != m_arguments.end()) {
             if (opt.found) {
-                std::cout << "Argument parsing error: option " << std::quoted(name) << " was specified twice\n";
+                io.error("Argument parsing error: option \"%s\" was specified twice\n", name.data());
                 return false;
             }
             opt.found = true;
             it = m_arguments.erase(it);
             if (opt.requires_value()) {
                 if (it == m_arguments.end()) {
-                    std::cout << "Argument parsing error: option " << std::quoted(name) << " requires an argument "
-                              << std::quoted(opt.value_name) << " but it wasn't given any\n";
+                    io.error(
+                        "Argument parsing error: option \"%s\" requires an argument \"%s\" but it wasn't given any\n",
+                        name.data(), opt.value_name.data());
                     return false;
                 }
                 if (opt.type == option::Type::String) {
                     if (!opt.assign(*it)) {
-                        std::cout
-                            << "Internal argument parser error, report this to the developer along with the command "
-                               "line you were using!\n";
+                        io.error("Internal argument parser error, report this here " GITHUB_ISSUE_LINK
+                                 " along with the command line you were using!\n");
                         return false;
                     }
                 } else if (opt.type == option::Type::Int) {
@@ -125,21 +126,20 @@ bool argparser::parse() {
                     const auto& strval = *it;
                     auto ec = std::from_chars(strval.data(), strval.data() + strval.size(), value);
                     if (ec.ec != std::errc{}) {
-                        std::cout << "Argument parsing error: option " << std::quoted(name)
-                                  << " was expecting a number but received " << strval;
+                        io.error("Argument parsing error: option \"%s\" was expecting a number but received %s\n",
+                                 name.data(), strval.data());
                     }
                     if (!opt.assign(value)) {
-                        std::cout
-                            << "Internal argument parser error, report this to the developer along with the command "
-                               "line you were using!\n";
+                        io.error("Internal argument parser error, report this here " GITHUB_ISSUE_LINK
+                                 " along with the command line you were using!\n");
                         return false;
                     }
                 }
                 m_arguments.erase(it);
             } else if (opt.type == option::Type::Bool) {
                 if (!opt.assign(true)) {
-                    std::cout << "Internal argument parser error, report this to the developer along with the command "
-                                 "line you were using!\n";
+                    io.error("Internal argument parser error, report this here " GITHUB_ISSUE_LINK
+                             " along with the command line you were using!\n");
                     return false;
                 }
             }
@@ -148,11 +148,11 @@ bool argparser::parse() {
     m_unmatched_arguments.reserve(m_arguments.size());
     m_unmatched_arguments.insert(m_unmatched_arguments.end(), m_arguments.begin(), m_arguments.end());
     if (m_unmatched_arguments.size() > m_leftover_args_needed) {
-        std::cout << "Argument parsing error: Unrecognized options found: ";
+        io.error("Argument parsing error: Unrecognized options found: ");
         for (const auto& unm : m_unmatched_arguments) {
-            std::cout << std::quoted(unm) << ", ";
+            io.error("\"%s\", ", unm.data());
         }
-        std::cout << '\n';
+        io.error("\n");
         return false;
     }
     return true;
@@ -234,7 +234,8 @@ void argparser::print_help() const {
         }
         builder << '\n';
     }
-    std::cout << builder.str();
+    auto str = builder.str();
+    iohandler::get_global().print(str.c_str());
 }
 
 bool argparser::option::requires_value() const {

@@ -1,12 +1,13 @@
 #include "file_io.h"
 #include "paths.h"
+#include "iohandler.h"
 #include <cstdio>
 #include <cstring>
 
 FILE *open(const char *name, const char *mode) {
     FILE *file = fopen(name, mode);
     if (!file) {
-        error("Could not open \"%s\"\n", name);
+        iohandler::get_global().error("Could not open \"%s\"\n", name);
         return nullptr;
     }
     return file;
@@ -27,7 +28,7 @@ unsigned char *read_all(const char *file_name, bool text_mode, unsigned int mini
     size_t size = file_size(file);
     unsigned char *file_data = new unsigned char[(size < minimum_size ? minimum_size : size) + (text_mode * 2)];
     if (fread(file_data, 1, size, file) != size) {
-        error("%s could not be fully read.  Please check file permissions.", file_name);
+        iohandler::get_global().error("%s could not be fully read.  Please check file permissions.", file_name);
         delete[] file_data;
         return nullptr;
     }
@@ -35,32 +36,15 @@ unsigned char *read_all(const char *file_name, bool text_mode, unsigned int mini
     return file_data;
 }
 
-bool write_all(unsigned char *data, const char *file_name, unsigned int size) {
-    FILE *file = open(file_name, "wb");
-    if (file == nullptr)
-        return false;
-    if (fwrite(data, 1, size, file) != size) {
-        error("%s could not be fully written.  Please check file permissions.", file_name);
-        return false;
-    }
-    fclose(file);
-    return true;
+patchfile write_all(unsigned char* data, std::string_view file_name, unsigned int size) {
+    patchfile file{std::string{file_name}, static_cast<patchfile::openflags>(std::ios::out | std::ios::binary)};
+    file.fwrite(data, size);
+    file.close();
+    return file;
 }
 
-bool write_all(unsigned char *data, const char *dir, const char *file_name, unsigned int size) {
-    char *path = new char[strlen(dir) + strlen(file_name) + 1];
-    path[0] = 0;
-    strcat(path, dir);
-    strcat(path, file_name);
-    bool ret = write_all(data, path, size);
-    delete[] path;
-    return ret;
-}
-
-bool write_all(unsigned char *data, std::string_view file_name, unsigned int size) {
-    return write_all(data, file_name.data(), size);
-}
-
-bool write_all(unsigned char *data, std::string_view dir, std::string_view file_name, unsigned int size) {
-    return write_all(data, dir.data(), file_name.data(), size);
+patchfile write_all(unsigned char* data, std::string_view dir, std::string_view file_name, unsigned int size) {
+    std::string fullpath{dir};
+	fullpath += file_name;
+    return write_all(data, fullpath, size);
 }

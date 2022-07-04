@@ -34,6 +34,6 @@ static inline void trim(std::string &s) {
     rtrim(s);
 }
 
-bool read_cfg_file(sprite *spr, FILE *output);
+bool read_cfg_file(sprite *spr);
 
 #endif

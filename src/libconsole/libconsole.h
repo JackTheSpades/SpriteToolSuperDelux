@@ -2,6 +2,7 @@
 #include <cstdarg>
 #include <cstddef>
 #include <cstdio>
+class iohandler;
 
 namespace libconsole {
 
@@ -15,20 +16,12 @@ bool write_args_handle(const char* fmt, FILE* hdl, va_list list);
 size_t bytelen(const char* buffer);
 bool isspace(const char ch);
 
+class console {
+    friend iohandler;
+  protected:
+    static int cprintf(const char* fmt, ...);
+    static int cfprintf(FILE* stream, const char* fmt, ...);
+};
+
 } // namespace libconsole
 
-inline int cprintf(const char* fmt, ...) {
-    va_list list;
-    va_start(list, fmt);
-    libconsole::write_args(fmt, libconsole::handle::out, list);
-    va_end(list);
-    return 0;
-}
-
-inline int cfprintf(FILE* stream, const char* fmt, ...) {
-    va_list list;
-    va_start(list, fmt);
-    libconsole::write_args_handle(fmt, stream, list);
-    va_end(list);
-    return 0;
-}

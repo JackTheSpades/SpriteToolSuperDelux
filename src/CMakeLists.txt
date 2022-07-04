@@ -6,7 +6,7 @@ include(CheckIPOSupported)
 set(PIXI_LINK_LIBRARIES "")
 set(PIXI_LINK_OPTIONS "")
 set(PIXI_COMPILE_OPTIONS "")
-set(PIXI_COMPILE_DEFINITIONS "")
+set(PIXI_COMPILE_DEFINITIONS GITHUB_ISSUE_LINK="https://github.com/JackTheSpades/SpriteToolSuperDelux/issues/new")
 
 set(PIXI_VERSION_EDITION 1)
 set(PIXI_VERSION_MAJOR 3)
@@ -89,6 +89,9 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/json_const.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/config.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/argparser.h"
+
+    "${CMAKE_CURRENT_SOURCE_DIR}/iohandler.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/iohandler.cpp"
 
     "${CMAKE_CURRENT_SOURCE_DIR}/libconsole/libconsole.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/libconsole/libconsole.cpp"

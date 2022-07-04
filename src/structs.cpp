@@ -1,12 +1,74 @@
 #include "structs.h"
+#include "asar/asardll.h"
+#include "file_io.h"
+#include "iohandler.h"
 #include <cctype>
 #include <cstring>
 #include <iomanip>
 #include <sstream>
-#include "libconsole/libconsole.h"
 
-const char *BOOL_STR(bool b) {
+const char* BOOL_STR(bool b) {
     return b ? "true" : "false";
+}
+
+bool patchfile::s_meimei_keep = false;
+bool patchfile::s_pixi_keep = false;
+
+patchfile::patchfile(const std::string& path, patchfile::openflags mode, bool from_mei_mei)
+    : m_path{path}, m_data_stream{static_cast<std::ios::openmode>(mode)}, m_from_meimei{from_mei_mei} {
+    m_vfile = std::make_unique<memoryfile>();
+    m_binary = (static_cast<std::ios::openmode>(mode) & std::ios::binary) != 0;
+}
+
+patchfile::patchfile(patchfile&& other) noexcept
+    : m_path{std::move(other.m_path)}, m_data_stream{std::move(other.m_data_stream)}, m_data{std::move(other.m_data)}, m_from_meimei{other.m_from_meimei}, m_binary{other.m_binary} {
+    m_vfile = std::move(other.m_vfile);
+    m_vfile->buffer = m_data.c_str();
+    m_vfile->length = m_data.size();
+    m_vfile->path = m_path.c_str();
+}
+
+void patchfile::set_keep(bool pixi, bool meimei) {
+    s_meimei_keep = meimei;
+    s_pixi_keep = pixi;
+}
+
+void patchfile::fprintf(const char* format, ...) {
+    va_list list{};
+    va_start(list, format);
+    size_t needed_space = std::vsnprintf(nullptr, 0, format, list);
+    std::string buf{};
+    buf.resize(needed_space);
+    std::vsnprintf(buf.data(), buf.size() + 1, format, list);
+    va_end(list);
+    m_data_stream << buf;
+}
+
+void patchfile::fwrite(const char* bindata, size_t size) {
+    m_data_stream.write(bindata, size);
+}
+
+void patchfile::fwrite(const unsigned char* bindata, size_t size) {
+    m_data_stream.write(reinterpret_cast<const char*>(bindata), size);
+}
+
+void patchfile::close() {
+    m_data = m_data_stream.str();
+    m_vfile->buffer = m_data.c_str();
+    m_vfile->length = m_data.size();
+    m_vfile->path = m_path.c_str();
+}
+
+patchfile::~patchfile() {
+    if (m_path.empty())
+        return;
+    if ((m_from_meimei && s_meimei_keep) || (!m_from_meimei && s_pixi_keep)) {
+        FILE* fp = open(m_path.c_str(), m_binary ? "wb" : "w");
+        if (fp == nullptr)
+            return;
+        ::fwrite(m_vfile->buffer, sizeof(char), m_vfile->length, fp);
+        fclose(fp);
+    }
 }
 
 bool ROM::open(const char* n) {
@@ -17,7 +79,11 @@ bool ROM::open(const char* n) {
 }
 
 void ROM::close() {
-    (void)write_all(data, name, size + header_size);
+    FILE* romfile = fopen(name.c_str(), "wb");
+    if (romfile == nullptr)
+        return;
+    fwrite(data, sizeof(char), size + header_size, romfile);
+    fclose(romfile);
     delete[] data;
     data = nullptr; // assign to nullptr so that when the dtor is called and these already got freed the delete[] is a
                     // no-op
@@ -124,9 +190,9 @@ unsigned int ROM::read_long(int addr) const {
     return real_data[addr] | (real_data[addr + 1] << 8) | (real_data[addr + 2] << 16);
 }
 
-void ROM::read_data(unsigned char *dst, size_t wsize, int addr) const {
+void ROM::read_data(unsigned char* dst, size_t wsize, int addr) const {
     if (dst == nullptr)
-        dst = (unsigned char *)malloc(sizeof(unsigned char) * wsize);
+        dst = (unsigned char*)malloc(sizeof(unsigned char) * wsize);
     memcpy(dst, real_data + addr, wsize);
 }
 
@@ -153,48 +219,49 @@ sprite::~sprite() {
         delete[] cfg_file;
 }
 
-void sprite::print(FILE *stream) {
-    cfprintf(stream, "Type:       %02X\n", table.type);
-    cfprintf(stream, "ActLike:    %02X\n", table.actlike);
-    cfprintf(stream, "Tweak:      %02X, %02X, %02X, %02X, %02X, %02X\n", table.tweak[0], table.tweak[1], table.tweak[2],
-            table.tweak[3], table.tweak[4], table.tweak[5]);
+void sprite::print() {
+    iohandler& io = iohandler::get_global();
+    io.debug("Type:       %02X\n", table.type);
+    io.debug("ActLike:    %02X\n", table.actlike);
+    io.debug("Tweak:      %02X, %02X, %02X, %02X, %02X, %02X\n", table.tweak[0], table.tweak[1], table.tweak[2],
+             table.tweak[3], table.tweak[4], table.tweak[5]);
 
     // not needed for tweaks
     if (table.type) {
-        cfprintf(stream, "Extra:      %02X, %02X\n", table.extra[0], table.extra[1]);
-        cfprintf(stream, "ASM File:   %s\n", asm_file);
-        cfprintf(stream, "Byte Count: %d, %d\n", byte_count, extra_byte_count);
+        io.debug("Extra:      %02X, %02X\n", table.extra[0], table.extra[1]);
+        io.debug("ASM File:   %s\n", asm_file);
+        io.debug("Byte Count: %d, %d\n", byte_count, extra_byte_count);
     }
 
     if (!map_data.empty()) {
-        cfprintf(stream, "Map16:\n");
-        auto print_map16 = [stream](const map16 &map) {
-            cfprintf(stream, "\t%02X, %02X, %02X, %02X, %02X, %02X, %02X, %02X\n", map.top_left.tile, map.top_left.prop,
-                    map.bottom_left.tile, map.bottom_left.prop, map.top_right.tile, map.top_right.prop,
-                    map.bottom_right.tile, map.bottom_right.prop);
+        io.debug("Map16:\n");
+        auto print_map16 = [&io](const map16& map) {
+            io.debug("\t%02X, %02X, %02X, %02X, %02X, %02X, %02X, %02X\n", map.top_left.tile, map.top_left.prop,
+                     map.bottom_left.tile, map.bottom_left.prop, map.top_right.tile, map.top_right.prop,
+                     map.bottom_right.tile, map.bottom_right.prop);
         };
-        for (const auto &m : map_data) {
+        for (const auto& m : map_data) {
             print_map16(m);
         }
     }
 
     if (!displays.empty()) {
-        cfprintf(stream, "Displays:\n");
-        for (const auto &d : displays) {
-            cfprintf(stream, "\tX: %d, Y: %d, Extra-Bit: %s\n", d.x_or_index, d.y_or_value, BOOL_STR(d.extra_bit));
-            cfprintf(stream, "\tDescription: %s\n", d.description.c_str());
-            for (const auto &t : d.tiles) {
+        io.debug("Displays:\n");
+        for (const auto& d : displays) {
+            io.debug("\tX: %d, Y: %d, Extra-Bit: %s\n", d.x_or_index, d.y_or_value, BOOL_STR(d.extra_bit));
+            io.debug("\tDescription: %s\n", d.description.c_str());
+            for (const auto& t : d.tiles) {
                 if (t.text.size())
-                    cfprintf(stream, "\t\t%d,%d,*%s*\n", t.x_offset, t.y_offset, t.text.c_str());
+                    io.debug("\t\t%d,%d,*%s*\n", t.x_offset, t.y_offset, t.text.c_str());
                 else
-                    cfprintf(stream, "\t\t%d,%d,%X\n", t.x_offset, t.y_offset, t.tile_number);
+                    io.debug("\t\t%d,%d,%X\n", t.x_offset, t.y_offset, t.tile_number);
             }
         }
     }
 
     if (!collections.empty()) {
-        cfprintf(stream, "Collections:\n");
-        for (const auto &c : collections) {
+        io.debug("Collections:\n");
+        for (const auto& c : collections) {
             std::stringstream coll;
             coll << "\tExtra-Bit: " << BOOL_STR(c.extra_bit) << ", Property Bytes: ( ";
             for (int j = 0; j < (c.extra_bit ? extra_byte_count : byte_count); j++) {
@@ -202,7 +269,7 @@ void sprite::print(FILE *stream) {
                      << " ";
             }
             coll << ") Name: " << c.name << std::endl;
-            cfprintf(stream, "%s", coll.str().c_str());
+            io.debug("%s", coll.str().c_str());
         }
     }
 }

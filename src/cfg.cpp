@@ -1,6 +1,7 @@
 #include "cfg.h"
 #include "paths.h"
 #include "structs.h"
+#include "iohandler.h"
 #include <cstdio>
 
 #include <array>
@@ -17,7 +18,8 @@ bool cfg_prop(const std::string &line, sprite *spr);
 bool cfg_asm(const std::string &line, sprite *spr);
 bool cfg_extra(const std::string &line, sprite *spr);
 
-bool read_cfg_file(sprite *spr, FILE *output) {
+bool read_cfg_file(sprite *spr) {
+    iohandler& io = iohandler::get_global();
 
     std::array<cfg_handler, handler_limit> handlers{cfg_type, cfg_actlike, cfg_tweak, cfg_prop, cfg_asm, cfg_extra};
 
@@ -25,7 +27,7 @@ bool read_cfg_file(sprite *spr, FILE *output) {
 
     std::ifstream cfg_stream(spr->cfg_file);
     if (!cfg_stream) {
-        error("Can't find CFG file %s, aborting insertion", spr->cfg_file);
+        io.error("Can't find CFG file %s, aborting insertion", spr->cfg_file);
         return false;
     }
     std::string current_line;
@@ -38,9 +40,7 @@ bool read_cfg_file(sprite *spr, FILE *output) {
             return false;
     };
 
-    if (output) {
-        cfprintf(output, "Parsed: %s, %zu lines\n", spr->cfg_file, line - 1);
-    }
+    io.debug("Parsed: %s, %zu lines\n", spr->cfg_file, line - 1);
 
     return true;
 }
@@ -96,7 +96,7 @@ bool cfg_extra(const std::string &line, sprite *spr) {
         spr->byte_count = bc;
         spr->extra_byte_count = ebc;
     } catch (const std::invalid_argument &e) {
-        error("Error in reading extra byte settings for file %s, error was \"%s\"\n", spr->cfg_file, e.what());
+        iohandler::get_global().error("Error in reading extra byte settings for file %s, error was \"%s\"\n", spr->cfg_file, e.what());
         return false;
     }
     return true;

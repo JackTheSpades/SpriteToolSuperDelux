@@ -1,12 +1,14 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
-#include "file_io.h"
 #include "config.h"
+#include "asar/asardll.h"
 #include <cstring>
 #include <vector>
 #include <string>
 #include <span>
+#include <memory>
+#include <sstream>
 
 // use 16MB ROM size to avoid asar malloc/memcpy on 8MB of data per block.
 constexpr auto MAX_ROM_SIZE = 16 * 1024 * 1024;
@@ -17,6 +19,45 @@ constexpr auto RTL_LOW = 0x21;
 
 // 10 per level, 200 level + 100 global
 constexpr auto MAX_SPRITE_COUNT = 0x2100;
+
+class patchfile {
+    std::string m_path{};
+    std::stringstream m_data_stream{};
+    std::string m_data{};
+    std::unique_ptr<memoryfile> m_vfile;
+    bool m_from_meimei = false;
+    bool m_binary = false;
+	
+    static bool s_meimei_keep;
+    static bool s_pixi_keep;
+
+  public:
+    enum class openflags : std::ios::openmode {
+		w = std::ios::out,
+		b = std::ios::binary,
+		wb = std::ios::out | std::ios::binary
+    };
+    static void set_keep(bool pixi, bool meimei);
+    explicit patchfile(const std::string& path, openflags mode = openflags::w, bool from_mei_mei = false);
+    patchfile(patchfile&&) noexcept;
+	patchfile& operator=(patchfile&&) = delete;
+    patchfile& operator=(const patchfile&) = delete;
+    patchfile(const patchfile&) = delete;
+    const auto& path() const {
+        return m_path;
+    }
+    const memoryfile vfile() const {
+        return *m_vfile;
+    }
+    const memoryfile* vfile_ptr() const {
+        return m_vfile.get();
+    }
+    void fprintf(const char* format, ...);
+    void fwrite(const char* bindata, size_t size);
+    void fwrite(const unsigned char* bindata, size_t size);
+    void close();
+	~patchfile();
+};
 
 struct pointer {
     unsigned char lowbyte = RTL_LOW;   // point to RTL
@@ -135,7 +176,7 @@ struct sprite {
     ListType sprite_type = ListType::Sprite; 
     bool has_empty_table() const;
     ~sprite();
-    void print(FILE *stream);
+    void print();
 };
 
 enum class MapperType { lorom, sa1rom, fullsa1rom };

@@ -41,20 +41,6 @@ template <typename T> constexpr auto ToEnum(std::underlying_type_t<T> val) {
     return static_cast<T>(val);
 }
 
-struct Debug {
-    FILE* output = nullptr;
-
-    template <typename... Args> inline void dprintf(const char* format, Args... args) {
-        if (this->output)
-            cfprintf(this->output, format, args...);
-    }
-
-    ~Debug() {
-        if (this->output)
-            fclose(this->output);
-    }
-};
-
 using strref = std::reference_wrapper<std::string>;
 
 class Paths {
@@ -113,15 +99,11 @@ class Extensions {
 
 class PixiConfig {
 
-    Debug m_Debug{};
     Paths m_Paths{};
     Extensions m_Extensions{};
 
   public:
     PixiConfig() = default;
-    Debug& debug() {
-        return m_Debug;
-    }
 
     std::string& operator[](PathType pt) {
         return m_Paths[pt];

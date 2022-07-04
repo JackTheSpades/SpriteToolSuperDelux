@@ -54,4 +54,4 @@ Main:
 
 freedata
 Ptr:
-	incbin "_ClusterPtr.bin"
+	incbin "_clusterptr.bin"

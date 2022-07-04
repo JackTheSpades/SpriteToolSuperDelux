@@ -41,4 +41,4 @@ Main:
    
 ;tool generated pointer table
 Ptr:
-    incbin "_SpinningCoinPtr.bin"
+    incbin "_spinningcoinptr.bin"

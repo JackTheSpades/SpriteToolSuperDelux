@@ -43,4 +43,4 @@ Main:
    
 ;tool generated pointer table
 Ptr:
-    incbin "_BouncePtr.bin"
+    incbin "_bounceptr.bin"

@@ -33,4 +33,4 @@ Main:
    
 ;tool generated pointer table
 Ptr:
-    incbin "_SmokePtr.bin"
+    incbin "_smokeptr.bin"

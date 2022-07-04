@@ -36,4 +36,4 @@ Main:
     
 ;tool generated pointer table
 Ptr:
-    incbin "_MinorExtendedPtr.bin"
+    incbin "_minorextendedptr.bin"

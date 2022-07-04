@@ -39,7 +39,7 @@ EXPORT pixi_sprite_t pixi_parse_json_sprite(const char* filename) {
     char* filename_dup = new char[strlen(filename) + 1];
     strcpy(filename_dup, filename);
     spr->cfg_file = filename_dup;
-    bool res = read_json_file(spr, nullptr);
+    bool res = read_json_file(spr);
     if (!res) {
         delete spr;
         return nullptr;
@@ -52,7 +52,7 @@ EXPORT pixi_sprite_t pixi_parse_cfg_sprite(const char* filename) {
     char* filename_dup = new char[strlen(filename) + 1];
     strcpy(filename_dup, filename);
     spr->cfg_file = filename_dup;
-    bool res = read_cfg_file(spr, nullptr);
+    bool res = read_cfg_file(spr);
     if (!res) {
         delete spr;
         return nullptr;

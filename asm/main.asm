@@ -186,7 +186,7 @@ org $0EF30C					;
 freedata
 Size:
 	incbin "DefaultSize.bin"
-	incbin "_CustomSize.bin"
+	incbin "_customsize.bin"
 	
 
 org $02A846|!BankB
@@ -1281,10 +1281,10 @@ TestSilverCoinBit:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 TableStart:
 	print "Global Table at ",pc
-	incbin "_DefaultTables.bin"
+	incbin "_defaulttables.bin"
 CustomStatusPtr:
 	print "Custom status pointers at", pc
-	incbin "_CustomStatusPtr.bin"
+	incbin "_customstatusptr.bin"
 
 ; ---------------------------------------------------
 ; per-level tables for sprite B0-BF 0x8000 bytes each.
@@ -1297,7 +1297,7 @@ if !PerLevel = 1
 	prot PerLevelCustomPtrTable_data
 	PerLevelLvlPtrs:
 		print "Per-level sprite level pointers at ", pc
-		incbin "_PerLevelLvlPtrs.bin"
+		incbin "_perlevellvlptrs.bin"
 	freedata
         ; i have no idea how to explain why i did it like this but trust me it works, and it's necessary to allow the full 0x800 per-level sprites
         skip -1
@@ -1305,19 +1305,19 @@ if !PerLevel = 1
         skip 1
         .data:
 		print "Level Table at ", pc
-		incbin "_PerLevelT.bin"
+		incbin "_perlevelt.bin"
 	freedata
         skip -1
 	PerLevelCustomPtrTable:
         skip 1
         .data:
 		print "Level Pointers Table at ", pc
-		incbin "_PerLevelCustomPtrTable.bin"
+		incbin "_perlevelcustomptrtable.bin"
 	freedata
         skip -1
 	PerLevelSprPtrs:
         skip 1
         .data:
 		print "Per-level sprite pointers at ", pc
-		incbin "_PerLevelSprPtrs.bin"
+		incbin "_perlevelsprptrs.bin"
 endif

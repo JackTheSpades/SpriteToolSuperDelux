@@ -12,7 +12,7 @@ class MeiMei {
     static inline bool keepTemp;
     static inline std::string sa1DefPath;
 
-    static bool patch(const char *patch_name, ROM &rom);
+    static bool patch(const patchfile& file, const patchfile& binfile, ROM &rom);
     static int run(ROM &rom);
 
   public:

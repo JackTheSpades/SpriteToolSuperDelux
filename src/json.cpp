@@ -1,5 +1,6 @@
 #include "json.h"
 #include "file_io.h"
+#include "iohandler.h"
 #include "json_const.h"
 #include "paths.h"
 #include "structs.h"
@@ -11,16 +12,14 @@
 
 using json = nlohmann::json;
 
-#define GITHUB_ISSUE_LINK "https://github.com/JackTheSpades/SpriteToolSuperDelux/issues/new"
-
-bool read_json_file(sprite* spr, FILE* output) {
-
+bool read_json_file(sprite* spr) {
+    iohandler& io = iohandler::get_global();
     json j;
     try {
         std::ifstream instr(spr->cfg_file);
         if (!instr) {
-            printf("JSON file \"%s\" wasn't found, make sure to have the correct filenames in your list file\n",
-                   spr->cfg_file);
+            io.error("JSON file \"%s\" wasn't found, make sure to have the correct filenames in your list file\n",
+                     spr->cfg_file);
             return false;
         }
         instr >> j;
@@ -28,31 +27,33 @@ bool read_json_file(sprite* spr, FILE* output) {
         // https://json.nlohmann.me/api/basic_json/operator_gtgt/#exceptions
         switch (err.id) {
         case 101:
-            printf("Unexpected token in json file %s, please make sure that the json file has the correct format. "
-                   "Error: %s",
-                   spr->cfg_file, err.what());
+            io.error("Unexpected token in json file %s, please make sure that the json file has the correct format. "
+                     "Error: %s",
+                     spr->cfg_file, err.what());
             break;
         case 102:
-            printf("Unicode conversion failure or surrogate error in json file %s, please make sure that the json file "
-                   "has the correct format. Error: %s",
-                   spr->cfg_file, err.what());
+            io.error(
+                "Unicode conversion failure or surrogate error in json file %s, please make sure that the json file "
+                "has the correct format. Error: %s",
+                spr->cfg_file, err.what());
             break;
         case 103:
-            printf("Unicode conversion failure in json file %s, please make sure that the json file has the correct "
-                   "format. Error: %s",
-                   spr->cfg_file, err.what());
+            io.error("Unicode conversion failure in json file %s, please make sure that the json file has the correct "
+                     "format. Error: %s",
+                     spr->cfg_file, err.what());
             break;
         default:
-            printf("An unexpected json parsing error was encountered (from file %s), please make sure that the json "
-                   "file has the correct format. Error: %s",
-                   spr->cfg_file, err.what());
+            io.error("An unexpected json parsing error was encountered (from file %s), please make sure that the json "
+                     "file has the correct format. Error: %s",
+                     spr->cfg_file, err.what());
             break;
         }
         return false;
     } catch (const std::exception& e) {
-        printf("An unknown error has occurred while parsing json file %s, please report the issue at " GITHUB_ISSUE_LINK
-               " (provide as much info as possible): %s\n",
-               spr->cfg_file, e.what());
+        io.error(
+            "An unknown error has occurred while parsing json file %s, please report the issue at " GITHUB_ISSUE_LINK
+            " (provide as much info as possible): %s\n",
+            spr->cfg_file, e.what());
         return false;
     }
 
@@ -161,8 +162,9 @@ bool read_json_file(sprite* spr, FILE* output) {
             auto first_index = spr->displays.front().x_or_index;
             if (!std::all_of(spr->displays.begin(), spr->displays.end(),
                              [first_index](const display& disp) { return disp.x_or_index == first_index; })) {
-                cprintf("JSON logic error in %s: \nWhen using the extension byte display type, all of the displays "
-                        "of one sprite must use the same extension byte index.\n", spr->cfg_file);
+                io.error("JSON logic error in %s: \nWhen using the extension byte display type, all of the displays "
+                         "of one sprite must use the same extension byte index.\n",
+                         spr->cfg_file);
                 return false;
             }
         }
@@ -189,17 +191,15 @@ bool read_json_file(sprite* spr, FILE* output) {
             counter++;
         }
 
-        if (output) {
-            cfprintf(output, "Parsed %s\n", spr->cfg_file);
-        }
+        io.debug("Parsed %s\n", spr->cfg_file);
 
         return true;
     } catch (const std::exception& e) {
         // there are too many exception types to catch, so just catch everything
         // most of them will probably come from here https://json.nlohmann.me/api/basic_json/at/#exceptions
-        cprintf("Unexpected error when parsing json file %s: %s, report this at " GITHUB_ISSUE_LINK
-                " (include as much info as possible)\n",
-                spr->cfg_file, e.what());
+        io.error("Unexpected error when parsing json file %s: %s, report this at " GITHUB_ISSUE_LINK
+                 " (include as much info as possible)\n",
+                 spr->cfg_file, e.what());
         return false;
     }
 }
