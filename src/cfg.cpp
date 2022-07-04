@@ -8,6 +8,21 @@
 #include <fstream>
 #include <string>
 
+/*
+Supported CFG File format
+
+<type>
+<sprite num>
+<tweak 0> <tweak 1> <tweak 2> <tweak 3> <tweak 4> <tweak 5>
+<prop 0> <prop 1>
+<asm file>
+<ex. byte count>:<ex. byte count with extra bit>
+
+alternatively the last line can be a single number
+in this case pixi will still accept the cfg file
+but will just set both ex. byte counts to 0.
+*/
+
 constexpr size_t handler_limit = 6;
 using cfg_handler = bool (*)(const std::string &, sprite *);
 
