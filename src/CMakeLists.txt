@@ -97,13 +97,14 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/libconsole/libconsole.cpp"
     
     "${CMAKE_CURRENT_SOURCE_DIR}/pixi_information_impl.cpp"
-
-    "${CMAKE_CURRENT_SOURCE_DIR}/api_bindings/pixi_api.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pixi_api.h"
 )
-add_executable(pixi "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp" ${PIXI_SOURCE_FILES})
-
 
 check_ipo_supported(RESULT has_ipo OUTPUT ipo_support_error)
+
+add_executable(pixi "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp" ${PIXI_SOURCE_FILES})
+add_library(pixi_api SHARED ${PIXI_SOURCE_FILES})
+add_library(pixi_api_static STATIC ${PIXI_SOURCE_FILES})
 
 if (has_ipo)
     set_property(TARGET pixi PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
@@ -111,16 +112,6 @@ else()
     message(WARNING "IPO is not supported: ${ipo_support_error}")
 endif()
 
-
-if (PIXI_LIBRARY_TYPE STREQUAL "STATIC")
-    list(APPEND PIXI_COMPILE_DEFINITIONS
-    "PIXI_STATIC_LIB"
-    )
-else()
-    set(PIXI_LIBRARY_TYPE "SHARED")
-endif()
-
-add_library(pixi_api ${PIXI_LIBRARY_TYPE} ${PIXI_SOURCE_FILES})
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if (WIN32)
         message(STATUS "Windows build (on Clang/MINGW)")
@@ -173,47 +164,12 @@ else()
             COMMENT "Applying manifest file"
         )
     endif()
-    if (PIXI_LIBRARY_TYPE STREQUAL "SHARED")
-        set(PIXI_MSVC_LIB_TYPE "/MD$<$<CONFIG:Debug>:d>")
-    else()
-        set(PIXI_MSVC_LIB_TYPE "/MT$<$<CONFIG:Debug>:d>")
-    endif()
-    list(APPEND PIXI_COMPILE_OPTIONS /utf-8 /Wall /std:c++20 ${PIXI_MSVC_LIB_TYPE})
+    set_property(TARGET pixi PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    set_property(TARGET pixi_api PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+	set_property(TARGET pixi_api_static PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+    list(APPEND PIXI_COMPILE_OPTIONS /utf-8 /W3 /std:c++20)
     list(APPEND PIXI_COMPILE_OPTIONS
-            # generic & extremely noisy warnings which do (almost) nothing useful
-            # not to say that most come from code which I have no control over
-            /wd4514 # unreferenced inline function removed
-            /wd4710 # function not inlined
-            /wd4711 # function selected for automatic inline expansion
-            /wd4820 # 'bytes' bytes padding added after construct 'member_name'
-            /wd4464 # relative include path contains '..'
-
-            # specific warnings of pixi
-            /wd4996 # deprecated function
-            /wd6031 # return value ignored -> should probably be taken care of instead of ignored at some point
-            /wd4365 # signed/unsigned mismatch -> should probably be taken care of instead of ignored at some point
-            /wd5045 # spectre mitigation
-            /wd4774 # format string is not a string literal
-
-            # from here are warnings that I can't do anything about
-            # but I still dont't want them clogging my output
-
-            # from nlhomann's json.hpp
-            /wd4061 # enumerator 'identifier' in switch of enum 'enumeration' is not explicitly handled by a case label
-            /wd4623 # default constructor was implicitely defined as deleted
-            /wd4625 # copy constructor was implicitely defined as deleted
-            /wd4626 # assignment operator was implicitely defined as deleted
-            /wd5027 # move assignment operator was implicitely defined as deleted
-            /wd26819 # unannotated fallthrought between switch labels
-            /wd28020 # The expression <expr> is not true at this call
-            /wd26495 # Variable <var> is uninitialized. Always initialize a member variable
-
-            # from asardll.c
-            /wd5039 # throwing stuff passed to extern "C"
-            /wd4090 # function different 'const' qualifiers (stuff from asardll.c)
-
-            # from stdlib's limits.h for some reason (why does stuff from the stdlib have warnings)
-            /wd4668
+        /wd4090 # function different 'const' qualifiers (from asardll.c)
 	)
 endif()
 
@@ -227,12 +183,17 @@ list(APPEND PIXI_COMPILE_DEFINITIONS
 target_link_libraries(pixi PRIVATE ${PIXI_LINK_LIBRARIES})
 target_link_options(pixi PRIVATE ${PIXI_LINK_OPTIONS})
 target_compile_options(pixi PRIVATE ${PIXI_COMPILE_OPTIONS})
-target_compile_definitions(pixi PRIVATE ${PIXI_COMPILE_DEFINITIONS} PIXI_EXE_BUILD)
+target_compile_definitions(pixi PRIVATE ${PIXI_COMPILE_DEFINITIONS})
 
 target_link_libraries(pixi_api PRIVATE ${PIXI_LINK_LIBRARIES})
 target_link_options(pixi_api PRIVATE ${PIXI_LINK_OPTIONS})
 target_compile_options(pixi_api PRIVATE ${PIXI_COMPILE_OPTIONS})
-target_compile_definitions(pixi_api PRIVATE ${PIXI_COMPILE_DEFINITIONS})
+target_compile_definitions(pixi_api PRIVATE ${PIXI_COMPILE_DEFINITIONS} PIXI_DLL_BUILD)
+
+target_link_libraries(pixi_api_static PRIVATE ${PIXI_LINK_LIBRARIES})
+target_link_options(pixi_api_static PRIVATE ${PIXI_LINK_OPTIONS})
+target_compile_options(pixi_api_static PRIVATE ${PIXI_COMPILE_OPTIONS})
+target_compile_definitions(pixi_api_static PRIVATE ${PIXI_COMPILE_DEFINITIONS})
 
 set(asar_shared_lib "${CMAKE_SHARED_LIBRARY_PREFIX}asar${CMAKE_SHARED_LIBRARY_SUFFIX}")
 if (NOT EXISTS "$<TARGET_FILE_DIR:pixi>/${asar_shared_lib}")

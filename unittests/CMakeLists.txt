@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 include(FetchContent)
 add_executable(PixiUnitTest harness.cpp)
-get_target_property(PIXI_SOURCE_DIR pixi_api SOURCE_DIR)
+get_target_property(PIXI_SOURCE_DIR pixi_api_static SOURCE_DIR)
 target_include_directories(PixiUnitTest PUBLIC ${PIXI_SOURCE_DIR})
 FetchContent_Declare(
   googletest
@@ -12,10 +12,9 @@ enable_testing()
 include(GoogleTest)
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
-target_link_libraries(PixiUnitTest pixi_api gtest_main)
+target_link_libraries(PixiUnitTest pixi_api_static gtest_main)
 get_target_property(ASAR_LIB_PATH pixi ASAR_LIB_PATH)
-add_custom_command(TARGET PixiUnitTest POST_BUILD 
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE_DIR:pixi_api>/${CMAKE_SHARED_LIBRARY_PREFIX}pixi_api${CMAKE_SHARED_LIBRARY_SUFFIX} $<TARGET_FILE_DIR:PixiUnitTest>
+add_custom_command(TARGET PixiUnitTest POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/testing_files $<TARGET_FILE_DIR:PixiUnitTest>
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/asm $<TARGET_FILE_DIR:PixiUnitTest>/asm
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/cluster $<TARGET_FILE_DIR:PixiUnitTest>/cluster 

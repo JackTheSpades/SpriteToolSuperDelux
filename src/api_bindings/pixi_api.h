@@ -1,24 +1,13 @@
 #pragma once
 
-// define PIXI_STATIC_LIB before import this file if you're building your applications statically linked
-#ifdef PIXI_STATIC_LIB
-#define DLLIMPORT
-#else
 #ifdef _WIN32
-#define DLLIMPORT __declspec(dllimport)
-#else
-#define DLLIMPORT
-#endif
-#endif
-
-#ifndef PIXI_EXE_BUILD
-#ifdef _WIN32
-#define PIXI_IMPORT extern "C" DLLIMPORT
-#else
-#define PIXI_IMPORT extern "C" DLLIMPORT
-#endif
+#define PIXI_IMPORT __declspec(dllimport)
 #else
 #define PIXI_IMPORT
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 struct tile;
@@ -139,3 +128,7 @@ PIXI_IMPORT pixi_byte_array pixi_sprite_table_tweak(pixi_sprite_table_t, int* si
 PIXI_IMPORT pixi_pointer_t pixi_sprite_table_init(pixi_sprite_table_t);
 PIXI_IMPORT pixi_pointer_t pixi_sprite_table_main(pixi_sprite_table_t);
 PIXI_IMPORT pixi_byte_array pixi_sprite_table_extra(pixi_sprite_table_t, int* size);
+
+#ifdef __cplusplus
+}
+#endif

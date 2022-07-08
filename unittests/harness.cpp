@@ -1,4 +1,4 @@
-#include "api_bindings/pixi_api.h"
+#include "pixi_api.h"
 #include <filesystem>
 #include <fstream>
 #include <gtest/gtest.h>

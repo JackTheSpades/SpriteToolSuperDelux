@@ -821,7 +821,7 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                 }
             }
         } else {
-            size_t max_size = sprite_sizes[FromEnum(type) - 1].second;
+            size_t max_size = sprite_sizes[static_cast<size_t>(FromEnum(type)) - 1].second;
             if (sprite_id > max_size) {
                 io.error("Error on list line %d: Sprite number must be less than %x\n", lineno, max_size);
                 return false;
@@ -910,7 +910,7 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
     unsigned char dummy[0x10] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                                  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
     std::vector<unsigned char> file{};
-    file.resize(size * 0x10);
+    file.resize(static_cast<size_t>(size) * 0x10);
     if (is_empty_table({spr, size})) {
         return write_all(dummy, dir, filename, 0x10);
     } else {
@@ -940,27 +940,27 @@ void remove(std::string_view dir, const char* file) {
     remove(path.c_str());
 }
 
-#ifndef PIXI_EXE_BUILD
+#ifdef PIXI_DLL_BUILD
 #ifdef _WIN32
-#define EXPORT extern "C" __declspec(dllexport)
+#define PIXI_EXPORT extern "C" __declspec(dllexport)
 #else
-#define EXPORT extern "C" __attribute__((visibility("default")))
+#define PIXI_EXPORT extern "C" __attribute__((visibility("default")))
 #endif
 #else
-#define EXPORT
+#define PIXI_EXPORT extern "C"
 #endif
 
-EXPORT int pixi_api_version() {
+PIXI_EXPORT int pixi_api_version() {
     return VERSION_FULL;
 }
 
-EXPORT int pixi_check_api_version(int version_edition, int version_major, int version_minor) {
+PIXI_EXPORT int pixi_check_api_version(int version_edition, int version_major, int version_minor) {
     return version_edition == VERSION_EDITION && version_major == VERSION_MAJOR && version_minor == VERSION_MINOR;
 }
 
-EXPORT int pixi_run(int argc, const char** argv) {
+PIXI_EXPORT int pixi_run(int argc, const char** argv) {
     if (!libconsole::init()) {
-        io.error("Failed to initialize console output. Please report this to " GITHUB_ISSUE_LINK ". Aborting...\n"); 
+        io.error("Failed to initialize console output. Please report this to " GITHUB_ISSUE_LINK ". Aborting...\n");
         return EXIT_FAILURE;
     }
     ROM rom;

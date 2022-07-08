@@ -204,9 +204,9 @@ struct ROM {
     unsigned char* data = nullptr;
     unsigned char* real_data = nullptr;
     std::string name;
-    int size;
-    int header_size;
-    MapperType mapper;
+    int size{0};
+    int header_size{0};
+    MapperType mapper{MapperType::lorom};
 
     [[nodiscard]] bool open(const char* n);
     [[nodiscard]] bool open();
