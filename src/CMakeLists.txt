@@ -29,6 +29,19 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(json)
 
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+set(ASAR_GEN_EXE OFF)
+set(ASAR_GEN_EXE_TEST OFF)
+set(ASAR_GEN_DLL_TEST OFF)
+FetchContent_Declare(
+	asar
+	GIT_REPOSITORY https://github.com/RPGHacker/asar
+	GIT_TAG v1.81
+	SOURCE_SUBDIR src
+)
+FetchContent_MakeAvailable(asar)
+set_target_properties(asar PROPERTIES CXX_STANDARD 14)
+
 list(
     APPEND PIXI_LINK_LIBRARIES
     "nlohmann_json::nlohmann_json"
@@ -195,19 +208,12 @@ target_link_options(pixi_api_static PRIVATE ${PIXI_LINK_OPTIONS})
 target_compile_options(pixi_api_static PRIVATE ${PIXI_COMPILE_OPTIONS})
 target_compile_definitions(pixi_api_static PRIVATE ${PIXI_COMPILE_DEFINITIONS})
 
-set(asar_shared_lib "${CMAKE_SHARED_LIBRARY_PREFIX}asar${CMAKE_SHARED_LIBRARY_SUFFIX}")
-if (NOT EXISTS "$<TARGET_FILE_DIR:pixi>/${asar_shared_lib}")
-    message(STATUS "Downloading asar shared library")
-    build_dll("https://github.com/RPGHacker/asar/archive/refs/tags/v1.81.tar.gz" "asar181")
-endif()
-
-set_target_properties(pixi PROPERTIES ASAR_LIB_PATH ${asar181_LIB_PATH})
-
 add_custom_command(TARGET pixi POST_BUILD 
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${asar181_LIB_PATH} $<TARGET_FILE_DIR:pixi>
-    COMMENT "Copying ${asar181_LIB_PATH} to output directory"
+    $<TARGET_FILE:asar> $<TARGET_FILE_DIR:pixi>
+    COMMENT "Copying $<TARGET_FILE:asar> to output directory"
 )
+set_target_properties(pixi PROPERTIES ASAR_LIB_PATH $<TARGET_FILE:asar>)
 
 add_custom_command(TARGET pixi POST_BUILD 
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/asm $<TARGET_FILE_DIR:pixi>/asm
