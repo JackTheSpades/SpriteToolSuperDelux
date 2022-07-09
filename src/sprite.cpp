@@ -268,6 +268,16 @@ std::string escapeDefines(std::string_view path, const char* repl = "\\!") {
     return ss.str();
 }
 
+static bool strccmp(std::string_view first, std::string_view second) {
+    if (first.size() != second.size())
+        return false;
+    for (size_t i = 0; i < first.size(); i++) {
+        if (std::tolower(first[i]) != std::tolower(second[i]))
+            return false;
+    }
+    return true;
+}
+
 [[nodiscard]] bool patch_sprite(const std::vector<std::string>& extraDefines, sprite* spr, ROM& rom) {
     std::string escapedDir = escapeDefines(spr->directory);
     std::string escapedAsmfile = escapeDefines(spr->asm_file);
@@ -293,16 +303,23 @@ std::string escapeDefines(std::string_view path, const char* repl = "\\!") {
     using ptr_map_t = std::unordered_map<std::string_view, pointer>;
     using ptr_map_v_t = ptr_map_t::value_type;
     ptr_map_t ptr_map = {
-        ptr_map_v_t{"INIT", 0x018021},      ptr_map_v_t{"MAIN", 0x018021},    ptr_map_v_t{"CAPE", 0x000000},
-        ptr_map_v_t{"MOUTH", 0x000000},     ptr_map_v_t{"KICKED", 0x000000}, // null pointers
-        ptr_map_v_t{"CARRIABLE", 0x000000}, ptr_map_v_t{"CARRIED", 0x000000}, ptr_map_v_t{"GOAL", 0x000000}};
+        ptr_map_v_t{"INIT", 0x018021},    ptr_map_v_t{"MAIN", 0x018021},   ptr_map_v_t{"CAPE", 0x000000},
+        ptr_map_v_t{"MOUTH", 0x000000},   ptr_map_v_t{"KICKED", 0x000000}, ptr_map_v_t{"CARRIABLE", 0x000000},
+        ptr_map_v_t{"CARRIED", 0x000000}, ptr_map_v_t{"GOAL", 0x000000},   ptr_map_v_t{"VERG", 0x000000}};
     int print_count = 0;
+    int label_count = 0;
     const char* const* asar_prints = asar_getprints(&print_count);
+    const labeldata* asar_labels = asar_getalllabels(&label_count);
     std::vector<std::string> prints{};
+    std::vector<labeldata> labels{};
     prints.reserve(print_count);
+    labels.reserve(label_count);
 
     for (int i = 0; i < print_count; i++) { // trim prints since now we can't deal with starting spaces
         trim(prints.emplace_back(asar_prints[i]));
+    }
+    for (int i = 0; i < label_count; i++) {
+        labels.push_back(asar_labels[i]);
     }
 
     io.debug("%s\n", spr->asm_file);
@@ -315,7 +332,7 @@ std::string escapeDefines(std::string_view path, const char* repl = "\\!") {
         const std::string_view name;
         bool (*check)(ListType);
         bool operator()(ListType tp, std::string_view str) const noexcept {
-            return check(tp) && name == str.substr(0, name.size());
+            return check(tp) && strccmp(name, str.substr(0, name.size()));
         }
     };
 
@@ -359,6 +376,22 @@ std::string escapeDefines(std::string_view path, const char* repl = "\\!") {
             io.debug("\t%s\n", prints[i].c_str());
         }
     }
+
+    for (const auto& chk : valid_pointer_names) {
+        const auto it = ptr_map.find(chk.name);
+        assert(it != ptr_map.end());
+        const auto& [_, ptr] = *it;
+        if (ptr.is_empty() || ptr.addr() == 0x018021) {
+            auto found = std::find_if(labels.begin(), labels.end(),
+                                      [&](const labeldata& data) { return chk(spr->sprite_type, data.name); });
+            if (found != labels.end()) {
+                io.debug("\tDidn't find print for pointer %s, but found label %s (at addr $%06X), using it\n",
+                         chk.name.data(), found->name, found->location);
+                ptr_map[chk.name] = found->location;
+            }
+        }
+    }
+
     spr->table.init = ptr_map["INIT"];
     spr->table.main = ptr_map["MAIN"];
     if (spr->table.init.is_empty() && spr->table.main.is_empty()) {
