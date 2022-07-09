@@ -15,6 +15,8 @@
 - (lx5) Updated cluster sprites routines
 - (Atari2.0) Added utf-8 paths support on Windows. This should fix any issues with paths containing non-ascii characters.
 - (Atari2.0) Completely overhaul the build system, use CMake, enable building pixi as a .dll, add APIs for python, c and c#.
+- (Atari2.0) Now the print statements in sprites can be substituted by labels (`init:` etc) and they are not case sensitive anymore (e.g. `print "init", pc` works)
+- (Atari2.0) A lot (and I mean a lot) of internal C++ code changes to improve the codebase and speedup the tool as well as major changes to the build system. These changes are massive but they should not be visible to external users. As such they won't be reported here but they can be found in the single commits in the repository.
 
 ## Version 1.32 (January 23, 2021):
 
