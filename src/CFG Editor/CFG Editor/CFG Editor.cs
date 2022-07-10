@@ -465,6 +465,7 @@ namespace CFG
             if (args.Length == 0)
             {
                 cmb_1656_0F.SelectedIndex = cmb_1662_3F.SelectedIndex = cmb_166E_0E.SelectedIndex = 0;
+                Data.InvokeDataPropertyChanged(CFG_SpriteType.Normal);
                 Data.Clear();
             }
             else

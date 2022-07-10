@@ -356,7 +356,14 @@ namespace CFG
             return false;
 		}
 
-	}
+        public void InvokeDataPropertyChanged(CFG_SpriteType val)
+        {
+            Type = (byte)val;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Type)));
+        }
+
+
+    }
 
 
 
