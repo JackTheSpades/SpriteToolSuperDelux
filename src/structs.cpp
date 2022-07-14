@@ -291,9 +291,21 @@ void sprite::clear() {
     line = 0;
     number = 0;
     level = 0x200;
-    memset(&table, 0, sizeof(sprite_table));
-    memset(&ptrs, 0, sizeof(status_pointers));
-    extended_cape_ptr = 0;
+	
+    table.type = 0;
+    table.actlike = 0;
+    memset(table.tweak, 0, sizeof(table.tweak));
+    table.init = {};
+    table.main = {};
+    memset(table.extra, 0, sizeof(table.extra));
+	
+	ptrs.carriable = {};
+    ptrs.carried = {};
+    ptrs.goal = {};
+    ptrs.kicked = {};
+    ptrs.mouth = {};
+    
+    extended_cape_ptr = {};
     byte_count = 0;
     extra_byte_count = 0;
 
