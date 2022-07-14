@@ -849,7 +849,8 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                     return false;
                 }
                 if (cfg.PerLevel && level != 0x200 && (sprite_id < 0xB0 || sprite_id >= 0xC0)) {
-                    io.error("Error on list line %d: Per-level sprite valid range is B0-BF, was given %X instead\n", lineno, sprite_id);
+                    io.error("Error on list line %d: Per-level sprite valid range is B0-BF, was given %X instead\n",
+                             lineno, sprite_id);
                     return false;
                 }
                 io.error("Error on list line %d: Sprite was invalid, couldn't determine the specific reason, please "
@@ -997,7 +998,7 @@ void pixi_reset() {
     warnings.clear();
     io.init();
     g_memory_files.clear();
-	g_shared_patch.clear();
+    g_shared_patch.clear();
     g_config_defines.clear();
     patchfile::set_keep(false, false);
     cfg.reset();
@@ -1012,7 +1013,9 @@ PIXI_EXPORT int pixi_check_api_version(int version_edition, int version_major, i
 }
 
 PIXI_EXPORT int pixi_run(int argc, const char** argv) {
+#ifndef PIXI_EXE_BUILD
     pixi_reset();
+#endif
     ROM rom;
     // individual lists containing the sprites for the specific sections
     static sprite sprite_list[MAX_SPRITE_COUNT];
@@ -1023,6 +1026,33 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv) {
     static sprite smoke_list[LESS_SPRITE_COUNT];
     static sprite spinningcoin_list[MINOR_SPRITE_COUNT];
     static sprite score_list[MINOR_SPRITE_COUNT];
+
+#ifndef PIXI_EXE_BUILD
+    for (auto& spr : sprite_list) {
+        spr.clear();
+    }
+    for (auto& spr : cluster_list) {
+        spr.clear();
+    }
+    for (auto& spr : extended_list) {
+        spr.clear();
+    }
+    for (auto& spr : minor_extended_list) {
+        spr.clear();
+    }
+    for (auto& spr : bounce_list) {
+        spr.clear();
+    }
+    for (auto& spr : smoke_list) {
+        spr.clear();
+    }
+    for (auto& spr : spinningcoin_list) {
+        spr.clear();
+    }
+    for (auto& spr : score_list) {
+        spr.clear();
+    }
+#endif
 
     // the list containing the lists...
     std::array<sprite*, FromEnum(ListType::__SIZE__)> sprites_list_list{

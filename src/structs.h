@@ -194,6 +194,7 @@ struct sprite {
 
     ListType sprite_type = ListType::Sprite;
     bool has_empty_table() const;
+    void clear();
     ~sprite();
     void print();
 };

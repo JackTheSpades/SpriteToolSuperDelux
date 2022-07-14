@@ -282,3 +282,31 @@ void sprite::print() {
         }
     }
 }
+
+void sprite::clear() {
+    if (asm_file)
+        delete[] asm_file;
+    if (cfg_file)
+        delete[] cfg_file;
+    line = 0;
+    number = 0;
+    level = 0x200;
+    memset(&table, 0, sizeof(sprite_table));
+    memset(&ptrs, 0, sizeof(status_pointers));
+    extended_cape_ptr = 0;
+    byte_count = 0;
+    extra_byte_count = 0;
+
+    directory = nullptr;
+    asm_file = nullptr;
+    cfg_file = nullptr;
+
+    map_data.clear();
+
+    disp_type = display_type::XYPosition;
+    displays.clear();
+
+    collections.clear();
+
+    sprite_type = ListType::Sprite;
+}
