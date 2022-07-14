@@ -134,7 +134,12 @@ BOOL GenericRead(HANDLE hdl, wchar_t* wbuffer, DWORD wbufsize, char* buffer, DWO
 BOOL GenericWrite(HANDLE hdl, const char* buffer, DWORD bufsize) {
     BOOL ret = FALSE;
     DWORD written = 0;
-    if (winutil::HasConsole(hdl)) {
+    if (hdl == NULL) {
+        if (IsDebuggerPresent()) {
+            OutputDebugStringA(buffer);
+        }
+        return TRUE;
+    } else if (winutil::HasConsole(hdl)) {
         DWORD conv = 0;
         auto&& [wstr, res] = winutil::UTF8ToWide(buffer, bufsize, conv);
         if (!res)
