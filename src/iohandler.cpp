@@ -7,6 +7,20 @@ void iohandler::set(iotype tp, FILE* newhandle) {
     m_replaced[tp] = true;
 }
 
+void iohandler::init() {
+    iohandler& handler = get_global();
+	
+    handler.m_handles[iotype::in] = stdin;
+	handler.m_handles[iotype::out] = stdout;
+    handler.m_handles[iotype::err] = stderr;
+    handler.m_handles[iotype::debug_] = nullptr;
+	
+	handler.m_replaced[iotype::in] = false;
+	handler.m_replaced[iotype::out] = false;
+	handler.m_replaced[iotype::err] = false;
+	handler.m_replaced[iotype::debug_] = false;
+}
+
 iohandler& iohandler::get_global() {
     static iohandler global_handler{};
     return global_handler;

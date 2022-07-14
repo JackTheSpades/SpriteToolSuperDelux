@@ -74,6 +74,7 @@ class patchfile {
     void fwrite(const char* bindata, size_t size);
     void fwrite(const unsigned char* bindata, size_t size);
     void close();
+    void clear();
     ~patchfile();
 };
 

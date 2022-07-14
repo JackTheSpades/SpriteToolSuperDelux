@@ -74,6 +74,12 @@ patchfile::~patchfile() {
     }
 }
 
+void patchfile::clear() {
+    m_data_stream.str("");
+    m_data.clear();
+    m_vfile.reset(new memoryfile);
+}
+
 bool ROM::open(const char* n) {
     size_t len = libconsole::bytelen(n) + 1;
     name.resize(len);

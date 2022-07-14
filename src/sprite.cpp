@@ -987,6 +987,22 @@ void remove(std::string_view dir, const char* file) {
 #define PIXI_EXPORT extern "C"
 #endif
 
+void pixi_reset() {
+    memset(PLS_LEVEL_PTRS, 0, sizeof(PLS_LEVEL_PTRS));
+    memset(PLS_SPRITE_PTRS, 0, sizeof(PLS_SPRITE_PTRS));
+    PLS_SPRITE_PTRS_ADDR = 0;
+    memset(PLS_DATA, 0, sizeof(PLS_DATA));
+    memset(PLS_POINTERS, 0, sizeof(PLS_POINTERS));
+    PLS_DATA_ADDR = 0;
+    warnings.clear();
+    io.init();
+    g_memory_files.clear();
+	g_shared_patch.clear();
+    g_config_defines.clear();
+    patchfile::set_keep(false, false);
+    cfg.reset();
+}
+
 PIXI_EXPORT int pixi_api_version() {
     return VERSION_FULL;
 }
@@ -996,6 +1012,7 @@ PIXI_EXPORT int pixi_check_api_version(int version_edition, int version_major, i
 }
 
 PIXI_EXPORT int pixi_run(int argc, const char** argv) {
+    pixi_reset();
     ROM rom;
     // individual lists containing the sprites for the specific sections
     static sprite sprite_list[MAX_SPRITE_COUNT];
