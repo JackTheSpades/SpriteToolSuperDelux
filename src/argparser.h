@@ -1,14 +1,13 @@
 #pragma once
+#include "nlohmann/json.hpp"
 #include <algorithm>
+#include <concepts>
 #include <stdexcept>
+#include <string>
 #include <string_view>
 #include <utility>
 #include <variant>
 #include <vector>
-#include <concepts>
-#include <string>
-#include "nlohmann/json.hpp"
-
 
 struct no_value_tag {};
 
@@ -60,6 +59,39 @@ class argparser {
     };
 
     using opt_t = std::pair<std::string_view, option>;
+    using opt_iter_v = std::tuple<std::string_view, option::Type, std::string_view, std::string_view,
+                                  std::variant<no_value_tag, bool_ref, string_ref, int_ref>, bool>;
+
+    struct opt_iter {
+        const std::vector<opt_t>& m_options;
+        size_t m_index;
+        opt_iter(const std::vector<opt_t>& options, size_t index = 0) : m_options{options}, m_index{index} {
+        }
+        opt_iter_v operator*() const {
+            const auto& opt = m_options[m_index];
+            return std::make_tuple(opt.first, opt.second.type, opt.second.description, opt.second.value_name,
+                                   opt.second.value, opt.second.found);
+        }
+        opt_iter& operator++() {
+            ++m_index;
+            return *this;
+        }
+        bool operator!=(const opt_iter& other) const {
+            return m_index != other.m_index;
+        }
+    };
+
+    struct opt_iterator {
+        const std::vector<opt_t>& m_options;
+        opt_iterator(const std::vector<opt_t>& options) : m_options{options} {
+        }
+        opt_iter begin() const {
+            return opt_iter{m_options, 0};
+        }
+        opt_iter end() const {
+            return opt_iter{m_options, m_options.size()};
+        }
+    };
 
     std::vector<opt_t> m_options{};
     bool m_help_requested = false;
@@ -132,5 +164,9 @@ class argparser {
         } else {
             static_assert(dependant_false<T>, "Invalid get() call");
         }
+    }
+
+    opt_iterator iter() const {
+        return opt_iterator{m_options};
     }
 };
