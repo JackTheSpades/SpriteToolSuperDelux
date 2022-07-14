@@ -4,16 +4,19 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
+#include <vector>
+#include <string>
+#include <cstring>
 
 class iohandler {
 
     using con = libconsole::console;
-
     enum iotype { in = 0, out = 1, err = 2, debug_ = 3 };
 
     FILE* m_handles[4]{};
     bool m_replaced[4]{};
-
+    std::string m_last_error;
+	
     void set(iotype tp, FILE* newhandle);
 
     template <typename... Args> void print_generic(iotype tp, const char* message, Args... args) {
@@ -27,6 +30,9 @@ class iohandler {
   public:
     static iohandler& get_global();
     iohandler();
+    const auto& last_error() const {
+        return m_last_error;
+    }
     FILE* get_out() {
         return m_handles[out];
     }
@@ -53,10 +59,14 @@ class iohandler {
     }
     void error(const char* message) {
         // prints to stdout for backwards compatibility
+        m_last_error = message;
         print_generic(out, message);
     }
     template <typename... Args> void error(const char* message, Args... args) {
         // prints to stdout for backwards compatibility
+        int needed = snprintf(nullptr, 0, message, args...);
+        m_last_error.resize(needed, '\0');
+        snprintf(m_last_error.data(), needed + 1, message, args...);
         print_generic(out, message, args...);
     }
     void print(const char* message) {

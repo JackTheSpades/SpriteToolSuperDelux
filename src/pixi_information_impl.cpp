@@ -1,6 +1,7 @@
 #include "cfg.h"
 #include "json.h"
 #include "structs.h"
+#include "iohandler.h"
 
 #ifdef PIXI_DLL_BUILD
 #ifdef _WIN32
@@ -252,6 +253,11 @@ PIXI_EXPORT pixi_pointer_t pixi_sprite_table_main(pixi_sprite_table_t pixi_sprit
 PIXI_EXPORT pixi_byte_array pixi_sprite_table_extra(pixi_sprite_table_t pixi_sprite_table_ptr, int* size) {
     *size = 2;
     return pixi_sprite_table_ptr->extra;
+}
+PIXI_EXPORT pixi_string pixi_last_error(int* size) {
+    const auto& history = iohandler::get_global().last_error();
+	*size = static_cast<int>(history.size());
+	return history.c_str();
 }
 #ifdef __cplusplus
 }

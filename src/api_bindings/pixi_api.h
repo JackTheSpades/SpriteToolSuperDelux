@@ -129,6 +129,9 @@ PIXI_IMPORT pixi_pointer_t pixi_sprite_table_init(pixi_sprite_table_t);
 PIXI_IMPORT pixi_pointer_t pixi_sprite_table_main(pixi_sprite_table_t);
 PIXI_IMPORT pixi_byte_array pixi_sprite_table_extra(pixi_sprite_table_t, int* size);
 
+// Error information
+PIXI_IMPORT pixi_string pixi_last_error(int* size);
+
 #ifdef __cplusplus
 }
 #endif

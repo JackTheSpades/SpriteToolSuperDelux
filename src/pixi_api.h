@@ -133,6 +133,9 @@ PIXI_EXPORT pixi_pointer_t pixi_sprite_table_init(pixi_sprite_table_t);
 PIXI_EXPORT pixi_pointer_t pixi_sprite_table_main(pixi_sprite_table_t);
 PIXI_EXPORT pixi_byte_array pixi_sprite_table_extra(pixi_sprite_table_t, int* size);
 
+// Error information
+PIXI_EXPORT pixi_string pixi_last_error(int* size);
+
 #ifdef __cplusplus
 }
 #endif
