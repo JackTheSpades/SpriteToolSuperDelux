@@ -848,10 +848,14 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                     io.error("Error on list line %d: Level must range from 000-1FF\n", lineno);
                     return false;
                 }
-                if (sprite_id >= 0xB0 && sprite_id < 0xC0) {
-                    io.error("Error on list line %d: Only sprite B0-BF must be assigned a level.\n", lineno);
+                if (cfg.PerLevel && level != 0x200 && (sprite_id < 0xB0 || sprite_id >= 0xC0)) {
+                    io.error("Error on list line %d: Per-level sprite valid range is B0-BF, was given %X instead\n", lineno, sprite_id);
                     return false;
                 }
+                io.error("Error on list line %d: Sprite was invalid, couldn't determine the specific reason, please "
+                         "report this at " GITHUB_ISSUE_LINK,
+                         lineno);
+                return false;
             }
         } else {
             size_t max_size = sprite_sizes[static_cast<size_t>(FromEnum(type)) - 1].second;
