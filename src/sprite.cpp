@@ -992,10 +992,6 @@ PIXI_EXPORT int pixi_check_api_version(int version_edition, int version_major, i
 }
 
 PIXI_EXPORT int pixi_run(int argc, const char** argv) {
-    if (!libconsole::init()) {
-        io.error("Failed to initialize console output. Please report this to " GITHUB_ISSUE_LINK ". Aborting...\n");
-        return EXIT_FAILURE;
-    }
     ROM rom;
     // individual lists containing the sprites for the specific sections
     static sprite sprite_list[MAX_SPRITE_COUNT];
