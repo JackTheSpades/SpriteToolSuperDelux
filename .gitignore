@@ -38,3 +38,6 @@ test/*
 !test/pixi_test.ps1
 src/pixi.rc
 !unittests/testing_files/base.smc
+build-src-Desktop_Qt_*
+src/build-*-Desktop_Qt_*
+**/CMakeLists.txt.user

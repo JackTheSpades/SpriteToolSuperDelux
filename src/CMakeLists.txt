@@ -226,3 +226,5 @@ add_custom_command(TARGET pixi POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/routines $<TARGET_FILE_DIR:pixi>/routines 
     COMMENT "Copying folders in output directory"
 )
+
+add_subdirectory(pixi_gui)
