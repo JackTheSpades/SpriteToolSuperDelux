@@ -21,7 +21,8 @@ patchfile::patchfile(const std::string& path, patchfile::openflags mode, bool fr
 }
 
 patchfile::patchfile(patchfile&& other) noexcept
-    : m_path{std::move(other.m_path)}, m_data_stream{std::move(other.m_data_stream)}, m_data{std::move(other.m_data)}, m_from_meimei{other.m_from_meimei}, m_binary{other.m_binary} {
+    : m_path{std::move(other.m_path)}, m_data_stream{std::move(other.m_data_stream)}, m_data{std::move(other.m_data)},
+      m_from_meimei{other.m_from_meimei}, m_binary{other.m_binary} {
     m_vfile = std::move(other.m_vfile);
     m_vfile->buffer = m_data.c_str();
     m_vfile->length = m_data.size();
@@ -291,20 +292,20 @@ void sprite::clear() {
     line = 0;
     number = 0;
     level = 0x200;
-	
+
     table.type = 0;
     table.actlike = 0;
     memset(table.tweak, 0, sizeof(table.tweak));
     table.init = {};
     table.main = {};
     memset(table.extra, 0, sizeof(table.extra));
-	
-	ptrs.carriable = {};
+
+    ptrs.carriable = {};
     ptrs.carried = {};
     ptrs.goal = {};
     ptrs.kicked = {};
     ptrs.mouth = {};
-    
+
     extended_cape_ptr = {};
     byte_count = 0;
     extra_byte_count = 0;

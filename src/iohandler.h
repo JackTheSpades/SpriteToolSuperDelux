@@ -4,20 +4,20 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
-#include <vector>
-#include <string>
 #include <cstring>
+#include <string>
+#include <vector>
 
 class iohandler {
 
     using con = libconsole::console;
-	enum iotype { in = 0, out = 1, debug_ = out };
+    enum iotype { in = 0, out = 1, debug_ = out };
 
-	FILE* m_handles[2]{};
+    FILE* m_handles[2]{};
     bool m_replaced[2]{};
     bool m_debug_enabled{};
     std::string m_last_error;
-	
+
     void set(iotype tp, FILE* newhandle);
 
     template <typename... Args> void print_generic(iotype tp, const char* message, Args... args) {

@@ -1144,7 +1144,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv) {
         return EXIT_FAILURE;
     if (argc < 2) {
         atexit(double_click_exit);
-	}
+    }
     if (cfg.DebugEnabled) {
         io.enable_debug();
     }

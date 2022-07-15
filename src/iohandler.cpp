@@ -9,14 +9,14 @@ void iohandler::set(iotype tp, FILE* newhandle) {
 
 void iohandler::init() {
     iohandler& handler = get_global();
-	
+
     handler.m_handles[iotype::in] = stdin;
     handler.m_handles[iotype::out] = stdout;
 
-	handler.m_replaced[iotype::in] = false;
+    handler.m_replaced[iotype::in] = false;
     handler.m_replaced[iotype::out] = false;
 
-	handler.m_debug_enabled = false;
+    handler.m_debug_enabled = false;
 }
 
 iohandler& iohandler::get_global() {
