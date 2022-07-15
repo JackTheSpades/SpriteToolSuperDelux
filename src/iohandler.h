@@ -11,10 +11,11 @@
 class iohandler {
 
     using con = libconsole::console;
-    enum iotype { in = 0, out = 1, err = 2, debug_ = 3 };
+	enum iotype { in = 0, out = 1, debug_ = out };
 
-    FILE* m_handles[4]{};
-    bool m_replaced[4]{};
+	FILE* m_handles[2]{};
+    bool m_replaced[2]{};
+    bool m_debug_enabled{};
     std::string m_last_error;
 	
     void set(iotype tp, FILE* newhandle);
@@ -37,9 +38,6 @@ class iohandler {
     FILE* get_out() {
         return m_handles[out];
     }
-    FILE* get_err() {
-        return m_handles[err];
-    }
     FILE* get_debug() {
         return m_handles[debug_];
     }
@@ -52,11 +50,11 @@ class iohandler {
     void set_in(FILE* newhandle) {
         set(in, newhandle);
     }
-    void set_err(FILE* newhandle) {
-        set(err, newhandle);
-    }
     void set_debug(FILE* newhandle) {
         set(debug_, newhandle);
+    }
+    void enable_debug() {
+        m_debug_enabled = true;
     }
     void error(const char* message) {
         // prints to stdout for backwards compatibility
@@ -77,11 +75,11 @@ class iohandler {
         print_generic(out, message, args...);
     }
     void debug(const char* message) {
-        if (m_handles[debug_] != nullptr)
+        if (m_debug_enabled)
             print_generic(debug_, message);
     }
     template <typename... Args> void debug(const char* message, Args... args) {
-        if (m_handles[debug_] != nullptr) {
+        if (m_debug_enabled) {
             print_generic(debug_, message, args...);
         }
     }
