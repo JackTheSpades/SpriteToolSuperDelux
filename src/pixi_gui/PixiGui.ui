@@ -27,7 +27,7 @@
        <widget class="QLabel" name="pixiVersionLabel">
         <property name="font">
          <font>
-          <pointsize>12</pointsize>
+          <pointsize>14</pointsize>
          </font>
         </property>
         <property name="text">
@@ -41,7 +41,7 @@
       <item>
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -49,9 +49,27 @@
          </attribute>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
+           <spacer name="verticalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
              <widget class="QLabel" name="label">
+              <property name="font">
+               <font>
+                <pointsize>14</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>ROM path</string>
               </property>
@@ -74,7 +92,25 @@
            </layout>
           </item>
           <item>
+           <spacer name="verticalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
            <widget class="QCheckBox" name="debugCheckBox">
+            <property name="font">
+             <font>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>Debug output</string>
             </property>
@@ -82,6 +118,11 @@
           </item>
           <item>
            <widget class="QCheckBox" name="tempFilesCheckBox">
+            <property name="font">
+             <font>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>Keep temporary files</string>
             </property>
@@ -89,6 +130,11 @@
           </item>
           <item>
            <widget class="QCheckBox" name="warningsCheckBox">
+            <property name="font">
+             <font>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>Enable asar warnings</string>
             </property>
@@ -96,6 +142,11 @@
           </item>
           <item>
            <widget class="QCheckBox" name="d255splCheckBox">
+            <property name="font">
+             <font>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>Disable 255 sprites per level support (won't do the 1938 remap)</string>
             </property>
@@ -103,6 +154,11 @@
           </item>
           <item>
            <widget class="QCheckBox" name="perLevelSpritesCheckBox">
+            <property name="font">
+             <font>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>Enable per-level sprites</string>
             </property>
@@ -110,6 +166,11 @@
           </item>
           <item>
            <widget class="QCheckBox" name="extModCheckBox">
+            <property name="font">
+             <font>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>Disable extmod file logging</string>
             </property>
@@ -117,22 +178,56 @@
           </item>
           <item>
            <widget class="QCheckBox" name="disableExtCheckBox">
+            <property name="font">
+             <font>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>Disable LM auxiliary files (ssc, mwt, mw2, s16)</string>
             </property>
            </widget>
           </item>
           <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
            <layout class="QHBoxLayout" name="horizontalLayout_14">
             <item>
              <widget class="QLabel" name="label_13">
+              <property name="font">
+               <font>
+                <pointsize>14</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>Maximum number of shared routines:</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QSpinBox" name="nroutinesSpinBox">
+              <property name="font">
+               <font>
+                <pointsize>14</pointsize>
+               </font>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
               <property name="maximum">
                <number>310</number>
               </property>
@@ -144,9 +239,27 @@
            </layout>
           </item>
           <item>
+           <spacer name="verticalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
              <widget class="QLabel" name="label_2">
+              <property name="font">
+               <font>
+                <pointsize>14</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>MeiMei Options:</string>
               </property>
@@ -157,33 +270,77 @@
             </item>
             <item>
              <widget class="QCheckBox" name="meimeiDisableCheckBox">
+              <property name="font">
+               <font>
+                <family>Segoe UI</family>
+                <pointsize>14</pointsize>
+               </font>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
               <property name="text">
                <string>Disable MeiMei</string>
               </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="meimeiDebugOutputCheckBox">
-              <property name="text">
-               <string>Debug output</string>
+              <property name="tristate">
+               <bool>false</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QCheckBox" name="meimeiKeepTempCheckBox">
-              <property name="text">
-               <string>Keep temporary files</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="meimeiAlwaysRemapCheckBox">
-              <property name="text">
-               <string>Always remap sprite data</string>
-              </property>
-             </widget>
+             <layout class="QGridLayout" name="gridLayout">
+              <item row="0" column="0">
+               <widget class="QCheckBox" name="meimeiKeepTempCheckBox">
+                <property name="font">
+                 <font>
+                  <pointsize>14</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Keep temporary files</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QCheckBox" name="meimeiDebugOutputCheckBox">
+                <property name="font">
+                 <font>
+                  <pointsize>14</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Debug output</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QCheckBox" name="meimeiAlwaysRemapCheckBox">
+                <property name="font">
+                 <font>
+                  <pointsize>14</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Always remap sprite data</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </widget>
@@ -196,8 +353,13 @@
            <layout class="QHBoxLayout" name="horizontalLayout_4">
             <item>
              <widget class="QLabel" name="label_3">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
               <property name="text">
-               <string>List path</string>
+               <string>List</string>
               </property>
              </widget>
             </item>
@@ -228,8 +390,13 @@
            <layout class="QHBoxLayout" name="horizontalLayout_5">
             <item>
              <widget class="QLabel" name="label_4">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
               <property name="text">
-               <string>Routines directory</string>
+               <string>Routines</string>
               </property>
              </widget>
             </item>
@@ -260,8 +427,13 @@
            <layout class="QHBoxLayout" name="horizontalLayout_19">
             <item>
              <widget class="QLabel" name="label_18">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
               <property name="text">
-               <string>Asm directory</string>
+               <string>Asm</string>
               </property>
              </widget>
             </item>
@@ -292,8 +464,13 @@
            <layout class="QHBoxLayout" name="horizontalLayout_12">
             <item>
              <widget class="QLabel" name="label_11">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
               <property name="text">
-               <string>Sprites directory</string>
+               <string>Sprites</string>
               </property>
              </widget>
             </item>
@@ -324,8 +501,13 @@
            <layout class="QHBoxLayout" name="horizontalLayout_13">
             <item>
              <widget class="QLabel" name="label_12">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
               <property name="text">
-               <string>Generators directory</string>
+               <string>Generators</string>
               </property>
              </widget>
             </item>
@@ -356,8 +538,13 @@
            <layout class="QHBoxLayout" name="horizontalLayout_8">
             <item>
              <widget class="QLabel" name="label_7">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
               <property name="text">
-               <string>Shooters directory</string>
+               <string>Shooters</string>
               </property>
              </widget>
             </item>
@@ -388,8 +575,13 @@
            <layout class="QHBoxLayout" name="horizontalLayout_10">
             <item>
              <widget class="QLabel" name="label_9">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
               <property name="text">
-               <string>Extended directory</string>
+               <string>Extended</string>
               </property>
              </widget>
             </item>
@@ -420,8 +612,13 @@
            <layout class="QHBoxLayout" name="horizontalLayout_9">
             <item>
              <widget class="QLabel" name="label_8">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
               <property name="text">
-               <string>Cluster directory</string>
+               <string>Cluster</string>
               </property>
              </widget>
             </item>
@@ -452,8 +649,13 @@
            <layout class="QHBoxLayout" name="horizontalLayout_11">
             <item>
              <widget class="QLabel" name="label_10">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
               <property name="text">
-               <string>Minor extended directory</string>
+               <string>Minor extended</string>
               </property>
              </widget>
             </item>
@@ -484,8 +686,13 @@
            <layout class="QHBoxLayout" name="horizontalLayout_7">
             <item>
              <widget class="QLabel" name="label_6">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
               <property name="text">
-               <string>Bounce directory</string>
+               <string>Bounce</string>
               </property>
              </widget>
             </item>
@@ -516,8 +723,13 @@
            <layout class="QHBoxLayout" name="horizontalLayout_6">
             <item>
              <widget class="QLabel" name="label_5">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
               <property name="text">
-               <string>Smoke directory</string>
+               <string>Smoke</string>
               </property>
              </widget>
             </item>
@@ -548,8 +760,13 @@
            <layout class="QHBoxLayout" name="horizontalLayout_21">
             <item>
              <widget class="QLabel" name="label_20">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
               <property name="text">
-               <string>Spinning coin directory</string>
+               <string>Spinning coin</string>
               </property>
              </widget>
             </item>
@@ -580,8 +797,13 @@
            <layout class="QHBoxLayout" name="horizontalLayout_20">
             <item>
              <widget class="QLabel" name="label_19">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
               <property name="text">
-               <string>Score directory</string>
+               <string>Score</string>
               </property>
              </widget>
             </item>
@@ -612,8 +834,13 @@
            <layout class="QHBoxLayout" name="horizontalLayout_18">
             <item>
              <widget class="QLabel" name="label_17">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
               <property name="text">
-               <string>SSC path</string>
+               <string>SSC</string>
               </property>
              </widget>
             </item>
@@ -644,8 +871,13 @@
            <layout class="QHBoxLayout" name="horizontalLayout_17">
             <item>
              <widget class="QLabel" name="label_16">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
               <property name="text">
-               <string>MWT path</string>
+               <string>MWT</string>
               </property>
              </widget>
             </item>
@@ -676,8 +908,13 @@
            <layout class="QHBoxLayout" name="horizontalLayout_16">
             <item>
              <widget class="QLabel" name="label_15">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
               <property name="text">
-               <string>MW2 path</string>
+               <string>MW2</string>
               </property>
              </widget>
             </item>
@@ -708,8 +945,13 @@
            <layout class="QHBoxLayout" name="horizontalLayout_15">
             <item>
              <widget class="QLabel" name="label_14">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
               <property name="text">
-               <string>S16 path</string>
+               <string>S16</string>
               </property>
              </widget>
             </item>
@@ -744,6 +986,11 @@
        <layout class="QHBoxLayout" name="horizontalLayout_23">
         <item>
          <widget class="QPushButton" name="dumpCommandLine">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
           <property name="text">
            <string>Dump command line</string>
           </property>
@@ -751,6 +998,11 @@
         </item>
         <item>
          <widget class="QPushButton" name="pixiRunButton">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
           <property name="text">
            <string>Run pixi</string>
           </property>

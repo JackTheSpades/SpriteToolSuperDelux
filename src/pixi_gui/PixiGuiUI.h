@@ -6,6 +6,8 @@
 #include <QLineEdit>
 #include "config.h"
 
+#define LAST_RUN_CFG_PATH ".pixi_gui_ui_last_config.json"
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class PixiGuiUI;
@@ -56,6 +58,8 @@ class PixiGuiUI : public QMainWindow {
 	void connectBooleanOptions();
 	void connectSharedRoutinesCounter();
 	void connectDumpCommandLine();
+	void dumpLastRunToFile();
+	void loadLastRunFromFile();
 	std::vector<std::string> createCommandLine();
 	std::string createCommandLineStr();
 };

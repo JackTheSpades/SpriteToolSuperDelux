@@ -12,6 +12,8 @@
 #include <QMessageBox>
 #include <QClipboard>
 #include <QDesktopServices>
+#include <QJsonObject>
+#include <QJsonDocument>
 #include <filesystem>
 
 #include "pixi_api.h"
@@ -25,6 +27,7 @@ PixiGuiUI::PixiGuiUI(QWidget* parent) : QMainWindow(parent), ui(new Ui::PixiGuiU
 	connectBooleanOptions();
 	connectSharedRoutinesCounter();
 	connectDumpCommandLine();
+	loadLastRunFromFile();
 }
 
 PixiGuiUI::~PixiGuiUI() {
@@ -84,7 +87,7 @@ std::vector<std::string> PixiGuiUI::createCommandLine() {
 	}
 	arguments.push_back("-nr");
 	arguments.push_back(std::to_string(cfg.Routines));
-	while (m_rom_path.isEmpty()) {
+	if (m_rom_path.isEmpty()) {
 		m_rom_path = QFileDialog::getOpenFileName(this, tr("Select ROM..."), "", tr("ROM files(*.smc)"));
 		ui->romPathLine->setText(m_rom_path);
 	}
@@ -97,6 +100,104 @@ std::string PixiGuiUI::createCommandLineStr() {
 	return std::accumulate(arguments.begin(), arguments.end(), std::string{}, [](std::string acc, const std::string& val) {
 		return acc + " " + val;
 	});
+}
+
+void PixiGuiUI::loadLastRunFromFile() {
+	QFile file{LAST_RUN_CFG_PATH};
+	if (file.exists()) {
+		file.open(QFile::Truncate | QFile::ReadOnly);
+		QJsonDocument obj = QJsonDocument::fromJson(file.readAll());
+		cfg.DebugEnabled = obj["d"].toBool();
+		ui->debugCheckBox->setChecked(cfg.DebugEnabled);
+		cfg.KeepFiles = obj["k"].toBool();
+		ui->tempFilesCheckBox->setChecked(cfg.KeepFiles);
+		cfg.PerLevel = obj["pl"].toBool();
+		ui->perLevelSpritesCheckBox->setChecked(cfg.PerLevel);
+		cfg.Disable255Sprites = obj["d255spl"].toBool();
+		ui->d255splCheckBox->setChecked(cfg.Disable255Sprites);
+		cfg.Warnings = obj["w"].toBool();
+		ui->warningsCheckBox->setChecked(cfg.Warnings);
+		cfg.DisableAllExtensionFiles = obj["noext"].toBool();
+		ui->disableExtCheckBox->setChecked(cfg.DisableAllExtensionFiles);
+		cfg.ExtModDisabled = obj["extmod"].toBool();
+		ui->extModCheckBox->setChecked(cfg.ExtModDisabled);
+		cfg.DisableMeiMei = obj["meimei"].toBool();
+		ui->meimeiDisableCheckBox->setChecked(cfg.DisableMeiMei);
+		cfg.Routines = obj["routines"].toInt();
+		ui->nroutinesSpinBox->setValue(cfg.Routines);
+
+		meimeicfg.keep = obj["meimeikeep"].toBool();
+		ui->meimeiKeepTempCheckBox->setChecked(meimeicfg.keep);
+		meimeicfg.remap = obj["meimeiremap"].toBool();
+		ui->meimeiAlwaysRemapCheckBox->setChecked(meimeicfg.remap);
+		meimeicfg.debug = obj["meimeidebug"].toBool();
+		ui->meimeiDebugOutputCheckBox->setChecked(meimeicfg.debug);
+
+		std::array<QLineEdit*, FromEnum(PathType::__SIZE__)> edits{
+			ui->routinesDirLine,
+			ui->spritesDirLine,
+			ui->genDirLine,
+			ui->shootersDirLine,
+			ui->listPathLine,
+			ui->asmDirLine,
+			ui->extendedDirLine,
+			ui->clusterDirLine,
+			ui->minorextDirLine,
+			ui->bounceDirLine,
+			ui->smokeDirLine,
+			ui->spinningDirLine,
+			ui->scoreDirLine
+		};
+		std::array<QLineEdit*, FromEnum(ExtType::__SIZE__)> exts{
+			ui->sscPathLine,
+			ui->mwtPathLine,
+			ui->mw2PathLine,
+			ui->s16PathLine
+		};
+		for (size_t i = 0; i < FromEnum(PathType::__SIZE__); i++) {
+			QString path{obj[m_path_opts[i].data()].toString()};
+			cfg[static_cast<PathType>(i)] = path.toStdString();
+			edits[i]->setText(path);
+		}
+		for (size_t i = 0; i < FromEnum(ExtType::__SIZE__); i++) {
+			QString path{obj[m_ext_opts[i].data()].toString()};
+			cfg[static_cast<ExtType>(i)] = path.toStdString();
+			exts[i]->setText(path);
+		}
+		m_rom_path = obj["rom"].toString();
+		ui->romPathLine->setText(m_rom_path);
+	}
+}
+
+void PixiGuiUI::dumpLastRunToFile() {
+	QFile file{LAST_RUN_CFG_PATH};
+	file.open(QFile::Truncate | QFile::WriteOnly);
+	QJsonObject obj{};
+
+	obj["d"] = cfg.DebugEnabled;
+	obj["k"] = cfg.KeepFiles;
+	obj["pl"] = cfg.PerLevel;
+	obj["d255spl"] = cfg.Disable255Sprites;
+	obj["w"] = cfg.Warnings;
+	obj["noext"] = cfg.DisableAllExtensionFiles;
+	obj["extmod"] = cfg.ExtModDisabled;
+	obj["meimei"] = cfg.DisableMeiMei;
+	obj["routines"] = cfg.Routines;
+
+	obj["meimeikeep"] = meimeicfg.keep;
+	obj["meimeiremap"] = meimeicfg.remap;
+	obj["meimeidebug"] = meimeicfg.debug;
+
+	for (size_t i = 0; i < FromEnum(PathType::__SIZE__); i++) {
+		obj[m_path_opts[i].data()] = QString::fromStdString(cfg[static_cast<PathType>(i)]);
+	}
+	for (size_t i = 0; i < FromEnum(ExtType::__SIZE__); i++) {
+		obj[m_ext_opts[i].data()] = QString::fromStdString(cfg[static_cast<ExtType>(i)]);
+	}
+
+	obj["rom"] = m_rom_path;
+	QJsonDocument document{obj};
+	file.write(document.toJson());
 }
 
 void PixiGuiUI::connectDumpCommandLine() {
@@ -118,6 +219,7 @@ void PixiGuiUI::connectDumpCommandLine() {
 			QMessageBox::warning(this, "Pixi exited with error: ", QString{pixi_last_error(&size)});
 		} else {
 			QMessageBox::information(this, "Pixi finished successfully", QString::number(ret));
+			dumpLastRunToFile();
 		}
 		delete[] argv;
 	});
