@@ -74,6 +74,12 @@ patchfile::~patchfile() {
     }
 }
 
+void patchfile::clear() {
+    m_data_stream.str("");
+    m_data.clear();
+    m_vfile.reset(new memoryfile);
+}
+
 bool ROM::open(const char* n) {
     size_t len = libconsole::bytelen(n) + 1;
     name.resize(len);
@@ -275,4 +281,44 @@ void sprite::print() {
             io.debug("%s", coll.str().c_str());
         }
     }
+}
+
+void sprite::clear() {
+    if (asm_file)
+        delete[] asm_file;
+    if (cfg_file)
+        delete[] cfg_file;
+    line = 0;
+    number = 0;
+    level = 0x200;
+	
+    table.type = 0;
+    table.actlike = 0;
+    memset(table.tweak, 0, sizeof(table.tweak));
+    table.init = {};
+    table.main = {};
+    memset(table.extra, 0, sizeof(table.extra));
+	
+	ptrs.carriable = {};
+    ptrs.carried = {};
+    ptrs.goal = {};
+    ptrs.kicked = {};
+    ptrs.mouth = {};
+    
+    extended_cape_ptr = {};
+    byte_count = 0;
+    extra_byte_count = 0;
+
+    directory = nullptr;
+    asm_file = nullptr;
+    cfg_file = nullptr;
+
+    map_data.clear();
+
+    disp_type = display_type::XYPosition;
+    displays.clear();
+
+    collections.clear();
+
+    sprite_type = ListType::Sprite;
 }

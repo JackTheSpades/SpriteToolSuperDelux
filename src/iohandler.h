@@ -28,6 +28,7 @@ class iohandler {
     }
 
   public:
+    static void init();
     static iohandler& get_global();
     iohandler();
     const auto& last_error() const {

@@ -848,10 +848,15 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                     io.error("Error on list line %d: Level must range from 000-1FF\n", lineno);
                     return false;
                 }
-                if (sprite_id >= 0xB0 && sprite_id < 0xC0) {
-                    io.error("Error on list line %d: Only sprite B0-BF must be assigned a level.\n", lineno);
+                if (cfg.PerLevel && level != 0x200 && (sprite_id < 0xB0 || sprite_id >= 0xC0)) {
+                    io.error("Error on list line %d: Per-level sprite valid range is B0-BF, was given %X instead\n",
+                             lineno, sprite_id);
                     return false;
                 }
+                io.error("Error on list line %d: Sprite was invalid, couldn't determine the specific reason, please "
+                         "report this at " GITHUB_ISSUE_LINK,
+                         lineno);
+                return false;
             }
         } else {
             size_t max_size = sprite_sizes[static_cast<size_t>(FromEnum(type)) - 1].second;
@@ -983,6 +988,22 @@ void remove(std::string_view dir, const char* file) {
 #define PIXI_EXPORT extern "C"
 #endif
 
+void pixi_reset() {
+    memset(PLS_LEVEL_PTRS, 0, sizeof(PLS_LEVEL_PTRS));
+    memset(PLS_SPRITE_PTRS, 0, sizeof(PLS_SPRITE_PTRS));
+    PLS_SPRITE_PTRS_ADDR = 0;
+    memset(PLS_DATA, 0, sizeof(PLS_DATA));
+    memset(PLS_POINTERS, 0, sizeof(PLS_POINTERS));
+    PLS_DATA_ADDR = 0;
+    warnings.clear();
+    io.init();
+    g_memory_files.clear();
+    g_shared_patch.clear();
+    g_config_defines.clear();
+    patchfile::set_keep(false, false);
+    cfg.reset();
+}
+
 PIXI_EXPORT int pixi_api_version() {
     return VERSION_FULL;
 }
@@ -992,6 +1013,9 @@ PIXI_EXPORT int pixi_check_api_version(int version_edition, int version_major, i
 }
 
 PIXI_EXPORT int pixi_run(int argc, const char** argv) {
+#ifndef PIXI_EXE_BUILD
+    pixi_reset();
+#endif
     ROM rom;
     // individual lists containing the sprites for the specific sections
     static sprite sprite_list[MAX_SPRITE_COUNT];
@@ -1002,6 +1026,33 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv) {
     static sprite smoke_list[LESS_SPRITE_COUNT];
     static sprite spinningcoin_list[MINOR_SPRITE_COUNT];
     static sprite score_list[MINOR_SPRITE_COUNT];
+
+#ifndef PIXI_EXE_BUILD
+    for (auto& spr : sprite_list) {
+        spr.clear();
+    }
+    for (auto& spr : cluster_list) {
+        spr.clear();
+    }
+    for (auto& spr : extended_list) {
+        spr.clear();
+    }
+    for (auto& spr : minor_extended_list) {
+        spr.clear();
+    }
+    for (auto& spr : bounce_list) {
+        spr.clear();
+    }
+    for (auto& spr : smoke_list) {
+        spr.clear();
+    }
+    for (auto& spr : spinningcoin_list) {
+        spr.clear();
+    }
+    for (auto& spr : score_list) {
+        spr.clear();
+    }
+#endif
 
     // the list containing the lists...
     std::array<sprite*, FromEnum(ListType::__SIZE__)> sprites_list_list{

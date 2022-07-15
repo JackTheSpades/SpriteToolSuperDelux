@@ -78,14 +78,51 @@ namespace fs = std::filesystem;
 
 TEST(PixiUnitTests, PixiFullRun) {
     std::string_view list_contents{"00 test.json\n01 test.cfg"};
+    fs::copy_file("base.smc", "PixiFullRun.smc", fs::copy_options::overwrite_existing);
     fs::copy_file("test.json", "sprites/test.json", fs::copy_options::overwrite_existing);
     fs::copy_file("test.asm", "sprites/test.asm", fs::copy_options::overwrite_existing);
     fs::copy_file("test.cfg", "sprites/test.cfg", fs::copy_options::overwrite_existing);
     {
-        std::ofstream list_file{"list.txt"};
+        std::ofstream list_file{"list.txt", std::ios::trunc};
         list_file << list_contents;
     }
     std::string pixi_exe = (fs::current_path() / "pixi.exe").generic_string();
-    const char* argv[] = {pixi_exe.c_str(), "-d", "base.smc"};
+    const char* argv[] = {pixi_exe.c_str(), "PixiFullRun.smc"};
     ASSERT_EQ(pixi_run(sizeof(argv) / sizeof(argv[0]), argv), EXIT_SUCCESS);
+}
+
+TEST(PixiUniTests, PixiFullRunPerLevel) {
+    std::string_view list_contents{"BA test.json\n012:BA test.cfg"};
+    fs::copy_file("base.smc", "PixiFullRunPerLevel.smc", fs::copy_options::overwrite_existing);
+    fs::copy_file("test.json", "sprites/test.json", fs::copy_options::overwrite_existing);
+    fs::copy_file("test.asm", "sprites/test.asm", fs::copy_options::overwrite_existing);
+    fs::copy_file("test.cfg", "sprites/test.cfg", fs::copy_options::overwrite_existing);
+    {
+        std::ofstream list_file{"list.txt", std::ios::trunc};
+        list_file << list_contents;
+    }
+    std::string pixi_exe = (fs::current_path() / "pixi.exe").generic_string();
+    const char* argv[] = {pixi_exe.c_str(), "-pl", "PixiFullRunPerLevel.smc"};
+    ASSERT_EQ(pixi_run(sizeof(argv) / sizeof(argv[0]), argv), EXIT_SUCCESS);
+}
+
+TEST(PixiUniTests, PixiFullRunPerLevelFail) {
+    std::string_view list_contents{"BA test.json\nBA:012 test.json"};
+    fs::copy_file("base.smc", "PixiFullRunPerLevelFail.smc", fs::copy_options::overwrite_existing);
+    fs::copy_file("test.json", "sprites/test.json", fs::copy_options::overwrite_existing);
+    fs::copy_file("test.asm", "sprites/test.asm", fs::copy_options::overwrite_existing);
+    fs::copy_file("test.cfg", "sprites/test.cfg", fs::copy_options::overwrite_existing);
+    {
+        std::ofstream list_file{"list.txt", std::ios::trunc};
+        list_file << list_contents;
+    }
+    std::string pixi_exe = (fs::current_path() / "pixi.exe").generic_string();
+    const char* argv[] = {pixi_exe.c_str(), "-pl", "PixiFullRunPerLevelFail.smc"};
+    ASSERT_EQ(pixi_run(sizeof(argv) / sizeof(argv[0]), argv), EXIT_FAILURE);
+    int size = 0;
+    constexpr std::string_view expected_error{
+        "Error on list line 2: Per-level sprite valid range is B0-BF, was given 12 instead\n"};
+    pixi_string error = pixi_last_error(&size);
+    ASSERT_EQ(size, expected_error.size());
+    ASSERT_STREQ(error, expected_error.data());
 }

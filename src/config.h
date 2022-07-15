@@ -1,9 +1,9 @@
 #pragma once
+#include "libconsole/libconsole.h"
 #include <algorithm>
 #include <array>
 #include <cstdio>
 #include <string>
-#include "libconsole/libconsole.h"
 
 constexpr int DEFAULT_ROUTINES = 100;
 #define MAX_ROUTINES 310
@@ -43,26 +43,52 @@ template <typename T> constexpr auto ToEnum(std::underlying_type_t<T> val) {
 
 using strref = std::reference_wrapper<std::string>;
 
-class Paths {
-    static constexpr size_t ArrSize = FromEnum(PathType::__SIZE__);
-    std::string list{"list.txt"};
-    std::string pasm{"asm/"};
-    std::string sprites{"sprites/"};
-    std::string shooters{"shooters/"};
-    std::string generators{"generators/"};
-    std::string extended{"extended/"};
-    std::string cluster{"cluster/"};
-    std::string minorextended{"misc_sprites/minorextended/"};
-    std::string bounce{"misc_sprites/bounce/"};
-    std::string smoke{"misc_sprites/smoke/"};
-    std::string spinningcoin{"misc_sprites/spinningcoin/"};
-    std::string score{"misc_sprites/score/"};
-    std::string routines{"routines/"};
+using namespace std::string_view_literals;
+struct DefaultPaths {
 
-    std::array<strref, ArrSize> paths{strref{routines},      strref{sprites}, strref{generators}, strref{shooters},
-                                      strref{list},          strref{pasm},    strref{extended},   strref{cluster},
-                                      strref{minorextended}, strref{bounce},  strref{smoke},      strref{spinningcoin},
-                                      strref{score}};
+    static constexpr size_t ArrSize = FromEnum(PathType::__SIZE__);
+    constexpr static auto list = "list.txt"sv;
+    constexpr static auto pasm = "asm/"sv;
+    constexpr static auto sprites = "sprites/"sv;
+    constexpr static auto shooters = "shooters/"sv;
+    constexpr static auto generators = "generators/"sv;
+    constexpr static auto extended = "extended/"sv;
+    constexpr static auto cluster = "cluster/"sv;
+    constexpr static auto minorextended = "misc_sprites/minorextended/"sv;
+    constexpr static auto bounce = "misc_sprites/bounce/"sv;
+    constexpr static auto smoke = "misc_sprites/smoke/"sv;
+    constexpr static auto spinningcoin = "misc_sprites/spinningcoin/"sv;
+    constexpr static auto score = "misc_sprites/score/"sv;
+    constexpr static auto routines = "routines/"sv;
+
+    constexpr static std::array<std::string_view, ArrSize> paths{
+        routines, sprites,       generators, shooters, list,         pasm, extended,
+        cluster,  minorextended, bounce,     smoke,    spinningcoin, score};
+
+    constexpr static auto get(PathType index) {
+        return paths[FromEnum(index)];
+    }
+};
+
+class Paths {
+    std::string list{DefaultPaths::list};
+    std::string pasm{DefaultPaths::pasm};
+    std::string sprites{DefaultPaths::sprites};
+    std::string shooters{DefaultPaths::shooters};
+    std::string generators{DefaultPaths::generators};
+    std::string extended{DefaultPaths::extended};
+    std::string cluster{DefaultPaths::cluster};
+    std::string minorextended{DefaultPaths::minorextended};
+    std::string bounce{DefaultPaths::bounce};
+    std::string smoke{DefaultPaths::smoke};
+    std::string spinningcoin{DefaultPaths::spinningcoin};
+    std::string score{DefaultPaths::score};
+    std::string routines{DefaultPaths::routines};
+
+    std::array<strref, DefaultPaths::ArrSize> paths{
+        strref{routines}, strref{sprites},      strref{generators}, strref{shooters},      strref{list},
+        strref{pasm},     strref{extended},     strref{cluster},    strref{minorextended}, strref{bounce},
+        strref{smoke},    strref{spinningcoin}, strref{score}};
 
   public:
     inline constexpr std::string& operator[](PathType index) noexcept {
@@ -104,7 +130,25 @@ class PixiConfig {
 
   public:
     PixiConfig() = default;
-
+    void reset() {
+        DebugEnabled = false;
+        KeepFiles = false;
+        PerLevel = false;
+        Disable255Sprites = false;
+        Warnings = false;
+        ExtModDisabled = false;
+        DisableMeiMei = false;
+        DisableAllExtensionFiles = false;
+        Routines = DEFAULT_ROUTINES;
+        AsmDir = "";
+        AsmDirPath = "";
+        for (size_t i = 0; i < FromEnum(PathType::__SIZE__); i++) {
+            m_Paths[static_cast<PathType>(i)] = DefaultPaths::get(static_cast<PathType>(i));
+        }
+        for (size_t i = 0; i < FromEnum(ExtType::__SIZE__); i++) {
+            m_Extensions[static_cast<ExtType>(i)] = "";
+        }
+    }
     std::string& operator[](PathType pt) {
         return m_Paths[pt];
     }

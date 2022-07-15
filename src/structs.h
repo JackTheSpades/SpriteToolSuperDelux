@@ -74,6 +74,7 @@ class patchfile {
     void fwrite(const char* bindata, size_t size);
     void fwrite(const unsigned char* bindata, size_t size);
     void close();
+    void clear();
     ~patchfile();
 };
 
@@ -193,6 +194,7 @@ struct sprite {
 
     ListType sprite_type = ListType::Sprite;
     bool has_empty_table() const;
+    void clear();
     ~sprite();
     void print();
 };
