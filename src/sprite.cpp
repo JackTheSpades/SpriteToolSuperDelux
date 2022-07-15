@@ -1144,9 +1144,9 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv) {
         return EXIT_FAILURE;
     if (argc < 2) {
         atexit(double_click_exit);
-    }
+	}
     if (cfg.DebugEnabled) {
-        io.set_debug(io.get_out());
+        io.enable_debug();
     }
     if (cfg.Routines > MAX_ROUTINES) {
         io.error("The number of possible routines (%d) is higher than the maximum number possible, please lower it. "
