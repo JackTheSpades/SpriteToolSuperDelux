@@ -33,6 +33,7 @@ typedef const struct status_pointers* pixi_status_pointers_t;
 typedef const struct sprite_table* pixi_sprite_table_t;
 typedef const struct sprite* pixi_sprite_t;
 typedef const char* pixi_string;
+typedef const char* const* pixi_string_array;
 typedef const unsigned char* pixi_byte_array;
 typedef const pixi_map16_t* pixi_map16_array;
 typedef const pixi_display_t* pixi_display_array;
@@ -135,6 +136,9 @@ PIXI_EXPORT pixi_byte_array pixi_sprite_table_extra(pixi_sprite_table_t, int* si
 
 // Error information
 PIXI_EXPORT pixi_string pixi_last_error(int* size);
+
+// Output information
+PIXI_EXPORT pixi_string_array pixi_output(int* size);
 
 #ifdef __cplusplus
 }

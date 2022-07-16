@@ -27,6 +27,7 @@ typedef const struct status_pointers* pixi_status_pointers_t;
 typedef const struct sprite_table* pixi_sprite_table_t;
 typedef const struct sprite* pixi_sprite_t;
 typedef const char* pixi_string;
+typedef const char* const* pixi_string_array;
 typedef const unsigned char* pixi_byte_array;
 typedef const pixi_map16_t* pixi_map16_array;
 typedef const pixi_display_t* pixi_display_array;
@@ -255,9 +256,14 @@ PIXI_EXPORT pixi_byte_array pixi_sprite_table_extra(pixi_sprite_table_t pixi_spr
     return pixi_sprite_table_ptr->extra;
 }
 PIXI_EXPORT pixi_string pixi_last_error(int* size) {
-    const auto& history = iohandler::get_global().last_error();
-	*size = static_cast<int>(history.size());
-	return history.c_str();
+    const auto& last_error = iohandler::get_global().last_error();
+    *size = static_cast<int>(last_error.size());
+    return last_error.c_str();
+}
+PIXI_EXPORT pixi_string_array pixi_output(int* size) {
+    const auto& history = iohandler::get_global().output_lines();
+    *size = static_cast<int>(history.size());
+    return history.data();
 }
 #ifdef __cplusplus
 }

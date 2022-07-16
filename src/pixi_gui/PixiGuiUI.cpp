@@ -15,9 +15,6 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <filesystem>
-#ifdef _WIN32
-#include <Windows.h>
-#endif
 
 #include "pixi_api.h"
 #include "structs.h"
@@ -31,9 +28,6 @@ PixiGuiUI::PixiGuiUI(QWidget* parent) : QMainWindow(parent), ui(new Ui::PixiGuiU
 	connectSharedRoutinesCounter();
 	connectDumpCommandLine();
 	loadLastRunFromFile();
-#ifdef _WIN32
-	AllocConsole();
-#endif
 }
 
 PixiGuiUI::~PixiGuiUI() {
@@ -224,7 +218,12 @@ void PixiGuiUI::connectDumpCommandLine() {
 		if (ret == EXIT_FAILURE) {
 			QMessageBox::warning(this, "Pixi exited with error: ", QString{pixi_last_error(&size)});
 		} else {
-			QMessageBox::information(this, "Pixi finished successfully", "All sprites applied successfully");
+			QString output{};
+			pixi_string_array output_lines = pixi_output(&size);
+			for (int i = 0; i < size; i++) {
+				output.append(output_lines[i]);
+			}
+			QMessageBox::information(this, "Pixi finished successfully", output);
 			dumpLastRunToFile();
 		}
 		delete[] argv;
