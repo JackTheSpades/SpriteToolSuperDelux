@@ -12,7 +12,6 @@ add_executable(PixiGui
 )
 
 cmake_path(GET CMAKE_CURRENT_SOURCE_DIR PARENT_PATH PIXI_INCLUDE_DIR)
-message(STATUS "JSON SOURCE DIR: ${json_SOURCE_DIR}")
 target_include_directories(PixiGui PRIVATE ${PIXI_INCLUDE_DIR} ${json_SOURCE_DIR}/single_include)
 target_link_libraries(PixiGui PRIVATE Qt6::Widgets pixi_api_static)
 
