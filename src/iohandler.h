@@ -17,10 +17,25 @@ class iohandler {
     bool m_replaced[2]{};
     bool m_debug_enabled{};
     std::string m_last_error;
+    std::vector<const char*> m_output_lines;
 
     void set(iotype tp, FILE* newhandle);
 
+    template <typename... Args> void append_to_output(const char* format, Args... args) {
+        int needed = snprintf(nullptr, 0, format, args...);
+        char* buffer = new char[needed + 1];
+        snprintf(buffer, needed + 1, format, args...);
+        m_output_lines.push_back(buffer);
+    }
+
+    void append_to_output(const char* message) {
+        char* buffer = new char[strlen(message) + 1];
+        strcpy(buffer, message);
+        m_output_lines.push_back(buffer);
+    }
+
     template <typename... Args> void print_generic(iotype tp, const char* message, Args... args) {
+        append_to_output(message, args...);
         if (m_replaced[tp]) {
             con::cfprintf(m_handles[tp], message, args...);
         } else {
@@ -34,6 +49,9 @@ class iohandler {
     iohandler();
     const auto& last_error() const {
         return m_last_error;
+    }
+    const auto& output_lines() const {
+        return m_output_lines;
     }
     FILE* get_out() {
         return m_handles[out];

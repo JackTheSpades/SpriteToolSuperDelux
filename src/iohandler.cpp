@@ -16,7 +16,12 @@ void iohandler::init() {
     handler.m_replaced[iotype::in] = false;
     handler.m_replaced[iotype::out] = false;
 
-    handler.m_debug_enabled = false;
+	handler.m_debug_enabled = false;
+
+	for (const auto* ptr : handler.m_output_lines) {
+        delete[] ptr;
+    }
+    handler.m_output_lines.clear();
 }
 
 iohandler& iohandler::get_global() {
@@ -34,6 +39,9 @@ iohandler::~iohandler() {
     for (size_t i = 0; i < sizeof(m_handles) / sizeof(m_handles[0]); i++) {
         if (m_replaced[i])
             fclose(m_handles[i]);
+    }
+    for (const auto* ptr : m_output_lines) {
+        delete[] ptr;
     }
 }
 
