@@ -105,12 +105,6 @@ jobs:
         with:
           name: pixi_${{matrix.os}}
           path: ${{github.workspace}}/build_artifact
-      
-      - name: Echo artifact path
-        run: |
-          echo ${{steps.download.outputs.download-path}}
-          cd ${{steps.download.outputs.download-path}}
-          ls -r .
 
       - name: Setup python
         uses: actions/setup-python@v3
@@ -143,7 +137,6 @@ jobs:
         working-directory: ${{github.workspace}}/test
         shell: pwsh
         run: |
-          choco upgrade mingw
           Set-Alias py python
           ./pixi_test.ps1 ${{steps.branch-name.outputs.current_branch}} remote
         env:
@@ -154,6 +147,6 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: test-result-${{matrix.os}}
-          path: ${{github.workspace}}/test/results.zip
+          path: ${{github.workspace}}/test/result.json
 
 

@@ -5,7 +5,7 @@ from contextlib import suppress
 import json
 from urllib import parse
 import glob
-from zipfile import ZipFile
+import zipfile
 from shutil import copyfile, rmtree, copytree
 import subprocess
 import re
@@ -75,7 +75,7 @@ def create_list_files():
         # if not using cached, extract zips, do nothing otherwise.
         if sys.argv[1] == "false":
             for zname in zipfiles:
-                with ZipFile(zname) as z:
+                with zipfile.ZipFile(zname) as z:
                     try:
                         z.extractall(zname.rstrip('.zip'))
                     except Exception as e:
@@ -129,19 +129,9 @@ def exec_pixi(*, pixi_executable, current_rom, listname):
 
 
 def test_normal_sprites():
-    differences = {}
-    which_to_exec = {
-        'result_current.json': [executable_name('./pixi_current'), 'work_current.smc'],
-        'result_latest.json': [executable_name('./pixi_latest'), 'work_latest.smc']
-    }
-    errors = {
-        'result_current.json': {},
-        'result_latest.json':{}        
-    }
-    successes = {
-        'result_current.json': {},
-        'result_latest.json':{}        
-    }
+    execlist = [executable_name('./pixi'), 'work.smc']
+    successes = {}
+    errors = {}
     base = 'standard'
     folders = [folder.rstrip(os.sep) for folder in glob.glob(base + '/*/')]
     copyfile('pixi/sprites/_header.asm', '_header.asm')
@@ -160,40 +150,26 @@ def test_normal_sprites():
                     copyfile(file, 'pixi/routines/' + os.path.basename(file))
         copyfile('_header.asm', 'pixi/sprites/_header.asm')
         os.remove('pixi/sprites/list' + folder.split(os.sep)[-1] + '.txt')
-        copyfile('pixi/base_current.smc', 'pixi/work_current.smc')
-        copyfile('pixi/base_latest.smc', 'pixi/work_latest.smc')
+        copyfile('pixi/base.smc', 'pixi/work.smc')
         wrkdir = os.getcwd()
         os.chdir('pixi')
         print(f'Testing sprite {i+1} out of {len(folders)}')
         sprite_folder_id = int(folder.split(os.sep)[-1])
-        for out_file, names in which_to_exec.items():
-            pixi_exe, rom_name = names
-            good, stdout = exec_pixi(pixi_executable=pixi_exe, current_rom=rom_name, listname=listname)
-            try:
-                stdout_str = stdout.decode('utf-8')
-                if good:
-                    successes[out_file][sprite_folder_id] = stdout_str
-                else:
-                    errors[out_file][sprite_folder_id] = stdout_str
-            except UnicodeEncodeError:
-                errors[out_file][sprite_folder_id] = 'BOM signature failure'
-        if good:
-            with open('work_current.smc', 'rb') as a, open('work_latest.smc', 'rb') as b:
-                bytes_current = a.read()
-                bytes_latest = b.read()
-            if len(bytes_current) != len(bytes_latest):
-                differences[sprite_folder_id] = 'Different rom length'
+        pixi_exe, rom_name = execlist
+        good, stdout = exec_pixi(pixi_executable=pixi_exe, current_rom=rom_name, listname=listname)
+        try:
+            stdout_str = stdout.decode('utf-8')
+            if good:
+                successes[sprite_folder_id] = stdout_str
             else:
-                checks = [bytes_latest[i] == bytes_current[i] for i in range(len(bytes_latest))]
-                if not all(checks):
-                    differences[sprite_folder_id] = 'Different bytes'
-                else:
-                    differences[sprite_folder_id] = 'No differences, all good'
+                errors[sprite_folder_id] = stdout_str
+        except UnicodeEncodeError:
+            errors[sprite_folder_id] = 'BOM signature failure'
         os.chdir(wrkdir)
         os.remove('pixi/' + listname)
     rmtree('routines')
     os.remove('_header.asm')
-    return successes, errors, differences
+    return successes, errors
 
 try:
     if sys.argv[1] == "false":
@@ -202,15 +178,12 @@ try:
     else:
         print("Using cached sprites")
     create_list_files()
-    success, error, diff = test_normal_sprites()
+    success, error = test_normal_sprites()
     print("Finished testing all sprites")
-    for filename in ['result_current.json', 'result_latest.json']:
-        with open(filename, 'w') as f:
-            f.write(json.dumps({'success': success[filename], 'error': error[filename]}, indent=4))
+    filename = 'result.json'
+    with open(filename, 'w') as f:
+        f.write(json.dumps({'success': success, 'error': error}, indent=4))
     print("Written results to file")
-    with open('differences.json', 'w') as f:
-        f.write(json.dumps(diff, indent=4))
-    print("Written differences to file")
 except Exception as e:
     with open('error_downloader.txt', 'w') as f:
         traceback.print_exception(type(e), e, e.__traceback__, file=f)

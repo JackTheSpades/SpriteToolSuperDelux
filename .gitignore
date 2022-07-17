@@ -33,7 +33,7 @@ pixi.aps
 test/*
 !test/check_diff.py
 !test/zip_pixi_rasp.py
-!test/downloader.py
+!test/runner.py
 !test/pixi_test.sh
 !test/pixi_test.ps1
 src/pixi.rc
