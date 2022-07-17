@@ -16,9 +16,9 @@ void iohandler::init() {
     handler.m_replaced[iotype::in] = false;
     handler.m_replaced[iotype::out] = false;
 
-	handler.m_debug_enabled = false;
+    handler.m_debug_enabled = false;
 
-	for (const auto* ptr : handler.m_output_lines) {
+    for (const auto* ptr : handler.m_output_lines) {
         delete[] ptr;
     }
     handler.m_output_lines.clear();
