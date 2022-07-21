@@ -36,6 +36,7 @@ template <> struct picker<false> { using t = placeholder_enum; };
 } // namespace
 
 class patchfile {
+    std::string m_fs_path{};
     std::string m_path{};
     std::stringstream m_data_stream{};
     std::string m_data{};

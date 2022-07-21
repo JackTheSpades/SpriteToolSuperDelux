@@ -15,13 +15,16 @@ bool patchfile::s_meimei_keep = false;
 bool patchfile::s_pixi_keep = false;
 
 patchfile::patchfile(const std::string& path, patchfile::openflags mode, bool from_mei_mei)
-    : m_path{path}, m_data_stream{static_cast<std::ios::openmode>(mode)}, m_from_meimei{from_mei_mei} {
+    : m_fs_path{path}, m_data_stream{static_cast<std::ios::openmode>(mode)}, m_from_meimei{from_mei_mei} {
     m_vfile = std::make_unique<memoryfile>();
     m_binary = (static_cast<std::ios::openmode>(mode) & std::ios::binary) != 0;
+    std::transform(path.begin(), path.end(), std::back_inserter(m_path),
+                   [](char c) { return static_cast<char>(std::tolower(c)); });
 }
 
 patchfile::patchfile(patchfile&& other) noexcept
-    : m_path{std::move(other.m_path)}, m_data_stream{std::move(other.m_data_stream)}, m_data{std::move(other.m_data)},
+    : m_fs_path{std::move(other.m_fs_path)}, m_path{std::move(other.m_path)},
+      m_data_stream{std::move(other.m_data_stream)}, m_data{std::move(other.m_data)},
       m_from_meimei{other.m_from_meimei}, m_binary{other.m_binary} {
     m_vfile = std::move(other.m_vfile);
     m_vfile->buffer = m_data.c_str();
@@ -67,7 +70,7 @@ patchfile::~patchfile() {
     if (m_path.empty())
         return;
     if ((m_from_meimei && s_meimei_keep) || (!m_from_meimei && s_pixi_keep)) {
-        FILE* fp = open(m_path.c_str(), m_binary ? "wb" : "w");
+        FILE* fp = open(m_fs_path.c_str(), m_binary ? "wb" : "w");
         if (fp == nullptr)
             return;
         ::fwrite(m_vfile->buffer, sizeof(char), m_vfile->length, fp);
