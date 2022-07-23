@@ -26,7 +26,6 @@ enum placeholder_enum {
 
 };
 
-
 template <bool T> struct picker {};
 
 template <> struct picker<true> { using t = std::ios::openmode; };
@@ -115,7 +114,17 @@ struct tile {
 };
 
 struct gfx_info {
-    int gfx_files[4] = {0x7F, 0x7F, 0x7F, 0x7F};
+    struct {
+        uint32_t gfx_num = 0x7F;
+        bool sep = false;
+
+		uint32_t value() const {
+            return sep ? gfx_num | 0x8000 : gfx_num;
+        }
+    } gfx_files[4] = {};
+    bool has_value() const {
+        return std::any_of(std::begin(gfx_files), std::end(gfx_files), [](const auto& gfx) { return gfx.gfx_num != 0x7F; });
+    }
 };
 
 enum class display_type { XYPosition, ExtensionByte };
@@ -126,7 +135,7 @@ struct display {
     bool extra_bit = false;
     int x_or_index = 0;
     int y_or_value = 0;
-    std::vector<gfx_info> gfx_files{};
+    gfx_info gfx_files{};
 };
 
 struct collection {

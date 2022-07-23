@@ -344,9 +344,9 @@ namespace CFG
             //create binding source for later databinding.
             displaySpriteBindingSource.DataSource = Data;
             displaySpriteBindingSource.DataMember = nameof(CfgFile.DisplayEntries);
-
-            gfxInfoBindingSource.DataSource = Data;
-            gfxInfoBindingSource.DataMember = nameof(CfgFile.GFXInfos);
+            
+            gfxInfoBindingSource.DataSource = Data.DisplayEntries;
+            gfxInfoBindingSource.DataMember = nameof(DisplaySprite.GFXInfo);
 
             dgvDisplay.AutoGenerateColumns = false;
             dgvDisplay.Columns.Clear();
@@ -380,8 +380,6 @@ namespace CFG
             BindToSourceDisplay(chbUseText, displaySpriteBindingSource, ctrl => ctrl.Checked, ds => ds.UseText);
             ConnectViewAndButtons(displaySpriteBindingSource, dgvDisplay, btnDisplayNew, btnDisplayClone, btnDisplayDelete);
             displaySpriteBindingSource.CurrentChanged += DisplaySourceCurrentChanged;
-
-            ConnectViewAndButtons(gfxInfoBindingSource, dgvGFXInfo, btnGFXNew, btnGFXClone, btnGFXRemove);
             dgvGFXInfo.CellFormatting += DgvGFXInfo_CellFormatting;
 
             map16Editor1.Initialize(map16data, resources);
@@ -499,7 +497,7 @@ namespace CFG
         private void DgvGFXInfo_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             var dgv = sender as DataGridView;
-            if (e.ColumnIndex != 0 && e.Value != null)
+            if ((e.ColumnIndex & 1) == 0 && e.Value != null)
             {
                 string v = e.Value.ToString();
                 if (v.StartsWith("0x") || v.StartsWith("0X"))
@@ -542,7 +540,7 @@ namespace CFG
 
         private void AddNewRowToDataSource(BindingSource source)
         {
-            if (source.DataMember == nameof(CfgFile.CollectionEntries) || source.DataMember == nameof(CfgFile.GFXInfos))
+            if (source.DataMember == nameof(CfgFile.CollectionEntries))
             {
                 source.AddNew();
             }
@@ -551,6 +549,7 @@ namespace CFG
                 Data.DisplayEntries.Add(new DisplaySprite());
                 if (Data.DispType == Json.DisplayType.ExtraByte)
                     Data.DisplayEntries.Last().X_or_index = (int)extraByteIndexUpDown.Value;
+                gfxInfoBindingSource.Add(Data.DisplayEntries.Last().GFXInfo);
             }
         }
 
@@ -562,8 +561,19 @@ namespace CFG
             source.AllowNew = true;
             //events to control the button/view behaviour for new/clone/delete
             btnNew.Click += (_, __) => AddNewRowToDataSource(source);
-            btnClone.Click += (_, __) => source.Add(((ICloneable)source.Current).Clone());
-            btnRemove.Click += (_, __) => source.RemoveCurrent();
+            btnClone.Click += (_, __) => { 
+                source.Add(((ICloneable)source.Current).Clone());
+                if (source.DataMember == nameof(CfgFile.DisplayEntries))
+                {
+                    gfxInfoBindingSource.Add(Data.DisplayEntries.Last().GFXInfo);
+                }
+            };
+            btnRemove.Click += (_, __) => {
+                if (source.DataMember == nameof(CfgFile.DisplayEntries)) {
+                    gfxInfoBindingSource.Remove(((DisplaySprite)source.Current).GFXInfo);
+                }
+                source.RemoveCurrent(); 
+            };
 
 
             dgv.RowsAdded += (_, __) =>
@@ -799,6 +809,11 @@ namespace CFG
 
             if (Data.DisplayEntries.Count == 0)
                 Data.DisplayEntries.Add(Map16.DisplaySprite.Default);
+            gfxInfoBindingSource.Clear();
+            foreach (var disp in Data.DisplayEntries)
+            {
+                gfxInfoBindingSource.Add(disp.GFXInfo);
+            }
             if (Data.CollectionEntries.Count == 0)
                 Data.CollectionEntries.Add(new CollectionSprite() { Name = Converter.FixName(System.IO.Path.GetFileNameWithoutExtension(path)) });
 

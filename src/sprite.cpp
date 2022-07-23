@@ -1505,12 +1505,12 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv) {
                             fprintf(ssc, "%02X %04X %s\n", i, ref, spr->asm_file);
                     }
 
-                    if (!d.gfx_files.empty()) {
-                        fprintf(ssc, "%02X 8 ", i);
-                        for (const auto& gfx : d.gfx_files) {
-                            fprintf(ssc, "%X,%X,%X,%X ", gfx.gfx_files[0], gfx.gfx_files[1], gfx.gfx_files[2],
-                                    gfx.gfx_files[3]);
-                        }
+                    if (d.gfx_files.has_value()) {
+                        const int prefix = 0x20 + (d.extra_bit ? 0x10 : 0);
+                        const auto& gfx = d.gfx_files;
+                        fprintf(ssc, "%02X %02X ", i, prefix + 0x8);
+                        fprintf(ssc, "%X,%X,%X,%X ", gfx.gfx_files[0].value(), gfx.gfx_files[1].value(),
+                                gfx.gfx_files[2].value(), gfx.gfx_files[3].value());
                         fprintf(ssc, "\n");
                     }
 

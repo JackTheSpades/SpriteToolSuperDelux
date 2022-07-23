@@ -14,7 +14,7 @@ using Newtonsoft.Json.Linq;
 
 namespace CFG.Map16
 {
-    [DebuggerDisplay("X={X_or_index},Y={Y_or_value},Ex={ExtraBit} Tiles: {Tiles.Count}")]
+    [DebuggerDisplay("X={X_or_index},Y={Y_or_value},Ex={ExtraBit}, Tiles: {Tiles.Count}, GFXInfo: {GFXInfo.Count}")]
     public class DisplaySprite : ICloneable, INotifyPropertyChanged
     {
         [JsonIgnore]
@@ -87,6 +87,11 @@ namespace CFG.Map16
         }
 
         public BindingList<Tile> Tiles { get; set; }
+
+        [EditorBrowsable(EditorBrowsableState.Always)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [Bindable(true)]
+        public GFXInfo GFXInfo { get; set; }
 
         [Newtonsoft.Json.JsonIgnore]
         public bool CheckDispType => disp_type == DisplayType.XY;
@@ -162,6 +167,7 @@ namespace CFG.Map16
         public DisplaySprite()
         {
             Tiles = new BindingList<Tile>();
+            GFXInfo = new GFXInfo();
         }
 
         //public static void FillData(DisplaySprite sprite, string tilesLine)
@@ -238,6 +244,7 @@ namespace CFG.Map16
             s.Tiles = new BindingList<Tile>();
             foreach (Tile t in Tiles)
                 s.Tiles.Add((Tile)t.Clone());
+            s.GFXInfo = (GFXInfo)GFXInfo.Clone();
             s.X_or_index = this.X_or_index;
             s.Y_or_value = this.Y_or_value;
             s.DisplayText = this.DisplayText;

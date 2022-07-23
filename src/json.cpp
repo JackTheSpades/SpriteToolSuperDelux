@@ -120,22 +120,17 @@ bool read_json_file(sprite* spr) {
             }
 
             // for each X,Y or extension byte based appearance check if they have gfx information
-            auto gfxinfo = jdisplay.find("GFXInfo");
-            if (gfxinfo != jdisplay.end()) {
-                auto& gfxarray = *gfxinfo;
-                dis.gfx_files.resize(gfxarray.size());
-                size_t n = 0;
-                for (const auto& gfx : gfxarray) {
-                    bool separate = gfx.at("Separate");
-                    for (int gfx_idx = 0; gfx_idx < 4; gfx_idx++) {
-                        try {
-                            dis.gfx_files[n].gfx_files[gfx_idx] =
-                                gfx.at(std::to_string(gfx_idx)).get<int>() | (separate ? 0x8000 : 0);
-                        } catch (const std::out_of_range&) {
-                            dis.gfx_files[n].gfx_files[gfx_idx] = 0x7F;
-                        }
-                    }
-                    n++;
+            auto gfxinfo_it = jdisplay.find("GFXInfo");
+            if (gfxinfo_it != jdisplay.end()) {
+                auto& gfxinfo = *gfxinfo_it;
+                const std::pair<size_t, std::string_view> indexes[]{{0, "0"}, {1, "1"}, {2, "2"}, {3, "3"}};
+                for (const auto [i, index] : indexes) {
+                    auto gfx_it = gfxinfo.find(index);
+					if (gfx_it != gfxinfo.end()) {
+						auto& gfx = *gfx_it;
+                        dis.gfx_files.gfx_files[i].gfx_num = gfx["Value"].get<int>();
+                        dis.gfx_files.gfx_files[i].sep = gfx["Separate"].get<bool>();
+					}
                 }
             }
 

@@ -117,7 +117,6 @@ namespace CFG
 
         public BindingList<CollectionSprite> CollectionEntries { get; set; } = new BindingList<CollectionSprite>();
         public BindingList<Map16.DisplaySprite> DisplayEntries { get; set; } = new BindingList<Map16.DisplaySprite>();
-        public BindingList<Map16.GFXInfo> GFXInfos { get; set; } = new BindingList<Map16.GFXInfo>();
         public byte[] CustomMap16Data { get; set; } = new byte[0];
         #endregion
 

@@ -55,9 +55,6 @@ namespace CFG.Json
         [JsonProperty(PropertyName = "Collection")]
         public List<CollectionSprite> Collection { get; set; }
 
-        [JsonProperty(PropertyName = "GFXInfo")]
-        public List<Map16.GFXInfo> GFXInfos { get; set; }
-
         class DisplayTypeConverter : JsonConverter
         {
             public override bool CanConvert(Type objectType)
@@ -118,7 +115,6 @@ namespace CFG.Json
                 Displays.Add(newDisplay);
             }
             Collection = new List<CollectionSprite>(cfgFile.CollectionEntries);
-            GFXInfos = new List<Map16.GFXInfo>(cfgFile.GFXInfos);
         }
 
         public void FillData(CfgFile cfgFile)
@@ -165,13 +161,6 @@ namespace CFG.Json
             cfgFile.CollectionEntries.Clear();
             foreach (var cs in Collection)
                 cfgFile.CollectionEntries.Add(cs);
-
-            cfgFile.GFXInfos.Clear();
-            if (GFXInfos != null)
-            {
-                foreach (var cs in GFXInfos)
-                    cfgFile.GFXInfos.Add(cs);
-            }
         }
     }
 }

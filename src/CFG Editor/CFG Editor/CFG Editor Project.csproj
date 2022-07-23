@@ -129,6 +129,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="CFG Editor.resx">
       <DependentUpon>CFG Editor.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Editors\FileSelector.resx">
       <DependentUpon>FileSelector.cs</DependentUpon>
@@ -157,6 +158,7 @@
     </Compile>
     <None Include="CFG Editor Project_TemporaryKey.pfx" />
     <None Include="packages.config" />
+    <None Include="Properties\DataSources\CFG.Map16.DisplaySprite.datasource" />
     <None Include="Properties\DataSources\CFG.Map16.GFXInfo.datasource" />
     <None Include="Properties\DataSources\CFG.Map16.Sprite.datasource" />
     <EmbeddedResource Include="Resources\Graphics\GFX00.bin" />
