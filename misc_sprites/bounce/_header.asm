@@ -2,12 +2,20 @@
 
 macro RevertMap16()
     lda !bounce_map16_tile,x
-    %BounceChangeMap16()
+    sta $9C
+    %BounceSetupMap16()
+    phx
+    jsl $00BEB0|!BankB
+    plx
 endmacro
 
 macro InvisibleMap16()
     lda #$09
-    %BounceChangeMap16()
+    sta $9C
+    %BounceSetupMap16()
+    phx
+    jsl $00BEB0|!BankB
+    plx
 endmacro
 
 macro SetSpeed() 
