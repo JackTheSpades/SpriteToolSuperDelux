@@ -34,13 +34,15 @@ class iohandler {
         m_output_lines.push_back(buffer);
     }
 
-    template <typename... Args> void print_generic(iotype tp, const char* message, Args... args) {
+    template <typename... Args> void print_generic([[maybe_unused]] iotype tp, const char* message, Args... args) {
         append_to_output(message, args...);
+#ifdef PIXI_EXE_BUILD
         if (m_replaced[tp]) {
             con::cfprintf(m_handles[tp], message, args...);
         } else {
             con::cprintf(message, args...);
         }
+#endif
     }
 
   public:
