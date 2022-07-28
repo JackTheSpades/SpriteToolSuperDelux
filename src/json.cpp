@@ -124,7 +124,7 @@ bool read_json_file(sprite* spr) {
             if (gfxinfo_it != jdisplay.end()) {
                 auto& gfxinfo = *gfxinfo_it;
                 const std::pair<size_t, std::string_view> indexes[]{{0, "0"}, {1, "1"}, {2, "2"}, {3, "3"}};
-                for (const auto [i, index] : indexes) {
+                for (const auto& [i, index] : indexes) {
                     auto gfx_it = gfxinfo.find(index);
 					if (gfx_it != gfxinfo.end()) {
 						auto& gfx = *gfx_it;
