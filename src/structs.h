@@ -20,20 +20,6 @@ constexpr auto RTL_LOW = 0x21;
 // 10 per level, 200 level + 100 global
 constexpr auto MAX_SPRITE_COUNT = 0x2100;
 
-namespace {
-
-enum placeholder_enum {
-
-};
-
-template <bool T> struct picker {};
-
-template <> struct picker<true> { using t = std::ios::openmode; };
-
-template <> struct picker<false> { using t = placeholder_enum; };
-
-} // namespace
-
 class patchfile {
     std::string m_fs_path{};
     std::string m_path{};
@@ -46,8 +32,10 @@ class patchfile {
     static bool s_meimei_keep;
     static bool s_pixi_keep;
 
+    enum class placeholder {};
+
     constexpr static bool om_en = std::is_enum_v<std::ios::openmode>;
-    using openmode_t = std::conditional_t<om_en, std::underlying_type_t<picker<om_en>::t>, std::ios::openmode>;
+    using openmode_t = std::conditional_t<om_en, std::underlying_type_t<std::conditional_t<om_en, std::ios::openmode, placeholder>>, std::ios::openmode>;
 
   public:
     enum class openflags : openmode_t {
