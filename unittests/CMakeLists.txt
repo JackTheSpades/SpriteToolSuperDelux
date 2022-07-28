@@ -1,18 +1,21 @@
 cmake_minimum_required(VERSION 3.18)
 include(FetchContent)
-add_executable(PixiUnitTest harness.cpp)
+
 get_target_property(PIXI_SOURCE_DIR pixi_api_static SOURCE_DIR)
-target_include_directories(PixiUnitTest PUBLIC ${PIXI_SOURCE_DIR})
 FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest
-  GIT_TAG main
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest
+    GIT_TAG main
 )
 enable_testing()
 include(GoogleTest)
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
-target_link_libraries(PixiUnitTest pixi_api_static gtest_main)
+
+add_executable(PixiUnitTest harness.cpp)
+target_include_directories(PixiUnitTest PUBLIC ${PIXI_SOURCE_DIR})
+target_link_libraries(PixiUnitTest PRIVATE pixi_api_static gtest_main)
+
 get_target_property(ASAR_LIB_PATH pixi ASAR_LIB_PATH)
 add_custom_command(TARGET PixiUnitTest POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/testing_files $<TARGET_FILE_DIR:PixiUnitTest>

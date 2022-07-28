@@ -91,7 +91,7 @@ TEST(PixiUnitTests, PixiFullRun) {
     ASSERT_EQ(pixi_run(sizeof(argv) / sizeof(argv[0]), argv), EXIT_SUCCESS);
 }
 
-TEST(PixiUniTests, PixiFullRunPerLevel) {
+TEST(PixiUnitTests, PixiFullRunPerLevel) {
     std::string_view list_contents{"BA test.json\n012:BA test.cfg"};
     fs::copy_file("base.smc", "PixiFullRunPerLevel.smc", fs::copy_options::overwrite_existing);
     fs::copy_file("test.json", "sprites/test.json", fs::copy_options::overwrite_existing);
@@ -106,7 +106,7 @@ TEST(PixiUniTests, PixiFullRunPerLevel) {
     ASSERT_EQ(pixi_run(sizeof(argv) / sizeof(argv[0]), argv), EXIT_SUCCESS);
 }
 
-TEST(PixiUniTests, PixiFullRunPerLevelFail) {
+TEST(PixiUnitTests, PixiFullRunPerLevelFail) {
     std::string_view list_contents{"BA test.json\nBA:012 test.json"};
     fs::copy_file("base.smc", "PixiFullRunPerLevelFail.smc", fs::copy_options::overwrite_existing);
     fs::copy_file("test.json", "sprites/test.json", fs::copy_options::overwrite_existing);
