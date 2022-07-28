@@ -69,7 +69,7 @@ void patchfile::close() {
 patchfile::~patchfile() {
     if (m_path.empty())
         return;
-    if ((m_from_meimei && s_meimei_keep) || (!m_from_meimei && s_pixi_keep)) {
+    if (m_from_meimei ? s_meimei_keep : s_pixi_keep) {
         FILE* fp = open(m_fs_path.c_str(), m_binary ? "wb" : "w");
         if (fp == nullptr)
             return;
