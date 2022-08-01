@@ -1,7 +1,8 @@
 #include "cfg.h"
-#include "json.h"
-#include "structs.h"
 #include "iohandler.h"
+#include "json.h"
+#include "lmdata.h"
+#include "structs.h"
 
 #ifdef PIXI_DLL_BUILD
 #ifdef _WIN32
@@ -77,6 +78,12 @@ PIXI_EXPORT void pixi_free_collection_array(pixi_collection_array array_) {
 PIXI_EXPORT void pixi_free_tile_array(pixi_tile_array array_) {
     delete[] array_;
 }
+PIXI_EXPORT void pixi_free_string(pixi_string string) {
+    delete[] string;
+}
+PIXI_EXPORT void pixi_free_byte_array(pixi_byte_array bytearray) {
+    delete[] bytearray;
+}
 
 // Sprite information APIs
 PIXI_EXPORT int pixi_sprite_line(pixi_sprite_t pixi_sprite_ptr) {
@@ -119,22 +126,25 @@ PIXI_EXPORT pixi_string pixi_sprite_cfg_file(pixi_sprite_t pixi_sprite_ptr, int*
     return str;
 }
 PIXI_EXPORT pixi_map16_array pixi_sprite_map_data(pixi_sprite_t pixi_sprite_ptr, int* size) {
-    pixi_map16_t* alloced = new pixi_map16_t[pixi_sprite_ptr->map_data.size()];
-    for (size_t i = 0; i < pixi_sprite_ptr->map_data.size(); i++)
+    size_t map_data_size = pixi_sprite_ptr->map_data.size();
+    pixi_map16_t* alloced = new pixi_map16_t[map_data_size];
+    for (size_t i = 0; i < map_data_size; i++)
         alloced[i] = &pixi_sprite_ptr->map_data[i];
     *size = static_cast<int>(pixi_sprite_ptr->map_data.size());
     return alloced;
 }
 PIXI_EXPORT pixi_display_array pixi_sprite_displays(pixi_sprite_t pixi_sprite_ptr, int* size) {
-    pixi_display_t* alloced = new pixi_display_t[pixi_sprite_ptr->displays.size()];
-    for (size_t i = 0; i < pixi_sprite_ptr->displays.size(); i++)
+    size_t disp_size = pixi_sprite_ptr->displays.size();
+    pixi_display_t* alloced = new pixi_display_t[disp_size];
+    for (size_t i = 0; i < disp_size; i++)
         alloced[i] = &pixi_sprite_ptr->displays[i];
     *size = static_cast<int>(pixi_sprite_ptr->displays.size());
     return alloced;
 }
 PIXI_EXPORT pixi_collection_array pixi_sprite_collections(pixi_sprite_t pixi_sprite_ptr, int* size) {
-    pixi_collection_t* alloced = new pixi_collection_t[pixi_sprite_ptr->collections.size()];
-    for (size_t i = 0; i < pixi_sprite_ptr->collections.size(); i++)
+    size_t coll_size = pixi_sprite_ptr->collections.size();
+    pixi_collection_t* alloced = new pixi_collection_t[coll_size];
+    for (size_t i = 0; i < coll_size; i++)
         alloced[i] = &pixi_sprite_ptr->collections[i];
     *size = static_cast<int>(pixi_sprite_ptr->collections.size());
     return alloced;
@@ -166,8 +176,9 @@ PIXI_EXPORT pixi_string pixi_display_description(pixi_display_t pixi_display_ptr
     return str;
 }
 PIXI_EXPORT pixi_tile_array pixi_display_tiles(pixi_display_t pixi_display_ptr, int* size) {
-    pixi_tile_t* alloced = new pixi_tile_t[pixi_display_ptr->tiles.size()];
-    for (size_t i = 0; i < pixi_display_ptr->tiles.size(); i++)
+    size_t tiles_size = pixi_display_ptr->tiles.size();
+    pixi_tile_t* alloced = new pixi_tile_t[tiles_size];
+    for (size_t i = 0; i < tiles_size; i++)
         alloced[i] = &pixi_display_ptr->tiles[i];
     *size = static_cast<int>(pixi_display_ptr->tiles.size());
     return alloced;
@@ -264,6 +275,39 @@ PIXI_EXPORT pixi_string_array pixi_output(int* size) {
     const auto& history = iohandler::get_global().output_lines();
     *size = static_cast<int>(history.size());
     return history.data();
+}
+
+PIXI_EXPORT pixi_map16_array pixi_create_map16_array(int size) {
+    map16* map16_array = new map16[size];
+    return reinterpret_cast<pixi_map16_array>(map16_array);
+}
+PIXI_EXPORT pixi_map16_array pixi_generate_s16(pixi_sprite_t spr, pixi_map16_array map16_array, int map16_size,
+                                               int* size, int* map16_tile) {
+    const auto [tileno, span] = generate_s16_data(reinterpret_cast<const sprite*>(spr),
+                                                  reinterpret_cast<const map16*>(map16_array), map16_size);
+    *size = static_cast<int>(span.size());
+    *map16_tile = static_cast<int>(tileno);
+    return reinterpret_cast<pixi_map16_array>(span.data());
+}
+PIXI_EXPORT pixi_string pixi_generate_ssc(pixi_sprite_t spr, int index, int map16_tile) {
+    const auto ssc = generate_ssc_data(reinterpret_cast<const sprite*>(spr), index, map16_tile);
+    char* c = new char[ssc.size() + 1];
+    strcpy(c, ssc.c_str());
+    return c;
+}
+PIXI_EXPORT pixi_string pixi_generate_mwt(pixi_sprite_t spr, pixi_collection_t coll, int coll_idx) {
+    const auto mwt = generate_mwt_data(reinterpret_cast<const sprite*>(spr), *reinterpret_cast<const collection*>(coll),
+                                       coll_idx == 0);
+	char* c = new char[mwt.size() + 1];
+	strcpy(c, mwt.c_str());
+	return c;
+}
+PIXI_EXPORT pixi_byte_array pixi_generate_mw2(pixi_sprite_t spr, pixi_collection_t coll, int* size) {
+	const auto mw2 = generate_mw2_data(reinterpret_cast<const sprite*>(spr), *reinterpret_cast<const collection*>(coll));
+    unsigned char* uc = new unsigned char[mw2.size()];
+    memcpy(uc, mw2.data(), mw2.size());
+    *size = static_cast<int>(mw2.size());
+	return uc;
 }
 #ifdef __cplusplus
 }
