@@ -16,6 +16,7 @@
 #include "iohandler.h"
 #include "json.h"
 #include "libconsole/libconsole.h"
+#include "lmdata.h"
 #include "map16.h"
 #include "paths.h"
 
@@ -1394,186 +1395,68 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv) {
     // plus data for .ssc, .mwt, .mw2 files
     unsigned char extra_bytes[0x200]{};
 
-#ifdef ON_WINDOWS
-#define NUL_FILE "nul"
-#else
-#define NUL_FILE "/dev/null"
-#endif
+    if (!cfg.DisableAllExtensionFiles) {
+        FILE* s16 = open_subfile(rom, "s16", "wb");
+        FILE* ssc = open_subfile(rom, "ssc", "w");
+        FILE* mwt = open_subfile(rom, "mwt", "w");
+        FILE* mw2 = open_subfile(rom, "mw2", "wb");
 
-#ifdef DEBUGMSG
-    debug_print("Try create romname files.\n");
-#endif
-    FILE* s16 = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "wb") : open_subfile(rom, "s16", "wb");
-    FILE* ssc = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "w") : open_subfile(rom, "ssc", "w");
-    FILE* mwt = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "w") : open_subfile(rom, "mwt", "w");
-    FILE* mw2 = cfg.DisableAllExtensionFiles ? fopen(NUL_FILE, "wb") : open_subfile(rom, "mw2", "wb");
-#ifdef DEBUGMSG
-    debug_print("Romname files opened.\n");
-#endif
-
-    if (!cfg[ExtType::Ssc].empty()) {
-        std::ifstream fin(cfg[ExtType::Ssc].c_str());
-        std::string line;
-        while (std::getline(fin, line)) {
-            fprintf(ssc, "%s\n", line.c_str());
-        }
-        fin.close();
-    }
-
-    if (!cfg[ExtType::Mwt].empty()) {
-        std::ifstream fin(cfg[ExtType::Mwt].c_str());
-        std::string line;
-        while (std::getline(fin, line)) {
-            fprintf(mwt, "%s\n", line.c_str());
-        }
-        fin.close();
-    }
-
-    if (!cfg[ExtType::Mw2].empty()) {
-        FILE* fp = open(cfg[ExtType::Mw2].c_str(), "rb");
-        if (fp == nullptr)
-            return EXIT_FAILURE;
-        size_t fs_size = file_size(fp);
-        if (fs_size == 0) {
-            // if size == 0, it means that the file is empty, so we just append the 0x00 and go on with our lives
-            fputc(0x00, mw2);
-        } else {
-            fs_size--; // -1 to skip the 0xFF byte at the end
-            auto* mw2_data = new unsigned char[fs_size];
-            size_t read_size = fread(mw2_data, 1, fs_size, fp);
-            if (read_size != fs_size) {
-                io.error("Couldn't fully read file %s, please check file permissions", cfg[ExtType::Mw2].c_str());
-                return EXIT_FAILURE;
+        if (!cfg[ExtType::Ssc].empty()) {
+            std::ifstream fin(cfg[ExtType::Ssc].c_str());
+            std::string line;
+            while (std::getline(fin, line)) {
+                fprintf(ssc, "%s\n", line.c_str());
             }
-            fclose(fp);
-            fwrite(mw2_data, 1, fs_size, mw2);
-            delete[] mw2_data;
+            fin.close();
         }
-        fclose(fp);
-    } else {
-        fputc(0x00, mw2); // binary data starts with 0x00
-    }
 
-    if (!cfg[ExtType::S16].empty())
-        read_map16(map, cfg[ExtType::S16].c_str());
+        if (!cfg[ExtType::Mwt].empty()) {
+            std::ifstream fin(cfg[ExtType::Mwt].c_str());
+            std::string line;
+            while (std::getline(fin, line)) {
+                fprintf(mwt, "%s\n", line.c_str());
+            }
+            fin.close();
+        }
 
-    for (int i = 0; i < 0x100; i++) {
-        sprite* spr = from_table(sprite_list, 0x200, i);
-
-        // sprite pointer being null indicates per-level sprite
-        if (!spr || (cfg.PerLevel && i >= 0xB0 && i < 0xC0)) {
-            extra_bytes[i] = 7; // 3 bytes + 4 extra bytes because the old one broke basically any sprite that wasn't
-                                // using exactly 9 extra bytes
-            extra_bytes[i + 0x100] = 7; // 12 was wrong anyway, should've been 15
-        } else {
-            // line number within the list file indicates we've got a filled out sprite
-            if (spr->line) {
-                extra_bytes[i] = (unsigned char)(3 + spr->byte_count);
-                extra_bytes[i + 0x100] = (unsigned char)(3 + spr->extra_byte_count);
-
-                //----- s16 / map16 -------------------------------------------------
-
-                size_t map16_tile = find_free_map(map, spr->map_data.size());
-                if (map16_tile == static_cast<size_t>(-1)) {
-                    io.error(
-                        "There wasn't enough space in your s16 file to fit everything, was trying to fit %d blocks, "
-                        "couldn't find space\n",
-                        spr->map_data.size());
+        if (!cfg[ExtType::Mw2].empty()) {
+            FILE* fp = open(cfg[ExtType::Mw2].c_str(), "rb");
+            if (fp == nullptr)
+                return EXIT_FAILURE;
+            size_t fs_size = file_size(fp);
+            if (fs_size == 0) {
+                // if size == 0, it means that the file is empty, so we just append the 0x00 and go on with our lives
+                fputc(0x00, mw2);
+            } else {
+                fs_size--; // -1 to skip the 0xFF byte at the end
+                auto* mw2_data = new unsigned char[fs_size];
+                size_t read_size = fread(mw2_data, 1, fs_size, fp);
+                if (read_size != fs_size) {
+                    io.error("Couldn't fully read file %s, please check file permissions", cfg[ExtType::Mw2].c_str());
                     return EXIT_FAILURE;
                 }
-                memcpy(map + map16_tile, spr->map_data.data(), spr->map_data.size() * sizeof(map16));
-
-                //----- ssc / display -----------------------------------------------
-                for (const auto& d : spr->displays) {
-
-                    // 4 digit hex value. First is Y pos (0-F) then X (0-F) then custom/extra bit combination
-                    // here custom bit is always set (because why the fuck not?)
-                    // if no description (or empty) just asm filename instead.
-                    int ref = 0;
-                    if (spr->disp_type == display_type::ExtensionByte) {
-                        ref = 0x20 + (d.extra_bit ? 0x10 : 0);
-                        if (!d.description.empty())
-                            fprintf(ssc, "%02X %1X%02X%02X %s\n", i, d.x_or_index, d.y_or_value, ref,
-                                    d.description.c_str());
-                        else
-                            fprintf(ssc, "%02X %1X%02X%02X %s\n", i, d.x_or_index, d.y_or_value, ref, spr->asm_file);
-                    } else {
-                        ref = d.y_or_value * 0x1000 + d.x_or_index * 0x100 + 0x20 + (d.extra_bit ? 0x10 : 0);
-                        if (!d.description.empty())
-                            fprintf(ssc, "%02X %04X %s\n", i, ref, d.description.c_str());
-                        else
-                            fprintf(ssc, "%02X %04X %s\n", i, ref, spr->asm_file);
-                    }
-
-                    if (d.gfx_files.has_value()) {
-                        const int prefix = 0x20 + (d.extra_bit ? 0x10 : 0);
-                        const auto& gfx = d.gfx_files;
-                        fprintf(ssc, "%02X %02X ", i, prefix + 0x8);
-                        fprintf(ssc, "%X,%X,%X,%X ", gfx.gfx_files[0].value(), gfx.gfx_files[1].value(),
-                                gfx.gfx_files[2].value(), gfx.gfx_files[3].value());
-                        fprintf(ssc, "\n");
-                    }
-
-                    // loop over tiles and append them into the output.
-                    if (spr->disp_type == display_type::ExtensionByte)
-                        fprintf(ssc, "%02X %1X%02X%02X", i, d.x_or_index, d.y_or_value, ref + 2);
-                    else
-                        fprintf(ssc, "%02X %04X", i, ref + 2);
-                    for (const auto& t : d.tiles) {
-                        if (!t.text.empty()) {
-                            fprintf(ssc, " 0,0,*%s*", t.text.c_str());
-                            break;
-                        } else {
-                            // tile numbers > 0x300 indicates it's a "custom" map16 tile, so we add the offset we got
-                            // earlier +0x100 because in LM these start at 0x400.
-                            int tile_num = t.tile_number;
-                            if (tile_num >= 0x300)
-                                tile_num += 0x100 + static_cast<int>(map16_tile);
-                            // note we're using %d because x/y are signed integers here
-                            fprintf(ssc, " %d,%d,%X", t.x_offset, t.y_offset, tile_num);
-                        }
-                    }
-                    fprintf(ssc, "\n");
-                }
-
-                //----- mwt,mw2 / collection ------------------------------------------
-                int counter_collections = 0;
-                for (const auto& c : spr->collections) {
-                    // mw2
-                    // build 3 byte level format
-                    char c1 = 0x79 + (c.extra_bit ? 0x04 : 0);
-                    fputc(c1, mw2);
-                    fputc(0x70, mw2);
-                    fputc(spr->number, mw2);
-                    // add the extra property bytes
-                    int byte_count = (c.extra_bit ? spr->extra_byte_count : spr->byte_count);
-                    fwrite(c.prop, 1, byte_count, mw2);
-
-                    // mwt
-                    // first one prints sprite number as well, all others just their name.
-                    if (counter_collections == 0)
-                        fprintf(mwt, "%02X\t%s\n", spr->number, c.name.c_str());
-                    else
-                        fprintf(mwt, "\t%s\n", c.name.c_str());
-                    counter_collections++;
-                }
-
-                // no line means unused sprite, so just set to default 3.
-            } else {
-                extra_bytes[i] = 3;
-                extra_bytes[i + 0x100] = 3;
+                fclose(fp);
+                fwrite(mw2_data, 1, fs_size, mw2);
+                delete[] mw2_data;
             }
+            fclose(fp);
+        } else {
+            fputc(0x00, mw2); // binary data starts with 0x00
         }
-    }
-    fputc(0xFF, mw2); // binary data ends with 0xFF (see SMW level data format)
 
-    binfiles.push_back(write_all(extra_bytes, asm_path, "_customsize.bin", 0x200));
-    fwrite(map, sizeof(map16), MAP16_SIZE, s16);
-    // close all the files.
-    fclose(s16);
-    fclose(ssc);
-    fclose(mwt);
-    fclose(mw2);
+        if (!cfg[ExtType::S16].empty())
+            read_map16(map, cfg[ExtType::S16].c_str());
+
+        if (!generate_lm_data(sprite_list, map, extra_bytes, ssc, mwt, mw2, s16, cfg.PerLevel))
+            return EXIT_FAILURE;
+
+        binfiles.push_back(write_all(extra_bytes, asm_path, "_customsize.bin", 0x200));
+        // close all the files.
+        fclose(s16);
+        fclose(ssc);
+        fclose(mwt);
+        fclose(mw2);
+    }
 
     // apply the actual patches
     using namespace std::string_view_literals;

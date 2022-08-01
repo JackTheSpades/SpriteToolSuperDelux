@@ -2,14 +2,14 @@
 #include "file_io.h"
 #include "structs.h"
 
-size_t find_free_map(map16 *map, size_t count) {
+size_t find_free_map(const map16 *map, size_t map_size, size_t count) {
     if (count == 0)
         return 0;
 
     char *zero = new char[count * 8];
     memset(zero, 0, count * 8);
 
-    for (int i = 0; i < MAP16_SIZE; i++) {
+    for (int i = 0; i < map_size; i++) {
         if (!memcmp(zero, (char *)(map + i), 8)) {
             delete[] zero;
             return i;

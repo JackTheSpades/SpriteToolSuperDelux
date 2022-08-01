@@ -89,6 +89,7 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/asar/asardll.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/json/base64.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/argparser.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/lmdata.cpp"
 
     "${CMAKE_CURRENT_SOURCE_DIR}/cfg.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/file_io.h"
@@ -102,6 +103,7 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/json_const.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/config.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/argparser.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/lmdata.h"
 
     "${CMAKE_CURRENT_SOURCE_DIR}/iohandler.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/iohandler.cpp"
