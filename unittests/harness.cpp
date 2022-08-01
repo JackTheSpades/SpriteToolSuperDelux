@@ -126,3 +126,41 @@ TEST(PixiUnitTests, PixiFullRunPerLevelFail) {
     ASSERT_EQ(size, expected_error.size());
     ASSERT_STREQ(error, expected_error.data());
 }
+
+TEST(PixiUnitTests, LMDataTest) {
+    WinCheckMemLeak leakchecker{};
+    constexpr const char expected_ssc[] =
+        "00 0020 This is a disassembly of sprite 9A - Sumo Brother.\n00 0022 -12,1,1DE 4,1,1DF 2,-15,1CF -4,17,1CE\n";
+	// start and end bytes not included (they're global, not per-sprite)
+    constexpr unsigned char expected_mw2[] = {/* 0x00, */ 0x79, 0x70, 0x00 /*, 0xff */};
+    constexpr const char expected_mwt[] = "00\tSumo Brother Disassembly\n";
+	
+    pixi_sprite_t json_spr = pixi_parse_json_sprite("test.json");
+    ASSERT_NE(json_spr, nullptr);
+    pixi_map16_array buf = pixi_create_map16_array(0xFF);
+    int size = 0;
+    int map16_tile = 0;
+	// the map16 of this sprite is empty, so 0, 0 and null are expected.
+    pixi_map16_array maps = pixi_generate_s16(json_spr, buf, 0xFF, &size, &map16_tile);
+    EXPECT_EQ(map16_tile, 0);
+    EXPECT_EQ(size, 0);
+    EXPECT_EQ(maps, nullptr);
+    pixi_string ssc = pixi_generate_ssc(json_spr, 0, map16_tile);
+    EXPECT_STREQ(ssc, expected_ssc);
+    int coll_size = 0;
+    pixi_collection_array collections = pixi_sprite_collections(json_spr, &coll_size);
+	EXPECT_EQ(coll_size, 1);
+    pixi_string mwt = pixi_generate_mwt(json_spr, collections[0], 0);
+    EXPECT_STREQ(mwt, expected_mwt);
+	int mw2_size = 0;
+    pixi_byte_array mw2 = pixi_generate_mw2(json_spr, collections[0], &mw2_size);
+    EXPECT_EQ(mw2_size, sizeof(expected_mw2));
+    EXPECT_EQ(memcmp(mw2, expected_mw2, mw2_size), 0);
+	
+    pixi_free_map16_array(buf);
+    pixi_free_collection_array(collections);
+    pixi_free_string(ssc);
+    pixi_free_string(mwt);
+    pixi_free_byte_array(mw2);
+    pixi_sprite_free(json_spr);
+}
