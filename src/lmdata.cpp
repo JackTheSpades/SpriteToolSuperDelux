@@ -16,15 +16,6 @@ static const sprite* from_table(const sprite (&sprite_list)[MAX_SPRITE_COUNT], i
     return nullptr;
 }
 
-template <typename... Args>
-std::string fstring(const char* format, Args&&... args) {
-    int needed = snprintf(nullptr, 0, format, args...);
-    std::string buffer{};
-    buffer.resize(needed);
-    snprintf(buffer.data(), needed + 1, format, args...);
-    return buffer;
-}
-
 std::pair<size_t, std::span<const map16>> generate_s16_data(const sprite* spr, const map16* map, size_t map_size) {
     size_t map16_tile = find_free_map(map, map_size, spr->map_data.size());
     auto map16_span = std::span{spr->map_data.data(), spr->map_data.size()};

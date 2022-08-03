@@ -8,6 +8,14 @@
 #include <string>
 #include <vector>
 
+template <typename... Args> std::string fstring(const char* format, Args&&... args) {
+    int needed = snprintf(nullptr, 0, format, args...);
+    std::string buffer{};
+    buffer.resize(needed);
+    snprintf(buffer.data(), needed + 1, format, args...);
+    return buffer;
+}
+
 class iohandler {
 
     using con = libconsole::console;
@@ -78,14 +86,12 @@ class iohandler {
     }
     void error(const char* message) {
         // prints to stdout for backwards compatibility
-        m_last_error = message;
+        m_last_error += message;
         print_generic(out, message);
     }
     template <typename... Args> void error(const char* message, Args... args) {
         // prints to stdout for backwards compatibility
-        int needed = snprintf(nullptr, 0, message, args...);
-        m_last_error.resize(needed, '\0');
-        snprintf(m_last_error.data(), needed + 1, message, args...);
+        m_last_error += fstring(message, args...);
         print_generic(out, message, args...);
     }
     void print(const char* message) {
