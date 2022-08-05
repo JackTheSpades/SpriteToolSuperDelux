@@ -1013,7 +1013,7 @@ PIXI_EXPORT int pixi_check_api_version(int version_edition, int version_major, i
     return version_edition == VERSION_EDITION && version_major == VERSION_MAJOR && version_minor == VERSION_MINOR;
 }
 
-PIXI_EXPORT int pixi_run(int argc, const char** argv) {
+PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
 #ifndef PIXI_EXE_BUILD
     pixi_reset();
 #endif
@@ -1079,7 +1079,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv) {
             io.error("JSON format of Pixi settings is wrong.");
         }
     } else {
-        optparser.init(argc, argv);
+        optparser.init(skip_first ? argc - 1 : argc, skip_first ? argv + 1 : argv);
     }
     optparser.add_version(VERSION_PARTIAL, VERSION_EDITION);
     optparser.allow_unmatched(1);

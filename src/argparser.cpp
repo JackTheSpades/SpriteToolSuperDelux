@@ -69,9 +69,9 @@ bool argparser::init(const nlohmann::json& args) {
 
 bool argparser::init(int argc, const char** argv) {
     size_t argcs = static_cast<size_t>(argc);
-    m_arguments.reserve(argcs - 1);
+    m_arguments.reserve(argcs);
     m_program_name = GetExecutableName();
-    for (size_t i = 1; i < argcs; i++) {
+    for (size_t i = 0; i < argcs; i++) {
         m_arguments.push_back(argv[i]);
     }
     return true;

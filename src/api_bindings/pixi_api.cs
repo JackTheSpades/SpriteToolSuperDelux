@@ -8,7 +8,7 @@ namespace PixiCLR
     {
         [DllImport("pixi_api", EntryPoint = "pixi_run", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.I4)]
-        private static extern int _pixi_run(int argc, IntPtr[] argv);
+        private static extern int _pixi_run(int argc, IntPtr[] argv, bool skip_first);
 
         [DllImport("pixi_api", EntryPoint = "pixi_api_version", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.I4)]
@@ -32,6 +32,10 @@ namespace PixiCLR
         private static extern void _pixi_free_collection_array(IntPtr* array);
         [DllImport("pixi_api", EntryPoint = "pixi_free_tile_array", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void _pixi_free_tile_array(IntPtr* array);
+        [DllImport("pixi_api", EntryPoint = "pixi_free_string", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void _pixi_free_string(sbyte* string_);
+        [DllImport("pixi_api", EntryPoint = "pixi_free_byte_array", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void _pixi_free_byte_array(byte* array);
 
         // Sprite information APIs
         [DllImport("pixi_api", EntryPoint = "pixi_sprite_line", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
@@ -160,6 +164,23 @@ namespace PixiCLR
         [DllImport("pixi_api", EntryPoint = "pixi_sprite_table_extra", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern byte* _pixi_sprite_table_extra(IntPtr sprite_table, out int size);
 
+        [DllImport("pixi_api", EntryPoint = "pixi_last_error", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern sbyte* _pixi_last_error(out int size);
+
+        [DllImport("pixi_api", EntryPoint = "pixi_output", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern sbyte** _pixi_output(out int size);
+
+        [DllImport("pixi_api", EntryPoint = "pixi_create_map16_array", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr* _pixi_create_map16_array(int size);
+        [DllImport("pixi_api", EntryPoint = "pixi_generate_s16", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr _pixi_generate_s16(IntPtr sprite, IntPtr* map16_array, int map16_size, out int size, out int map16_tile);
+        [DllImport("pixi_api", EntryPoint = "pixi_generate_ssc", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern sbyte* _pixi_generate_ssc(IntPtr sprite, int index, int map16_tile);
+        [DllImport("pixi_api", EntryPoint = "pixi_generate_mwt", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern sbyte* _pixi_generate_mwt(IntPtr sprite, IntPtr collection, int coll_idx);
+        [DllImport("pixi_api", EntryPoint = "pixi_generate_mw2", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern byte* _pixi_generate_mw2(IntPtr sprite, IntPtr collection, out int size);
+
         public abstract class PointerInternalBase : IDisposable
         {
             protected readonly IntPtr data_pointer;
@@ -273,7 +294,7 @@ namespace PixiCLR
             public string Text()
             {
                 var cstr = _pixi_tile_text(data_pointer, out int size);
-                string str = new(cstr, 0, size, Encoding.ASCII);
+                string str = new(cstr, 0, size, Encoding.UTF8);
                 return str;
             }
         }
@@ -286,7 +307,7 @@ namespace PixiCLR
             public string Description()
             {
                 var cstr = _pixi_display_description(data_pointer, out int size);
-                string str = new(cstr, 0, size, Encoding.ASCII);
+                string str = new(cstr, 0, size, Encoding.UTF8);
                 return str;
             }
             public Tile[] Tiles()
@@ -320,7 +341,7 @@ namespace PixiCLR
             public string Name()
             {
                 var cstr = _pixi_collection_name(data_pointer, out int size);
-                return new string(cstr, 0, size, Encoding.ASCII);
+                return new string(cstr, 0, size, Encoding.UTF8);
             }
             public int ExtraBit()
             {
@@ -377,6 +398,10 @@ namespace PixiCLR
 
         public class Sprite : PointerInternalBase
         {
+            private IntPtr* _map16_data;
+            private Map16[]? _s16;
+            private int _map16_tile;
+
             public Sprite(IntPtr sprite_pointer) : base(sprite_pointer)
             {
             }
@@ -389,6 +414,10 @@ namespace PixiCLR
                     {
                     }
                     _pixi_sprite_free(data_pointer);
+                    if (_map16_data != null)
+                    {
+                        _pixi_free_map16_array(_map16_data);
+                    }
                     disposedValue = true;
                 }
             }
@@ -441,19 +470,19 @@ namespace PixiCLR
             public string Directory()
             {
                 var cstr = _pixi_sprite_directory(data_pointer, out int size);
-                string str = new(cstr, 0, size, Encoding.ASCII);
+                string str = new(cstr, 0, size, Encoding.UTF8);
                 return str;
             }
             public string AsmFile()
             {
                 var cstr = _pixi_sprite_asm_file(data_pointer, out int size);
-                string str = new(cstr, 0, size, Encoding.ASCII);
+                string str = new(cstr, 0, size, Encoding.UTF8);
                 return str;
             }
             public string CfgFile()
             {
                 var cstr = _pixi_sprite_cfg_file(data_pointer, out int size);
-                string str = new(cstr, 0, size, Encoding.ASCII);
+                string str = new(cstr, 0, size, Encoding.UTF8);
                 return str;
             }
             public Map16[] MapData()
@@ -487,11 +516,52 @@ namespace PixiCLR
             {
                 return _pixi_sprite_type(data_pointer);
             }
+
+            public Map16[] S16(int map16_size = 0xFF)
+            {
+                if (_s16 == null)
+                {
+                    _map16_data = _pixi_create_map16_array(map16_size);
+                    var cstr = _pixi_generate_s16(data_pointer, _map16_data, map16_size, out int size, out _map16_tile);
+                    _s16 = new Map16[size];
+                    for (int i = 0; i < size; i++)
+                        _s16[i] = new Map16(_map16_data[i]);
+                }
+                return _s16;
+            }
+            public string Ssc(int index = 0)
+            {
+                S16();
+                var cstr = _pixi_generate_ssc(data_pointer, index, _map16_tile);
+                var ssc = new string(cstr);
+                _pixi_free_string(cstr);
+                return ssc;
+            }
+            public string Mwt(int index = 0)
+            {
+                var carr = _pixi_sprite_collections(data_pointer, out int size);
+                index = Math.Min(index, size - 1);
+                var cstr = _pixi_generate_mwt(data_pointer, carr[index], index);
+                _pixi_free_collection_array(carr);
+                var mwt = new string(cstr);
+                _pixi_free_string(cstr);
+                return mwt;
+            }
+            public byte[] Mw2(int index = 0)
+            {
+                var carr = _pixi_sprite_collections(data_pointer, out int size);
+                index = Math.Min(index, size - 1);
+                var bytes = _pixi_generate_mw2(data_pointer, carr[index], out int mw2_size);
+                _pixi_free_collection_array(carr);
+                var mw2 = new byte[mw2_size];
+                Marshal.Copy((IntPtr)bytes, mw2, 0, mw2_size);
+                _pixi_free_byte_array(bytes);
+                return mw2;
+            }
         }
 
         /// <summary>
         /// Runs Pixi with the specified arguments
-        /// stdin and stdout are optional parameters that will override the input and output of the program
         /// If not passed they will default to the normal stdin/stdout
         /// </summary>
         /// <param name="argv">Arguments</param>
@@ -504,13 +574,13 @@ namespace PixiCLR
             IntPtr[] argv_cpp = new IntPtr[argv.Length];
             for (int i = 0; i < argv.Length; i++)
             {
-                byte[] buffer = Encoding.ASCII.GetBytes(argv[i]);
+                byte[] buffer = Encoding.UTF8.GetBytes(argv[i]);
                 IntPtr memory = Marshal.AllocHGlobal(buffer.Length + 1);
                 Marshal.Copy(buffer, 0, memory, buffer.Length);
                 Marshal.Copy(zerobyte, 0, memory + buffer.Length, 1);
                 argv_cpp[i] = memory;
             }
-            int ret_val = _pixi_run(argv.Length, argv_cpp);
+            int ret_val = _pixi_run(argv.Length, argv_cpp, false);
 
             foreach (var ptr in argv_cpp)
                 Marshal.FreeHGlobal(ptr);
@@ -536,6 +606,25 @@ namespace PixiCLR
         public static bool CheckApiVersion(int edition, int major, int minor)
         {
             return _check_api_version(edition, major, minor) == 1;
+        }
+
+        public static string LastError()
+        {
+            var cstr = _pixi_last_error(out int size);
+            string str = new(cstr, 0, size, Encoding.UTF8);
+            return str;
+        }
+
+        public static string[] Output()
+        {
+            var carr = _pixi_output(out int size);
+            string[] str = new string[size];
+            for (int i = 0; i < size; i++)
+            {
+                var cstr = carr[i];
+                str[i] = new(cstr, 0, size, Encoding.UTF8);
+            }
+            return str;
         }
     }
 }

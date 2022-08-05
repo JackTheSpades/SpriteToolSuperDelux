@@ -86,9 +86,8 @@ TEST(PixiUnitTests, PixiFullRun) {
         std::ofstream list_file{"list.txt", std::ios::trunc};
         list_file << list_contents;
     }
-    std::string pixi_exe = (fs::current_path() / "pixi.exe").generic_string();
-    const char* argv[] = {pixi_exe.c_str(), "PixiFullRun.smc"};
-    ASSERT_EQ(pixi_run(sizeof(argv) / sizeof(argv[0]), argv), EXIT_SUCCESS);
+    const char* argv[] = {"PixiFullRun.smc"};
+    ASSERT_EQ(pixi_run(sizeof(argv) / sizeof(argv[0]), argv, false), EXIT_SUCCESS);
 }
 
 TEST(PixiUnitTests, PixiFullRunPerLevel) {
@@ -101,9 +100,8 @@ TEST(PixiUnitTests, PixiFullRunPerLevel) {
         std::ofstream list_file{"list.txt", std::ios::trunc};
         list_file << list_contents;
     }
-    std::string pixi_exe = (fs::current_path() / "pixi.exe").generic_string();
-    const char* argv[] = {pixi_exe.c_str(), "-pl", "PixiFullRunPerLevel.smc"};
-    ASSERT_EQ(pixi_run(sizeof(argv) / sizeof(argv[0]), argv), EXIT_SUCCESS);
+    const char* argv[] = {"-pl", "PixiFullRunPerLevel.smc"};
+    ASSERT_EQ(pixi_run(sizeof(argv) / sizeof(argv[0]), argv, false), EXIT_SUCCESS);
 }
 
 TEST(PixiUnitTests, PixiFullRunPerLevelFail) {
@@ -116,9 +114,8 @@ TEST(PixiUnitTests, PixiFullRunPerLevelFail) {
         std::ofstream list_file{"list.txt", std::ios::trunc};
         list_file << list_contents;
     }
-    std::string pixi_exe = (fs::current_path() / "pixi.exe").generic_string();
-    const char* argv[] = {pixi_exe.c_str(), "-pl", "PixiFullRunPerLevelFail.smc"};
-    ASSERT_EQ(pixi_run(sizeof(argv) / sizeof(argv[0]), argv), EXIT_FAILURE);
+    const char* argv[] = {"-pl", "PixiFullRunPerLevelFail.smc"};
+    ASSERT_EQ(pixi_run(sizeof(argv) / sizeof(argv[0]), argv, false), EXIT_FAILURE);
     int size = 0;
     constexpr std::string_view expected_error{
         "Error on list line 2: Per-level sprite valid range is B0-BF, was given 12 instead\n"};

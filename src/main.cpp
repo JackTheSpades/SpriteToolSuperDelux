@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < argc; i++) {
         copied_argv[i] = argv[i];
     }
-    int retval = pixi_run(argc, copied_argv);
+    int retval = pixi_run(argc, copied_argv, true);
     delete[] copied_argv;
     return retval;
 }

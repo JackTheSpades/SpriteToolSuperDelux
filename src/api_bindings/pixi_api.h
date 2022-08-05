@@ -1,5 +1,5 @@
 #pragma once
-
+#include <stdbool.h>
 #ifdef _WIN32
 #define PIXI_IMPORT __declspec(dllimport)
 #else
@@ -43,8 +43,9 @@ typedef const pixi_tile_t* pixi_tile_array;
 /// </summary>
 /// <param name="argc">Number of arguments</param>
 /// <param name="argv">Arguments</param>
+/// <param name="skip_first">Set to true to ignore the first entry of argv</param>
 /// <returns>Exit code of the program</returns>
-PIXI_IMPORT int pixi_run(int argc, const char** argv);
+PIXI_IMPORT int pixi_run(int argc, const char** argv, bool skip_first);
 
 /// <summary>
 /// Returns the API version as 100*edition + 10*major + minor
