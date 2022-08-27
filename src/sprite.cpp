@@ -240,7 +240,7 @@ constexpr bool ends_with(const char* str, const char* suffix) {
         char* contents = new char[size + 1];
         size_t read_size = fread(contents, 1, size, res);
         if (size != read_size) {
-            io.error("Couldn\'t fully read file %s, please check file permissions", restorename.c_str());
+            io.error("Couldn't fully read file %s, please check file permissions", restorename.c_str());
             return false;
         }
         contents[size] = '\0';
