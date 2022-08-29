@@ -135,6 +135,9 @@ struct collection {
 struct map8x8 {
     char tile = 0;
     char prop = 0;
+    constexpr bool empty() const {
+        return tile == 0 && prop == 0;
+    }
 };
 
 struct map16 {
@@ -142,6 +145,9 @@ struct map16 {
     map8x8 bottom_left;
     map8x8 top_right;
     map8x8 bottom_right;
+    constexpr bool empty() const {
+        return top_left.empty() && bottom_left.empty() && top_right.empty() && bottom_right.empty();
+    }
 };
 
 struct status_pointers { // the order of these actually matters

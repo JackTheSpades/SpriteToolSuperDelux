@@ -2,20 +2,20 @@
 #include "file_io.h"
 #include "structs.h"
 
+#include <span>
+#include <algorithm>
+
+
 size_t find_free_map(const map16 *map, size_t map_size, size_t count) {
     if (count == 0)
         return 0;
 
-    char *zero = new char[count * 8];
-    memset(zero, 0, count * 8);
-
-    for (int i = 0; i < map_size; i++) {
-        if (!memcmp(zero, (char *)(map + i), 8)) {
-            delete[] zero;
+    for (size_t i = 0; i < map_size - count; i++) {
+        std::span span{map + i, count};
+        if (std::all_of(span.begin(), span.end(), [](const map16& m) { return m.empty(); })) {
             return i;
         }
     }
-    delete[] zero;
     return static_cast<size_t>(-1);
 }
 
