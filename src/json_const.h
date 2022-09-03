@@ -1,6 +1,6 @@
 #include <nlohmann/json.hpp>
 
-auto j1656 (const nlohmann::json &j) {
+auto j1656(const nlohmann::json& j) {
     unsigned char c = 0;
     auto& byte = j["$1656"];
     c |= (((int)byte["Object Clipping"] & 0x0F) << 0);
@@ -11,7 +11,7 @@ auto j1656 (const nlohmann::json &j) {
     return c;
 }
 
-auto j1662 (const nlohmann::json &j) {
+auto j1662(const nlohmann::json& j) {
     unsigned char c = 0;
     auto& byte = j["$1662"];
     c |= (((int)byte["Sprite Clipping"] & 0x3F) << 0);
@@ -20,7 +20,7 @@ auto j1662 (const nlohmann::json &j) {
     return c;
 }
 
-auto j166e (const nlohmann::json& j) {
+auto j166e(const nlohmann::json& j) {
     unsigned char c = 0;
     auto& byte = j["$166E"];
     c |= (byte["Use second graphics page"] ? 0x01 : 0);
@@ -32,7 +32,7 @@ auto j166e (const nlohmann::json& j) {
     return c;
 }
 
-auto j167a (const nlohmann::json& j) {
+auto j167a(const nlohmann::json& j) {
     unsigned char c = 0;
     auto& byte = j["$167A"];
     c |= (byte["Don't disable cliping when starkilled"] ? 0x01 : 0);
@@ -46,7 +46,7 @@ auto j167a (const nlohmann::json& j) {
     return c;
 }
 
-auto j1686 (const nlohmann::json &j) {
+auto j1686(const nlohmann::json& j) {
     unsigned char c = 0;
     auto& byte = j["$1686"];
     c |= (byte["Inedible"] ? 0x01 : 0);
@@ -60,7 +60,7 @@ auto j1686 (const nlohmann::json &j) {
     return c;
 }
 
-auto j190f (const nlohmann::json &j) {
+auto j190f(const nlohmann::json& j) {
     unsigned char c = 0;
     auto& byte = j["$190F"];
     c |= (byte["Make platform passable from below"] ? 0x01 : 0);

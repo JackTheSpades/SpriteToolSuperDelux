@@ -108,6 +108,7 @@
       <DependentUpon>FileSelector.cs</DependentUpon>
     </Compile>
     <Compile Include="Json\JsonCfgFile.cs" />
+    <Compile Include="Json\JsonConst.cs" />
     <Compile Include="Json\JsonTweaker.cs" />
     <Compile Include="Map16\GFXInfo.cs" />
     <Compile Include="Map16\Map16Data.cs" />

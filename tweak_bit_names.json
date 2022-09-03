@@ -1,0 +1,52 @@
+{
+    "$1656": [
+        "Object Clipping",
+        "Can be jumped on",
+        "Dies when jumped on",
+        "Hop in/kick shell",
+        "Disappears in cloud of smoke"
+    ],
+    "$1662": [
+        "Sprite Clipping",
+        "Use shell as death frame",
+        "Fall straight down when killed"
+    ],
+    "$166E": [
+        "Use second graphics page",
+        "Palette",
+        "Disable fireball killing",
+        "Disable cape killing",
+        "Disable water splash",
+        "Don't interact with Layer 2"
+    ],
+    "$167A": [
+        "Don't disable cliping when starkilled",
+        "Invincible to star/cape/fire/bounce blk.",
+        "Process when off screen",
+        "Don't change into shell when stunned",
+        "Can't be kicked like shell",
+        "Process interaction with Mario every frame",
+        "Gives power-up when eaten by yoshi",
+        "Don't use default interaction with Mario"
+    ],
+    "$1686": [
+        "Inedible",
+        "Stay in Yoshi's mouth",
+        "Weird ground behaviour",
+        "Don't interact with other sprites",
+        "Don't change direction if touched",
+        "Don't turn into coin when goal passed",
+        "Spawn a new sprite",
+        "Don't interact with objects"
+    ],
+    "$190F": [
+        "Make platform passable from below",
+        "Don't erase when goal passed",
+        "Can't be killed by sliding",
+        "Takes 5 fireballs to kill",
+        "Can be jumped on with upwards Y speed",
+        "Death frame two tiles high",
+        "Don't turn into a coin with silver POW",
+        "Don't get stuck in walls (carryable sprites)"
+    ]
+}
