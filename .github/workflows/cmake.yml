@@ -21,6 +21,11 @@ jobs:
       id: branch-name
       uses: tj-actions/branch-names@v5.2
 
+    - name: Setup python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.9'
+
     - name: Setup compilers
       run:  |
             sudo apt update
@@ -71,11 +76,6 @@ jobs:
     - name: Run basic unit tests
       working-directory: ${{github.workspace}}/build/unittests
       run: ctest --rerun-failed --output-on-failure -C $BUILD_TYPE
-        
-    - name: Setup python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.9'
 
     - name: Create pixi.zip release
       run: python ${{github.workspace}}/zip.py

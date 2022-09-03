@@ -43,7 +43,7 @@ cs_class_proto = """
     }}
 """
 
-def construct_cpp_func(address: str, values: list[str]) -> str:
+def construct_cpp_func(address: str, values) -> str:
     num_val = len(values)
     if num_val == 8:
         cpp_func_body = '\n'.join([f'    c |= (byte["{v}"] ? 0x{0x01 << i:02X} : 0);' for i, v in enumerate(values)])
@@ -63,7 +63,7 @@ def construct_cpp_func(address: str, values: list[str]) -> str:
         cpp_func_body += '\n'.join([f'    c |= (byte["{v}"] ? 0x{0x01 << (i + diff + 1):02X} : 0);' for i, v in enumerate(values[cut:])])
     return str.format(cpp_func_proto, make_cpp_func_name(address), address, cpp_func_body)
 
-def construct_cs_class(address: str, values: list[str]) -> str:
+def construct_cs_class(address: str, values) -> str:
     num_val = len(values)
     if num_val == 8:
         cs_func_body = '\n'.join([f'        [JsonProperty(Order = {i}, PropertyName = "{v}")]\n        public bool {make_var_name(v)} {{ get; set; }}' for i, v in enumerate(values)])
