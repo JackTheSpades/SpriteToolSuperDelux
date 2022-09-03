@@ -55,9 +55,6 @@ class patchfile {
     const memoryfile vfile() const {
         return *m_vfile;
     }
-    const memoryfile* vfile_ptr() const {
-        return m_vfile.get();
-    }
     void fprintf(const char* format, ...);
     void fwrite(const char* bindata, size_t size);
     void fwrite(const unsigned char* bindata, size_t size);

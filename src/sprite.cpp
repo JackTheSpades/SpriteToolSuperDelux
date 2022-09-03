@@ -706,6 +706,8 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
 }
 
 [[nodiscard]] bool create_shared_patch(const std::string& routine_path, const PixiConfig& config) {
+    namespace fs = std::filesystem;
+
     std::string escapedRoutinepath = escapeDefines(routine_path, R"(\\\!)");
     g_shared_patch.fprintf("macro include_once(target, base, offset)\n"
                            "	if !<base> != 1\n"
@@ -727,13 +729,23 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                            "	endif\n"
                            "endmacro\n");
     int routine_count = 0;
-    if (!std::filesystem::exists(cleanPathTrail(routine_path))) {
+    if (!fs::exists(cleanPathTrail(routine_path))) {
         io.error("Couldn't open folder \"%s\" for reading.", routine_path.c_str());
         return false;
     }
     try {
-        for (const auto& routine_file : std::filesystem::directory_iterator(routine_path)) {
-            std::string name(routine_file.path().filename().generic_string());
+        for (const auto& routine_file : fs::recursive_directory_iterator{routine_path}) {
+            if (!routine_file.is_regular_file())
+                continue;
+            const fs::path& p = routine_file.path();
+            if (p.extension() != ".asm")
+                continue;
+            fs::path rel = fs::relative(p, routine_path);
+            std::string path{rel.generic_string()};
+            std::string name{};
+            for (auto& path_part : rel.replace_extension()) {
+                name += path_part.generic_string();
+            }
             if (routine_count > config.Routines) {
                 io.error(
                     "More than %d routines located. Please remove some or change the max number of routines with the "
@@ -741,20 +753,18 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                     config.Routines);
                 return false;
             }
-            if (nameEndWithAsmExtension(name)) {
-                name = name.substr(0, name.length() - 4);
-                const char* charName = name.c_str();
-                g_shared_patch.fprintf("!%s = 0\n"
-                                       "macro %s()\n"
-                                       "\t%%include_once(\"%s%s.asm\", %s, $%02X)\n"
-                                       "\tJSL %s\n"
-                                       "endmacro\n",
-                                       charName, charName, escapedRoutinepath.c_str(), charName, charName,
-                                       routine_count * 3, charName);
-                routine_count++;
-            }
+            const char* charName = name.c_str();
+            const char* charPath = path.c_str();
+            g_shared_patch.fprintf("!%s = 0\n"
+                                   "macro %s()\n"
+                                   "\t%%include_once(\"%s%s\", %s, $%02X)\n"
+                                   "\tJSL %s\n"
+                                   "endmacro\n",
+                                   charName, charName, escapedRoutinepath.c_str(), charPath, charName,
+                                   routine_count * 3, charName);
+            routine_count++;
         }
-    } catch (const std::filesystem::filesystem_error& err) {
+    } catch (const fs::filesystem_error& err) {
         io.error("Trying to read folder \"%s\" returned \"%s\", aborting insertion\n", routine_path.c_str(),
                  err.what());
         return false;
