@@ -17,7 +17,7 @@
       <li>(Atari2.0) Fix list.txt parsing bug when paths would get wrongly split for containing spaces.</li>
       <li>(Atari2.0) Now pixi also prints warnings that asar gives instead of silently ignoring them.</li>
       <li>(Atari2.0) Fixed oversight in extra byte count assignment.</li>
-      <li>(Atari2.0) Updated circle routines to fix sign issues with large radii on LoRom.</li>
+      <li>(JamesD28) Updated circle routines to fix sign issues with large radii on LoRom.</li>
       <li>(Atari2.0) Better error messages in general.</li>
       <li>(Atari2.0) Fixed extended sprites cape interaction.</li>
       <li>(lx5, Atari2.0) Added support for minor sprite types (minor extended, bounce, spinningcoin, etc.)</li>
@@ -30,6 +30,8 @@
       <li>(Atari2.0) Completely overhaul the build system, use CMake, enable building pixi as a .dll, add APIs for python, c and c#.</li>
       <li>(Atari2.0) Now the print statements in sprites can be substituted by labels (<code>init:</code> etc) and they are not case sensitive anymore (e.g. <code>print "init", pc</code> works)</li>
       <li>(Atari2.0) A lot (and I mean a lot) of internal C++ code changes to improve the codebase and speedup the tool as well as major changes to the build system. These changes are massive but they should not be visible to external users. As such they won't be reported here but they can be found in the single commits in the repository.</li>
+      <li>(Atari2.0) Add support for having a pixi_setttings.json in the same folder as the executable. This file will be used to get command line options if present. Format explained in the README</li>
+      <li>(Atari2.0) Now you can have subfolders in the routines folder, the subfolder path and the routine filename will be joined to be used as the routine name, e.g. routines/Bounce/Spawn.asm -> %BounceSpawn()</li>
     </ul>
     <h2 id="version-1-32-january-23-2021-">Version 1.32 (January 23, 2021):</h2>
     <ul>

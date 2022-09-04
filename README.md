@@ -38,6 +38,7 @@ ReadMe Contents:
   - Header Files
   - Extra Bytes
   - Extend PIXI (extra defines and hijacks)
+  - `pixi_settings.json` file
 
 - Common Errors
 
@@ -303,6 +304,13 @@ ReadMe Contents:
   -or-
   %Aiming()
 
+  Starting from Pixi 1.40 you can have subfolders in the routines folder, the routine name will be the combination of the subfolder and the routine asm filename joined together, with no separator.
+
+  ```
+  routines/Bounce/Spawn.asm -> %BounceSpawn()
+  routines/Spawn/Custom/MySprite.asm -> %SpawnCustomMySprite()
+  ```
+
 - Header Files
   Each sprite directory has a "\_header.asm" file within it. This file will be included only with sprites of their
   respective type. Unlike sa1def.asm which is included with every sprite.
@@ -394,6 +402,20 @@ ReadMe Contents:
   Essentially, there's no difference from adding a patch to be inserted with your sprite and adding something to the ExtraHijacks folder, except for the
   convinience, of course. Please do not abuse this feature.
   Since pixi does not touch .asm files, you will have to include sa1def or whatever else defines you defined at ExtraDefines inside your patch, if you wanna use them.
+
+- `pixi_settings.json`
+
+  Starting from Pixi 1.40 you can have a pixi_settings.json file inside the same folder as the executable file, doing so will make pixi read the file and use it in place of command line options.
+  e.g.
+  ```json
+  {
+      "-k": true,
+      "-d": true,
+      "-a": "C:/Users/user/Desktop/pixi_v1.32/asm",
+      "--rom": "base.smc"
+  }
+  ```
+  Will make Pixi run with the keep temp files option on, the debug logging, with a modified asm path and using the provided rom.
 
 - Common Errors
   The vast majority of the time, xkas code will work just fine with Asar, the assembler that PIXI uses exclusively.

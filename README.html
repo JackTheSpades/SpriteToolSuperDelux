@@ -54,6 +54,7 @@ body {
             <li>Header Files</li>
             <li>Extra Bytes</li>
             <li>Extend PIXI (extra defines and hijacks)</li>
+            <li>pixi_settings.json file</li>
         </ul>
     </li>
     <li>
@@ -352,8 +353,20 @@ They are all still considered pixi options <span class="hljs-keyword">by</span> 
         </p>
         <p>
             %GetDrawInfo()
+            <br />
             -or-
+            <br />
             %Aiming()
+        </p>
+        <p>
+            Starting from Pixi 1.40 you can have subfolders in the routines folder, the routine name will be the combination of the subfolder and the routine asm filename joined together, with no separator.
+
+        <pre>
+        <code>
+    routines/Bounce/Spawn.asm -> %BounceSpawn()
+    routines/Spawn/Custom/MySprite.asm -> %SpawnCustomMySprite()
+        </code>
+        </pre>
         </p>
     </li>
     <li>
@@ -462,6 +475,26 @@ They are all still considered pixi options <span class="hljs-keyword">by</span> 
             Essentially, there&#39;s no difference from adding a patch to be inserted with your sprite and adding something to the ExtraHijacks folder, except for the
             convinience, of course. Please do not abuse this feature.
             Since pixi does not touch .asm files, you will have to include sa1def or whatever else defines you defined at ExtraDefines inside your patch, if you wanna use them.
+        </p>
+    </li>
+    <li>
+        <p>
+            pixi_settings.json
+        </p>
+        <p>
+            Starting from Pixi 1.40 you can have a pixi_settings.json file inside the same folder as the executable file, doing so will make pixi read the file and use it in place of command line options.
+            e.g.
+            <pre>
+                <code>
+    {
+        "-k": true,
+        "-d": true,
+        "-a": "C:/Users/user/Desktop/pixi_v1.32/asm",
+        "--rom": "base.smc"
+    }
+                </code>
+            </pre>
+            Will make Pixi run with the keep temp files option on, the debug logging, with a modified asm path and using the provided rom.
         </p>
     </li>
     <li>
