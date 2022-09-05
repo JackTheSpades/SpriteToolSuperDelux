@@ -280,9 +280,12 @@
     <None Include="Resources\Letters.png" />
     <Content Include="Resources\Icons\8x8.png" />
     <Content Include="Resources\Icons\8x8t.png" />
+    <Content Include="Resources\Icons\copy.png" />
     <Content Include="Resources\Icons\grid.png" />
+    <None Include="Resources\Icons\minus.png" />
     <Content Include="Resources\Icons\page.png" />
     <Content Include="Resources\Icons\palette.png" />
+    <None Include="Resources\Icons\plus.png" />
     <Content Include="VioletEgg.ico" />
   </ItemGroup>
   <ItemGroup>

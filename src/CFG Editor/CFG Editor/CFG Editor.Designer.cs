@@ -29,6 +29,10 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
@@ -41,10 +45,6 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle14 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle15 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle16 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CFG_Editor));
             this.dgvDisplay = new System.Windows.Forms.DataGridView();
             this.ExtraBit = new System.Windows.Forms.DataGridViewCheckBoxColumn();
@@ -153,6 +153,14 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tpgLm = new System.Windows.Forms.TabPage();
             this.dgvGFXInfo = new System.Windows.Forms.DataGridView();
+            this.sp0ValueDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.sp0SepDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.sp1ValueDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.sp1SepDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.sp2ValueDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.sp2SepDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.sp3ValueDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.sp3SepDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.gfxInfoBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.btnDisplayDelete = new System.Windows.Forms.Button();
             this.btnDisplayClone = new System.Windows.Forms.Button();
@@ -188,13 +196,13 @@
             this.nudY = new System.Windows.Forms.NumericUpDown();
             this.nudX = new System.Windows.Forms.NumericUpDown();
             this.spriteEditor1 = new CFG.Map16.SpriteEditor();
-            this.rtbDesc = new System.Windows.Forms.RichTextBox();
             this.cmbGrid = new System.Windows.Forms.ComboBox();
             this.label9 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.chbExtraBit = new System.Windows.Forms.CheckBox();
             this.chbUseText = new System.Windows.Forms.CheckBox();
+            this.rtbDesc = new System.Windows.Forms.RichTextBox();
             this.tpgList = new System.Windows.Forms.TabPage();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.btnColRemove = new System.Windows.Forms.Button();
@@ -244,14 +252,6 @@
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.txtListExProp3 = new System.Windows.Forms.TextBox();
-            this.sp0ValueDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.sp0SepDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.sp1ValueDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.sp1SepDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.sp2ValueDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.sp2SepDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.sp3ValueDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.sp3SepDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDisplay)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.displaySpriteBindingSource)).BeginInit();
             this.menuStrip1.SuspendLayout();
@@ -300,7 +300,8 @@
             this.dgvDisplay.AllowUserToDeleteRows = false;
             this.dgvDisplay.AllowUserToResizeRows = false;
             this.dgvDisplay.AutoGenerateColumns = false;
-            this.dgvDisplay.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            this.dgvDisplay.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvDisplay.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
             this.dgvDisplay.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvDisplay.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.ExtraBit,
@@ -321,9 +322,10 @@
             this.dgvDisplay.MultiSelect = false;
             this.dgvDisplay.Name = "dgvDisplay";
             this.dgvDisplay.RowHeadersVisible = false;
-            this.dgvDisplay.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToDisplayedHeaders;
+            this.dgvDisplay.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
+            this.dgvDisplay.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.dgvDisplay.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvDisplay.Size = new System.Drawing.Size(130, 116);
+            this.dgvDisplay.Size = new System.Drawing.Size(147, 116);
             this.dgvDisplay.TabIndex = 8;
             // 
             // ExtraBit
@@ -332,7 +334,6 @@
             this.ExtraBit.HeaderText = "ExtraBit";
             this.ExtraBit.MinimumWidth = 6;
             this.ExtraBit.Name = "ExtraBit";
-            this.ExtraBit.Width = 49;
             // 
             // X_or_index
             // 
@@ -340,7 +341,6 @@
             this.X_or_index.HeaderText = "X";
             this.X_or_index.MinimumWidth = 6;
             this.X_or_index.Name = "X_or_index";
-            this.X_or_index.Width = 39;
             // 
             // Y_or_value
             // 
@@ -348,7 +348,6 @@
             this.Y_or_value.HeaderText = "Y";
             this.Y_or_value.MinimumWidth = 6;
             this.Y_or_value.Name = "Y_or_value";
-            this.Y_or_value.Width = 39;
             // 
             // disptypeDataGridViewTextBoxColumn
             // 
@@ -356,7 +355,6 @@
             this.disptypeDataGridViewTextBoxColumn.HeaderText = "disp_type";
             this.disptypeDataGridViewTextBoxColumn.MinimumWidth = 6;
             this.disptypeDataGridViewTextBoxColumn.Name = "disptypeDataGridViewTextBoxColumn";
-            this.disptypeDataGridViewTextBoxColumn.Width = 77;
             // 
             // descriptionDataGridViewTextBoxColumn
             // 
@@ -364,7 +362,6 @@
             this.descriptionDataGridViewTextBoxColumn.HeaderText = "Description";
             this.descriptionDataGridViewTextBoxColumn.MinimumWidth = 6;
             this.descriptionDataGridViewTextBoxColumn.Name = "descriptionDataGridViewTextBoxColumn";
-            this.descriptionDataGridViewTextBoxColumn.Width = 85;
             // 
             // extraBitDataGridViewCheckBoxColumn
             // 
@@ -372,7 +369,6 @@
             this.extraBitDataGridViewCheckBoxColumn.HeaderText = "ExtraBit";
             this.extraBitDataGridViewCheckBoxColumn.MinimumWidth = 6;
             this.extraBitDataGridViewCheckBoxColumn.Name = "extraBitDataGridViewCheckBoxColumn";
-            this.extraBitDataGridViewCheckBoxColumn.Width = 49;
             // 
             // customBitDataGridViewCheckBoxColumn
             // 
@@ -380,7 +376,6 @@
             this.customBitDataGridViewCheckBoxColumn.HeaderText = "CustomBit";
             this.customBitDataGridViewCheckBoxColumn.MinimumWidth = 6;
             this.customBitDataGridViewCheckBoxColumn.Name = "customBitDataGridViewCheckBoxColumn";
-            this.customBitDataGridViewCheckBoxColumn.Width = 60;
             // 
             // checkDispTypeDataGridViewCheckBoxColumn
             // 
@@ -389,7 +384,6 @@
             this.checkDispTypeDataGridViewCheckBoxColumn.MinimumWidth = 6;
             this.checkDispTypeDataGridViewCheckBoxColumn.Name = "checkDispTypeDataGridViewCheckBoxColumn";
             this.checkDispTypeDataGridViewCheckBoxColumn.ReadOnly = true;
-            this.checkDispTypeDataGridViewCheckBoxColumn.Width = 89;
             // 
             // xorindexDataGridViewTextBoxColumn
             // 
@@ -397,7 +391,6 @@
             this.xorindexDataGridViewTextBoxColumn.HeaderText = "X_or_index";
             this.xorindexDataGridViewTextBoxColumn.MinimumWidth = 6;
             this.xorindexDataGridViewTextBoxColumn.Name = "xorindexDataGridViewTextBoxColumn";
-            this.xorindexDataGridViewTextBoxColumn.Width = 85;
             // 
             // yorvalueDataGridViewTextBoxColumn
             // 
@@ -405,7 +398,6 @@
             this.yorvalueDataGridViewTextBoxColumn.HeaderText = "Y_or_value";
             this.yorvalueDataGridViewTextBoxColumn.MinimumWidth = 6;
             this.yorvalueDataGridViewTextBoxColumn.Name = "yorvalueDataGridViewTextBoxColumn";
-            this.yorvalueDataGridViewTextBoxColumn.Width = 86;
             // 
             // displayTextDataGridViewTextBoxColumn
             // 
@@ -413,7 +405,6 @@
             this.displayTextDataGridViewTextBoxColumn.HeaderText = "DisplayText";
             this.displayTextDataGridViewTextBoxColumn.MinimumWidth = 6;
             this.displayTextDataGridViewTextBoxColumn.Name = "displayTextDataGridViewTextBoxColumn";
-            this.displayTextDataGridViewTextBoxColumn.Width = 87;
             // 
             // useTextDataGridViewCheckBoxColumn
             // 
@@ -421,7 +412,6 @@
             this.useTextDataGridViewCheckBoxColumn.HeaderText = "UseText";
             this.useTextDataGridViewCheckBoxColumn.MinimumWidth = 6;
             this.useTextDataGridViewCheckBoxColumn.Name = "useTextDataGridViewCheckBoxColumn";
-            this.useTextDataGridViewCheckBoxColumn.Width = 53;
             // 
             // displaySpriteBindingSource
             // 
@@ -1420,12 +1410,73 @@
             this.sp3ValueDataGridViewTextBoxColumn,
             this.sp3SepDataGridViewCheckBoxColumn});
             this.dgvGFXInfo.DataSource = this.gfxInfoBindingSource;
-            this.dgvGFXInfo.Location = new System.Drawing.Point(405, 299);
+            this.dgvGFXInfo.Location = new System.Drawing.Point(388, 299);
             this.dgvGFXInfo.Name = "dgvGFXInfo";
             this.dgvGFXInfo.RowHeadersVisible = false;
             this.dgvGFXInfo.RowHeadersWidth = 51;
-            this.dgvGFXInfo.Size = new System.Drawing.Size(260, 109);
+            this.dgvGFXInfo.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.dgvGFXInfo.Size = new System.Drawing.Size(277, 116);
             this.dgvGFXInfo.TabIndex = 23;
+            // 
+            // sp0ValueDataGridViewTextBoxColumn
+            // 
+            this.sp0ValueDataGridViewTextBoxColumn.DataPropertyName = "Sp0Value";
+            dataGridViewCellStyle1.Format = "X02";
+            dataGridViewCellStyle1.NullValue = "0x7F";
+            this.sp0ValueDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle1;
+            this.sp0ValueDataGridViewTextBoxColumn.HeaderText = "Sp0";
+            this.sp0ValueDataGridViewTextBoxColumn.Name = "sp0ValueDataGridViewTextBoxColumn";
+            // 
+            // sp0SepDataGridViewCheckBoxColumn
+            // 
+            this.sp0SepDataGridViewCheckBoxColumn.DataPropertyName = "Sp0Sep";
+            this.sp0SepDataGridViewCheckBoxColumn.HeaderText = "Sep.";
+            this.sp0SepDataGridViewCheckBoxColumn.Name = "sp0SepDataGridViewCheckBoxColumn";
+            // 
+            // sp1ValueDataGridViewTextBoxColumn
+            // 
+            this.sp1ValueDataGridViewTextBoxColumn.DataPropertyName = "Sp1Value";
+            dataGridViewCellStyle2.Format = "X02";
+            dataGridViewCellStyle2.NullValue = "0x7F";
+            this.sp1ValueDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle2;
+            this.sp1ValueDataGridViewTextBoxColumn.HeaderText = "Sp1";
+            this.sp1ValueDataGridViewTextBoxColumn.Name = "sp1ValueDataGridViewTextBoxColumn";
+            // 
+            // sp1SepDataGridViewCheckBoxColumn
+            // 
+            this.sp1SepDataGridViewCheckBoxColumn.DataPropertyName = "Sp1Sep";
+            this.sp1SepDataGridViewCheckBoxColumn.HeaderText = "Sep.";
+            this.sp1SepDataGridViewCheckBoxColumn.Name = "sp1SepDataGridViewCheckBoxColumn";
+            // 
+            // sp2ValueDataGridViewTextBoxColumn
+            // 
+            this.sp2ValueDataGridViewTextBoxColumn.DataPropertyName = "Sp2Value";
+            dataGridViewCellStyle3.Format = "X02";
+            dataGridViewCellStyle3.NullValue = "0x7F";
+            this.sp2ValueDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle3;
+            this.sp2ValueDataGridViewTextBoxColumn.HeaderText = "Sp2";
+            this.sp2ValueDataGridViewTextBoxColumn.Name = "sp2ValueDataGridViewTextBoxColumn";
+            // 
+            // sp2SepDataGridViewCheckBoxColumn
+            // 
+            this.sp2SepDataGridViewCheckBoxColumn.DataPropertyName = "Sp2Sep";
+            this.sp2SepDataGridViewCheckBoxColumn.HeaderText = "Sep.";
+            this.sp2SepDataGridViewCheckBoxColumn.Name = "sp2SepDataGridViewCheckBoxColumn";
+            // 
+            // sp3ValueDataGridViewTextBoxColumn
+            // 
+            this.sp3ValueDataGridViewTextBoxColumn.DataPropertyName = "Sp3Value";
+            dataGridViewCellStyle4.Format = "X02";
+            dataGridViewCellStyle4.NullValue = "0x7F";
+            this.sp3ValueDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle4;
+            this.sp3ValueDataGridViewTextBoxColumn.HeaderText = "Sp3";
+            this.sp3ValueDataGridViewTextBoxColumn.Name = "sp3ValueDataGridViewTextBoxColumn";
+            // 
+            // sp3SepDataGridViewCheckBoxColumn
+            // 
+            this.sp3SepDataGridViewCheckBoxColumn.DataPropertyName = "Sp3Sep";
+            this.sp3SepDataGridViewCheckBoxColumn.HeaderText = "Sep.";
+            this.sp3SepDataGridViewCheckBoxColumn.Name = "sp3SepDataGridViewCheckBoxColumn";
             // 
             // gfxInfoBindingSource
             // 
@@ -1434,29 +1485,29 @@
             // btnDisplayDelete
             // 
             this.btnDisplayDelete.Enabled = false;
-            this.btnDisplayDelete.Location = new System.Drawing.Point(342, 354);
+            this.btnDisplayDelete.Image = global::CFG.Properties.Resources.minus;
+            this.btnDisplayDelete.Location = new System.Drawing.Point(359, 354);
             this.btnDisplayDelete.Name = "btnDisplayDelete";
-            this.btnDisplayDelete.Size = new System.Drawing.Size(57, 23);
+            this.btnDisplayDelete.Size = new System.Drawing.Size(23, 23);
             this.btnDisplayDelete.TabIndex = 18;
-            this.btnDisplayDelete.Text = "Remove";
             this.btnDisplayDelete.UseVisualStyleBackColor = true;
             // 
             // btnDisplayClone
             // 
-            this.btnDisplayClone.Location = new System.Drawing.Point(342, 326);
+            this.btnDisplayClone.Image = global::CFG.Properties.Resources.copy;
+            this.btnDisplayClone.Location = new System.Drawing.Point(359, 326);
             this.btnDisplayClone.Name = "btnDisplayClone";
-            this.btnDisplayClone.Size = new System.Drawing.Size(57, 23);
+            this.btnDisplayClone.Size = new System.Drawing.Size(23, 23);
             this.btnDisplayClone.TabIndex = 18;
-            this.btnDisplayClone.Text = "Clone";
             this.btnDisplayClone.UseVisualStyleBackColor = true;
             // 
             // btnDisplayNew
             // 
-            this.btnDisplayNew.Location = new System.Drawing.Point(342, 298);
+            this.btnDisplayNew.Image = global::CFG.Properties.Resources.plus;
+            this.btnDisplayNew.Location = new System.Drawing.Point(359, 298);
             this.btnDisplayNew.Name = "btnDisplayNew";
-            this.btnDisplayNew.Size = new System.Drawing.Size(57, 23);
+            this.btnDisplayNew.Size = new System.Drawing.Size(23, 23);
             this.btnDisplayNew.TabIndex = 18;
-            this.btnDisplayNew.Text = "New";
             this.btnDisplayNew.UseVisualStyleBackColor = true;
             // 
             // groupBox3
@@ -1750,13 +1801,13 @@
             this.groupBox1.Controls.Add(this.nudY);
             this.groupBox1.Controls.Add(this.nudX);
             this.groupBox1.Controls.Add(this.spriteEditor1);
-            this.groupBox1.Controls.Add(this.rtbDesc);
             this.groupBox1.Controls.Add(this.cmbGrid);
             this.groupBox1.Controls.Add(this.label9);
             this.groupBox1.Controls.Add(this.label6);
             this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Controls.Add(this.chbExtraBit);
             this.groupBox1.Controls.Add(this.chbUseText);
+            this.groupBox1.Controls.Add(this.rtbDesc);
             this.groupBox1.Location = new System.Drawing.Point(8, 3);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(189, 411);
@@ -1805,14 +1856,6 @@
             this.spriteEditor1.Name = "spriteEditor1";
             this.spriteEditor1.Size = new System.Drawing.Size(176, 176);
             this.spriteEditor1.TabIndex = 1;
-            // 
-            // rtbDesc
-            // 
-            this.rtbDesc.Location = new System.Drawing.Point(6, 295);
-            this.rtbDesc.Name = "rtbDesc";
-            this.rtbDesc.Size = new System.Drawing.Size(176, 110);
-            this.rtbDesc.TabIndex = 6;
-            this.rtbDesc.Text = "";
             // 
             // cmbGrid
             // 
@@ -1869,6 +1912,14 @@
             this.chbUseText.TabIndex = 3;
             this.chbUseText.Text = "Use Text";
             this.chbUseText.UseVisualStyleBackColor = true;
+            // 
+            // rtbDesc
+            // 
+            this.rtbDesc.Location = new System.Drawing.Point(6, 295);
+            this.rtbDesc.Name = "rtbDesc";
+            this.rtbDesc.Size = new System.Drawing.Size(176, 110);
+            this.rtbDesc.TabIndex = 6;
+            this.rtbDesc.Text = "";
             // 
             // tpgList
             // 
@@ -2373,66 +2424,6 @@
             this.txtListExProp3.TabIndex = 8;
             this.txtListExProp3.Text = "FF";
             this.txtListExProp3.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Txt_Hex_KeyPress);
-            // 
-            // sp0ValueDataGridViewTextBoxColumn
-            // 
-            this.sp0ValueDataGridViewTextBoxColumn.DataPropertyName = "Sp0Value";
-            dataGridViewCellStyle1.Format = "X02";
-            dataGridViewCellStyle1.NullValue = "0x7F";
-            this.sp0ValueDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle1;
-            this.sp0ValueDataGridViewTextBoxColumn.HeaderText = "Sp0";
-            this.sp0ValueDataGridViewTextBoxColumn.Name = "sp0ValueDataGridViewTextBoxColumn";
-            // 
-            // sp0SepDataGridViewCheckBoxColumn
-            // 
-            this.sp0SepDataGridViewCheckBoxColumn.DataPropertyName = "Sp0Sep";
-            this.sp0SepDataGridViewCheckBoxColumn.HeaderText = "Sep.";
-            this.sp0SepDataGridViewCheckBoxColumn.Name = "sp0SepDataGridViewCheckBoxColumn";
-            // 
-            // sp1ValueDataGridViewTextBoxColumn
-            // 
-            this.sp1ValueDataGridViewTextBoxColumn.DataPropertyName = "Sp1Value";
-            dataGridViewCellStyle2.Format = "X02";
-            dataGridViewCellStyle2.NullValue = "0x7F";
-            this.sp1ValueDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle2;
-            this.sp1ValueDataGridViewTextBoxColumn.HeaderText = "Sp1";
-            this.sp1ValueDataGridViewTextBoxColumn.Name = "sp1ValueDataGridViewTextBoxColumn";
-            // 
-            // sp1SepDataGridViewCheckBoxColumn
-            // 
-            this.sp1SepDataGridViewCheckBoxColumn.DataPropertyName = "Sp1Sep";
-            this.sp1SepDataGridViewCheckBoxColumn.HeaderText = "Sep.";
-            this.sp1SepDataGridViewCheckBoxColumn.Name = "sp1SepDataGridViewCheckBoxColumn";
-            // 
-            // sp2ValueDataGridViewTextBoxColumn
-            // 
-            this.sp2ValueDataGridViewTextBoxColumn.DataPropertyName = "Sp2Value";
-            dataGridViewCellStyle3.Format = "X02";
-            dataGridViewCellStyle3.NullValue = "0x7F";
-            this.sp2ValueDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle3;
-            this.sp2ValueDataGridViewTextBoxColumn.HeaderText = "Sp2";
-            this.sp2ValueDataGridViewTextBoxColumn.Name = "sp2ValueDataGridViewTextBoxColumn";
-            // 
-            // sp2SepDataGridViewCheckBoxColumn
-            // 
-            this.sp2SepDataGridViewCheckBoxColumn.DataPropertyName = "Sp2Sep";
-            this.sp2SepDataGridViewCheckBoxColumn.HeaderText = "Sep.";
-            this.sp2SepDataGridViewCheckBoxColumn.Name = "sp2SepDataGridViewCheckBoxColumn";
-            // 
-            // sp3ValueDataGridViewTextBoxColumn
-            // 
-            this.sp3ValueDataGridViewTextBoxColumn.DataPropertyName = "Sp3Value";
-            dataGridViewCellStyle4.Format = "X02";
-            dataGridViewCellStyle4.NullValue = "0x7F";
-            this.sp3ValueDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle4;
-            this.sp3ValueDataGridViewTextBoxColumn.HeaderText = "Sp3";
-            this.sp3ValueDataGridViewTextBoxColumn.Name = "sp3ValueDataGridViewTextBoxColumn";
-            // 
-            // sp3SepDataGridViewCheckBoxColumn
-            // 
-            this.sp3SepDataGridViewCheckBoxColumn.DataPropertyName = "Sp3Sep";
-            this.sp3SepDataGridViewCheckBoxColumn.HeaderText = "Sep.";
-            this.sp3SepDataGridViewCheckBoxColumn.Name = "sp3SepDataGridViewCheckBoxColumn";
             // 
             // CFG_Editor
             // 

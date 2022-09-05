@@ -144,6 +144,7 @@ namespace CFG.Json
             {
                 bool useText = ds.UseText;
                 ds.DisplayText = ds.DisplayText.Replace(@"\n", "\n");
+                ds.Description = ds.Description.Replace(@"\n", "\n");
                 ds.UseText = useText;
                 ds.disp_type = DisplayType;
                 cfgFile.DisplayEntries.Add(ds);
