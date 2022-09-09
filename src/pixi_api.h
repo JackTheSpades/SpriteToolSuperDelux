@@ -70,6 +70,7 @@ PIXI_EXPORT int pixi_check_api_version(int version_edition, int version_major, i
 PIXI_EXPORT pixi_sprite_t pixi_parse_json_sprite(const char* filename);
 PIXI_EXPORT pixi_sprite_t pixi_parse_cfg_sprite(const char* filename);
 PIXI_EXPORT void pixi_sprite_free(pixi_sprite_t);
+PIXI_EXPORT void pixi_free_map16_buffer(pixi_map16_t buffer);
 PIXI_EXPORT void pixi_free_map16_array(pixi_map16_array);
 PIXI_EXPORT void pixi_free_display_array(pixi_display_array);
 PIXI_EXPORT void pixi_free_collection_array(pixi_collection_array);
@@ -143,9 +144,9 @@ PIXI_EXPORT pixi_string pixi_last_error(int* size);
 // Output information
 PIXI_EXPORT pixi_string_array pixi_output(int* size);
 
-PIXI_EXPORT pixi_map16_array pixi_create_map16_array(int size);
-PIXI_EXPORT pixi_map16_array pixi_generate_s16(pixi_sprite_t spr, pixi_map16_array map16_array, int map16_size,
-                                               int* size, int* map16_tile);
+PIXI_EXPORT pixi_map16_t pixi_create_map16_buffer(int size);
+PIXI_EXPORT pixi_map16_array pixi_generate_s16(pixi_sprite_t spr, pixi_map16_t map16_buffer, int map16_size, int* size,
+                                               int* map16_tile);
 PIXI_EXPORT pixi_string pixi_generate_ssc(pixi_sprite_t spr, int index, int map16_tile);
 PIXI_EXPORT pixi_string pixi_generate_mwt(pixi_sprite_t spr, pixi_collection_t coll, int coll_idx);
 PIXI_EXPORT pixi_byte_array pixi_generate_mw2(pixi_sprite_t spr, pixi_collection_t coll, int* size);

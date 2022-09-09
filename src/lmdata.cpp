@@ -16,7 +16,7 @@ static const sprite* from_table(const sprite (&sprite_list)[MAX_SPRITE_COUNT], i
     return nullptr;
 }
 
-std::pair<size_t, std::span<const map16>> generate_s16_data(const sprite* spr, const map16* map, size_t map_size) {
+std::pair<size_t, std::span<const map16>> generate_s16_data(const sprite* spr, const map16* const map, size_t map_size) {
     size_t map16_tile = find_free_map(map, map_size, spr->map_data.size());
     auto map16_span = std::span{spr->map_data.data(), spr->map_data.size()};
     return std::make_pair(map16_tile, map16_span);

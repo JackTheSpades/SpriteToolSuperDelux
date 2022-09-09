@@ -66,6 +66,9 @@ PIXI_EXPORT void pixi_sprite_free(pixi_sprite_t sprite_ptr) {
     delete sp;
 }
 
+PIXI_EXPORT void pixi_free_map16_buffer(pixi_map16_t buffer) {
+    delete[] buffer;
+}
 PIXI_EXPORT void pixi_free_map16_array(pixi_map16_array array_) {
     delete[] array_;
 }
@@ -277,17 +280,20 @@ PIXI_EXPORT pixi_string_array pixi_output(int* size) {
     return history.data();
 }
 
-PIXI_EXPORT pixi_map16_array pixi_create_map16_array(int size) {
-    map16* map16_array = new map16[size];
-    return reinterpret_cast<pixi_map16_array>(map16_array);
+PIXI_EXPORT pixi_map16_t pixi_create_map16_buffer(int size) {
+    const map16* map16_array = new map16[size];
+    return map16_array;
 }
-PIXI_EXPORT pixi_map16_array pixi_generate_s16(pixi_sprite_t spr, pixi_map16_array map16_array, int map16_size,
-                                               int* size, int* map16_tile) {
-    const auto [tileno, span] = generate_s16_data(reinterpret_cast<const sprite*>(spr),
-                                                  reinterpret_cast<const map16*>(map16_array), map16_size);
-    *size = static_cast<int>(span.size());
+PIXI_EXPORT pixi_map16_array pixi_generate_s16(pixi_sprite_t spr, pixi_map16_t map16_buffer, int map16_size, int* size,
+                                               int* map16_tile) {
+    const auto [tileno, span] = generate_s16_data(spr, map16_buffer, map16_size);
+    const size_t sz = span.size();
+    *size = static_cast<int>(sz);
     *map16_tile = static_cast<int>(tileno);
-    return reinterpret_cast<pixi_map16_array>(span.data());
+    pixi_map16_t* alloced = new pixi_map16_t[sz];
+    for (size_t i = 0; i < sz; i++)
+        alloced[i] = &span[i];
+    return alloced;
 }
 PIXI_EXPORT pixi_string pixi_generate_ssc(pixi_sprite_t spr, int index, int map16_tile) {
     const auto ssc = generate_ssc_data(reinterpret_cast<const sprite*>(spr), index, map16_tile);
@@ -298,16 +304,17 @@ PIXI_EXPORT pixi_string pixi_generate_ssc(pixi_sprite_t spr, int index, int map1
 PIXI_EXPORT pixi_string pixi_generate_mwt(pixi_sprite_t spr, pixi_collection_t coll, int coll_idx) {
     const auto mwt = generate_mwt_data(reinterpret_cast<const sprite*>(spr), *reinterpret_cast<const collection*>(coll),
                                        coll_idx == 0);
-	char* c = new char[mwt.size() + 1];
-	strcpy(c, mwt.c_str());
-	return c;
+    char* c = new char[mwt.size() + 1];
+    strcpy(c, mwt.c_str());
+    return c;
 }
 PIXI_EXPORT pixi_byte_array pixi_generate_mw2(pixi_sprite_t spr, pixi_collection_t coll, int* size) {
-	const auto mw2 = generate_mw2_data(reinterpret_cast<const sprite*>(spr), *reinterpret_cast<const collection*>(coll));
+    const auto mw2 =
+        generate_mw2_data(reinterpret_cast<const sprite*>(spr), *reinterpret_cast<const collection*>(coll));
     unsigned char* uc = new unsigned char[mw2.size()];
     memcpy(uc, mw2.data(), mw2.size());
     *size = static_cast<int>(mw2.size());
-	return uc;
+    return uc;
 }
 #ifdef __cplusplus
 }
