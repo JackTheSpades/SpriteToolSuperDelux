@@ -164,12 +164,12 @@ bool argparser::help_requested() const {
 
 argparser& argparser::add_option(std::string_view opt_name, std::string_view value_name, std::string_view description,
                                  std::string& value_ref) {
-    m_options.push_back(opt_t{opt_name, option{description, value_name, string_ref{value_ref}}});
+    m_options.push_back(opt_t{opt_name, option{description, value_name, std::ref(value_ref)}});
     return *this;
 }
 
 argparser& argparser::add_option(std::string_view opt_name, std::string_view description, bool& value_ref) {
-    m_options.push_back(opt_t{opt_name, option{description, std::string_view{}, bool_ref{value_ref}}});
+    m_options.push_back(opt_t{opt_name, option{description, std::string_view{}, std::ref(value_ref)}});
     return *this;
 }
 
@@ -180,7 +180,7 @@ argparser& argparser::add_option(std::string_view opt_name, std::string_view des
 
 argparser& argparser::add_option(std::string_view opt_name, std::string_view value_name, std::string_view description,
                                  int& value_ref) {
-    m_options.push_back(opt_t{opt_name, option{description, value_name, int_ref{value_ref}}});
+    m_options.push_back(opt_t{opt_name, option{description, value_name, std::ref(value_ref)}});
     return *this;
 }
 
