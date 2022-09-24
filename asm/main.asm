@@ -492,18 +492,17 @@ endif
 	PHY
 	
 	; move to sprite data's extra byte portion
-	INY #3
-	TYA
-	CLC
-	ADC $CE
-	STA !extra_byte_1,x
-	LDA #$00
-	ADC $CF
-	STA !extra_byte_2,x
-	; bank
-	LDA #$00
-	ADC $D0
-	STA !extra_byte_3,x
+    REP #$20
+    INY #3
+    TYA
+    CLC
+    ADC $CE
+    SEP #$20
+    STA !extra_byte_1,x
+    XBA
+    STA !extra_byte_2,x
+    LDA $D0
+    STA !extra_byte_3,x
 	
 	PLY
 .skipExtraByte 
@@ -746,18 +745,17 @@ endif
 	PHY
 	
 	; move to sprite data's extra byte portion
-	INY #3
-	TYA
-	CLC
-	ADC $CE
-	STA !extra_byte_1,x
-	LDA #$00
-	ADC $CF
-	STA !extra_byte_2,x
-	; bank
-	LDA #$00
-	ADC $D0
-	STA !extra_byte_3,x
+    REP #$20
+    INY #3
+    TYA
+    CLC
+    ADC $CE
+    SEP #$20
+    STA !extra_byte_1,x
+    XBA
+    STA !extra_byte_2,x
+    LDA $D0
+    STA !extra_byte_3,x
 	
 	PLY
 .skipExtraByte 
@@ -892,18 +890,17 @@ endif
 	PHY
 	
 	; move to sprite data's extra byte portion
-	INY #3
-	TYA
-	CLC
-	ADC $CE
-	STA !shooter_extra_byte_1,x
-	LDA #$00
-	ADC $CF
-	STA !shooter_extra_byte_2,x
-	; bank
-	LDA #$00
-	ADC $D0
-	STA !shooter_extra_byte_3,x
+    REP #$20
+    INY #3
+    TYA
+    CLC
+    ADC $CE
+    SEP #$20
+    STA !extra_byte_1,x
+    XBA
+    STA !extra_byte_2,x
+    LDA $D0
+    STA !extra_byte_3,x
 	
 	PLY
 .skipExtraByte
