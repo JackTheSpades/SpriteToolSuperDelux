@@ -6,6 +6,9 @@
 #include <cstring>
 #include <iomanip>
 #include <sstream>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 const char* BOOL_STR(bool b) {
     return b ? "true" : "false";
@@ -75,6 +78,11 @@ patchfile::~patchfile() {
             return;
         ::fwrite(m_vfile->buffer, sizeof(char), m_vfile->length, fp);
         fclose(fp);
+    } else {
+        fs::path filepath{m_fs_path};
+        if (fs::exists(filepath)) {
+            fs::remove(filepath);
+        }
     }
 }
 

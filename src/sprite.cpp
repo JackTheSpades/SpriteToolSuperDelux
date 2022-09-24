@@ -160,6 +160,10 @@ template <typename T> T* from_table(T* table, int level, int number) {
     const errordata* loc_warnings = asar_getwarnings(&warn_count);
     for (int i = 0; i < warn_count; i++)
         warnings.emplace_back(loc_warnings[i].fullerrdata);
+    int print_count = 0;
+    const char* const* asar_prints = asar_getprints(&print_count);
+    for (int i = 0; i < print_count; i++)
+        io.debug("Asar print from %s: %s\n", file.path().c_str(), asar_prints[i]);
     return true;
 }
 
@@ -203,6 +207,10 @@ template <typename T> T* from_table(T* table, int level, int number) {
     const errordata* loc_warnings = asar_getwarnings(&warn_count);
     for (int i = 0; i < warn_count; i++)
         warnings.emplace_back(loc_warnings[i].fullerrdata);
+    int print_count = 0;
+    const char* const* asar_prints = asar_getprints(&print_count);
+    for (int i = 0; i < print_count; i++)
+        io.debug("Asar print from %s: %s\n", patch_name_rel, asar_prints[i]);
     return true;
 }
 
