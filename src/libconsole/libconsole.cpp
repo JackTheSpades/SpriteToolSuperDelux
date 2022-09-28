@@ -13,7 +13,7 @@
 
 template <typename Tp> struct tbuf {
     using Tpp = std::add_pointer_t<Tp>;
-    Tp* buffer;
+    Tpp buffer;
     size_t m_size;
     tbuf() {
         buffer = nullptr;
@@ -78,6 +78,7 @@ ConversionResult UTF8ToWide(const char* from, const int from_size, DWORD& conv) 
     } else {
         wctbuf wstr{convertResult};
         conv = MultiByteToWideChar(CP_UTF8, 0, from, from_size, wstr, convertResult);
+        wstr.buffer[conv] = L'\0';
         return {std::move(wstr), true};
     }
 }
@@ -134,18 +135,17 @@ BOOL GenericRead(HANDLE hdl, wchar_t* wbuffer, DWORD wbufsize, char* buffer, DWO
 BOOL GenericWrite(HANDLE hdl, const char* buffer, DWORD bufsize) {
     BOOL ret = FALSE;
     DWORD written = 0;
+    DWORD conv = 0;
+    auto&& [wstr, res] = winutil::UTF8ToWide(buffer, bufsize, conv);
+    if (!res)
+        return FALSE;
     if (hdl == NULL) {
         if (IsDebuggerPresent()) {
-            OutputDebugStringA(buffer);
+            OutputDebugString(wstr);
         }
         return TRUE;
     } else if (winutil::HasConsole(hdl)) {
-        DWORD conv = 0;
-        auto&& [wstr, res] = winutil::UTF8ToWide(buffer, bufsize, conv);
-        if (!res)
-            return false;
         ret = WriteConsole(hdl, wstr, static_cast<DWORD>(wstr.size()), &written, NULL) && (written == conv);
-
     } else {
         ret = WriteFile(hdl, buffer, bufsize, &written, NULL);
     }
