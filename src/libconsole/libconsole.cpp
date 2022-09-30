@@ -76,7 +76,7 @@ ConversionResult UTF8ToWide(const char* from, const int from_size, DWORD& conv) 
     if (convertResult <= 0) {
         return {{}, false};
     } else {
-        wctbuf wstr{convertResult};
+        wctbuf wstr{convertResult + 1}; // +1 for the NULL byte.
         conv = MultiByteToWideChar(CP_UTF8, 0, from, from_size, wstr, convertResult);
         wstr.buffer[conv] = L'\0';
         return {std::move(wstr), true};
