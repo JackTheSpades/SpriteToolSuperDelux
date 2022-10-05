@@ -142,6 +142,7 @@ class PixiConfig {
         Routines = DEFAULT_ROUTINES;
         AsmDir = "";
         AsmDirPath = "";
+        SymbolsType = "";
         for (size_t i = 0; i < FromEnum(PathType::__SIZE__); i++) {
             m_Paths[static_cast<PathType>(i)] = DefaultPaths::get(static_cast<PathType>(i));
         }
@@ -175,4 +176,5 @@ class PixiConfig {
     int Routines = DEFAULT_ROUTINES;
     std::string AsmDir{};
     std::string AsmDirPath{};
+    std::string SymbolsType{};
 };

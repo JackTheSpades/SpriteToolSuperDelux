@@ -2,6 +2,7 @@
 
 #include <array>
 #include <exception>
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <unordered_map>
@@ -19,6 +20,8 @@
 #include "lmdata.h"
 #include "map16.h"
 #include "paths.h"
+
+namespace fs = std::filesystem;
 
 #ifdef ON_WINDOWS
 #include <windows.h>
@@ -164,6 +167,17 @@ template <typename T> T* from_table(T* table, int level, int number) {
     const char* const* asar_prints = asar_getprints(&print_count);
     for (int i = 0; i < print_count; i++)
         io.debug("Asar print from %s: %s\n", file.path().c_str(), asar_prints[i]);
+
+    if (cfg.SymbolsType.length()) {
+        const char* symbols_contents = asar_getsymbolsfile(cfg.SymbolsType.c_str());
+        std::string symbols_path = file.path() + "." + cfg.SymbolsType;
+        FILE* wla = open(symbols_path.c_str(), "w");
+        if (wla) {
+            fwrite(symbols_contents, 1, strlen(symbols_contents), wla);
+            fclose(wla);
+        }
+    }
+
     return true;
 }
 
@@ -207,6 +221,17 @@ template <typename T> T* from_table(T* table, int level, int number) {
     const errordata* loc_warnings = asar_getwarnings(&warn_count);
     for (int i = 0; i < warn_count; i++)
         warnings.emplace_back(loc_warnings[i].fullerrdata);
+
+    if (cfg.SymbolsType.length()) {
+        const char* symbols_contents = asar_getsymbolsfile(cfg.SymbolsType.c_str());
+        std::string symbols_path = std::string(patch_name_rel) + "." + cfg.SymbolsType;
+        FILE* wla = open(symbols_path.c_str(), "w");
+        if (wla) {
+            fwrite(symbols_contents, 1, strlen(symbols_contents), wla);
+            fclose(wla);
+        }
+    }
+
     int print_count = 0;
     const char* const* asar_prints = asar_getprints(&print_count);
     for (int i = 0; i < print_count; i++)
@@ -311,6 +336,20 @@ static bool strccmp(std::string_view first, std::string_view second) {
 
     if (!patch(sprite_patch, rom))
         return false;
+
+    if (cfg.SymbolsType.length()) {
+        std::string symbols_to_file = std::string(spr->asm_file) + "." + cfg.SymbolsType;
+        std::string symbols_from_file = std::string(TEMP_SPR_FILE) + "." + cfg.SymbolsType;
+        try {
+            fs::rename(symbols_from_file, symbols_to_file);
+        }
+        catch (const fs::filesystem_error& err) {
+            io.error("Trying to rename \"%s\" returned \"%s\", aborting insertion\n", symbols_from_file.c_str(),
+                     err.what());
+            return false;
+        }
+    }
+
     using ptr_map_t = std::unordered_map<std::string_view, pointer>;
     using ptr_map_v_t = ptr_map_t::value_type;
     ptr_map_t ptr_map = {
@@ -1112,6 +1151,8 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         .add_option("--debug", "Enable debug output, the option flag -out only works when this is set",
                     cfg.DebugEnabled)
         .add_option("-k", "Keep debug files", cfg.KeepFiles)
+        .add_option("--symbols", "SYMBOLSTYPE", "Enable writing debugging symbols files in format wla or nocash",
+                    cfg.SymbolsType)
         .add_option("-l", "list path", "Specify a custom list file", cfg[PathType::List])
         .add_option("-pl", "Per level sprites - will insert perlevel sprite code", cfg.PerLevel)
         .add_option("-npl", "Disable per level sprites (default), kept for compatibility reasons", argparser::no_value)
@@ -1173,6 +1214,10 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         io.error("The number of possible routines (%d) is higher than the maximum number possible, please lower it. "
                  "(Current max is " STR(MAX_ROUTINES) ")",
                  cfg.Routines);
+        return EXIT_FAILURE;
+    }
+    if (cfg.SymbolsType != "" && cfg.SymbolsType != "wla" && cfg.SymbolsType != "nocash") {
+        io.error("Invalid --symbols format. Supported formats are wla or nocash");
         return EXIT_FAILURE;
     }
 
