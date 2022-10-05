@@ -1175,7 +1175,7 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
     using namespace std::string_view_literals;
     std::ifstream listStream{listPath.data()};
     if (!listStream) {
-        io.error("Could not open list file \"%s\" for reading", listPath.data());
+        io.error("Could not open list file \"%s\" for reading: %s", listPath.data(), strerror(errno));
         return false;
     }
     unsigned int sprite_id, level;
