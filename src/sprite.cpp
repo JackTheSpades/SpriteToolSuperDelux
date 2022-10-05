@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 
 #include "MeiMei/MeiMei.h"
@@ -26,6 +27,24 @@ namespace fs = std::filesystem;
 #ifdef ON_WINDOWS
 #include <windows.h>
 #endif
+
+#include <chrono>
+namespace cr = std::chrono;
+struct PatchTimer {
+    decltype(cr::high_resolution_clock::now()) m_start;
+    std::string m_name;
+
+    PatchTimer(std::string name) : m_start(cr::high_resolution_clock::now()), m_name(std::move(name)) {
+    }
+
+    ~PatchTimer() {
+        auto end = cr::high_resolution_clock::now();
+        auto dur = cr::duration_cast<cr::milliseconds>(end - m_start);
+#if 0
+        printf("%s took %lld ms\n", m_name.c_str(), dur.count());
+#endif
+    }
+};
 
 #define STRIMPL(x) #x
 #define STR(x) STRIMPL(x)
@@ -55,6 +74,17 @@ constexpr std::array<std::pair<ListType, size_t>, FromEnum(ListType::__SIZE__) -
      {ListType::Smoke, LESS_SPRITE_COUNT},
      {ListType::SpinningCoin, MINOR_SPRITE_COUNT},
      {ListType::Score, MINOR_SPRITE_COUNT}}};
+
+constexpr std::array<PathType, FromEnum(ListType::__SIZE__)> map_list_to_path{
+    PathType::Sprites,       // ListType::Sprite
+    PathType::Extended,      // ListType::Extended
+    PathType::Cluster,       // ListType::Cluster
+    PathType::MinorExtended, // ListType::MinorExtended
+    PathType::Bounce,        // ListType::Bounce
+    PathType::Smoke,         // ListType::Smoke
+    PathType::SpinningCoin,  // ListType::SpinningCoin
+    PathType::Score          // ListType::Score
+};
 
 unsigned char PLS_LEVEL_PTRS[0x400];
 unsigned char PLS_SPRITE_PTRS[0x4000];
@@ -314,6 +344,37 @@ static bool strccmp(std::string_view first, std::string_view second) {
     return true;
 }
 
+[[nodiscard]] patchfile create_base_sprite_patch(const std::vector<std::string>& extraDefines, const std::string& dir) {
+    std::string escapedDir = escapeDefines(dir);
+    std::string escapedAsmdir = escapeDefines(cfg.AsmDir);
+    patchfile sprite_patch{TEMP_SPR_FILE};
+    sprite_patch.fprintf("namespace nested on\n");
+    sprite_patch.fprintf("warnings push\n");
+    sprite_patch.fprintf("warnings disable w1005\n");
+    sprite_patch.fprintf("warnings disable w1001\n");
+    sprite_patch.fprintf("incsrc \"%ssa1def.asm\"\n", escapedAsmdir.c_str());
+    addIncScrToFile(sprite_patch, extraDefines);
+    sprite_patch.fprintf("incsrc \"shared.asm\"\n");
+    sprite_patch.fprintf("incsrc \"%s_header.asm\"\n", escapedDir.c_str());
+    return sprite_patch;
+}
+
+void add_epilogue_to_sprite_patch(patchfile& sprite_patch) {
+    sprite_patch.fprintf("warnings pull\n");
+    sprite_patch.fprintf("namespace nested off\n");
+    sprite_patch.close();
+}
+
+void add_sprite_to_patch(patchfile& sprite_patch, sprite* spr) {
+    std::string escapedAsmfile = escapeDefines(spr->asm_file);
+    sprite_patch.fprintf("freecode cleaned\n");
+    sprite_patch.fprintf("namespace SPRITE_ENTRY_%d\n", spr->number);
+    sprite_patch.fprintf("SPRITE_ENTRY_%d:\n", spr->number);
+    sprite_patch.fprintf("\tincsrc \"%s\"\n", escapedAsmfile.c_str());
+    sprite_patch.fprintf("namespace off\n");
+    sprite_patch.fprintf("print \"__PIXI_INTERNAL_SPRITE_SEPARATOR__\"\n");
+}
+
 [[nodiscard]] bool patch_sprite(const std::vector<std::string>& extraDefines, sprite* spr, ROM& rom) {
     std::string escapedDir = escapeDefines(spr->directory);
     std::string escapedAsmfile = escapeDefines(spr->asm_file);
@@ -471,6 +532,211 @@ static bool strccmp(std::string_view first, std::string_view second) {
         io.debug("\tINIT: $%06X\n\tMAIN: $%06X\n"
                  "\n__________________________________\n",
                  spr->table.init.addr(), spr->table.main.addr());
+    return true;
+}
+
+bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
+    using ptr_map_t = std::unordered_map<std::string_view, pointer>;
+    using ptr_map_v_t = ptr_map_t::value_type;
+    ptr_map_t ptr_map = {
+        ptr_map_v_t{"INIT", 0x018021},    ptr_map_v_t{"MAIN", 0x018021},   ptr_map_v_t{"CAPE", 0x000000},
+        ptr_map_v_t{"MOUTH", 0x000000},   ptr_map_v_t{"KICKED", 0x000000}, ptr_map_v_t{"CARRIABLE", 0x000000},
+        ptr_map_v_t{"CARRIED", 0x000000}, ptr_map_v_t{"GOAL", 0x000000},   ptr_map_v_t{"VERG", 0x000000}};
+
+    struct PointerChecker {
+        const std::string_view name;
+        bool (*check)(ListType);
+        bool operator()(ListType tp, std::string_view str) const noexcept {
+            return check(tp) && strccmp(name, str.substr(0, name.size()));
+        }
+    };
+
+    auto always_true = [](ListType) { return true; };
+    auto normal_only = [](ListType tp) { return tp == ListType::Sprite; };
+    auto extended_only = [](ListType tp) { return tp == ListType::Extended; };
+
+    using namespace std::string_view_literals;
+    // clang-format off
+    std::array valid_pointer_names{
+        PointerChecker{"INIT"sv, always_true},
+        PointerChecker{"MAIN"sv, always_true},
+        PointerChecker{"CAPE"sv, extended_only},  
+        PointerChecker{"CARRIABLE"sv, normal_only},
+        PointerChecker{"CARRIED"sv, normal_only}, 
+        PointerChecker{"KICKED"sv, normal_only},
+        PointerChecker{"MOUTH"sv, normal_only},   
+        PointerChecker{"GOAL"sv, normal_only},
+        PointerChecker{"VERG"sv, always_true},
+    };
+    // clang-format on
+
+    for (int i = 0; i < static_cast<int>(prints.size()); i++) {
+        auto it = std::find_if(valid_pointer_names.begin(), valid_pointer_names.end(),
+                               [&](const PointerChecker& chk) { return chk(spr->sprite_type, prints[i]); });
+        if (it != valid_pointer_names.end()) {
+            const auto& ch = *it;
+            if (ch.name == "VERG"sv) {
+                // if the user has put $ to indicate the hex number we skip it
+                // we always parse the version as a decimal
+                auto required_version = std::atoi(prints[i].c_str() + (prints[i][4] == '$' ? 5 : 4));
+                if (VERSION_PARTIAL < required_version) {
+                    io.error("The sprite %s requires to be inserted at least with Pixi 1.%d, this is Pixi 1.%d\n",
+                             spr->asm_file, required_version, VERSION_PARTIAL);
+                    return false;
+                }
+            } else {
+                ptr_map[ch.name] = strtol(prints[i].c_str() + ch.name.size(), nullptr, 16);
+            }
+
+        } else {
+            io.debug("\t%s\n", prints[i].c_str());
+        }
+    }
+
+    spr->table.init = ptr_map["INIT"];
+    spr->table.main = ptr_map["MAIN"];
+    if (spr->table.init.is_empty() && spr->table.main.is_empty()) {
+        io.error("Sprite %s had neither INIT nor MAIN defined in its file, insertion has been aborted.", spr->asm_file);
+        return false;
+    }
+    if (spr->sprite_type == ListType::Extended) {
+        spr->extended_cape_ptr = ptr_map["CAPE"];
+    } else if (spr->sprite_type == ListType::Sprite) {
+        spr->ptrs.carried = ptr_map["CARRIED"];
+        spr->ptrs.carriable = ptr_map["CARRIABLE"];
+        spr->ptrs.kicked = ptr_map["KICKED"];
+        spr->ptrs.mouth = ptr_map["MOUTH"];
+        spr->ptrs.goal = ptr_map["GOAL"];
+    }
+    if (spr->sprite_type == ListType::Sprite)
+        io.debug("\tINIT: $%06X\n\tMAIN: $%06X\n"
+                 "\tCARRIABLE: $%06X\n\tCARRIED: $%06X\n\tKICKED: $%06X\n"
+                 "\tMOUTH: $%06X\n\tGOAL: $%06X"
+                 "\n__________________________________\n",
+                 spr->table.init.addr(), spr->table.main.addr(), spr->ptrs.carriable.addr(), spr->ptrs.carried.addr(),
+                 spr->ptrs.kicked.addr(), spr->ptrs.mouth.addr(), spr->ptrs.goal.addr());
+    else if (spr->sprite_type == ListType::Extended)
+        io.debug("\tINIT: $%06X\n\tMAIN: $%06X\n\tCAPE: $%06X"
+                 "\n__________________________________\n",
+                 spr->table.init.addr(), spr->table.main.addr(), spr->extended_cape_ptr.addr());
+    else
+        io.debug("\tINIT: $%06X\n\tMAIN: $%06X\n"
+                 "\n__________________________________\n",
+                 spr->table.init.addr(), spr->table.main.addr());
+	
+    if (spr->level < 0x200 && spr->number >= 0xB0 && spr->number < 0xC0) {
+        int pls_lv_addr = PLS_LEVEL_PTRS[spr->level * 2] + (PLS_LEVEL_PTRS[spr->level * 2 + 1] << 8);
+        if (pls_lv_addr == 0x0000) {
+            pls_lv_addr = PLS_SPRITE_PTRS_ADDR + 1;
+            PLS_LEVEL_PTRS[spr->level * 2] = (unsigned char)pls_lv_addr;
+            PLS_LEVEL_PTRS[spr->level * 2 + 1] = (unsigned char)(pls_lv_addr >> 8);
+            PLS_SPRITE_PTRS_ADDR += 0x20;
+        }
+        pls_lv_addr--;
+        pls_lv_addr += (spr->number - 0xB0) * 2;
+
+        if (PLS_DATA_ADDR >= 0x8000) {
+            io.error("Too many Per-Level sprites.  Please remove some.\n", "");
+            return false;
+        }
+
+        PLS_SPRITE_PTRS[pls_lv_addr] = (unsigned char)(PLS_DATA_ADDR + 1);
+        PLS_SPRITE_PTRS[pls_lv_addr + 1] = (unsigned char)((PLS_DATA_ADDR + 1) >> 8);
+
+        memcpy(PLS_DATA + PLS_DATA_ADDR, &spr->table, 0x10);
+        memcpy(PLS_POINTERS + PLS_DATA_ADDR, &spr->ptrs, 15);
+        int index = PLS_DATA_ADDR + 0x0F;
+        if (index < 0x8000) {
+            PLS_POINTERS[index] = 0xFF;
+        } else {
+            io.error("Per-level sprites data address out of bounds of array, value is %d", PLS_DATA_ADDR);
+            return false;
+        }
+        PLS_DATA_ADDR += 0x10;
+    }
+
+    return true;
+}
+
+[[nodiscard]] bool patch_sprites_all_in_one(std::vector<std::string>& extraDefines, sprite* sprite_list, int size,
+                                            ROM& rom, const std::string& dir) {
+    std::vector<sprite*> sprites;
+    for (int i = 0; i < size; i++) {
+        sprite* spr = sprite_list + i;
+        if (!spr->asm_file)
+            continue;
+        auto it = std::find_if(sprites.begin(), sprites.end(),
+                               [spr](const sprite* other) { return strcmp(other->asm_file, spr->asm_file) == 0; });
+        if (it == sprites.end()) {
+            sprites.push_back(spr);
+        }
+    }
+
+    if (sprites.empty())
+        return true;
+
+    patchfile file = create_base_sprite_patch(extraDefines, dir);
+    for (sprite* spr : sprites) {
+        add_sprite_to_patch(file, spr);
+    }
+    add_epilogue_to_sprite_patch(file);
+
+    if (!patch(file, rom)) {
+        int error_count;
+        const errordata* cerrors = asar_geterrors(&error_count);
+        std::span errors{cerrors, static_cast<size_t>(error_count)};
+        if (std::any_of(errors.begin(), errors.end(), [](const errordata& err) { return err.errid == 5095; })) {
+            io.error("Macro redefinition errors can mean that two sprites define the same macro. This is "
+                     "incompatible with the `--onepatch` command line option. Please attempt insertion without it.");
+        }
+        return false;
+    }
+    int print_count = 0;
+    int label_count = 0;
+    const char* const* asar_prints = asar_getprints(&print_count);
+    const labeldata* asar_labels = asar_getalllabels(&label_count);
+    std::vector<std::string> prints{};
+    std::vector<labeldata> labels{};
+    prints.reserve(print_count);
+    labels.reserve(label_count);
+
+    for (int i = 0; i < print_count; i++) { // trim prints since now we can't deal with starting spaces
+        trim(prints.emplace_back(asar_prints[i]));
+    }
+    for (int i = 0; i < label_count; i++) {
+        labels.push_back(asar_labels[i]);
+    }
+
+    auto it = prints.begin();
+    std::unordered_map<std::string_view, std::span<std::string>> sprite_prints{};
+    constexpr auto separator = "__PIXI_INTERNAL_SPRITE_SEPARATOR__"sv;
+    size_t idx = 0;
+    while (it != prints.end()) {
+        auto sep = std::find(it, prints.end(), separator);
+        if (sep != prints.end()) {
+            sprite_prints.insert(std::pair{std::string_view{sprites[idx]->asm_file}, std::span{&*it, &*sep}});
+            idx++;
+            it = sep + 1;
+        } else {
+            it = sep;
+        }
+    }
+
+    if (sprite_prints.size() != sprites.size()) {
+        io.error("Internal error: prints size does not match sprites size, please report this to the developers "
+                 "of the tool here " GITHUB_ISSUE_LINK);
+        return false;
+    }
+
+    for (int i = 0; i < size; i++) {
+        sprite* spr = sprite_list + i;
+        if (!spr->asm_file)
+            continue;
+        if (!fill_single_sprite(spr, sprite_prints.at(spr->asm_file))) {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -1186,6 +1452,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         .add_option("-meimei-a", "Enables always remap sprite data", MeiMei::AlwaysRemap())
         .add_option("-meimei-k", "Enables keep temp patches files", MeiMei::KeepTemp())
         .add_option("-meimei-d", "Enables debug for MeiMei patches", MeiMei::Debug())
+        .add_option("--onepatch", "Applies all sprites into a single big path", cfg.AllSpritesOnePatch)
 #ifdef ON_WINDOWS
         .add_option("-lm-handle", "lm_handle_code",
                     "To be used only within LM's custom user toolbar file, it receives LM's handle to reload the rom",
@@ -1370,11 +1637,34 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         return EXIT_FAILURE;
 
     int normal_sprites_size = cfg.PerLevel ? MAX_SPRITE_COUNT : 0x100;
-    if (!patch_sprites(extraDefines, sprite_list, normal_sprites_size, rom))
-        return EXIT_FAILURE;
-    for (const auto& [type, size] : sprite_sizes) {
-        if (!patch_sprites(extraDefines, sprites_list_list[FromEnum(type)], static_cast<int>(size), rom))
-            return EXIT_FAILURE;
+
+    if (cfg.AllSpritesOnePatch) {
+        {
+            PatchTimer sprites{cfg[PathType::Sprites]};
+            if (!patch_sprites_all_in_one(extraDefines, sprite_list, normal_sprites_size, rom, cfg[PathType::Sprites]))
+                return EXIT_FAILURE;
+        }
+        for (const auto& [type, size] : sprite_sizes) {
+            {
+                PatchTimer other{cfg[map_list_to_path[FromEnum(type)]]};
+                if (!patch_sprites_all_in_one(extraDefines, sprites_list_list[FromEnum(type)], static_cast<int>(size),
+                                              rom, cfg[map_list_to_path[FromEnum(type)]]))
+                    return EXIT_FAILURE;
+            }
+        }
+    } else {
+        {
+            PatchTimer sprites{cfg[PathType::Sprites]};
+            if (!patch_sprites(extraDefines, sprite_list, normal_sprites_size, rom))
+                return EXIT_FAILURE;
+        }
+        for (const auto& [type, size] : sprite_sizes) {
+            {
+                PatchTimer other{cfg[map_list_to_path[FromEnum(type)]]};
+                if (!patch_sprites(extraDefines, sprites_list_list[FromEnum(type)], static_cast<int>(size), rom))
+                    return EXIT_FAILURE;
+            }
+        }
     }
 
     if (!warnings.empty() && cfg.Warnings) {

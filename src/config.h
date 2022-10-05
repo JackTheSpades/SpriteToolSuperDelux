@@ -139,6 +139,7 @@ class PixiConfig {
         ExtModDisabled = false;
         DisableMeiMei = false;
         DisableAllExtensionFiles = false;
+        AllSpritesOnePatch = false;
         Routines = DEFAULT_ROUTINES;
         AsmDir = "";
         AsmDirPath = "";
@@ -173,6 +174,7 @@ class PixiConfig {
     bool ExtModDisabled = false;
     bool DisableMeiMei = false;
     bool DisableAllExtensionFiles = false;
+    bool AllSpritesOnePatch = false;
     int Routines = DEFAULT_ROUTINES;
     std::string AsmDir{};
     std::string AsmDirPath{};

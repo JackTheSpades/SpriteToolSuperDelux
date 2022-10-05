@@ -52,6 +52,18 @@ macro invoke_snes(addr)
 	STZ $018A
 endmacro
 
+; Macro for calling SA-1 CPU. Label should point to a routine which ends in RTL.
+; Data bank is not set, so use PHB/PHK/PLB ... PLB in your SA-1 code.
+macro invoke_sa1(label)
+	LDA.b #<label>
+	STA $3180
+	LDA.b #<label>>>8
+	STA $3181
+	LDA.b #<label>>>16
+	STA $3182
+	JSR $1E80
+endmacro
+
 
 if read1($00FFD5) == $23		; check if the rom is sa-1
 	if read1($00FFD7) == $0D ; full 6/8 mb sa-1 rom
