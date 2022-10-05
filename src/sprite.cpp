@@ -1452,10 +1452,10 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
                 auto* mw2_data = new unsigned char[fs_size];
                 size_t read_size = fread(mw2_data, 1, fs_size, fp);
                 if (read_size != fs_size) {
+                    fclose(fp);
                     io.error("Couldn't fully read file %s, please check file permissions", cfg[ExtType::Mw2].c_str());
                     return EXIT_FAILURE;
                 }
-                fclose(fp);
                 fwrite(mw2_data, 1, fs_size, mw2);
                 delete[] mw2_data;
             }
