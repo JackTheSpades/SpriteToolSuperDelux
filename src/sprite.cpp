@@ -168,9 +168,9 @@ template <typename T> T* from_table(T* table, int level, int number) {
     for (int i = 0; i < print_count; i++)
         io.debug("Asar print from %s: %s\n", file.path().c_str(), asar_prints[i]);
 
-    if (cfg.SymbolsType.length()) {
+    if (!cfg.SymbolsType.empty()) {
         const char* symbols_contents = asar_getsymbolsfile(cfg.SymbolsType.c_str());
-        std::string symbols_path = file.path() + "." + cfg.SymbolsType;
+        std::string symbols_path{fs::path{file.path()}.replace_extension(cfg.SymbolsType).generic_string()};
         FILE* wla = open(symbols_path.c_str(), "w");
         if (wla) {
             fwrite(symbols_contents, 1, strlen(symbols_contents), wla);
@@ -222,9 +222,9 @@ template <typename T> T* from_table(T* table, int level, int number) {
     for (int i = 0; i < warn_count; i++)
         warnings.emplace_back(loc_warnings[i].fullerrdata);
 
-    if (cfg.SymbolsType.length()) {
+    if (!cfg.SymbolsType.empty()) {
         const char* symbols_contents = asar_getsymbolsfile(cfg.SymbolsType.c_str());
-        std::string symbols_path = std::string(patch_name_rel) + "." + cfg.SymbolsType;
+        std::string symbols_path{fs::path{patch_name_rel}.replace_extension(cfg.SymbolsType).generic_string()};
         FILE* wla = open(symbols_path.c_str(), "w");
         if (wla) {
             fwrite(symbols_contents, 1, strlen(symbols_contents), wla);
@@ -337,14 +337,13 @@ static bool strccmp(std::string_view first, std::string_view second) {
     if (!patch(sprite_patch, rom))
         return false;
 
-    if (cfg.SymbolsType.length()) {
-        std::string symbols_to_file = std::string(spr->asm_file) + "." + cfg.SymbolsType;
-        std::string symbols_from_file = std::string(TEMP_SPR_FILE) + "." + cfg.SymbolsType;
+    if (!cfg.SymbolsType.empty()) {
+        fs::path symbols_to_file = fs::path{spr->asm_file}.replace_extension(cfg.SymbolsType);
+        fs::path symbols_from_file = fs::path{TEMP_SPR_FILE}.replace_extension(cfg.SymbolsType);
         try {
             fs::rename(symbols_from_file, symbols_to_file);
-        }
-        catch (const fs::filesystem_error& err) {
-            io.error("Trying to rename \"%s\" returned \"%s\", aborting insertion\n", symbols_from_file.c_str(),
+        } catch (const fs::filesystem_error& err) {
+            io.error("Trying to rename symbol file of \"%s\" returned \"%s\", aborting insertion\n", spr->asm_file,
                      err.what());
             return false;
         }
