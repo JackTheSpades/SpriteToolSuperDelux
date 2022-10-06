@@ -896,11 +896,11 @@ endif
     CLC
     ADC $CE
     SEP #$20
-    STA !extra_byte_1,x
+    STA !shooter_extra_byte_1,x
     XBA
-    STA !extra_byte_2,x
+    STA !shooter_extra_byte_2,x
     LDA $D0
-    STA !extra_byte_3,x
+    STA !shooter_extra_byte_3,x
 	
 	PLY
 .skipExtraByte
