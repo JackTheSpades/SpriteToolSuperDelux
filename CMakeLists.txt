@@ -13,7 +13,7 @@ if (PIXI_BUILD_TESTS)
 	add_subdirectory(unittests)
 endif()
 add_custom_command(
-	OUTPUT "src/json_const.h" "src/CFG Editor/CFG Editor/Json/JsonConst.cs" 
+	OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/src/json_const.h" "${CMAKE_CURRENT_SOURCE_DIR}/src/CFG Editor/CFG Editor/Json/JsonConst.cs"
 	COMMAND ${Python_EXECUTABLE} generate_json.py
 	DEPENDS tweak_bit_names.json generate_json.py
 	COMMENT "Generating JSON tweak source files"
