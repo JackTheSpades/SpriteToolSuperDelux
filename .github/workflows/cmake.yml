@@ -15,11 +15,11 @@ jobs:
         os: [ windows-latest, ubuntu-latest, macos-latest ]
     
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Get branch name
       id: branch-name
-      uses: tj-actions/branch-names@v5.2
+      uses: tj-actions/branch-names@v6
 
     - name: Setup python
       uses: actions/setup-python@v3
@@ -57,11 +57,11 @@ jobs:
       run: cmake --build . --config $BUILD_TYPE
 
     - name: Setup msbuild
-      uses: microsoft/setup-msbuild@v1
+      uses: microsoft/setup-msbuild@v1.1
       if: matrix.os == 'windows-latest'
     
     - name: Setup nuget
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       if: matrix.os == 'windows-latest'
     
     - name: Build CFG Editor
@@ -81,7 +81,7 @@ jobs:
       run: python ${{github.workspace}}/zip.py
 
     - name: Upload
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: pixi_${{matrix.os}}
         path: ${{github.workspace}}/pixi.zip
@@ -101,7 +101,7 @@ jobs:
 
       - name: Download build artifact
         id: download
-        uses: actions/download-artifact@v3.0.0
+        uses: actions/download-artifact@v3
         with:
           name: pixi_${{matrix.os}}
           path: ${{github.workspace}}/build_artifact
@@ -144,7 +144,7 @@ jobs:
         if: matrix.os == 'windows-latest'
 
       - name: Upload test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: test-result-${{matrix.os}}
           path: ${{github.workspace}}/test/result.json
