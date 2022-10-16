@@ -22,7 +22,7 @@ jobs:
       uses: tj-actions/branch-names@v6.2
 
     - name: Setup python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: '3.9'
 
@@ -107,7 +107,7 @@ jobs:
           path: ${{github.workspace}}/build_artifact
 
       - name: Setup python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
