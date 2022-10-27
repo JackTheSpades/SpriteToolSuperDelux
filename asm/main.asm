@@ -636,7 +636,7 @@ if !PerLevel = 1
 		LDA $010B|!Base2
 		ASL
 		TAY
-		PEA.w ((PerLevelLvlPtrs>>16)<<8)|(PerLevelSprPtrs>>16)
+		PEA.w (bank(PerLevelSprPtrs)<<8)|bank(PerLevelLvlPtrs)
 		PLB
 		; now in PerLevelLvlPtrs bank
 		LDA.w PerLevelLvlPtrs,y
