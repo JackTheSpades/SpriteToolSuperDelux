@@ -979,6 +979,12 @@ SubGenExec:
 ; set sprite tables from main table
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+macro SwapXAndY()
+    PHX
+    TYX
+    PLY
+endmacro
+
 SetSpriteTables:
 	%debugmsg("SetSpriteTables")
 	PHY
@@ -1062,39 +1068,49 @@ SetSpriteTables:
 		PLB
 		LDA $00
 		BRA -
-	+	PEA.w PerLevelTable>>8
-		PLB
-		PLB
-		SEP #$20
-		LDA.w PerLevelTable+$01,y
-		STA !9E,x
-		LDA.w PerLevelTable+$02,y
-		STA !1656,x
-		LDA.w PerLevelTable+$03,y
-		STA !1662,x
-		LDA.w PerLevelTable+$04,y
-		STA !166E,x
+	+	
+        PHK : PLB
+        SEP #$20
+        %SwapXAndY()
+		LDA.l PerLevelTable+$01,x
+		STA !9E,y
+		LDA.l PerLevelTable+$02,x
+		STA !1656,y
+		LDA.l PerLevelTable+$03,x
+		STA !1662,y
+		LDA.l PerLevelTable+$04,x
+		STA !166E,y
 		AND #$0F
-		STA !15F6,x
-		LDA.w PerLevelTable+$05,y
-		STA !167A,x
-		LDA.w PerLevelTable+$06,y
-		STA !1686,x
-		LDA.w PerLevelTable+$07,y
-		STA !190F,x
-		LDA.w PerLevelTable+$00,y
+		STA !15F6,y
+		LDA.l PerLevelTable+$05,x
+		STA !167A,y
+		LDA.l PerLevelTable+$06,x
+		STA !1686,y
+		LDA.l PerLevelTable+$07,x
+		STA !190F,y
+		LDA.l PerLevelTable+$00,x
 		STA !new_code_flag
-		BEQ .notCustom
-		LDA.w PerLevelTable+$0E,y
-		STA !extra_prop_1,x
-		LDA.w PerLevelTable+$0F,y
-		STA !extra_prop_2,x
-		LDA.w PerLevelTable+$0A,y
-		STA $02
-		REP #$20
-		LDA.w PerLevelTable+$08,y
-		STA $00					; INIT pointer to [$00]
-		BRA .ret
+		BEQ .perLevelNotCustom
+		LDA.l PerLevelTable+$0E,x
+		STA $03
+		LDA.l PerLevelTable+$0F,x
+		STA $04
+		LDA.l PerLevelTable+$08,x
+		STA $00
+        LDA.l PerLevelTable+$09,x
+        STA $01
+        LDA.l PerLevelTable+$0A,x
+		STA $02                 ; INIT pointer to [$00]
+        %SwapXAndY()
+        LDA $03
+        STA !extra_prop_1,x
+        LDA $04
+        STA !extra_prop_2,x
+		JMP .ret
+        .perLevelNotCustom
+        %SwapXAndY()
+        JMP .notCustom
+
    endif
 	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
