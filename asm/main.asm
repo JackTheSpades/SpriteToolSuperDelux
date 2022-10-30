@@ -1185,6 +1185,7 @@ ExecuteCustomPtr:
         LDA !new_sprite_num,x
         BRA .normal
     +    ; execute per-level custom pointers here
+        PHK : PLB
         %CallPerLevelStatusPtr(PerLevelCustomPtrTable, IndexPtrTable, vanillaHandler)
         SEP #$30
         BRA .return            ; once done with per-level custom pointers, just return
