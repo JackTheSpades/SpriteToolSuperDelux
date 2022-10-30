@@ -1297,7 +1297,7 @@ TableStart:
     print "Global Table at ",pc
     incbin "_defaulttables.bin"
 CustomStatusPtr:
-    print "Custom status pointers at", pc
+    print "Custom status pointers at ", pc
     incbin "_customstatusptr.bin"
 
 ; ---------------------------------------------------
