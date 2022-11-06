@@ -99,6 +99,7 @@ PixiConfig cfg{};
 iohandler& io = iohandler::get_global();
 std::vector<memoryfile> g_memory_files{};
 patchfile g_shared_patch{"shared.asm"};
+patchfile g_shared_inscrc_patch{"shared_incsrc.asm"};
 std::vector<definedata> g_config_defines{};
 
 struct addtempfile {
@@ -391,6 +392,7 @@ void add_sprite_to_patch(patchfile& sprite_patch, sprite* spr) {
     sprite_patch.fprintf("freecode cleaned\n");
     sprite_patch.fprintf("SPRITE_ENTRY_%d:\n", spr->number);
     sprite_patch.fprintf("\tincsrc \"%s\"\n", escapedAsmfile.c_str());
+    sprite_patch.fprintf("incsrc \"shared_incsrc.asm\"\n");
     sprite_patch.fprintf("warnings pull\n");
     sprite_patch.fprintf("namespace nested off\n");
     sprite_patch.close();
@@ -1021,9 +1023,8 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
     namespace fs = std::filesystem;
 
     std::string escapedRoutinepath = escapeDefines(routine_path, R"(\\\!)");
-    g_shared_patch.fprintf("macro include_once(target, base, offset)\n"
-                           "	if !<base> != 1\n"
-                           "		!<base> = 1\n"
+    g_shared_inscrc_patch.fprintf("macro include_once(target, base, offset)\n"
+                           "	if !<base> == 1\n"
                            "		pushpc\n"
                            "		if read3(<offset>+$03E05C) != $FFFFFF\n"
                            "			<base> = read3(<offset>+$03E05C)\n"
@@ -1039,7 +1040,8 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                            "		endif\n"
                            "		pullpc\n"
                            "	endif\n"
-                           "endmacro\n");
+                           "endmacro\n"
+                           "macro safe_macro_label_wrapper()\n");
     int routine_count = 0;
     if (!fs::exists(cleanPathTrail(routine_path))) {
         io.error("Couldn't open folder \"%s\" for reading.", routine_path.c_str());
@@ -1069,13 +1071,16 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
             const char* charPath = path.c_str();
             g_shared_patch.fprintf("!%s = 0\n"
                                    "macro %s()\n"
-                                   "\t%%include_once(\"%s%s\", %s, $%02X)\n"
+                                   "\t!%s #= 1\n"
                                    "\tJSL %s\n"
                                    "endmacro\n",
-                                   charName, charName, escapedRoutinepath.c_str(), charPath, charName,
-                                   routine_count * 3, charName);
+                                   charName, charName, charName, charName);
+            g_shared_inscrc_patch.fprintf("\t%%include_once(\"%s%s\", %s, $%02X)\n",
+                                   escapedRoutinepath.c_str(), charPath, charName, routine_count * 3);
             routine_count++;
         }
+        g_shared_inscrc_patch.fprintf("endmacro\n"
+                                "%%safe_macro_label_wrapper()    ; actually insert wrapped routines");
     } catch (const fs::filesystem_error& err) {
         io.error("Trying to read folder \"%s\" returned \"%s\", aborting insertion\n", routine_path.c_str(),
                  err.what());
@@ -1083,7 +1088,9 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
     }
     io.print("%d Shared routines registered in \"%s\"\n", routine_count, routine_path.data());
     g_shared_patch.close();
+    g_shared_inscrc_patch.close();
     g_memory_files.push_back(g_shared_patch.vfile());
+    g_memory_files.push_back(g_shared_inscrc_patch.vfile());
     return true;
 }
 
@@ -1324,6 +1331,7 @@ void pixi_reset() {
     io.init();
     g_memory_files.clear();
     g_shared_patch.clear();
+    g_shared_inscrc_patch.clear();
     g_config_defines.clear();
     patchfile::set_keep(false, false);
     cfg.reset();
