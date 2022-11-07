@@ -1,4 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/6hr6hd23c0j1muo4?svg=true)](https://ci.appveyor.com/project/Atari2/spritetoolsuperdelux)
+[![Build status](https://ci.appveyor.com/api/projects/status/v9co7ahq5apu3f74?svg=true)](https://ci.appveyor.com/project/Atari2/spritetoolsuperdelux)
 
 [![CMake](https://github.com/JackTheSpades/SpriteToolSuperDelux/actions/workflows/cmake.yml/badge.svg)](https://github.com/JackTheSpades/SpriteToolSuperDelux/actions/workflows/cmake.yml)
 
