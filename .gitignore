@@ -36,5 +36,7 @@ test/*
 !test/runner.py
 !test/pixi_test.sh
 !test/pixi_test.ps1
+!test/EXPECTED.lst
 src/pixi.rc
 !unittests/testing_files/base.smc
+mingw-build/

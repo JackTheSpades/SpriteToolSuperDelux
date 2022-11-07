@@ -56,6 +56,7 @@ rm pixi.zip
 
 mkdir downloader_test
 cp runner.py downloader_test/runner.py
+cp EXPECTED.lst downloader_test/EXPECTED.lst
 
 # move rom and start script
 cp -r pixi downloader_test/pixi
