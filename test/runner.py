@@ -189,12 +189,12 @@ try:
     create_list_files()
     success, error = test_normal_sprites()
     expected_res = read_expected()
-    for s in success.keys():
-        if s not in expected_res['PASS']:
-            print(f"Sprite {s} unexpectedly failed")
-    for e in error.keys():
-        if e not in expected_res['FAIL']:
-            print(f"Sprite {e} unexpectedly succeeded")
+    for s in expected_res['PASS']:
+        if success.get(s) is None and error.get(s) is not None:
+            print(f"Sprite {s} should have passed but failed")
+    for s in expected_res['FAIL']:
+        if error.get(s) is None and success.get(s) is not None:
+            print(f"Sprite {s} should have failed but passed")
     print("Finished testing all sprites")
     filename = 'result.json'
     with open(filename, 'w') as f:
