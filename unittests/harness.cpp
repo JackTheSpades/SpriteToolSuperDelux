@@ -3,7 +3,7 @@
 #include <fstream>
 #include <gtest/gtest.h>
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined(_MSC_VER)
 // clang-format off
 #define _CRTDBG_MAP_ALLOC
 #include <Windows.h>
@@ -78,10 +78,15 @@ namespace fs = std::filesystem;
 
 TEST(PixiUnitTests, PixiFullRun) {
     std::string_view list_contents{"00 test.json\n01 test.cfg"};
-    fs::copy_file("base.smc", "PixiFullRun.smc", fs::copy_options::overwrite_existing);
-    fs::copy_file("test.json", "sprites/test.json", fs::copy_options::overwrite_existing);
-    fs::copy_file("test.asm", "sprites/test.asm", fs::copy_options::overwrite_existing);
-    fs::copy_file("test.cfg", "sprites/test.cfg", fs::copy_options::overwrite_existing);
+    try {
+        fs::copy_file("base.smc", "PixiFullRun.smc", fs::copy_options::overwrite_existing);
+        fs::copy_file("test.json", "sprites/test.json", fs::copy_options::overwrite_existing);
+        fs::copy_file("test.asm", "sprites/test.asm", fs::copy_options::overwrite_existing);
+        fs::copy_file("test.cfg", "sprites/test.cfg", fs::copy_options::overwrite_existing);
+    } catch (const fs::filesystem_error& error) {
+        std::cout << "Error happened while copying the files: " << error.what() << '\n';
+        return;
+    }
     {
         std::ofstream list_file{"list.txt", std::ios::trunc};
         list_file << list_contents;
@@ -92,10 +97,15 @@ TEST(PixiUnitTests, PixiFullRun) {
 
 TEST(PixiUnitTests, PixiFullRunPerLevel) {
     std::string_view list_contents{"BA test.json\n012:BA test.cfg"};
-    fs::copy_file("base.smc", "PixiFullRunPerLevel.smc", fs::copy_options::overwrite_existing);
-    fs::copy_file("test.json", "sprites/test.json", fs::copy_options::overwrite_existing);
-    fs::copy_file("test.asm", "sprites/test.asm", fs::copy_options::overwrite_existing);
-    fs::copy_file("test.cfg", "sprites/test.cfg", fs::copy_options::overwrite_existing);
+    try {
+        fs::copy_file("base.smc", "PixiFullRunPerLevel.smc", fs::copy_options::overwrite_existing);
+        fs::copy_file("test.json", "sprites/test.json", fs::copy_options::overwrite_existing);
+        fs::copy_file("test.asm", "sprites/test.asm", fs::copy_options::overwrite_existing);
+        fs::copy_file("test.cfg", "sprites/test.cfg", fs::copy_options::overwrite_existing);
+    } catch (const fs::filesystem_error& error) {
+        std::cout << "Error happened while copying the files: " << error.what() << '\n';
+        return;
+    }
     {
         std::ofstream list_file{"list.txt", std::ios::trunc};
         list_file << list_contents;
@@ -106,10 +116,15 @@ TEST(PixiUnitTests, PixiFullRunPerLevel) {
 
 TEST(PixiUnitTests, PixiFullRunPerLevelFail) {
     std::string_view list_contents{"BA test.json\nBA:012 test.json"};
-    fs::copy_file("base.smc", "PixiFullRunPerLevelFail.smc", fs::copy_options::overwrite_existing);
-    fs::copy_file("test.json", "sprites/test.json", fs::copy_options::overwrite_existing);
-    fs::copy_file("test.asm", "sprites/test.asm", fs::copy_options::overwrite_existing);
-    fs::copy_file("test.cfg", "sprites/test.cfg", fs::copy_options::overwrite_existing);
+    try {
+        fs::copy_file("base.smc", "PixiFullRunPerLevelFail.smc", fs::copy_options::overwrite_existing);
+        fs::copy_file("test.json", "sprites/test.json", fs::copy_options::overwrite_existing);
+        fs::copy_file("test.asm", "sprites/test.asm", fs::copy_options::overwrite_existing);
+        fs::copy_file("test.cfg", "sprites/test.cfg", fs::copy_options::overwrite_existing);
+    } catch (const fs::filesystem_error& error) {
+        std::cout << "Error happened while copying the files: " << error.what() << '\n';
+        return;
+    }
     {
         std::ofstream list_file{"list.txt", std::ios::trunc};
         list_file << list_contents;

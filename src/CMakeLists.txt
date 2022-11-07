@@ -130,11 +130,15 @@ else()
     message(WARNING "IPO is not supported: ${ipo_support_error}")
 endif()
 
+set(ON_MINGW FALSE)
+
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if (WIN32)
+        set(ON_MINGW TRUE)
         message(STATUS "Windows build (on Clang/MINGW)")
         list(APPEND PIXI_LINK_OPTIONS -static -static-libgcc -static-libstdc++)
-        list(APPEND PIXI_COMPILE_OPTIONS -Wno-deprecated-declarations)
+        list(APPEND PIXI_COMPILE_OPTIONS -Wno-deprecated-declarations -municode)
+        list(APPEND PIXI_COMPILE_DEFINITIONS -D_UNICODE -DUNICODE)
         if (CMAKE_BUILD_TYPE STREQUAL "Debug")  # if debug mode, don't add -s and --gc-sections
             message(STATUS "Building debug mode")
         else()
@@ -219,8 +223,16 @@ target_compile_definitions(pixi_api_static PRIVATE ${PIXI_COMPILE_DEFINITIONS})
 add_custom_command(TARGET pixi POST_BUILD 
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     $<TARGET_FILE:asar> $<TARGET_FILE_DIR:pixi>
-    COMMENT "Copying $<TARGET_FILE:asar> to output directory"
+    COMMENT "Copying asar dynamic library to output directory"
 )
+
+if (ON_MINGW)
+    add_custom_command(TARGET pixi POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E rename $<TARGET_FILE_DIR:pixi>/libasar.dll $<TARGET_FILE_DIR:pixi>/asar.dll
+        COMMENT "Renaming libasar.dll to asar.dll because MinGW is a mess"
+    )
+endif()
+
 set_target_properties(pixi PROPERTIES ASAR_LIB_PATH $<TARGET_FILE:asar>)
 
 add_custom_command(TARGET pixi POST_BUILD 
