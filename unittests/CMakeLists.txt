@@ -30,5 +30,10 @@ add_custom_command(TARGET PixiUnitTest POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${ASAR_LIB_PATH} $<TARGET_FILE_DIR:PixiUnitTest>
     COMMENT "Copying necessary files in test output directory"
 )
-
+if (ON_MINGW)
+    add_custom_command(TARGET PixiUnitTest POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E rename $<TARGET_FILE_DIR:PixiUnitTest>/libasar.dll $<TARGET_FILE_DIR:PixiUnitTest>/asar.dll
+        COMMENT "Renaming libasar.dll to asar.dll because MinGW is a mess"
+    )
+endif()
 gtest_discover_tests(PixiUnitTest WORKING_DIRECTORY $<TARGET_FILE_DIR:PixiUnitTest>)
