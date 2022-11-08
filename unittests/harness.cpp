@@ -3,7 +3,9 @@
 #include <fstream>
 #include <gtest/gtest.h>
 
-#ifdef _WIN32
+namespace fs = std::filesystem;
+
+#if defined(_WIN32) && defined(_MSC_VER)
 // clang-format off
 #define _CRTDBG_MAP_ALLOC
 #include <Windows.h>
@@ -25,8 +27,25 @@ struct WinCheckMemLeak {
         }
     }
 };
+auto copy_file_wrap(const fs::path& from, const fs::path& to) {
+    return fs::copy_file(from, to, fs::copy_options::overwrite_existing);
+}
+#elif defined(_WIN32) && defined(__GNUC__)
+// mingw
+struct WinCheckMemLeak {};
+auto copy_file_wrap(const fs::path& from, const fs::path& to) {
+    // mingw throws fs::filesystem_error with "file already exists" even when specifying fs::copy_options::overwrite_existing
+    // so this is a way to go around that issue.
+    if (fs::exists(to)) {
+        fs::remove(to);
+    }
+    return fs::copy_file(from, to, fs::copy_options::overwrite_existing);
+}
 #else
 struct WinCheckMemLeak {};
+auto copy_file_wrap(const fs::path& from, const fs::path& to) {
+    return fs::copy_file(from, to, fs::copy_options::overwrite_existing);
+}
 #endif
 
 TEST(PixiUnitTests, CFGParsing) {
@@ -74,14 +93,18 @@ TEST(PixiUnitTests, JsonParsing) {
     pixi_sprite_free(json_spr);
 }
 
-namespace fs = std::filesystem;
-
 TEST(PixiUnitTests, PixiFullRun) {
     std::string_view list_contents{"00 test.json\n01 test.cfg"};
-    fs::copy_file("base.smc", "PixiFullRun.smc", fs::copy_options::overwrite_existing);
-    fs::copy_file("test.json", "sprites/test.json", fs::copy_options::overwrite_existing);
-    fs::copy_file("test.asm", "sprites/test.asm", fs::copy_options::overwrite_existing);
-    fs::copy_file("test.cfg", "sprites/test.cfg", fs::copy_options::overwrite_existing);
+    try {
+        copy_file_wrap("base.smc", "PixiFullRun.smc");
+        copy_file_wrap("test.json", "sprites/test.json");
+        copy_file_wrap("test.asm", "sprites/test.asm");
+        copy_file_wrap("test.cfg", "sprites/test.cfg");
+    } catch (const fs::filesystem_error& error) {
+        std::cout << "Error happened while copying the files: " << error.what() << '\n';
+        EXPECT_FALSE(true);
+        return;
+    }
     {
         std::ofstream list_file{"list.txt", std::ios::trunc};
         list_file << list_contents;
@@ -92,10 +115,16 @@ TEST(PixiUnitTests, PixiFullRun) {
 
 TEST(PixiUnitTests, PixiFullRunPerLevel) {
     std::string_view list_contents{"BA test.json\n012:BA test.cfg"};
-    fs::copy_file("base.smc", "PixiFullRunPerLevel.smc", fs::copy_options::overwrite_existing);
-    fs::copy_file("test.json", "sprites/test.json", fs::copy_options::overwrite_existing);
-    fs::copy_file("test.asm", "sprites/test.asm", fs::copy_options::overwrite_existing);
-    fs::copy_file("test.cfg", "sprites/test.cfg", fs::copy_options::overwrite_existing);
+    try {
+        copy_file_wrap("base.smc", "PixiFullRunPerLevel.smc");
+        copy_file_wrap("test.json", "sprites/test.json");
+        copy_file_wrap("test.asm", "sprites/test.asm");
+        copy_file_wrap("test.cfg", "sprites/test.cfg");
+    } catch (const fs::filesystem_error& error) {
+        std::cout << "Error happened while copying the files: " << error.what() << '\n';
+        EXPECT_FALSE(true);
+        return;
+    }
     {
         std::ofstream list_file{"list.txt", std::ios::trunc};
         list_file << list_contents;
@@ -106,10 +135,16 @@ TEST(PixiUnitTests, PixiFullRunPerLevel) {
 
 TEST(PixiUnitTests, PixiFullRunPerLevelFail) {
     std::string_view list_contents{"BA test.json\nBA:012 test.json"};
-    fs::copy_file("base.smc", "PixiFullRunPerLevelFail.smc", fs::copy_options::overwrite_existing);
-    fs::copy_file("test.json", "sprites/test.json", fs::copy_options::overwrite_existing);
-    fs::copy_file("test.asm", "sprites/test.asm", fs::copy_options::overwrite_existing);
-    fs::copy_file("test.cfg", "sprites/test.cfg", fs::copy_options::overwrite_existing);
+    try {
+        copy_file_wrap("base.smc", "PixiFullRunPerLevelFail.smc");
+        copy_file_wrap("test.json", "sprites/test.json");
+        copy_file_wrap("test.asm", "sprites/test.asm");
+        copy_file_wrap("test.cfg", "sprites/test.cfg");
+    } catch (const fs::filesystem_error& error) {
+        std::cout << "Error happened while copying the files: " << error.what() << '\n';
+        EXPECT_FALSE(true);
+        return;
+    }
     {
         std::ofstream list_file{"list.txt", std::ios::trunc};
         list_file << list_contents;

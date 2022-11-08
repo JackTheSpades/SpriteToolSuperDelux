@@ -1,6 +1,6 @@
 mkdir build
 Set-Location build
-cmake -G "Visual Studio 16 2019" -S ..
+cmake -G "Visual Studio 17 2022" -A x64 -S ..
 cmake --build . --config Release
 Set-Location ..
 Set-Location "src/CFG Editor"
