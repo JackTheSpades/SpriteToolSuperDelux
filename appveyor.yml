@@ -3,11 +3,9 @@ image: Visual Studio 2022
 build_script:
   - ps: .\build_script.ps1
 
-after_build:
-  - ps: py -m pip install requests; py .\zip.py
-
 artifacts:
-  - path: pixi.zip
+  - path: pixi-x64.zip
+  - path: pixi-x86.zip
 
 deploy:
   provider: FTP
