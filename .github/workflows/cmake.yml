@@ -1,6 +1,6 @@
 name: CMake
 
-on: [push]
+on: [push, pull_request]
 
 env:
   BUILD_TYPE: Release
@@ -13,9 +13,24 @@ jobs:
     strategy:
       matrix:
         os: [ windows-latest, ubuntu-latest, macos-latest ]
-    
+        platform: [ x64, x86 ]
+
     steps:
     - uses: actions/checkout@v3
+
+    - name: Set environment variables (x86)
+      shell: bash
+      run: |
+           echo "CFLAGS=-m32" >> $GITHUB_ENV
+           echo "CXXFLAGS=-m32" >> $GITHUB_ENV
+           echo "WIN_PLAT_TYPE=Win32" >> $GITHUB_ENV
+      if: matrix.platform == 'x86' && matrix.os != 'macos-latest'
+    
+    - name: Set environment variables (x64)
+      shell: bash
+      run: |
+           echo "WIN_PLAT_TYPE=x64" >> $GITHUB_ENV
+      if: matrix.platform == 'x64' && matrix.os == 'windows-latest'
 
     - name: Get branch name
       id: branch-name
@@ -30,6 +45,7 @@ jobs:
       run:  |
             sudo apt update
             sudo apt install gcc-11 g++-11
+            sudo apt install gcc-11-multilib g++-11-multilib
       shell: bash
       if: matrix.os == 'ubuntu-latest'
 
@@ -39,8 +55,14 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}/build
+      run: cmake $GITHUB_WORKSPACE -A ${{ env.WIN_PLAT_TYPE }} -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPIXI_CI_BUILD=ON
+      if: matrix.os == 'windows-latest'
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{github.workspace}}/build
       run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPIXI_CI_BUILD=ON
-      if: matrix.os != 'ubuntu-latest'
+      if: matrix.os == 'macos-latest'
     
     - name: Configure CMake
       shell: bash
@@ -83,7 +105,7 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v3
       with:
-        name: pixi_${{matrix.os}}
+        name: pixi_${{matrix.os}}_${{matrix.platform}}
         path: ${{github.workspace}}/pixi.zip
     
   test:
@@ -103,7 +125,7 @@ jobs:
         id: download
         uses: actions/download-artifact@v3
         with:
-          name: pixi_${{matrix.os}}
+          name: pixi_${{matrix.os}}_x64
           path: ${{github.workspace}}/build_artifact
 
       - name: Setup python
