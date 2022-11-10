@@ -11,15 +11,17 @@ set(PIXI_COMPILE_DEFINITIONS GITHUB_ISSUE_LINK="https://github.com/JackTheSpades
 set(PIXI_VERSION_EDITION 1)
 set(PIXI_VERSION_MAJOR 4)
 set(PIXI_VERSION_MINOR 0)
-string(TIMESTAMP PIXI_VERSION_DEBUG "%Y%m%d_%H-%M-%S" UTC)
+string(TIMESTAMP PIXI_BUILD_TIMESTAMP "%Y/%m/%d %H:%M:%S" UTC)
 set(PIXI_MSVC_LIB_TYPE "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" CACHE STRING "Library type to use for MSVC builds")
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR PIXI_CI_BUILD)
     list(APPEND PIXI_COMPILE_DEFINITIONS PIXI_DEV_BUILD=true)
-    set(PIXI_RC_VERSION_DEBUG ${PIXI_VERSION_DEBUG})
+    set(PIXI_RC_VERSION "1")
+    set(PIXI_RC_TIMESTAMP "${PIXI_BUILD_TIMESTAMP} DEBUG")
 else()
     list(APPEND PIXI_COMPILE_DEFINITIONS PIXI_DEV_BUILD=false)
-    set(PIXI_RC_VERSION_DEBUG "0")
+    set(PIXI_RC_VERSION "0")
+    set(PIXI_RC_TIMESTAMP "${PIXI_BUILD_TIMESTAMP}")
 endif()
 
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24.0")
@@ -53,8 +55,8 @@ list(
 SET(PIXI_RC_CONTENTS "1 ICON \"Pixi.ico\" 
 
 1 VERSIONINFO 
-      FILEVERSION     ${PIXI_VERSION_EDITION}, ${PIXI_VERSION_MAJOR}, ${PIXI_VERSION_MINOR}, ${PIXI_RC_VERSION_DEBUG} 
-      PRODUCTVERSION  ${PIXI_VERSION_EDITION}, ${PIXI_VERSION_MAJOR}, ${PIXI_VERSION_MINOR}, ${PIXI_RC_VERSION_DEBUG} 
+      FILEVERSION     ${PIXI_VERSION_EDITION}, ${PIXI_VERSION_MAJOR}, ${PIXI_VERSION_MINOR}, ${PIXI_RC_VERSION} 
+      PRODUCTVERSION  ${PIXI_VERSION_EDITION}, ${PIXI_VERSION_MAJOR}, ${PIXI_VERSION_MINOR}, ${PIXI_RC_VERSION} 
 {
     BLOCK \"StringFileInfo\" 
     {
@@ -62,11 +64,11 @@ SET(PIXI_RC_CONTENTS "1 ICON \"Pixi.ico\"
         {
             VALUE \"CompanyName\", \"Pixi developers\\0\" 
             VALUE \"FileDescription\", \"SMW custom sprites inserter\\0\"
-            VALUE \"FileVersion\", \"v${PIXI_VERSION_EDITION}.${PIXI_VERSION_MAJOR}${PIXI_VERSION_MINOR}_${PIXI_RC_VERSION_DEBUG}\\0\"
+            VALUE \"FileVersion\", \"v${PIXI_VERSION_EDITION}.${PIXI_VERSION_MAJOR}${PIXI_VERSION_MINOR}.${PIXI_RC_VERSION}\\0\"
             VALUE \"InternalName\", \"pixi\\0\" 
             VALUE \"OriginalFilename\", \"pixi.exe\\0\" 
             VALUE \"ProductName\", \"Pixi\\0\" 
-            VALUE \"ProductVersion\", \"v${PIXI_VERSION_EDITION}.${PIXI_VERSION_MAJOR}${PIXI_VERSION_MINOR}_${PIXI_RC_VERSION_DEBUG}\\0\"
+            VALUE \"ProductVersion\", \"v${PIXI_VERSION_EDITION}.${PIXI_VERSION_MAJOR}${PIXI_VERSION_MINOR} ${PIXI_RC_TIMESTAMP}\\0\"
         }
     }
     BLOCK \"VarFileInfo\" 
@@ -130,11 +132,15 @@ else()
     message(WARNING "IPO is not supported: ${ipo_support_error}")
 endif()
 
+set(ON_MINGW FALSE)
+
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if (WIN32)
+        set(ON_MINGW TRUE PARENT_SCOPE)
         message(STATUS "Windows build (on Clang/MINGW)")
         list(APPEND PIXI_LINK_OPTIONS -static -static-libgcc -static-libstdc++)
-        list(APPEND PIXI_COMPILE_OPTIONS -Wno-deprecated-declarations)
+        list(APPEND PIXI_COMPILE_OPTIONS -Wno-deprecated-declarations -municode)
+        list(APPEND PIXI_COMPILE_DEFINITIONS -D_UNICODE -DUNICODE)
         if (CMAKE_BUILD_TYPE STREQUAL "Debug")  # if debug mode, don't add -s and --gc-sections
             message(STATUS "Building debug mode")
         else()
@@ -198,7 +204,7 @@ list(APPEND PIXI_COMPILE_DEFINITIONS
     PIXI_VERSION_EDITION=${PIXI_VERSION_EDITION}
     PIXI_VERSION_MAJOR=${PIXI_VERSION_MAJOR}
     PIXI_VERSION_MINOR=${PIXI_VERSION_MINOR}
-    PIXI_VERSION_DEBUG=${PIXI_VERSION_DEBUG}
+    PIXI_VERSION_DEBUG=${PIXI_BUILD_TIMESTAMP}
 )
 
 target_link_libraries(pixi PRIVATE ${PIXI_LINK_LIBRARIES})
@@ -219,8 +225,16 @@ target_compile_definitions(pixi_api_static PRIVATE ${PIXI_COMPILE_DEFINITIONS})
 add_custom_command(TARGET pixi POST_BUILD 
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     $<TARGET_FILE:asar> $<TARGET_FILE_DIR:pixi>
-    COMMENT "Copying $<TARGET_FILE:asar> to output directory"
+    COMMENT "Copying asar dynamic library to output directory"
 )
+
+if (ON_MINGW)
+    add_custom_command(TARGET pixi POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E rename $<TARGET_FILE_DIR:pixi>/libasar.dll $<TARGET_FILE_DIR:pixi>/asar.dll
+        COMMENT "Renaming libasar.dll to asar.dll because MinGW is a mess"
+    )
+endif()
+
 set_target_properties(pixi PROPERTIES ASAR_LIB_PATH $<TARGET_FILE:asar>)
 
 add_custom_command(TARGET pixi POST_BUILD 

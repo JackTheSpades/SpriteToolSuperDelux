@@ -53,7 +53,7 @@ if ($env:ARTIFACT_PATH) {
     Set-Location ..
 }
 
-unzip pixi.zip -d pixi
+Expand-Archive pixi.zip -DestinationPath pixi
 
 # delete temp files
 if (!$env:ARTIFACT_PATH) {
@@ -63,6 +63,7 @@ Remove-Item pixi.zip
 
 mkdir downloader_test
 Copy-Item runner.py downloader_test/runner.py
+Copy-Item EXPECTED.lst downloader_test/EXPECTED.lst
 
 # move rom and start script
 Copy-Item -Recurse pixi downloader_test
@@ -85,7 +86,7 @@ else {
     Copy-Item -Recurse downloader_test/extended .sprites_dl_cache
 }
 
-Move-Item downloader_test/result.json result.json
+Move-Item -Force downloader_test/result.json result.json
 
 Remove-Item -Recurse -Force downloader_test
 Remove-Item -Recurse -Force pixi
