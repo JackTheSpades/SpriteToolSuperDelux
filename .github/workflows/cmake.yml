@@ -125,7 +125,7 @@ jobs:
         id: download
         uses: actions/download-artifact@v3
         with:
-          name: pixi_${{matrix.os}}
+          name: pixi_${{matrix.os}}_x64
           path: ${{github.workspace}}/build_artifact
 
       - name: Setup python
