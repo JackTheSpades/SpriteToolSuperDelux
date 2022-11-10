@@ -1024,22 +1024,26 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
 
     std::string escapedRoutinepath = escapeDefines(routine_path, R"(\\\!)");
     g_shared_inscrc_patch.fprintf("macro include_once(target, base, offset)\n"
-                           "	if !<base> == 1\n"
-                           "		pushpc\n"
-                           "		if read3(<offset>+$03E05C) != $FFFFFF\n"
-                           "			<base> = read3(<offset>+$03E05C)\n"
-                           "		else\n"
-                           "			freecode cleaned\n"
-                           "				global #<base>:\n"
-                           "				print \"    Routine: <base> inserted at $\",pc\n"
-                           "				namespace <base>\n"
-                           "				incsrc \"<target>\"\n"
-                           "               namespace off\n"
-                           "			ORG <offset>+$03E05C\n"
-                           "				dl <base>\n"
-                           "		endif\n"
-                           "		pullpc\n"
-                           "	endif\n"
+                           "	if defined(\"<base>\")\n"
+                           "    	if !<base> == 1\n"
+                           "	    	pushpc\n"
+                           "		    if read3(<offset>+$03E05C) != $FFFFFF\n"
+                           "			    <base> = read3(<offset>+$03E05C)\n"
+                           "	    	else\n"
+                           "	    		freecode cleaned\n"
+                           "	    			global #<base>:\n"
+                           "	    			print \"    Routine: <base> inserted at $\",pc\n"
+                           "	    			namespace <base>\n"
+                           "	    			incsrc \"<target>\"\n"
+                           "                   namespace off\n"
+                           "	    		ORG <offset>+$03E05C\n"
+                           "	    			dl <base>\n"
+                           "	    	endif\n"
+                           "	    	pullpc\n"
+                           "    	!<base> #= 2\n"
+                           "    	!pixi_incsrc_again #= 1\n"
+                           "    	endif\n"
+                           "    endif\n"
                            "endmacro\n"
                            "macro safe_macro_label_wrapper()\n");
     int routine_count = 0;
@@ -1069,9 +1073,8 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
             }
             const char* charName = name.c_str();
             const char* charPath = path.c_str();
-            g_shared_patch.fprintf("!%s = 0\n"
-                                   "macro %s()\n"
-                                   "\t!%s #= 1\n"
+            g_shared_patch.fprintf("macro %s()\n"
+                                   "\t!%s ?= 1\n"
                                    "\tJSL %s\n"
                                    "endmacro\n",
                                    charName, charName, charName, charName);
@@ -1079,8 +1082,12 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                                    escapedRoutinepath.c_str(), charPath, charName, routine_count * 3);
             routine_count++;
         }
-        g_shared_inscrc_patch.fprintf("endmacro\n"
-                                "%%safe_macro_label_wrapper()    ; actually insert wrapped routines");
+        g_shared_inscrc_patch.fprintf("endmacro\n\n"
+                                      "!pixi_incsrc_again = 1\n"
+                                      "while !pixi_incsrc_again != 0\n"
+                                      "\t!pixi_incsrc_again #= 0\n"
+                                      "\t%%safe_macro_label_wrapper()    ; actually insert wrapped routines\n"
+                                      "endif\n");
     } catch (const fs::filesystem_error& err) {
         io.error("Trying to read folder \"%s\" returned \"%s\", aborting insertion\n", routine_path.c_str(),
                  err.what());
