@@ -11,7 +11,7 @@ Pop-Location
 mkdir build
 Push-Location build
 cmake -G "Visual Studio 17 2022" -A x64 -S ..
-cmake --build . --config Release
+cmake --build . --config Release --target pixi
 Pop-Location
 
 py .\zip.py
@@ -23,7 +23,7 @@ Remove-Item -Recurse -Force build
 mkdir build
 Push-Location build
 cmake -G "Visual Studio 17 2022" -A Win32 -S ..
-cmake --build . --config Release
+cmake --build . --config Release --target pixi
 Set-Location ..
 
 py .\zip.py
