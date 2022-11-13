@@ -1285,22 +1285,15 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
 }
 
 FILE* open_subfile(ROM& rom, const char* ext, const char* mode) {
-    char* name = new char[rom.name.size() + 1];
-    strcpy(name, rom.name.data());
-    char* dot = strrchr(name, '.');
-    strcpy(dot + 1, ext);
-#ifdef DEBUGMSG
-    debug_print("\ttry opening %s mode %s\n", name, mode);
-#endif
-    FILE* r = open(name, mode);
-    delete[] name;
+    fs::path path{rom.name};
+    path.replace_extension(ext);
+    std::string spath = path.generic_string();
+    FILE* r = open(spath.c_str(), mode);
     return r;
 }
 
 void remove(std::string_view dir, const char* file) {
-    std::string path{dir};
-    path += file;
-    remove(path.c_str());
+    fs::remove(fs::path{dir} / file);
 }
 
 #ifdef PIXI_DLL_BUILD
