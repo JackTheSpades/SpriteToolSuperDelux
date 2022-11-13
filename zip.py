@@ -4,6 +4,12 @@ import re
 import glob
 import sys
 
+def in_github_ci():
+    val = os.getenv('GITHUB_ACTIONS', default='false')
+    if val.lower() == 'true':
+        return True
+    else:
+        return False
 
 def asar_lib_name():
     if sys.platform == 'linux':
@@ -71,10 +77,25 @@ folder_filter_map = {
 def filter_for(folder_name):
     return folder_filter_map.get(folder_name, keep_header_filter)(folder_name)
 
+def choose_binary(search_path):
+    exes = glob.glob(search_path, recursive=True)
+    if in_github_ci():
+        return exes[0]
+    if len(exes) > 1: 
+        print("Found more than 1 binary: \n" + "\n".join((f'{i}: {p}' for i, p in enumerate(exes))))
+        binnum = input("Input the number of the one to use: ")
+        try:
+            return exes[int(binnum)]
+        except (ValueError, IndexError) as e:
+            raise Exception("Error while choosing binary") from e
+    elif len(exes) == 0:
+        raise Exception(f"No binary found for {search_path}")
+    else:
+        return exes[0]
 
 cfgexe = "src/CFG Editor/CFG Editor/bin/Release/CFG Editor.exe"
-pixiexe = glob.glob(f'{os.getcwd()}{os.sep}**{os.sep}{pixi_exe_name()}', recursive=True)[0]
-asarlib = glob.glob(f'{os.getcwd()}{os.sep}**{os.sep}{asar_lib_name()}', recursive=True)[0]
+pixiexe = choose_binary(f'{os.getcwd()}{os.sep}**{os.sep}src{os.sep}{pixi_exe_name()}')
+asarlib = choose_binary(f'{os.getcwd()}{os.sep}**{os.sep}src{os.sep}{asar_lib_name()}')
 
 with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
 
