@@ -8,16 +8,6 @@ org $029054|!BankB
     dl Ptr
     warnpc $02905E|!BankB
 
-; Fixes the bug where hitting a block under a coin
-; will leave an invisible solid block in place of the coin
-org $029347            
-    JSR coin_fix
-    
-org $02D51E
-coin_fix:
-    LDA #$02
-    JMP $91BA
-
 freecode
 
 Main:
