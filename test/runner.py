@@ -66,6 +66,17 @@ def download():
             with open(name + '/' + 'names.json', 'w') as f:
                 f.write(json.dumps(nameids, indent=4))
 
+def download_if_smwc_failed():
+    ATARISMWC_SPRITES_URL = "https://www.atarismwc.com/pixi_test_sprites.zip"
+    with requests.Session() as sess:
+        with sess.get(ATARISMWC_SPRITES_URL) as res:
+            if res.status_code != 200:
+                raise Exception("Failed to download sprites")
+            with open('pixi_test_sprites.zip', 'wb') as p:
+                p.write(res.content)
+    with zipfile.ZipFile('pixi_test_sprites.zip') as z:
+        z.extractall()
+    os.remove('pixi_test_sprites.zip')
 
 def create_list_files():
     for name, info in list_types.items():
@@ -183,7 +194,12 @@ def read_expected():
 try:
     if sys.argv[1] == "false":
         print("Downloading sprites")
-        download()
+        try:
+            download()
+        except requests.exceptions.RequestException as e:
+            print(f'Download from SMWC failed because {str(e)}, using other source')
+            download_if_smwc_failed()
+            sys.argv[1] = "true"
     else:
         print("Using cached sprites")
     create_list_files()

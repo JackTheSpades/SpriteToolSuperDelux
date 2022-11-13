@@ -43,7 +43,7 @@ if ($env:ARTIFACT_PATH) {
     mkdir build
     Set-Location build
     cmake ..
-    cmake --build . --config Release
+    cmake --build . --config Release --target pixi
     Set-Location ..
     $cont = Get-Content zip.py
     $newcont = $cont[0..96] + $cont[105..($cont.Length-1)]

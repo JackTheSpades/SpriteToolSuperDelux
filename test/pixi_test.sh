@@ -37,7 +37,8 @@ if [[ -z "${ARTIFACT_PATH}" ]]; then
     git checkout $branch
     mkdir build
     cd build
-    cmake .. && make
+    cmake -S .. -B . -DCMAKE_BUILD_TYPE=Release
+    cmake --build . --target pixi
     cd ..
     python3 zip.py
     mv pixi.zip ../pixi.zip
