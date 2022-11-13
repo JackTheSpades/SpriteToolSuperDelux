@@ -94,8 +94,8 @@ def choose_binary(search_path):
         return exes[0]
 
 cfgexe = "src/CFG Editor/CFG Editor/bin/Release/CFG Editor.exe"
-pixiexe = choose_binary(f'{os.getcwd()}{os.sep}**{os.sep}src{os.sep}{pixi_exe_name()}')
-asarlib = choose_binary(f'{os.getcwd()}{os.sep}**{os.sep}src{os.sep}{asar_lib_name()}')
+pixiexe = choose_binary(f'{os.getcwd()}{os.sep}**{os.sep}{pixi_exe_name()}')
+asarlib = choose_binary(f'{os.getcwd()}{os.sep}**{os.sep}{asar_lib_name()}')
 
 with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
 

@@ -18,15 +18,20 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set environment variables (x86)
+    - name: Set environment variables (x86|Ubuntu|MacOS)
       shell: bash
       run: |
            echo "CFLAGS=-m32" >> $GITHUB_ENV
            echo "CXXFLAGS=-m32" >> $GITHUB_ENV
+      if: matrix.platform == 'x86' && matrix.os != 'windows-latest'
+
+    - name: Set environment variables (x86|Windows)
+      shell: base
+      run: |
            echo "WIN_PLAT_TYPE=Win32" >> $GITHUB_ENV
-      if: matrix.platform == 'x86' && matrix.os != 'macos-latest'
+      if: matrix.platform == 'x86' && matrix.os == 'windows-latest'
     
-    - name: Set environment variables (x64)
+    - name: Set environment variables (x64|Windows)
       shell: bash
       run: |
            echo "WIN_PLAT_TYPE=x64" >> $GITHUB_ENV
