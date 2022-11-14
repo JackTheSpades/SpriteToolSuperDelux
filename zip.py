@@ -11,6 +11,15 @@ def in_github_ci():
     else:
         return False
 
+def in_appveyor_ci():
+    val = os.getenv('APPVEYOR', default='false')
+    if val.lower() == 'true':
+        return True
+    else:
+        return False
+ 
+CALLED_BY_CI: bool = in_appveyor_ci() or in_github_ci()
+
 def asar_lib_name():
     if sys.platform == 'linux':
         return "libasar.so"
@@ -79,7 +88,7 @@ def filter_for(folder_name):
 
 def choose_binary(search_path):
     exes = glob.glob(search_path, recursive=True)
-    if in_github_ci():
+    if CALLED_BY_CI:
         return exes[0]
     if len(exes) > 1: 
         print("Found more than 1 binary: \n" + "\n".join((f'{i}: {p}' for i, p in enumerate(exes))))
