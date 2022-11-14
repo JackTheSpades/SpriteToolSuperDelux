@@ -18,12 +18,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set environment variables (x86|Ubuntu|MacOS)
+    - name: Set environment variables (x86|Ubuntu)
       shell: bash
       run: |
            echo "CFLAGS=-m32" >> $GITHUB_ENV
            echo "CXXFLAGS=-m32" >> $GITHUB_ENV
-      if: matrix.platform == 'x86' && matrix.os != 'windows-latest'
+      if: matrix.platform == 'x86' && matrix.os == 'ubuntu-latest'
 
     - name: Set environment variables (x86|Windows)
       shell: base
