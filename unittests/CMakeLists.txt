@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.18)
 include(FetchContent)
 
+set(BUILD_GMOCK OFF)
 get_target_property(PIXI_SOURCE_DIR pixi_api_static SOURCE_DIR)
+get_target_property(UNITTEST_RUNTIME_LIBRARY pixi_api_static MSVC_RUNTIME_LIBRARY)
 FetchContent_Declare(
     googletest
     GIT_REPOSITORY https://github.com/google/googletest
@@ -9,12 +11,16 @@ FetchContent_Declare(
 )
 enable_testing()
 include(GoogleTest)
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
 
+FetchContent_MakeAvailable(googletest)
+### vvvv BEGIN WORKAROUND FOR https://github.com/google/googletest/issues/4067
+set_property(TARGET gtest PROPERTY MSVC_RUNTIME_LIBRARY ${UNITTEST_RUNTIME_LIBRARY})
+set_property(TARGET gtest_main PROPERTY MSVC_RUNTIME_LIBRARY ${UNITTEST_RUNTIME_LIBRARY})
+### ^^^ END WORKAROUND
 add_executable(PixiUnitTest harness.cpp)
+set_property(TARGET PixiUnitTest PROPERTY MSVC_RUNTIME_LIBRARY ${UNITTEST_RUNTIME_LIBRARY})
 target_include_directories(PixiUnitTest PUBLIC ${PIXI_SOURCE_DIR})
-target_link_libraries(PixiUnitTest PRIVATE pixi_api_static gtest_main)
+target_link_libraries(PixiUnitTest PRIVATE pixi_api_static gtest gtest_main)
 
 get_target_property(ASAR_LIB_PATH pixi ASAR_LIB_PATH)
 add_custom_command(TARGET PixiUnitTest POST_BUILD
