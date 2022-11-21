@@ -361,6 +361,7 @@ static bool strccmp(std::string_view first, std::string_view second) {
 }
 
 void add_epilogue_to_sprite_patch(patchfile& sprite_patch) {
+    sprite_patch.fprintf("incsrc \"shared_incsrc.asm\"\n");
     sprite_patch.fprintf("warnings pull\n");
     sprite_patch.fprintf("namespace nested off\n");
     sprite_patch.close();
