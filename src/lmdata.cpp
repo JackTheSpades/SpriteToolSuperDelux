@@ -36,7 +36,7 @@ std::vector<char> generate_mw2_data(const sprite* spr, const collection& c) {
     char c1 = 0x79 + (c.extra_bit ? 0x04 : 0);
     data.push_back(c1);
     data.push_back(0x70);
-    data.push_back(spr->number);
+    data.push_back(static_cast<char>(spr->number));
     // add the extra property bytes
     int byte_count = (c.extra_bit ? spr->extra_byte_count : spr->byte_count);
     data.insert(data.end(), std::begin(c.prop), std::begin(c.prop) + byte_count);
