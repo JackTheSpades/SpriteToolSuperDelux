@@ -900,7 +900,7 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
 
         // shared routines
         clean_patch.fprintf("\n\n;Routines:\n");
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < MAX_ROUTINES; i++) {
             int routine_pointer = rom.pointer_snes(0x03E05C + i * 3).addr();
             if (routine_pointer != 0xFFFFFF) {
                 clean_patch.fprintf("autoclean $%06X\n", routine_pointer);
