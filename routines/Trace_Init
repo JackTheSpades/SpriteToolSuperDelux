@@ -1,0 +1,55 @@
+; Input: None
+; Output: None
+
+if !SA1 == 0
+!Trace_FreeRAM = $7F9000 ; LoRom (768 or 1408 bytes)
+else
+!Trace_FreeRAM = $418AFF ; SA-1
+endif
+
+!Trace_Slot = !Trace_FreeRAM	 ;X_00,Y_00,X_01,Y_01,X_02,Y_02.....
+
+REP #$30
+TXA : AND #$00FF : ASL #6
+TXY
+TAX
+SEP #$20
+LDA !D8,y : XBA
+LDA !E4,y
+REP #$20
+STA !Trace_Slot+00,x
+STA !Trace_Slot+02,x
+STA !Trace_Slot+04,x
+STA !Trace_Slot+06,x
+STA !Trace_Slot+08,x
+STA !Trace_Slot+10,x
+STA !Trace_Slot+12,x
+STA !Trace_Slot+14,x
+STA !Trace_Slot+16,x
+STA !Trace_Slot+18,x
+STA !Trace_Slot+20,x
+STA !Trace_Slot+22,x
+STA !Trace_Slot+24,x
+STA !Trace_Slot+26,x
+STA !Trace_Slot+28,x
+STA !Trace_Slot+30,x
+STA !Trace_Slot+32,x
+STA !Trace_Slot+34,x
+STA !Trace_Slot+36,x
+STA !Trace_Slot+38,x
+STA !Trace_Slot+40,x
+STA !Trace_Slot+42,x
+STA !Trace_Slot+44,x
+STA !Trace_Slot+46,x
+STA !Trace_Slot+48,x
+STA !Trace_Slot+50,x
+STA !Trace_Slot+52,x
+STA !Trace_Slot+54,x
+STA !Trace_Slot+56,x
+STA !Trace_Slot+58,x
+STA !Trace_Slot+60,x
+STA !Trace_Slot+62,x
+SEP #$30
+TYX
+
+RTL
