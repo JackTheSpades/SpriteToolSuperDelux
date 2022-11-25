@@ -109,6 +109,15 @@ else
 	!SprSize = $0C
 endif
 
+	!More_ExSprite = 0
+	!ExSprSize = $07
+if read2($029B39) == $0000
+	!More_ExSprite = 1
+	!ExSprSize = read1($00FAD5)
+endif
+
+	!FireballSprSize = !ExSprSize+2
+	
 macro define_sprite_table(name, addr, addr_sa1)
 	if !SA1 == 0
 		!<name> = <addr>
@@ -125,6 +134,14 @@ macro define_base2_address(name, addr)
 	endif
 endmacro
 
+macro define_exsprite_table(name, addr, addr_more)
+	if !More_ExSprite == 0
+		!<name> = <addr>
+	else
+		!<name> = <addr_more>
+	endif
+endmacro
+
 !GenStart = $D0
 !ClusterOffset  = $09
 !ExtendedOffset = $13
@@ -136,7 +153,7 @@ endmacro
 ;!QuakeOffset = $03
 
 !ClusterSize = $14
-!ExtendedSize = $08
+!ExtendedSize = !ExSprSize+1
 !MinorExtendedSize = $0C
 !SmokeSize = $04
 !SpinningCoinSize = $04
@@ -203,24 +220,43 @@ endmacro
 %define_base2_address(cluster_misc_1e8e,$1E8E)
 
 ;extended defines
-%define_base2_address(extended_num,$170B)
-%define_base2_address(extended_y_low,$1715)
-%define_base2_address(extended_y_high,$1729)
-%define_base2_address(extended_x_low,$171F)
-%define_base2_address(extended_x_high,$1733)
-%define_base2_address(extended_x_speed,$1747)
-%define_base2_address(extended_y_speed,$173D)
-%define_base2_address(extended_x_fraction,$175B)
-%define_base2_address(extended_y_fraction,$1751)
-%define_base2_address(extended_table,$1765)
-%define_base2_address(extended_timer,$176F)
-%define_base2_address(extended_behind,$1779)
+%define_exsprite_table(extended_num,$170B|!addr,$770B)
+%define_exsprite_table(extended_y_low,$1715|!addr,$3426)
+%define_exsprite_table(extended_y_high,$1729|!addr,$771F)
+%define_exsprite_table(extended_x_low,$171F|!addr,$343A)
+%define_exsprite_table(extended_x_high,$1733|!addr,$7733)
+%define_exsprite_table(extended_x_speed,$1747|!addr,$3462)
+%define_exsprite_table(extended_y_speed,$173D|!addr,$344E)
+%define_exsprite_table(extended_x_fraction,$175B|!addr,$775B)
+%define_exsprite_table(extended_y_fraction,$1751|!addr,$7747)
+%define_exsprite_table(extended_table,$1765|!addr,$3476)
+%define_exsprite_table(extended_timer,$176F|!addr,$776F)
+%define_exsprite_table(extended_behind,$1779|!addr,$348A)
 
-%define_base2_address(extended_table_1,$1765)
-%define_base2_address(extended_table_2,$198C)
-%define_base2_address(extended_table_3,$1996)
-%define_base2_address(extended_table_4,$19A0)
-%define_base2_address(extended_table_5,$19AA)
+%define_exsprite_table(extended_table_1,$1765|!addr,$3476)
+%define_exsprite_table(extended_table_2,$198C|!addr,$798C)
+%define_exsprite_table(extended_table_3,$1996|!addr,$349E)
+%define_exsprite_table(extended_table_4,$19A0|!addr,$79A0)
+%define_exsprite_table(extended_table_5,$19AA|!addr,$34B2)
+
+%define_exsprite_table("170B",$170B|!addr,$770B)
+%define_exsprite_table("1715",$1715|!addr,$3426)
+%define_exsprite_table("1729",$1729|!addr,$771F)
+%define_exsprite_table("171F",$171F|!addr,$343A)
+%define_exsprite_table("1733",$1733|!addr,$7733)
+%define_exsprite_table("1747",$1747|!addr,$3462)
+%define_exsprite_table("173D",$173D|!addr,$344E)
+%define_exsprite_table("175B",$175B|!addr,$775B)
+%define_exsprite_table("1751",$1751|!addr,$7747)
+%define_exsprite_table("1765",$1765|!addr,$3476)
+%define_exsprite_table("176F",$176F|!addr,$776F)
+%define_exsprite_table("1779",$1779|!addr,$348A)
+
+%define_exsprite_table("1765",$1765|!addr,$3476)
+%define_exsprite_table("198C",$198C|!addr,$798C)
+%define_exsprite_table("1996",$1996|!addr,$349E)
+%define_exsprite_table("19A0",$19A0|!addr,$79A0)
+%define_exsprite_table("19AA",$19AA|!addr,$34B2)
 
 ;minor extended defines
 %define_base2_address(minor_extended_num,$17F0)
