@@ -1,0 +1,25 @@
+; Input: A = Write destination Slot Number (Usually 00~1F)
+; Output: None
+
+if !SA1 == 0
+!Trace_FreeRAM = $7F9000 ; LoRom (768 or 1408 bytes)
+else
+!Trace_FreeRAM = $418AFF ; SA-1
+endif
+
+!Trace_Slot = !Trace_FreeRAM	 ;X_00,Y_00,X_01,Y_01,X_02,Y_02.....
+
+REP #$31
+AND #$00FF : ASL : STA $00
+TXA : AND #$00FF : ASL #6 : ADC $00
+TXY
+TAX
+SEP #$20
+LDA !E4,y
+STA !Trace_Slot,x
+LDA !D8,y
+STA !Trace_Slot+1,x
+SEP #$10
+TYX
+
+RTL
