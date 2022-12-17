@@ -203,7 +203,7 @@ else()
     set_property(TARGET pixi PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     set_property(TARGET pixi_api PROPERTY MSVC_RUNTIME_LIBRARY ${PIXI_MSVC_LIB_TYPE})
     set_property(TARGET pixi_api_static PROPERTY MSVC_RUNTIME_LIBRARY ${PIXI_MSVC_LIB_TYPE})
-    list(APPEND PIXI_COMPILE_OPTIONS /utf-8 /W4 /std:c++20)
+    list(APPEND PIXI_COMPILE_OPTIONS /utf-8 /W4 /std:c++20 /EHsc)
     list(APPEND PIXI_COMPILE_OPTIONS
         /wd4090 # function different 'const' qualifiers (from asardll.c)
 	)
