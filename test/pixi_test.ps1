@@ -1,5 +1,6 @@
 # download base file
 $argc = $args.Count
+$env:PIXI_TESTING = "true"
 
 if ( $argc -eq 2 ) {
     $repotype = $args[1]
@@ -45,9 +46,6 @@ if ($env:ARTIFACT_PATH) {
     cmake ..
     cmake --build . --config Release --target pixi
     Set-Location ..
-    $cont = Get-Content zip.py
-    $newcont = $cont[0..96] + $cont[105..($cont.Length-1)]
-    Set-Content $newcont -Path zip.py
     py zip.py
     Move-Item pixi.zip ../pixi.zip
     Set-Location ..

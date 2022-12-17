@@ -17,8 +17,16 @@ def in_appveyor_ci():
         return True
     else:
         return False
+
+def in_test_suite():
+    val = os.getenv('PIXI_TESTING', default='false')
+    if val.lower() == 'true':
+        return True
+    else:
+        return False
  
 CALLED_BY_CI: bool = in_appveyor_ci() or in_github_ci()
+CALLED_BY_TESTS: bool = in_test_suite()
 
 def asar_lib_name():
     if sys.platform == 'linux':
@@ -88,7 +96,7 @@ def filter_for(folder_name):
 
 def choose_binary(search_path):
     exes = glob.glob(search_path, recursive=True)
-    if CALLED_BY_CI:
+    if CALLED_BY_CI or CALLED_BY_TESTS:
         return exes[0]
     if len(exes) > 1: 
         print("Found more than 1 binary: \n" + "\n".join((f'{i}: {p}' for i, p in enumerate(exes))))
@@ -125,7 +133,7 @@ with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
 
     # exe
     # add cfg editor only on windows
-    if sys.platform == 'win32':
+    if sys.platform == 'win32' and not CALLED_BY_TESTS:
         pixizip.write(cfgexe.replace("/", os.sep), "CFG Editor.exe")
         pixizip.write(
             os.path.join(

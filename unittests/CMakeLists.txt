@@ -21,6 +21,9 @@ add_executable(PixiUnitTest harness.cpp)
 set_property(TARGET PixiUnitTest PROPERTY MSVC_RUNTIME_LIBRARY ${UNITTEST_RUNTIME_LIBRARY})
 target_include_directories(PixiUnitTest PUBLIC ${PIXI_SOURCE_DIR})
 target_link_libraries(PixiUnitTest PRIVATE pixi_api_static gtest gtest_main)
+if (MSVC)
+    target_compile_options(PixiUnitTest PRIVATE /utf-8 /W4 /std:c++20 /EHsc)
+endif()
 
 get_target_property(ASAR_LIB_PATH pixi ASAR_LIB_PATH)
 add_custom_command(TARGET PixiUnitTest POST_BUILD
