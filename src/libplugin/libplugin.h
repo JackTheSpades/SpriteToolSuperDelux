@@ -57,10 +57,10 @@ class plugin {
   public:
     plugin(path_type name);
     int load();
-    PLUGIN_ENTRY_POINT(before_patching);
-    PLUGIN_ENTRY_POINT(after_patching);
-    PLUGIN_ENTRY_POINT(check_version, int);
-    PLUGIN_ENTRY_POINT(before_unload);
+    PLUGIN_ENTRY_POINT(before_patching)
+    PLUGIN_ENTRY_POINT(after_patching)
+    PLUGIN_ENTRY_POINT(check_version, int)
+    PLUGIN_ENTRY_POINT(before_unload)
     ~plugin();
 };
 
