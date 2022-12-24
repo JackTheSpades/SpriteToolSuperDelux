@@ -18,6 +18,7 @@
 #include "iohandler.h"
 #include "json.h"
 #include "libconsole/libconsole.h"
+#include "libplugin/libplugin.h"
 #include "lmdata.h"
 #include "map16.h"
 #include "paths.h"
@@ -26,6 +27,11 @@ namespace fs = std::filesystem;
 
 #ifdef ON_WINDOWS
 #include <windows.h>
+#define DYLIB_EXT ".dll"
+#elif defined(__APPLE__)
+#define DYLIB_EXT ".dylib"
+#else
+#define DYLIB_EXT ".so"
 #endif
 
 #include <chrono>
@@ -1361,6 +1367,25 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
     static sprite spinningcoin_list[MINOR_SPRITE_COUNT];
     static sprite score_list[MINOR_SPRITE_COUNT];
 
+    std::vector<plugins::plugin> plugin_list{};
+    const fs::path plugins_path = fs::current_path() / "plugins";
+    if (fs::is_directory(plugins_path)) {
+        for (const auto& entry : fs::directory_iterator(plugins_path)) {
+            if (entry.is_regular_file() && entry.path().extension() == DYLIB_EXT) {
+                plugin_list.emplace_back(entry.path().native());
+            }
+        }
+        for (auto& plugin : plugin_list) {
+            if (int code = plugin.load(); code != EXIT_SUCCESS) {
+                return EXIT_FAILURE;
+            }
+        }
+    }
+
+    if (plugins::for_each_plugin(plugin_list, &plugins::plugin::check_version, (int)VERSION_FULL) != EXIT_SUCCESS) {
+        return EXIT_FAILURE;
+    };
+
 #ifndef PIXI_EXE_BUILD
     for (auto& spr : sprite_list) {
         spr.clear();
@@ -1518,6 +1543,10 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
 
     patchfile::set_keep(cfg.KeepFiles, MeiMei::KeepTemp());
     versionflag[1] = (cfg.PerLevel ? 1 : 0);
+
+    if (plugins::for_each_plugin(plugin_list, &plugins::plugin::before_patching) != EXIT_SUCCESS) {
+        return EXIT_FAILURE;
+    };
 
     //------------------------------------------------------------------------------------------
     // Get ROM name if none has been passed yet.
@@ -1869,6 +1898,9 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         MeiMei::configureSa1Def(cfg.AsmDirPath + "/sa1def.asm");
         retval = MeiMei::run();
     }
+    if (plugins::for_each_plugin(plugin_list, &plugins::plugin::after_patching) != EXIT_SUCCESS) {
+        return EXIT_FAILURE;
+    };
 
 #ifdef ON_WINDOWS
     if (!lm_handle.empty()) {

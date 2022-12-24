@@ -124,6 +124,9 @@ list(
 
     "${CMAKE_CURRENT_SOURCE_DIR}/libconsole/libconsole.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/libconsole/libconsole.cpp"
+
+    "${CMAKE_CURRENT_SOURCE_DIR}/libplugin/libplugin.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/libplugin/libplugin.cpp"
     
     "${CMAKE_CURRENT_SOURCE_DIR}/pixi_information_impl.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/pixi_api.h"

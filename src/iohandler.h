@@ -8,6 +8,11 @@
 #include <string>
 #include <vector>
 
+#ifndef _SAL_VERSION
+#define _In_z_ 
+#define _Printf_format_string_
+#endif
+
 template <typename... Args> std::string fstring(const char* format, Args&&... args) {
     int needed = snprintf(nullptr, 0, format, args...);
     std::string buffer{};
@@ -89,7 +94,7 @@ class iohandler {
         m_last_error += message;
         print_generic(out, message);
     }
-    template <typename... Args> void error(const char* message, Args... args) {
+    template <typename... Args> void error(_In_z_ _Printf_format_string_ const char* message, Args... args) {
         // prints to stdout for backwards compatibility
         m_last_error += fstring(message, args...);
         print_generic(out, message, args...);
@@ -97,14 +102,14 @@ class iohandler {
     void print(const char* message) {
         print_generic(out, message);
     }
-    template <typename... Args> void print(const char* message, Args... args) {
+    template <typename... Args> void print(_In_z_ _Printf_format_string_ const char* message, Args... args) {
         print_generic(out, message, args...);
     }
     void debug(const char* message) {
         if (m_debug_enabled)
             print_generic(debug_, message);
     }
-    template <typename... Args> void debug(const char* message, Args... args) {
+    template <typename... Args> void debug(_In_z_ _Printf_format_string_ const char* message, Args... args) {
         if (m_debug_enabled) {
             print_generic(debug_, message, args...);
         }
