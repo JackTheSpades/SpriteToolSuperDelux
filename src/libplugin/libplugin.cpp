@@ -35,32 +35,29 @@ int plugin::load() {
     return EXIT_SUCCESS;
 }
 
-#define PLUGIN_CHECK_RETURN(FUNC_NAME)                                                                                 \
-    if (ec != EXIT_SUCCESS) {                                                                                          \
-        plugin::path_type filename = fs::path(m_name).filename().native();                                             \
-        if (m_plugin_error != NULL) {                                                                                  \
-            iohandler::get_global().error("Plugin \"" PATHF "\" " FUNC_NAME                                            \
-                                          " hook failed with \"%s\" (exit code: %d)",                                  \
-                                          filename.c_str(), m_plugin_error(), ec);                                     \
-        } else {                                                                                                       \
-            iohandler::get_global().error("Plugin \"" PATHF "\" " FUNC_NAME " hook failed with exit code: %d",         \
-                                          filename.c_str(), ec);                                                       \
-        }                                                                                                              \
+int plugin::plugin_check_return(int ec, std::string_view func) const {
+    if (ec != EXIT_SUCCESS) {
+        plugin::path_type filename = fs::path(m_name).filename().native();
+        if (m_plugin_error != NULL) {
+            iohandler::get_global().error("Plugin \"" PATHF "\" %s hook failed with \"%s\" (exit code: %d)",
+                                          filename.c_str(), func.data(), m_plugin_error(), ec);
+        } else {
+            iohandler::get_global().error("Plugin \"" PATHF "\" %s hook failed with exit code: %d", filename.c_str(),
+                                          func.data(), ec);
+        }
     }
+    return ec;
+}
 
 int plugin::before_patching() const {
     if (m_before_patching != NULL) {
-        int ec = m_before_patching();
-        PLUGIN_CHECK_RETURN("pixi_before_patching()");
-        return ec;
+        return plugin_check_return(m_before_patching(), "pixi_before_patching()");
     }
     return 0;
 }
 int plugin::after_patching() const {
     if (m_after_patching != NULL) {
-        int ec = m_after_patching();
-        PLUGIN_CHECK_RETURN("pixi_after_patching()");
-        return ec;
+        return plugin_check_return(m_after_patching(), "pixi_after_patching()");
     }
     return 0;
 }
@@ -80,8 +77,7 @@ int plugin::check_version(int expected_version) const {
 }
 plugin::~plugin() {
     if (m_before_unload != NULL) {
-        int ec = m_before_unload();
-        PLUGIN_CHECK_RETURN("pixi_before_unload()");
+        plugin_check_return(m_before_unload(), "pixi_before_unload()");
     }
     ClosePlugin(m_lib_handle);
 }
