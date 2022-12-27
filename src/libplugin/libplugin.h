@@ -70,8 +70,7 @@ class plugin {
 };
 
 template <typename Callable, typename... Args>
-concept Hook =
-    std::invocable<Callable, plugin, Args...> && std::same_as<std::invoke_result_t<Callable, plugin, Args...>, int>;
+concept Hook = std::is_invocable_r_v<int, Callable, plugin, Args...>;
 
 template <typename Callable, typename... Args>
 requires Hook<Callable, Args...>

@@ -45,7 +45,7 @@ struct PatchTimer {
 
     ~PatchTimer() {
         auto end = cr::high_resolution_clock::now();
-        auto dur = cr::duration_cast<cr::milliseconds>(end - m_start);
+        [[maybe_unused]] auto dur = cr::duration_cast<cr::milliseconds>(end - m_start);
 #if 0
         printf("%s took %lld ms\n", m_name.c_str(), dur.count());
 #endif
