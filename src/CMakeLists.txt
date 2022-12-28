@@ -148,11 +148,30 @@ set(ON_MINGW FALSE)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if (WIN32)
-        set(ON_MINGW TRUE PARENT_SCOPE)
-        message(STATUS "Windows build (on Clang/MINGW)")
+        list(APPEND PIXI_COMPILE_DEFINITIONS
+            _CRT_SECURE_NO_WARNINGS 
+            WIN32_LEAN_AND_MEAN
+            VC_EXTRALEAN
+            NOMINMAX
+            ON_WINDOWS
+            _UNICODE
+            UNICODE
+        )
         list(APPEND PIXI_LINK_OPTIONS -static -static-libgcc -static-libstdc++)
-        list(APPEND PIXI_COMPILE_OPTIONS -Wno-deprecated-declarations -municode)
-        list(APPEND PIXI_COMPILE_DEFINITIONS -D_UNICODE -DUNICODE)
+        if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_SIMULATE_ID MATCHES "MSVC")
+            message(STATUS "Windows build (clang-cl)")
+            list(APPEND PIXI_COMPILE_OPTIONS -Wno-deprecated-declarations)
+            set_property(TARGET pixi PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+            set_property(TARGET pixi_api PROPERTY MSVC_RUNTIME_LIBRARY ${PIXI_MSVC_LIB_TYPE})
+            set_property(TARGET pixi_api_static PROPERTY MSVC_RUNTIME_LIBRARY ${PIXI_MSVC_LIB_TYPE})
+        elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+            message(STATUS "Windows build (gcc-mingw)")
+            set(ON_MINGW TRUE PARENT_SCOPE)
+            list(APPEND PIXI_COMPILE_OPTIONS -Wno-deprecated-declarations -municode)
+        else()
+            message(FATAL_ERROR "Unsupported OS-compiler combination, on Windows you can use MSVC, clang-cl or gcc with mingw")
+        endif()
+
         if (CMAKE_BUILD_TYPE STREQUAL "Debug")  # if debug mode, don't add -s and --gc-sections
             message(STATUS "Building debug mode")
         else()
@@ -181,10 +200,9 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
         endif()
         list(APPEND PIXI_COMPILE_OPTIONS -Wall -Wextra -Wpedantic)
         list(APPEND PIXI_LINK_LIBRARIES dl)
-    endif() 
-    message(STATUS "GCC/Clang detected, adding compile flags")
-else()
-    message(STATUS "MSVC detected, adding compile flags")
+    endif()
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    message(STATUS "Windows build (MSVC)")
     list(APPEND PIXI_COMPILE_DEFINITIONS 
         _CRT_SECURE_NO_WARNINGS 
         UNICODE 
@@ -210,13 +228,15 @@ else()
     list(APPEND PIXI_COMPILE_OPTIONS
         /wd4090 # function different 'const' qualifiers (from asardll.c)
 	)
+else()
+    message(FATAL_ERROR "Unsupported compiler")
 endif()
 
 list(APPEND PIXI_COMPILE_DEFINITIONS
     PIXI_VERSION_EDITION=${PIXI_VERSION_EDITION}
     PIXI_VERSION_MAJOR=${PIXI_VERSION_MAJOR}
     PIXI_VERSION_MINOR=${PIXI_VERSION_MINOR}
-    PIXI_VERSION_DEBUG=${PIXI_BUILD_TIMESTAMP}
+    PIXI_VERSION_DEBUG="${PIXI_BUILD_TIMESTAMP}"
 )
 
 target_link_libraries(pixi PRIVATE ${PIXI_LINK_LIBRARIES})
