@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <type_traits>
+#include <utility>
+#include <bit>
 #ifdef ON_WINDOWS
 #include <Windows.h>
 #include <bit>
