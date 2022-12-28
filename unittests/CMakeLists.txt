@@ -18,6 +18,7 @@ set_property(TARGET gtest PROPERTY MSVC_RUNTIME_LIBRARY ${UNITTEST_RUNTIME_LIBRA
 set_property(TARGET gtest_main PROPERTY MSVC_RUNTIME_LIBRARY ${UNITTEST_RUNTIME_LIBRARY})
 ### ^^^ END WORKAROUND
 add_executable(PixiUnitTest harness.cpp)
+add_library(testplugin SHARED "testplugin/testplugin.cpp")
 set_property(TARGET PixiUnitTest PROPERTY MSVC_RUNTIME_LIBRARY ${UNITTEST_RUNTIME_LIBRARY})
 target_include_directories(PixiUnitTest PUBLIC ${PIXI_SOURCE_DIR})
 target_link_libraries(PixiUnitTest PRIVATE pixi_api_static gtest gtest_main)
