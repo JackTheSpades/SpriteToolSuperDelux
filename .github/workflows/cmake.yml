@@ -109,9 +109,6 @@ jobs:
       working-directory: ${{github.workspace}}/build/unittests
       run: ctest --rerun-failed --output-on-failure -C $BUILD_TYPE
     
-    - name: Create html files from markdown
-      run: python ${{github.workspace}}/mdtohtml.py
-    
     - name: Create pixi.zip release
       run: python ${{github.workspace}}/zip.py
 

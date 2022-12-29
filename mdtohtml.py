@@ -52,7 +52,9 @@ def mdtohtml(filename: str):
         f.write(str(soup))
         f.write(CLOSING)
 
-md_files = ['README.md', 'CHANGELOG.md', 'CONTRIBUTING.md']
-for md_file in md_files:
-    mdtohtml(md_file)
+if __name__ == '__main__':
+    md_files = ['README.md', 'CHANGELOG.md', 'CONTRIBUTING.md']
+    for md_file in md_files:
+        mdtohtml(md_file)
 
+__all__ = ['mdtohtml']
