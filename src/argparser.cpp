@@ -14,6 +14,26 @@
 #include <unistd.h>
 #endif
 
+#if defined(__clang__) && __clang_major__ < 14 // vvvv clang 13 workaround
+struct ec_compat {
+    const char* ptr;
+    std::errc ec;
+};
+ec_compat from_chars_double(const char* first, [[maybe_unused]] const char* last, double& value) {
+    char* end = nullptr;
+    value = std::strtod(first, &end);
+    if (end == first) {
+        // error
+        return {end, std::errc::invalid_argument};
+    }
+    return {};
+}
+#else  // ^^^^ clang 13 workaround -- vvvv everything else
+auto from_chars_double(const char* first, const char* last, double& value) {
+    return std::from_chars(first, last, value);
+}
+#endif // ^^^^ everything else
+
 static std::string GetExecutableName() {
 #ifdef _WIN32
     WCHAR moduleNameW[MAX_PATH]{};
@@ -156,7 +176,7 @@ bool argparser::parse() {
                 } else if (opt.type == option::Type::Real) {
                     double value = std::get<real_ref>(opt.value);
                     const auto& strval = *it;
-                    auto ec = std::from_chars(strval.data(), strval.data() + strval.size(), value);
+                    auto ec = from_chars_double(strval.data(), strval.data() + strval.size(), value);
                     if (ec.ec != std::errc{}) {
                         io.error("Argument parsing error: option \"%s\" was expecting a number but received %s\n",
                                  name.data(), strval.data());
