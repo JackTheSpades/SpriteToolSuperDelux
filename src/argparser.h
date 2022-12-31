@@ -17,6 +17,23 @@ using int_ref = std::reference_wrapper<int>;
 using uint_ref = std::reference_wrapper<unsigned int>;
 using real_ref = std::reference_wrapper<double>;
 
+
+#if defined(__clang__) && __clang_major__ < 14 // vvvv clang 13 workaround
+template <typename T>
+concept signed_integral = std::is_integral_v<T> && std::is_signed_v<T>;
+template <typename T>
+concept unsigned_integral = std::is_integral_v<T> && std::is_unsigned_v<T>;
+template <typename T>
+concept floating_point = std::is_floating_point_v<T>;
+#else // ^^^^ clang 13 workaround -- vvvv everything else
+template <typename T>
+concept signed_integral = std::signed_integral<T>;
+template <typename T>
+concept unsigned_integral = std::unsigned_integral<T>;
+template <typename T>
+concept floating_point = std::floating_point<T>;
+#endif // ^^^^ everything else
+
 template <typename T>
 concept option_type = std::same_as<T, int_ref> || std::same_as<T, uint_ref> || std::same_as<T, real_ref> ||
                       std::same_as<T, string_ref> || std::same_as<T, no_value_tag> || std::same_as<T, bool_ref>;
@@ -60,7 +77,7 @@ class argparser {
         bool requires_value() const;
         bool assign(std::string_view arg_value);
         bool assign(bool arg_value);
-        bool assign(std::signed_integral auto arg_value) {
+        bool assign(signed_integral auto arg_value) {
             if (type == Type::Int) {
                 std::get<int_ref>(value).get() = static_cast<int>(arg_value);
             } else {
@@ -68,7 +85,7 @@ class argparser {
             }
             return true;
         }
-        bool assign(std::unsigned_integral auto arg_value) {
+        bool assign(unsigned_integral auto arg_value) {
             if (type == Type::Uint) {
                 std::get<uint_ref>(value).get() = static_cast<unsigned int>(arg_value);
             } else {
@@ -76,7 +93,7 @@ class argparser {
             }
             return true;
         }
-        bool assign(std::floating_point auto arg_value) {
+        bool assign(floating_point auto arg_value) {
             if (type == Type::Real) {
                 std::get<real_ref>(value).get() = static_cast<double>(arg_value);
             } else {
