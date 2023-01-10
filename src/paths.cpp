@@ -43,19 +43,20 @@ void set_paths_relative_to(std::string &path, const char *arg0) {
 }
 
 char *append_to_dir(const char *src, const char *file) {
-    std::string source(src);
+    std::string_view source(src);
+    constexpr auto npos = std::string_view::npos;
     auto unix_end = source.find_last_of('/');
     auto win_end = source.find_last_of('\\');
-    auto end = std::string::npos;
-    if (unix_end != std::string::npos && win_end != std::string::npos) {
+    auto end = npos;
+    if (unix_end != npos && win_end != npos) {
         end = std::max(unix_end, win_end);
-    } else if (unix_end != std::string::npos) {
+    } else if (unix_end != npos) {
         end = unix_end;
-    } else if (win_end != std::string::npos) {
+    } else if (win_end != npos) {
         end = win_end;
     }
     // fetches path of src and append it before
-    size_t len = end == std::string::npos ? 0 : end + 1;
+    size_t len = end == npos ? 0 : end + 1;
     char *new_file = new char[len + strlen(file) + 1];
     strncpy(new_file, src, len);
     new_file[len] = 0;

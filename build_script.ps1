@@ -24,7 +24,7 @@ mkdir build
 Push-Location build
 cmake -G "Visual Studio 17 2022" -A Win32 -S ..
 cmake --build . --config Release --target pixi
-Set-Location ..
+Pop-Location
 
 py .\zip.py
 Rename-Item pixi.zip pixi-x86.zip
