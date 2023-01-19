@@ -38,6 +38,7 @@ The changelog is available [here](CHANGELOG.md).
   - [Extra Bytes](#extra-bytes)
   - [Extend PIXI (extra defines and hijacks)](#extend-pixi-extra-defines-and-hijacks)
   - [`pixi_settings.json` file](#pixi_settingsjson)
+  - [Plugin system](#plugin-system)
 
 - [Common Errors](#common-errors)
   - [JMP (label,x) or JSR (label,x)](#jmp-labelx-or-jsr-labelx)
@@ -462,6 +463,29 @@ The changelog is available [here](CHANGELOG.md).
   }
   ```
   Will make Pixi run with the keep temp files option on, the debug logging, with a modified asm path and using the provided rom.
+
+  ### Plugin system
+  Starting from version 1.4x Pixi has plugin support. Plugins are dynamic libraries that will get loaded at runtime and can be used to extend PIXI's functionality. Plugins are required to adhere to the C abi. 
+
+  Plugins are loaded from the plugins/ folder of the current working directory. Pixi will look for all .dll/.so/.dylib files in that folder and try to load them. If a plugin fails to load, Pixi will print an error message and will stop execution.
+
+  Plugin order of loading, execution and unloading is **unspecified**.
+
+  Pixi will look for 5 hooks in the plugins:
+
+  - `int pixi_before_patching(void)` -> will get called before any modifications to the rom, always runs
+  - `int pixi_after_patching(void)` -> will get called after all modifications to the rom, will only run if there are no errors
+  - `int pixi_check_version(void)` -> returns an int that defines what version of pixi this plugin is targeting
+  - `int pixi_before_unload(void)` -> occurs at plugin unloading, always runs
+  - `const char* pixi_plugin_error(void)` -> used to retrieve error info in case a hook returns a non-zero exit code
+
+  All hooks are optional and may or may not be defined, Pixi will just ignore them if they don't exist, as such a plugin with no hooks is valid (but useless).
+
+  All hooks are expected to take no arguments and return an integer, except for `pixi_plugin_error` which returns a null terminated `const char*`. The returned integer is used to determine if the hook was successful or not except for `pixi_check_version` which uses it as a version number. 
+
+  An exit code of 0 is assumed to be success, everythign else is failure. If a plugin returns an error, Pixi will treat it as fatal and stop execution.
+  
+  The version number is MAJOR\*100+MINOR\*10+PATCH, for example 1.32 will be 132 and 1.40 will be 140.
 
 ## Common Errors
   The vast majority of the time, xkas code will work just fine with Asar, the assembler that PIXI uses exclusively.
