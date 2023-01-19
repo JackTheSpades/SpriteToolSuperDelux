@@ -14,7 +14,7 @@
 #include <unistd.h>
 #endif
 
-#if defined(__clang__) && __clang_major__ < 14 // vvvv clang 13 workaround
+#if defined(__APPLE__) || (defined(__clang__) && __clang_major__ < 14) // vvvv clang 13/macos workaround
 struct ec_compat {
     const char* ptr;
     std::errc ec;
