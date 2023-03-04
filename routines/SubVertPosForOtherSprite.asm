@@ -3,7 +3,7 @@
 ;
 ; Usage:
 ; LDA #!Y_Offset
-; %SubVertPos_New()
+; %SubVertPosForOtherSprite()
 ;
 ;Output: Y   = 0 => Target Sprite to the bottom of the Current Sprite,
 ;              1 => Target Sprite being on the top.
