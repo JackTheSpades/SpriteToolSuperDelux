@@ -3,7 +3,7 @@
 ;
 ; Usage:
 ; LDA #!X_Offset
-; %SubVertPos_New()
+; %SubHorzPosForOtherSprite()
 ;
 ;Output: Y   = 0 => Target Sprite to the right of the Current Sprite,
 ;              1 => Target Sprite being on the left.
