@@ -37,9 +37,7 @@ typedef const pixi_tile_t* pixi_tile_array;
 
 PIXI_EXPORT pixi_sprite_t pixi_parse_json_sprite(const char* filename) {
     sprite* spr = new sprite;
-    char* filename_dup = new char[strlen(filename) + 1];
-    strcpy(filename_dup, filename);
-    spr->cfg_file = filename_dup;
+    spr->cfg_file = filename;
     bool res = read_json_file(spr);
     if (!res) {
         delete spr;
@@ -50,9 +48,7 @@ PIXI_EXPORT pixi_sprite_t pixi_parse_json_sprite(const char* filename) {
 
 PIXI_EXPORT pixi_sprite_t pixi_parse_cfg_sprite(const char* filename) {
     sprite* spr = new sprite;
-    char* filename_dup = new char[strlen(filename) + 1];
-    strcpy(filename_dup, filename);
-    spr->cfg_file = filename_dup;
+    spr->cfg_file = filename;
     bool res = read_cfg_file(spr);
     if (!res) {
         delete spr;
@@ -114,17 +110,17 @@ PIXI_EXPORT int pixi_sprite_extra_byte_count(pixi_sprite_t pixi_sprite_ptr) {
     return pixi_sprite_ptr->extra_byte_count;
 }
 PIXI_EXPORT pixi_string pixi_sprite_directory(pixi_sprite_t pixi_sprite_ptr, int* size) {
-    pixi_string ptr = pixi_sprite_ptr->directory;
+    pixi_string ptr = pixi_sprite_ptr->directory.c_str();
     *size = static_cast<int>(strlen(ptr));
     return ptr;
 }
 PIXI_EXPORT pixi_string pixi_sprite_asm_file(pixi_sprite_t pixi_sprite_ptr, int* size) {
-    pixi_string ptr = pixi_sprite_ptr->asm_file;
+    pixi_string ptr = pixi_sprite_ptr->asm_file.c_str();
     *size = static_cast<int>(strlen(ptr));
     return ptr;
 }
 PIXI_EXPORT pixi_string pixi_sprite_cfg_file(pixi_sprite_t pixi_sprite_ptr, int* size) {
-    pixi_string str = pixi_sprite_ptr->cfg_file;
+    pixi_string str = pixi_sprite_ptr->cfg_file.c_str();
     *size = static_cast<int>(strlen(str));
     return str;
 }

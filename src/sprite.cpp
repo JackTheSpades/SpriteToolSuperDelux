@@ -68,9 +68,6 @@ constexpr auto INIT_PTR = 0x01817D; // snes address of default init pointers
 constexpr auto MAIN_PTR = 0x0185CC; // guess what?
 
 constexpr auto TEMP_SPR_FILE = "spr_temp.asm";
-constexpr size_t SPRITE_COUNT = 0x80; // count for other sprites like cluster, ow, extended
-constexpr size_t LESS_SPRITE_COUNT = 0x3F;
-constexpr size_t MINOR_SPRITE_COUNT = 0x1F;
 
 constexpr std::array<std::pair<ListType, size_t>, FromEnum(ListType::__SIZE__) - 1ull> sprite_sizes = {
     {{ListType::Extended, SPRITE_COUNT},
@@ -125,6 +122,27 @@ void double_click_exit() {
 
 template <typename T, size_t N> constexpr size_t array_size(T (&)[N]) {
     return N;
+}
+
+static void asar_cleanup() {
+    int size = 0;
+    const memoryfile file{"clean_labels.asm", "", 0};
+    struct patchparams params {
+        .structsize = sizeof(struct patchparams), .patchloc = "clean_labels.asm", .romdata = nullptr, .buflen = 0,
+        .romlen = &size, .includepaths = nullptr, .numincludepaths = 0, .should_reset = true,
+        .additional_defines = nullptr, .additional_define_count = 0, .stdincludesfile = nullptr,
+        .stddefinesfile = nullptr, .warning_settings = nullptr, .warning_setting_count = 0, .memory_files = &file,
+        .memory_file_count = 1, .override_checksum_gen = false, .generate_checksum = true
+    };
+    if (!asar_patch_ex(&params)) {
+        io.error("Failed to apply cleanup patch\n");
+    }
+    int labels = 0;
+    asar_getalllabels(&labels);
+    if (labels != 0) {
+        io.error("Label count should be 0 after cleanup\n");
+    }
+    asar_close();
 }
 
 void clean_sprite_generic(patchfile& clean_patch, int table_address, int original_value, size_t count,
@@ -413,8 +431,8 @@ void add_sprite_to_patch(patchfile& sprite_patch, sprite* spr) {
         try {
             fs::rename(symbols_from_file, symbols_to_file);
         } catch (const fs::filesystem_error& err) {
-            io.error("Trying to rename symbol file of \"%s\" returned \"%s\", aborting insertion\n", spr->asm_file,
-                     err.what());
+            io.error("Trying to rename symbol file of \"%s\" returned \"%s\", aborting insertion\n",
+                     spr->asm_file.c_str(), err.what());
             return false;
         }
     }
@@ -441,7 +459,7 @@ void add_sprite_to_patch(patchfile& sprite_patch, sprite* spr) {
         labels.push_back(asar_labels[i]);
     }
 
-    io.debug("%s\n", spr->asm_file);
+    io.debug("%s\n", spr->asm_file.c_str());
     if (print_count > 2)
         io.debug("Prints:\n");
 
@@ -484,7 +502,7 @@ void add_sprite_to_patch(patchfile& sprite_patch, sprite* spr) {
                 auto required_version = std::atoi(prints[i].c_str() + (prints[i][4] == '$' ? 5 : 4));
                 if (VERSION_PARTIAL < required_version) {
                     io.error("The sprite %s requires to be inserted at least with Pixi 1.%d, this is Pixi 1.%d\n",
-                             spr->asm_file, required_version, VERSION_PARTIAL);
+                             spr->asm_file.c_str(), required_version, VERSION_PARTIAL);
                     return false;
                 }
             } else {
@@ -514,7 +532,8 @@ void add_sprite_to_patch(patchfile& sprite_patch, sprite* spr) {
     spr->table.init = ptr_map["INIT"];
     spr->table.main = ptr_map["MAIN"];
     if (spr->table.init.is_empty() && spr->table.main.is_empty()) {
-        io.error("Sprite %s had neither INIT nor MAIN defined in its file, insertion has been aborted.", spr->asm_file);
+        io.error("Sprite %s had neither INIT nor MAIN defined in its file, insertion has been aborted.",
+                 spr->asm_file.c_str());
         return false;
     }
     if (spr->sprite_type == ListType::Extended) {
@@ -590,7 +609,7 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
                 auto required_version = std::atoi(prints[i].c_str() + (prints[i][4] == '$' ? 5 : 4));
                 if (VERSION_PARTIAL < required_version) {
                     io.error("The sprite %s requires to be inserted at least with Pixi 1.%d, this is Pixi 1.%d\n",
-                             spr->asm_file, required_version, VERSION_PARTIAL);
+                             spr->asm_file.c_str(), required_version, VERSION_PARTIAL);
                     return false;
                 }
             } else {
@@ -605,7 +624,8 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
     spr->table.init = ptr_map["INIT"];
     spr->table.main = ptr_map["MAIN"];
     if (spr->table.init.is_empty() && spr->table.main.is_empty()) {
-        io.error("Sprite %s had neither INIT nor MAIN defined in its file, insertion has been aborted.", spr->asm_file);
+        io.error("Sprite %s had neither INIT nor MAIN defined in its file, insertion has been aborted.",
+                 spr->asm_file.c_str());
         return false;
     }
     if (spr->sprite_type == ListType::Extended) {
@@ -632,7 +652,7 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
         io.debug("\tINIT: $%06X\n\tMAIN: $%06X\n"
                  "\n__________________________________\n",
                  spr->table.init.addr(), spr->table.main.addr());
-	
+
     if (spr->level < 0x200 && spr->number >= 0xB0 && spr->number < 0xC0) {
         int pls_lv_addr = PLS_LEVEL_PTRS[spr->level * 2] + (PLS_LEVEL_PTRS[spr->level * 2 + 1] << 8);
         if (pls_lv_addr == 0x0000) {
@@ -672,10 +692,10 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
     std::vector<sprite*> sprites;
     for (int i = 0; i < size; i++) {
         sprite* spr = sprite_list + i;
-        if (!spr->asm_file)
+        if (spr->asm_file.empty())
             continue;
         auto it = std::find_if(sprites.begin(), sprites.end(),
-                               [spr](const sprite* other) { return strcmp(other->asm_file, spr->asm_file) == 0; });
+                               [spr](const sprite* other) { return other->asm_file == spr->asm_file; });
         if (it == sprites.end()) {
             sprites.push_back(spr);
         }
@@ -739,7 +759,7 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
 
     for (int i = 0; i < size; i++) {
         sprite* spr = sprite_list + i;
-        if (!spr->asm_file)
+        if (spr->asm_file.empty())
             continue;
         if (!fill_single_sprite(spr, sprite_prints.at(spr->asm_file))) {
             return false;
@@ -752,13 +772,13 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
 [[nodiscard]] bool patch_sprites(std::vector<std::string>& extraDefines, sprite* sprite_list, int size, ROM& rom) {
     for (int i = 0; i < size; i++) {
         sprite* spr = sprite_list + i;
-        if (!spr->asm_file)
+        if (spr->asm_file.empty())
             continue;
 
         bool duplicate = false;
         for (int j = i - 1; j >= 0; j--) {
-            if (sprite_list[j].asm_file) {
-                if (!strcmp(spr->asm_file, sprite_list[j].asm_file)) {
+            if (!sprite_list[j].asm_file.empty()) {
+                if (spr->asm_file == sprite_list[j].asm_file) {
                     spr->table.init = sprite_list[j].table.init;
                     spr->table.main = sprite_list[j].table.main;
                     spr->extended_cape_ptr = sprite_list[j].extended_cape_ptr;
@@ -1031,28 +1051,28 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
 
     std::string escapedRoutinepath = escapeDefines(routine_path, R"(\\\!)");
     g_shared_inscrc_patch.fprintf("macro include_once(target, base, offset)\n"
-                           "	if defined(\"<base>\")\n"
-                           "    	if !<base> == 1\n"
-                           "	    	pushpc\n"
-                           "		    if read3(<offset>+$03E05C) != $FFFFFF\n"
-                           "			    <base> = read3(<offset>+$03E05C)\n"
-                           "	    	else\n"
-                           "	    		freecode cleaned\n"
-                           "	    			global #<base>:\n"
-                           "	    			print \"    Routine: <base> inserted at $\",pc\n"
-                           "	    			namespace <base>\n"
-                           "	    			incsrc \"<target>\"\n"
-                           "                   namespace off\n"
-                           "	    		ORG <offset>+$03E05C\n"
-                           "	    			dl <base>\n"
-                           "	    	endif\n"
-                           "	    	pullpc\n"
-                           "    	!<base> #= 2\n"
-                           "    	!pixi_incsrc_again #= 1\n"
-                           "    	endif\n"
-                           "    endif\n"
-                           "endmacro\n"
-                           "macro safe_macro_label_wrapper()\n");
+                                  "	if defined(\"<base>\")\n"
+                                  "    	if !<base> == 1\n"
+                                  "	    	pushpc\n"
+                                  "		    if read3(<offset>+$03E05C) != $FFFFFF\n"
+                                  "			    <base> = read3(<offset>+$03E05C)\n"
+                                  "	    	else\n"
+                                  "	    		freecode cleaned\n"
+                                  "	    			global #<base>:\n"
+                                  "	    			print \"    Routine: <base> inserted at $\",pc\n"
+                                  "	    			namespace <base>\n"
+                                  "	    			incsrc \"<target>\"\n"
+                                  "                   namespace off\n"
+                                  "	    		ORG <offset>+$03E05C\n"
+                                  "	    			dl <base>\n"
+                                  "	    	endif\n"
+                                  "	    	pullpc\n"
+                                  "    	!<base> #= 2\n"
+                                  "    	!pixi_incsrc_again #= 1\n"
+                                  "    	endif\n"
+                                  "    endif\n"
+                                  "endmacro\n"
+                                  "macro safe_macro_label_wrapper()\n");
     int routine_count = 0;
     if (!fs::exists(cleanPathTrail(routine_path))) {
         io.error("Couldn't open folder \"%s\" for reading.", routine_path.c_str());
@@ -1085,8 +1105,8 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                                    "\tJSL %s\n"
                                    "endmacro\n",
                                    charName, charName, charName, charName);
-            g_shared_inscrc_patch.fprintf("\t%%include_once(\"%s%s\", %s, $%02X)\n",
-                                   escapedRoutinepath.c_str(), charPath, charName, routine_count * 3);
+            g_shared_inscrc_patch.fprintf("\t%%include_once(\"%s%s\", %s, $%02X)\n", escapedRoutinepath.c_str(),
+                                          charPath, charName, routine_count * 3);
             routine_count++;
         }
         g_shared_inscrc_patch.fprintf("endmacro\n\n"
@@ -1239,28 +1259,25 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                 dir = paths[PathType::Generators].c_str();
         }
         spr->directory = dir;
-
-        char* fullFileName = new char[strlen(dir) + strlen(cfgname) + 1];
-        strcpy(fullFileName, dir);
-        strcat(fullFileName, cfgname);
+        std::string fullFileName = std::string{dir} + std::string{cfgname};
 
         if (type != ListType::Sprite) {
             if (strcmp(dot, "asm") && strcmp(dot, "ASM")) {
-                io.error("Error on list line %d: not an asm file\n", lineno, fullFileName);
+                io.error("Error on list line %d: not an asm file\n", lineno, fullFileName.c_str());
                 return false;
             }
-            spr->asm_file = fullFileName;
+            spr->asm_file = std::move(fullFileName);
         } else {
-            spr->cfg_file = fullFileName;
+            spr->cfg_file = std::move(fullFileName);
             if (!strcmp(dot, "cfg") || !strcmp(dot, "CFG")) {
                 if (!read_cfg_file(spr)) {
-                    io.error("Error on list line %d: Cannot parse CFG file %s.\n", lineno, spr->cfg_file);
+                    io.error("Error on list line %d: Cannot parse CFG file %s.\n", lineno, spr->cfg_file.c_str());
                     return false;
                 }
 
             } else if (!strcmp(dot, "json") || !strcmp(dot, "JSON")) {
                 if (!read_json_file(spr)) {
-                    io.error("Error on list line %d: Cannot parse JSON file %s.\n", lineno, spr->cfg_file);
+                    io.error("Error on list line %d: Cannot parse JSON file %s.\n", lineno, spr->cfg_file.c_str());
                     return false;
                 }
             } else {
@@ -1357,6 +1374,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
     pixi_reset();
 #endif
     ROM rom;
+    MeiMei meimei{};
     // individual lists containing the sprites for the specific sections
     static sprite sprite_list[MAX_SPRITE_COUNT];
     static sprite cluster_list[SPRITE_COUNT];
@@ -1483,9 +1501,9 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         .add_option("-no-lm-aux", "Disables all of the Lunar Magic auxiliary files creation (ssc, mwt, mw2, s16)",
                     cfg.DisableAllExtensionFiles)
         .add_option("-meimei-off", "Shuts down MeiMei completely", cfg.DisableMeiMei)
-        .add_option("-meimei-a", "Enables always remap sprite data", MeiMei::AlwaysRemap())
-        .add_option("-meimei-k", "Enables keep temp patches files", MeiMei::KeepTemp())
-        .add_option("-meimei-d", "Enables debug for MeiMei patches", MeiMei::Debug())
+        .add_option("-meimei-a", "Enables always remap sprite data", meimei.AlwaysRemap())
+        .add_option("-meimei-k", "Enables keep temp patches files", meimei.KeepTemp())
+        .add_option("-meimei-d", "Enables debug for MeiMei patches", meimei.Debug())
         .add_option("--onepatch", "Applies all sprites into a single big path", cfg.AllSpritesOnePatch)
 #ifdef ON_WINDOWS
         .add_option("-lm-handle", "lm_handle_code",
@@ -1541,7 +1559,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
     }
 #endif
 
-    patchfile::set_keep(cfg.KeepFiles, MeiMei::KeepTemp());
+    patchfile::set_keep(cfg.KeepFiles, meimei.KeepTemp());
     versionflag[1] = (cfg.PerLevel ? 1 : 0);
 
     if (plugins::for_each_plugin(plugin_list, &plugins::plugin::before_patching) != EXIT_SUCCESS) {
@@ -1599,7 +1617,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         io.error("This is version %d.%d\n", VERSION_EDITION, VERSION_PARTIAL);
         io.error("Please get a newer version.");
         rom.close();
-        asar_close();
+        asar_cleanup();
         return EXIT_FAILURE;
     }
 
@@ -1612,7 +1630,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         char c = io.getc();
         if (tolower(c) == 'y') {
             rom.close();
-            asar_close();
+            asar_cleanup();
             io.error("Insertion was stopped, press any button to exit...\n");
             io.getc();
             return EXIT_FAILURE;
@@ -1630,7 +1648,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
 
     // Initialize MeiMei
     if (!cfg.DisableMeiMei) {
-        if (!MeiMei::initialize(rom.name.data()))
+        if (!meimei.initialize(rom.name.data()))
             return EXIT_FAILURE;
     }
 
@@ -1713,7 +1731,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         io.print("Do you want to continue insertion anyway? [Y/n] (Default is yes):\n");
         char c = io.getc();
         if (tolower(c) == 'n') {
-            asar_close();
+            asar_cleanup();
             io.print("Insertion was stopped, press any button to exit...\n");
             io.getc();
             return EXIT_FAILURE;
@@ -1892,11 +1910,11 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         if (!create_lm_restore(rom.name.data()))
             return EXIT_FAILURE;
     rom.close();
-    asar_close();
+    asar_cleanup();
     int retval = 0;
     if (!cfg.DisableMeiMei) {
-        MeiMei::configureSa1Def(cfg.AsmDirPath + "/sa1def.asm");
-        retval = MeiMei::run();
+        meimei.configureSa1Def(cfg.AsmDirPath + "/sa1def.asm");
+        retval = meimei.run();
     }
     if (plugins::for_each_plugin(plugin_list, &plugins::plugin::after_patching) != EXIT_SUCCESS) {
         return EXIT_FAILURE;

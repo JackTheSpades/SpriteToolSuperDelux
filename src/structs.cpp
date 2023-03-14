@@ -233,13 +233,6 @@ bool sprite::has_empty_table() const {
     return table.init.is_empty() && table.main.is_empty();
 }
 
-sprite::~sprite() {
-    if (asm_file)
-        delete[] asm_file;
-    if (cfg_file)
-        delete[] cfg_file;
-}
-
 void sprite::print() {
     iohandler& io = iohandler::get_global();
     io.debug("Type:       %02X\n", table.type);
@@ -250,7 +243,7 @@ void sprite::print() {
     // not needed for tweaks
     if (table.type) {
         io.debug("Extra:      %02X, %02X\n", table.extra[0], table.extra[1]);
-        io.debug("ASM File:   %s\n", asm_file);
+        io.debug("ASM File:   %s\n", asm_file.c_str());
         io.debug("Byte Count: %d, %d\n", byte_count, extra_byte_count);
     }
 
@@ -296,10 +289,6 @@ void sprite::print() {
 }
 
 void sprite::clear() {
-    if (asm_file)
-        delete[] asm_file;
-    if (cfg_file)
-        delete[] cfg_file;
     line = 0;
     number = 0;
     level = 0x200;
@@ -321,9 +310,9 @@ void sprite::clear() {
     byte_count = 0;
     extra_byte_count = 0;
 
-    directory = nullptr;
-    asm_file = nullptr;
-    cfg_file = nullptr;
+    directory.clear();
+    asm_file.clear();
+    cfg_file.clear();
 
     map_data.clear();
 

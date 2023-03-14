@@ -19,7 +19,7 @@ bool read_json_file(sprite* spr) {
         std::ifstream instr(spr->cfg_file);
         if (!instr) {
             io.error("JSON file \"%s\" wasn't found, make sure to have the correct filenames in your list file\n",
-                     spr->cfg_file);
+                     spr->cfg_file.c_str());
             return false;
         }
         instr >> j;
@@ -29,23 +29,23 @@ bool read_json_file(sprite* spr) {
         case 101:
             io.error("Unexpected token in json file %s, please make sure that the json file has the correct format. "
                      "Error: %s",
-                     spr->cfg_file, err.what());
+                     spr->cfg_file.c_str(), err.what());
             break;
         case 102:
             io.error(
                 "Unicode conversion failure or surrogate error in json file %s, please make sure that the json file "
                 "has the correct format. Error: %s",
-                spr->cfg_file, err.what());
+                spr->cfg_file.c_str(), err.what());
             break;
         case 103:
             io.error("Unicode conversion failure in json file %s, please make sure that the json file has the correct "
                      "format. Error: %s",
-                     spr->cfg_file, err.what());
+                     spr->cfg_file.c_str(), err.what());
             break;
         default:
             io.error("An unexpected json parsing error was encountered (from file %s), please make sure that the json "
                      "file has the correct format. Error: %s",
-                     spr->cfg_file, err.what());
+                     spr->cfg_file.c_str(), err.what());
             break;
         }
         return false;
@@ -53,7 +53,7 @@ bool read_json_file(sprite* spr) {
         io.error(
             "An unknown error has occurred while parsing json file %s, please report the issue at " GITHUB_ISSUE_LINK
             " (provide as much info as possible): %s\n",
-            spr->cfg_file, e.what());
+            spr->cfg_file.c_str(), e.what());
         return false;
     }
 
@@ -65,7 +65,7 @@ bool read_json_file(sprite* spr) {
         // values will only be filled for non-tweak sprites.
         if (spr->table.type) {
             std::string asm_file = j.at("AsmFile");
-            spr->asm_file = append_to_dir(spr->cfg_file, asm_file.c_str());
+            spr->asm_file = append_to_dir(spr->cfg_file, asm_file);
 
             spr->table.extra[0] = j.at("Extra Property Byte 1");
             spr->table.extra[1] = j.at("Extra Property Byte 2");
@@ -159,7 +159,7 @@ bool read_json_file(sprite* spr) {
                              [first_index](const display& disp) { return disp.x_or_index == first_index; })) {
                 io.error("JSON logic error in %s: \nWhen using the extension byte display type, all of the displays "
                          "of one sprite must use the same extension byte index.\n",
-                         spr->cfg_file);
+                         spr->cfg_file.c_str());
                 return false;
             }
         }
@@ -186,7 +186,7 @@ bool read_json_file(sprite* spr) {
             counter++;
         }
 
-        io.debug("Parsed %s\n", spr->cfg_file);
+        io.debug("Parsed %s\n", spr->cfg_file.c_str());
 
         return true;
     } catch (const std::exception& e) {
@@ -194,7 +194,7 @@ bool read_json_file(sprite* spr) {
         // most of them will probably come from here https://json.nlohmann.me/api/basic_json/at/#exceptions
         io.error("Unexpected error when parsing json file %s: %s, report this at " GITHUB_ISSUE_LINK
                  " (include as much info as possible)\n",
-                 spr->cfg_file, e.what());
+                 spr->cfg_file.c_str(), e.what());
         return false;
     }
 }

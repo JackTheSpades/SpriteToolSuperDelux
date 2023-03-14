@@ -42,7 +42,7 @@ bool read_cfg_file(sprite *spr) {
 
     std::ifstream cfg_stream(spr->cfg_file);
     if (!cfg_stream) {
-        io.error("Can't find CFG file %s, aborting insertion", spr->cfg_file);
+        io.error("Can't find CFG file %s, aborting insertion", spr->cfg_file.c_str());
         return false;
     }
     std::string current_line;
@@ -55,7 +55,7 @@ bool read_cfg_file(sprite *spr) {
             return false;
     };
 
-    io.debug("Parsed: %s, %zu lines\n", spr->cfg_file, line - 1);
+    io.debug("Parsed: %s, %zu lines\n", spr->cfg_file.c_str(), line - 1);
 
     return true;
 }
@@ -78,7 +78,7 @@ bool cfg_prop(const std::string &line, sprite *spr) {
     return true;
 }
 bool cfg_asm(const std::string &line, sprite *spr) {
-    spr->asm_file = append_to_dir(spr->cfg_file, line.data());
+    spr->asm_file = append_to_dir(spr->cfg_file.c_str(), line.data());
     return true;
 }
 
@@ -111,7 +111,8 @@ bool cfg_extra(const std::string &line, sprite *spr) {
         spr->byte_count = bc;
         spr->extra_byte_count = ebc;
     } catch (const std::invalid_argument &e) {
-        iohandler::get_global().error("Error in reading extra byte settings for file %s, error was \"%s\"\n", spr->cfg_file, e.what());
+        iohandler::get_global().error("Error in reading extra byte settings for file %s, error was \"%s\"\n",
+                                      spr->cfg_file.c_str(), e.what());
         return false;
     }
     return true;

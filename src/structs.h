@@ -19,6 +19,9 @@ constexpr auto RTL_LOW = 0x21;
 
 // 10 per level, 200 level + 100 global
 constexpr auto MAX_SPRITE_COUNT = 0x2100;
+constexpr size_t SPRITE_COUNT = 0x80; // count for other sprites like cluster, ow, extended
+constexpr size_t LESS_SPRITE_COUNT = 0x3F;
+constexpr size_t MINOR_SPRITE_COUNT = 0x1F;
 
 class patchfile {
     std::string m_fs_path{};
@@ -35,7 +38,9 @@ class patchfile {
     enum class placeholder {};
 
     constexpr static bool om_en = std::is_enum_v<std::ios::openmode>;
-    using openmode_t = std::conditional_t<om_en, std::underlying_type_t<std::conditional_t<om_en, std::ios::openmode, placeholder>>, std::ios::openmode>;
+    using openmode_t =
+        std::conditional_t<om_en, std::underlying_type_t<std::conditional_t<om_en, std::ios::openmode, placeholder>>,
+                           std::ios::openmode>;
 
   public:
     enum class openflags : openmode_t {
@@ -103,12 +108,13 @@ struct gfx_info {
         uint32_t gfx_num = 0x7F;
         bool sep = false;
 
-		uint32_t value() const {
+        uint32_t value() const {
             return sep ? gfx_num | 0x8000 : gfx_num;
         }
     } gfx_files[4] = {};
     bool has_value() const {
-        return std::any_of(std::begin(gfx_files), std::end(gfx_files), [](const auto& gfx) { return gfx.gfx_num != 0x7F; });
+        return std::any_of(std::begin(gfx_files), std::end(gfx_files),
+                           [](const auto& gfx) { return gfx.gfx_num != 0x7F; });
     }
 };
 
@@ -182,10 +188,9 @@ struct sprite {
     int byte_count = 0;
     int extra_byte_count = 0;
 
-    const char* directory = nullptr;
-    const char* asm_file = nullptr;
-    const char* cfg_file = nullptr;
-
+    std::string directory{};
+    std::string asm_file{};
+    std::string cfg_file{};
     std::vector<map16> map_data{};
 
     display_type disp_type = display_type::XYPosition;
@@ -196,7 +201,6 @@ struct sprite {
     ListType sprite_type = ListType::Sprite;
     bool has_empty_table() const;
     void clear();
-    ~sprite();
     void print();
 };
 
