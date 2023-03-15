@@ -89,6 +89,34 @@ TEST(PixiUnitTests, CFGParsing) {
     pixi_sprite_free(cfg_spr);
 }
 
+TEST(PixiUnitTests, ListParsing) {
+    WinCheckMemLeak leakchecker{};
+    std::string_view list_contents{"00 test.json\n01 test.cfg"};
+    try {
+        copy_file_wrap("base.smc", "PixiFullRun.smc");
+        copy_file_wrap("test.json", "sprites/test.json");
+        copy_file_wrap("test.asm", "sprites/test.asm");
+        copy_file_wrap("test.cfg", "sprites/test.cfg");
+    } catch (const fs::filesystem_error& error) {
+        std::cout << "Error happened while copying the files: " << error.what() << '\n';
+        EXPECT_FALSE(true);
+        return;
+    }
+    {
+        std::ofstream list_file{"list.txt", std::ios::trunc};
+        list_file << list_contents;
+    }
+    pixi_list_result_t sprites = pixi_parse_list_file("list.txt");
+    EXPECT_NE(sprites, nullptr);
+    int count = 0;
+    pixi_sprite_array arr = pixi_list_result_sprite_array(sprites, pixi_sprite_normal, &count);
+    EXPECT_EQ(count, 2);
+    pixi_sprite_t spr1 = arr[0];
+    pixi_sprite_t spr2 = arr[1];
+    EXPECT_TRUE(pixi_list_result_success(sprites));
+    pixi_list_result_free(sprites);
+}
+
 TEST(PixiUnitTests, JsonParsing) {
     WinCheckMemLeak leakchecker{};
     pixi_sprite_t json_spr = pixi_parse_json_sprite("test.json");
@@ -142,9 +170,7 @@ TEST(PixiUnitTests, PixiPluginTest) {
         EXPECT_FALSE(true);
         return;
     }
-    {
-        std::ofstream list_file{"list.txt", std::ios::trunc};
-    }
+    { std::ofstream list_file{"list.txt", std::ios::trunc}; }
     const char* argv[] = {"PixiPluginTest.smc"};
     EXPECT_EQ(pixi_run(sizeof(argv) / sizeof(argv[0]), argv, false), EXIT_SUCCESS);
     {

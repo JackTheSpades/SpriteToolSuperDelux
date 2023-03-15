@@ -103,6 +103,12 @@ struct tile {
     std::string text{};
 };
 
+struct sprite;
+struct list_result {
+    bool success = false;
+    std::vector<sprite*> sprite_arrays[FromEnum(ListType::__SIZE__)];
+};
+
 struct gfx_info {
     struct {
         uint32_t gfx_num = 0x7F;
@@ -231,5 +237,7 @@ struct ROM {
 };
 
 bool is_empty_table(std::span<sprite> sprites);
-
+[[nodiscard]] bool populate_sprite_list(const Paths& paths,
+                                        const std::array<sprite*, FromEnum(ListType::__SIZE__)>& sprite_lists,
+                                        std::string_view listPath);
 #endif
