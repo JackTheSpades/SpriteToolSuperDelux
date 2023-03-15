@@ -82,18 +82,18 @@ bool cfg_asm(const std::string &line, sprite *spr) {
     return true;
 }
 
-std::pair<int, int> read_byte_count(const std::string &line) {
+std::pair<uint8_t, uint8_t> read_byte_count(const std::string& line) {
     size_t pos = line.find(':');
     if (pos == std::string::npos) {
         // if there's no ':' it means that this cfg is old, because of backwards compat we just return 0 and ignore
-        return {0, 0};
+        return {uint8_t{0}, uint8_t{0}};
     }
-    std::pair<int, int> values{};
+    std::pair<uint8_t, uint8_t> values{};
     try {
         int first = std::stoi(line, nullptr, 16);
         int second = std::stoi(line.substr(pos + 1), nullptr, 16);
-        values.first = first;
-        values.second = second;
+        values.first = static_cast<uint8_t>(first);
+        values.second = static_cast<uint8_t>(second);
     } catch (const std::invalid_argument&) {
         throw std::invalid_argument("Hex values for extra byte count in CFG file were not valid base 16 integers");
     } catch (const std::out_of_range&) {

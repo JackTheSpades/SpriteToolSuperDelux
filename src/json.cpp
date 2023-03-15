@@ -72,8 +72,8 @@ bool read_json_file(sprite* spr) {
 
             spr->byte_count = j.at("Additional Byte Count (extra bit clear)");
             spr->extra_byte_count = j.at("Additional Byte Count (extra bit set)");
-            spr->byte_count = std::clamp(spr->byte_count, 0, 15);
-            spr->extra_byte_count = std::clamp(spr->extra_byte_count, 0, 15);
+            spr->byte_count = std::clamp(spr->byte_count, uint8_t{0}, uint8_t{15});
+            spr->extra_byte_count = std::clamp(spr->extra_byte_count, uint8_t{0}, uint8_t{15});
         }
         spr->table.tweak[0] = j1656(j);
         spr->table.tweak[1] = j1662(j);
@@ -110,13 +110,14 @@ bool read_json_file(sprite* spr) {
             if (spr->disp_type == display_type::ExtensionByte) {
                 dis.x_or_index = jdisplay.at("Index");
                 dis.x_or_index =
-                    std::clamp(dis.x_or_index, 0, (dis.extra_bit ? spr->extra_byte_count : spr->byte_count)) + 3;
+                    std::clamp(dis.x_or_index, uint8_t{0}, (dis.extra_bit ? spr->extra_byte_count : spr->byte_count)) +
+                    3;
                 dis.y_or_value = jdisplay.at("Value");
             } else {
                 dis.x_or_index = jdisplay.at("X");
                 dis.y_or_value = jdisplay.at("Y");
-                dis.x_or_index = std::clamp(dis.x_or_index, 0, 0x0F);
-                dis.y_or_value = std::clamp(dis.y_or_value, 0, 0x0F);
+                dis.x_or_index = std::clamp(dis.x_or_index, uint8_t{0}, uint8_t{0x0F});
+                dis.y_or_value = std::clamp(dis.y_or_value, uint8_t{0}, uint8_t{0x0F});
             }
 
             // for each X,Y or extension byte based appearance check if they have gfx information

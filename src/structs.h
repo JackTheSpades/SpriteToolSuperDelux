@@ -17,8 +17,8 @@ constexpr auto RTL_BANK = 0x01;
 constexpr auto RTL_HIGH = 0x80;
 constexpr auto RTL_LOW = 0x21;
 
-// 10 per level, 200 level + 100 global
-constexpr auto MAX_SPRITE_COUNT = 0x2100;
+// 0x10 per level, 0x200 level + 0x100 global
+constexpr size_t MAX_SPRITE_COUNT = 0x2100;
 constexpr size_t SPRITE_COUNT = 0x80; // count for other sprites like cluster, ow, extended
 constexpr size_t LESS_SPRITE_COUNT = 0x3F;
 constexpr size_t MINOR_SPRITE_COUNT = 0x1F;
@@ -124,14 +124,14 @@ struct gfx_info {
     }
 };
 
-enum class display_type { XYPosition, ExtensionByte };
+enum class display_type : bool { XYPosition, ExtensionByte };
 
 struct display {
     std::string description{};
     std::vector<tile> tiles{};
     bool extra_bit = false;
-    int x_or_index = 0;
-    int y_or_value = 0;
+    uint8_t x_or_index = 0;
+    uint8_t y_or_value = 0;
     gfx_info gfx_files{};
 };
 
@@ -191,8 +191,8 @@ struct sprite {
     sprite_table table;
     status_pointers ptrs;
     pointer extended_cape_ptr;
-    int byte_count = 0;
-    int extra_byte_count = 0;
+    uint8_t byte_count = 0;
+    uint8_t extra_byte_count = 0;
 
     std::string directory{};
     std::string asm_file{};

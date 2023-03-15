@@ -19,7 +19,7 @@ namespace PixiCLR
         private static extern int _check_api_version(int edition, int major, int minor);
 
         [DllImport("pixi_api", EntryPoint = "pixi_parse_list_file", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr _parse_list_file(string filename);
+        private static extern IntPtr _parse_list_file(string filename, bool per_level);
         [DllImport("pixi_api", EntryPoint = "pixi_list_result_success", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.I4)]
         private static extern int _list_result_success(IntPtr result);
@@ -598,7 +598,7 @@ namespace PixiCLR
         public class ParseListResult : PointerInternalBase
         {
             private readonly bool _success;
-            public ParseListResult(string list_filename) : base(_parse_list_file(list_filename))
+            public ParseListResult(string list_filename, bool per_level) : base(_parse_list_file(list_filename, per_level))
             {
                 _success = _list_result_success(data_pointer) != 0;
             }

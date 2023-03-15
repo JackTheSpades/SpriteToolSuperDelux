@@ -45,7 +45,7 @@ def __init_pixi_dll():
     _pixi.setup_func("api_version", [], c_int)
     _pixi.setup_func("check_api_version", [c_int, c_int, c_int], c_int)
 
-    _pixi.setup_func("parse_list_file", [c_char_p], c_void_p)
+    _pixi.setup_func("parse_list_file", [c_char_p, c_bool], c_void_p)
     _pixi.setup_func("list_result_success", [c_void_p], c_int)
     _pixi.setup_func("list_result_sprite_array", [c_void_p, c_int, POINTER(c_int)], POINTER(c_void_p))
     _pixi.setup_func("list_result_free", [c_void_p], None)
@@ -461,11 +461,11 @@ class ParsedListResult:
     freed: bool
     _success: bool
 
-    def __init__(self, list_filename: str):
+    def __init__(self, list_filename: str, per_level: bool = False):
         self.freed = False
         self._success = False
         cfilename = c_char_p(list_filename.encode())
-        self.data_ptr = _pixi.funcs["parse_list_file"](cfilename)
+        self.data_ptr = _pixi.funcs["parse_list_file"](cfilename, c_bool(per_level))
         self._success = _pixi.funcs["list_result_success"](self.data_ptr)
 
     def success(self) -> bool:

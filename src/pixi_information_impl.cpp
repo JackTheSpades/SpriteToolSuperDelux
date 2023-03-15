@@ -37,10 +37,10 @@ typedef const pixi_collection_t* pixi_collection_array;
 typedef const pixi_tile_t* pixi_tile_array;
 typedef const pixi_sprite_t* pixi_sprite_array;
 
-PIXI_EXPORT pixi_list_result_t pixi_parse_list_file(const char* filename) {
+PIXI_EXPORT pixi_list_result_t pixi_parse_list_file(const char* filename, bool per_level) {
     list_result* result = new list_result;
     static Paths paths{};
-    std::vector<sprite> sprite_list{MAX_SPRITE_COUNT};
+    std::vector<sprite> sprite_list{per_level ? MAX_SPRITE_COUNT : 0x100ull};
     std::vector<sprite> cluster_list{SPRITE_COUNT};
     std::vector<sprite> extended_list{SPRITE_COUNT};
     std::vector<sprite> minor_extended_list{LESS_SPRITE_COUNT};
@@ -155,17 +155,17 @@ PIXI_EXPORT int pixi_sprite_extra_byte_count(pixi_sprite_t pixi_sprite_ptr) {
 }
 PIXI_EXPORT pixi_string pixi_sprite_directory(pixi_sprite_t pixi_sprite_ptr, int* size) {
     pixi_string ptr = pixi_sprite_ptr->directory.c_str();
-    *size = static_cast<int>(strlen(ptr));
+    *size = static_cast<int>(pixi_sprite_ptr->directory.size());
     return ptr;
 }
 PIXI_EXPORT pixi_string pixi_sprite_asm_file(pixi_sprite_t pixi_sprite_ptr, int* size) {
     pixi_string ptr = pixi_sprite_ptr->asm_file.c_str();
-    *size = static_cast<int>(strlen(ptr));
+    *size = static_cast<int>(pixi_sprite_ptr->asm_file.size());
     return ptr;
 }
 PIXI_EXPORT pixi_string pixi_sprite_cfg_file(pixi_sprite_t pixi_sprite_ptr, int* size) {
     pixi_string str = pixi_sprite_ptr->cfg_file.c_str();
-    *size = static_cast<int>(strlen(str));
+    *size = static_cast<int>(pixi_sprite_ptr->cfg_file.size());
     return str;
 }
 PIXI_EXPORT pixi_map16_array pixi_sprite_map_data(pixi_sprite_t pixi_sprite_ptr, int* size) {

@@ -106,13 +106,18 @@ TEST(PixiUnitTests, ListParsing) {
         std::ofstream list_file{"list.txt", std::ios::trunc};
         list_file << list_contents;
     }
-    pixi_list_result_t sprites = pixi_parse_list_file("list.txt");
+    pixi_list_result_t sprites = pixi_parse_list_file("list.txt", false);
     EXPECT_NE(sprites, nullptr);
     int count = 0;
     pixi_sprite_array arr = pixi_list_result_sprite_array(sprites, pixi_sprite_normal, &count);
     EXPECT_EQ(count, 2);
     pixi_sprite_t spr1 = arr[0];
     pixi_sprite_t spr2 = arr[1];
+    EXPECT_EQ(pixi_sprite_number(spr1), 0);
+    EXPECT_EQ(pixi_sprite_number(spr2), 1);
+    int size = 0;
+    EXPECT_STREQ(pixi_sprite_cfg_file(spr1, &size), "sprites/test.json");
+    EXPECT_STREQ(pixi_sprite_cfg_file(spr2, &size), "sprites/test.cfg");
     EXPECT_TRUE(pixi_list_result_success(sprites));
     pixi_list_result_free(sprites);
 }

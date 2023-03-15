@@ -76,7 +76,7 @@ PIXI_IMPORT int pixi_api_version();
 /// <returns>1 on equality, 0 otherwise</returns>
 PIXI_IMPORT int pixi_check_api_version(int version_edition, int version_major, int version_minor);
 
-PIXI_IMPORT pixi_list_result_t pixi_parse_list_file(const char* filename);
+PIXI_IMPORT pixi_list_result_t pixi_parse_list_file(const char* filename, bool per_level);
 PIXI_IMPORT int pixi_list_result_success(pixi_list_result_t);
 PIXI_IMPORT pixi_sprite_array pixi_list_result_sprite_array(pixi_list_result_t, list_type_t, int* size);
 PIXI_IMPORT void pixi_list_result_free(pixi_list_result_t);
