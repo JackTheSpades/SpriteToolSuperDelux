@@ -10,7 +10,10 @@
 using namespace std::string_view_literals;
 namespace fs = std::filesystem;
 
-#ifdef _WIN32
+#ifdef __MINGW32__
+#define DYLIB_EXT ".dll"
+#define DYLIB_PRE "lib"
+#elif defined(_WIN32)
 #include <windows.h>
 #define DYLIB_EXT ".dll"
 #define DYLIB_PRE ""

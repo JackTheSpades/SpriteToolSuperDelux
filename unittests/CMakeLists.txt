@@ -12,11 +12,19 @@ FetchContent_Declare(
 enable_testing()
 include(GoogleTest)
 
+set(SAVED_C_FLAGS ${CMAKE_C_FLAGS})
+set(SAVED_CXX_FLAGS ${CMAKE_C_FLAGS})
+if (MSVC)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${PIXI_SANITIZERS_FLAGS}")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${PIXI_SANITIZERS_FLAGS}")
+endif()
 FetchContent_MakeAvailable(googletest)
 ### vvvv BEGIN WORKAROUND FOR https://github.com/google/googletest/issues/4067
 set_property(TARGET gtest PROPERTY MSVC_RUNTIME_LIBRARY ${UNITTEST_RUNTIME_LIBRARY})
 set_property(TARGET gtest_main PROPERTY MSVC_RUNTIME_LIBRARY ${UNITTEST_RUNTIME_LIBRARY})
 ### ^^^ END WORKAROUND
+set(CMAKE_C_FLAGS ${SAVED_C_FLAGS})
+set(CMAKE_CXX_FLAFS ${SAVED_CXX_FLAGS})
 add_executable(PixiUnitTest harness.cpp)
 add_library(testplugin SHARED "testplugin/testplugin.cpp")
 set_property(TARGET PixiUnitTest PROPERTY MSVC_RUNTIME_LIBRARY ${UNITTEST_RUNTIME_LIBRARY})
@@ -25,6 +33,8 @@ target_link_libraries(PixiUnitTest PRIVATE pixi_api_static gtest gtest_main)
 if (MSVC)
     target_compile_options(PixiUnitTest PRIVATE /utf-8 /W4 /std:c++20 /EHsc)
 endif()
+target_compile_options(PixiUnitTest PRIVATE ${PIXI_SANITIZERS_FLAGS})
+target_link_options(PixiUnitTest PRIVATE ${PIXI_SANITIZERS_FLAGS})
 
 get_target_property(ASAR_LIB_PATH pixi ASAR_LIB_PATH)
 add_custom_command(TARGET PixiUnitTest POST_BUILD

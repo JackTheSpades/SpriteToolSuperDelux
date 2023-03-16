@@ -14,7 +14,8 @@
 #include <unistd.h>
 #endif
 
-#if defined(__APPLE__) || (defined(__clang__) && __clang_major__ < 14) // vvvv clang 13/macos workaround
+#if defined(__APPLE__) || (defined(__clang__) && __clang_major__ < 14) ||                                              \
+    defined(__MINGW32__)// vvvv clang 13/macos/mingw workaround
 struct ec_compat {
     const char* ptr;
     std::errc ec;
@@ -28,7 +29,7 @@ ec_compat from_chars_double(const char* first, [[maybe_unused]] const char* last
     }
     return {};
 }
-#else  // ^^^^ clang 13 workaround -- vvvv everything else
+#else  // ^^^^ clang 13/macos/mingw workaround -- vvvv everything else
 auto from_chars_double(const char* first, const char* last, double& value) {
     return std::from_chars(first, last, value);
 }
