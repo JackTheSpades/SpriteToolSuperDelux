@@ -127,8 +127,9 @@ template <typename T, size_t N> constexpr size_t array_size(T (&)[N]) {
 static void asar_cleanup() {
     int size = 0;
     const memoryfile file{"clean_labels.asm", "", 0};
+    char fake_romdata = '\0';
     struct patchparams params {
-        .structsize = sizeof(struct patchparams), .patchloc = "clean_labels.asm", .romdata = nullptr, .buflen = 0,
+        .structsize = sizeof(struct patchparams), .patchloc = "clean_labels.asm", .romdata = &fake_romdata, .buflen = 0,
         .romlen = &size, .includepaths = nullptr, .numincludepaths = 0, .should_reset = true,
         .additional_defines = nullptr, .additional_define_count = 0, .stdincludesfile = nullptr,
         .stddefinesfile = nullptr, .warning_settings = nullptr, .warning_setting_count = 0, .memory_files = &file,
