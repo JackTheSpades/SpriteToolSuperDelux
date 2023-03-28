@@ -2,13 +2,14 @@
 ;by Isikoro
 ;
 ;Input A = The higher the value, the wider the area where sprites can exist.
+;		It can be 8-bit or 16-bit.
 ;Output: None
 
 			STA $0D
 			STZ $0E
-			REP #$20
+			REP #$21
 			LDA #$0130
-			CLC : ADC $0D
+			ADC $0D
 			STA $04
 			LDA #$FFC0
 			SEC : SBC $0D
