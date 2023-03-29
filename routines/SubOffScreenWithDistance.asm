@@ -5,8 +5,8 @@
 ;		It can be 8-bit or 16-bit.
 ;Output: None
 
-			STA $0D
 			STZ $0E
+			STA $0D
 			REP #$21
 			LDA #$0130
 			ADC $0D
