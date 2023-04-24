@@ -28,7 +28,7 @@
 	JSL $03B72B|!BankB
 	BCC .skip
 	PHB
-	LDA.b #($02|!BankB>>16)
+	LDA.b #$02|!Bank8
 	PHA : PLB : PHK
 	PEA.w .return-1
 	PEA.w $B889-1
