@@ -51,7 +51,7 @@ bool read_cfg_file(sprite* spr) {
         if (current_line.empty() || current_line.length() == 0)
             continue;
 
-        if (!handlers[line++](current_line.c_str(), spr))
+        if (!handlers[line++](current_line, spr))
             return false;
     };
 
