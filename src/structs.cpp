@@ -287,7 +287,7 @@ void sprite::print() {
         }
     }
 }
-
+#define DEFAULT_PTR ((RTL_BANK << 16) | (RTL_HIGH << 8) | (RTL_LOW))
 void sprite::clear() {
     line = 0;
     number = 0;
@@ -296,17 +296,17 @@ void sprite::clear() {
     table.type = 0;
     table.actlike = 0;
     memset(table.tweak, 0, sizeof(table.tweak));
-    table.init = {};
-    table.main = {};
+    table.init = DEFAULT_PTR;
+    table.main = DEFAULT_PTR;
     memset(table.extra, 0, sizeof(table.extra));
 
-    ptrs.carriable = {};
-    ptrs.carried = {};
-    ptrs.goal = {};
-    ptrs.kicked = {};
-    ptrs.mouth = {};
+    ptrs.carriable = DEFAULT_PTR;
+    ptrs.carried = DEFAULT_PTR;
+    ptrs.goal = DEFAULT_PTR;
+    ptrs.kicked = DEFAULT_PTR;
+    ptrs.mouth = DEFAULT_PTR;
 
-    extended_cape_ptr = {};
+    extended_cape_ptr = DEFAULT_PTR;
     byte_count = 0;
     extra_byte_count = 0;
 

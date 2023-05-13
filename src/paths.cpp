@@ -48,9 +48,9 @@ std::string append_to_dir(std::string_view src, std::string_view file) {
     auto end = std::string::npos;
     if (unix_end != std::string::npos && win_end != std::string::npos) {
         end = std::max(unix_end, win_end);
-    } else if (unix_end != std::string::npos) {
+    } else if (unix_end != npos) {
         end = unix_end;
-    } else if (win_end != std::string::npos) {
+    } else if (win_end != npos) {
         end = win_end;
     }
     // fetches path of src and append it before

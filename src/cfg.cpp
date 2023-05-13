@@ -1,7 +1,7 @@
 #include "cfg.h"
+#include "iohandler.h"
 #include "paths.h"
 #include "structs.h"
-#include "iohandler.h"
 #include <cstdio>
 
 #include <array>
@@ -24,16 +24,16 @@ but will just set both ex. byte counts to 0.
 */
 
 constexpr size_t handler_limit = 6;
-using cfg_handler = bool (*)(const std::string &, sprite *);
+using cfg_handler = bool (*)(const std::string&, sprite*);
 
-bool cfg_type(const std::string &line, sprite *spr);
-bool cfg_actlike(const std::string &line, sprite *spr);
-bool cfg_tweak(const std::string &line, sprite *spr);
-bool cfg_prop(const std::string &line, sprite *spr);
-bool cfg_asm(const std::string &line, sprite *spr);
-bool cfg_extra(const std::string &line, sprite *spr);
+bool cfg_type(const std::string& line, sprite* spr);
+bool cfg_actlike(const std::string& line, sprite* spr);
+bool cfg_tweak(const std::string& line, sprite* spr);
+bool cfg_prop(const std::string& line, sprite* spr);
+bool cfg_asm(const std::string& line, sprite* spr);
+bool cfg_extra(const std::string& line, sprite* spr);
 
-bool read_cfg_file(sprite *spr) {
+bool read_cfg_file(sprite* spr) {
     iohandler& io = iohandler::get_global();
 
     std::array<cfg_handler, handler_limit> handlers{cfg_type, cfg_actlike, cfg_tweak, cfg_prop, cfg_asm, cfg_extra};
@@ -60,28 +60,28 @@ bool read_cfg_file(sprite *spr) {
     return true;
 }
 
-bool cfg_type(const std::string &line, sprite *spr) {
-    sscanf(line.data(), "%hhx", &spr->table.type);
+bool cfg_type(const std::string& line, sprite* spr) {
+    if (sscanf(line.data(), "%hhx", &spr->table.type) != 1)
+        return false;
     return true;
 }
-bool cfg_actlike(const std::string &line, sprite *spr) {
-    sscanf(line.data(), "%hhx", &spr->table.actlike);
+bool cfg_actlike(const std::string& line, sprite* spr) {
+    if (sscanf(line.data(), "%hhx", &spr->table.actlike) != 1)
+        return false;
     return true;
 }
-bool cfg_tweak(const std::string &line, sprite *spr) {
-    sscanf(line.data(), "%hhx %hhx %hhx %hhx %hhx %hhx", &spr->table.tweak[0], &spr->table.tweak[1],
-           &spr->table.tweak[2], &spr->table.tweak[3], &spr->table.tweak[4], &spr->table.tweak[5]);
+bool cfg_tweak(const std::string& line, sprite* spr) {
+    int nfields = sscanf(line.data(), "%hhx %hhx %hhx %hhx %hhx %hhx", &spr->table.tweak[0], &spr->table.tweak[1],
+                         &spr->table.tweak[2], &spr->table.tweak[3], &spr->table.tweak[4], &spr->table.tweak[5]);
+    if (nfields != 6)
+        return false;
     return true;
 }
-bool cfg_prop(const std::string &line, sprite *spr) {
-    sscanf(line.data(), "%hhx %hhx", &spr->table.extra[0], &spr->table.extra[1]);
+bool cfg_prop(const std::string& line, sprite* spr) {
+    if (sscanf(line.data(), "%hhx %hhx", &spr->table.extra[0], &spr->table.extra[1]) != 2)
+        return false;
     return true;
 }
-bool cfg_asm(const std::string &line, sprite *spr) {
-    spr->asm_file = append_to_dir(spr->cfg_file.c_str(), line.data());
-    return true;
-}
-
 std::pair<uint8_t, uint8_t> read_byte_count(const std::string& line) {
     size_t pos = line.find(':');
     if (pos == std::string::npos) {
@@ -105,7 +105,7 @@ std::pair<uint8_t, uint8_t> read_byte_count(const std::string& line) {
     return values;
 }
 
-bool cfg_extra(const std::string &line, sprite *spr) {
+bool cfg_extra(const std::string& line, sprite* spr) {
     try {
         auto [bc, ebc] = read_byte_count(line);
         spr->byte_count = bc;
