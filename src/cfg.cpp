@@ -82,6 +82,11 @@ bool cfg_prop(const std::string& line, sprite* spr) {
         return false;
     return true;
 }
+bool cfg_asm(const std::string& line, sprite* spr) {
+    spr->asm_file = append_to_dir(spr->cfg_file, line);
+    return true;
+}
+
 std::pair<uint8_t, uint8_t> read_byte_count(const std::string& line) {
     size_t pos = line.find(':');
     if (pos == std::string::npos) {
