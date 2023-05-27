@@ -125,6 +125,13 @@ template <typename T, size_t N> constexpr size_t array_size(T (&)[N]) {
 }
 
 static void asar_cleanup() {
+    // This is a hack to prevent a memory leak that's present in asar (ver 1.81 and previous)
+    // basically when calling getalllabels(), the labeldata structer gets populated
+    // but then it doesn't get cleaned up when asar_close() is called.
+    // the workaround for this is to apply an empty patch, because before applying the patch
+    // asar cleans up all the related data structures (labels included).
+    // this prevents the leak.
+    // tl,dr: remove this when the new asar version comes out because that version fixes the leak.
     int size = 0;
     const memoryfile file{"clean_labels.asm", "", 0};
     char fake_romdata = '\0';
