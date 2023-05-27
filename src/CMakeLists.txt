@@ -152,8 +152,6 @@ elseif (PIXI_BUILD_EXE)
     message(WARNING "IPO is not supported: ${ipo_support_error}")
 endif()
 
-set(ON_MINGW FALSE)
-
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if (WIN32)
         list(APPEND PIXI_COMPILE_DEFINITIONS
@@ -180,7 +178,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
             endif()
         elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
             message(STATUS "Windows build (gcc-mingw)")
-            set(ON_MINGW TRUE PARENT_SCOPE)
             list(APPEND PIXI_COMPILE_OPTIONS -Wno-deprecated-declarations -municode)
         else()
             message(FATAL_ERROR "Unsupported OS-compiler combination, on Windows you can use MSVC, clang-cl or gcc with mingw")
@@ -297,7 +294,7 @@ if (PIXI_BUILD_EXE)
         COMMENT "Copying asar dynamic library to output directory"
     )
 
-    if (ON_MINGW)
+    if (MINGW)
         add_custom_command(TARGET pixi POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E rename $<TARGET_FILE_DIR:pixi>/libasar.dll $<TARGET_FILE_DIR:pixi>/asar.dll
             COMMENT "Renaming libasar.dll to asar.dll because MinGW is a mess"
