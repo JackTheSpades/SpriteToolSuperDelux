@@ -10,7 +10,7 @@ set(PIXI_COMPILE_DEFINITIONS GITHUB_ISSUE_LINK="https://github.com/JackTheSpades
 
 set(PIXI_VERSION_EDITION 1)
 set(PIXI_VERSION_MAJOR 4)
-set(PIXI_VERSION_MINOR 0)
+set(PIXI_VERSION_MINOR 1)
 string(TIMESTAMP PIXI_BUILD_TIMESTAMP "%Y/%m/%d %H:%M:%S" UTC)
 if (MSVC)
     option(MSVC_STATIC_STL "Use the static version of the MSVC STL to link" OFF)
