@@ -14,9 +14,10 @@ FILE *open(const char *name, const char *mode) {
 }
 
 size_t file_size(FILE *file) {
+    long off = ftell(file);
     fseek(file, 0, SEEK_END);
     size_t size = ftell(file);
-    fseek(file, 0, SEEK_SET);
+    fseek(file, off, SEEK_SET);
     return size;
 }
 
