@@ -1544,7 +1544,12 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
     if constexpr (PIXI_DEV_BUILD) {
         io.print("Pixi development version %d.%d - %s\n", VERSION_EDITION, VERSION_PARTIAL, VERSION_DEBUG);
     } else if (version_requested) {
-        io.print("Pixi version %d.%d\n", VERSION_EDITION, VERSION_PARTIAL);
+        const char message[]{"Pixi version %d.%d\n"
+                             "Originally developed in 2017 by JackTheSpades\n"
+                             "Maintained by RPGHacker (2018), Tattletale (2018-2020)\n"
+                             "Currently maintained by Atari2.0 (2020-2023)\n"};
+        io.print(message, VERSION_EDITION, VERSION_PARTIAL);
+        return EXIT_SUCCESS;
     }
 
     if (!asar_init()) {
