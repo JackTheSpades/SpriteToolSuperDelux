@@ -166,7 +166,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
         list(APPEND PIXI_LINK_OPTIONS -static -static-libgcc -static-libstdc++)
         if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_SIMULATE_ID MATCHES "MSVC")
             message(STATUS "Windows build (clang-cl)")
-            list(APPEND PIXI_COMPILE_OPTIONS -Wno-deprecated-declarations)
+            list(APPEND PIXI_COMPILE_OPTIONS /EHsc -Wno-deprecated-declarations)
             if (PIXI_BUILD_EXE)
                 set_property(TARGET pixi PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
             endif()
