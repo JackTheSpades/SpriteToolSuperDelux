@@ -14,6 +14,7 @@ cmake -DPIXI_BUILD_TESTS=OFF -DPIXI_BUILD_DLL=OFF -DPIXI_BUILD_LIB=OFF -G "Visua
 cmake --build . --config Release --target pixi
 Pop-Location
 
+py -m pip install mistune bs4
 py .\zip.py
 Rename-Item pixi.zip pixi-x64.zip
 
@@ -26,6 +27,5 @@ cmake -DPIXI_BUILD_TESTS=OFF -DPIXI_BUILD_DLL=OFF -DPIXI_BUILD_LIB=OFF -G "Visua
 cmake --build . --config Release --target pixi
 Pop-Location
 
-py -m pip install mistune bs4
 py .\zip.py
 Rename-Item pixi.zip pixi-x86.zip
