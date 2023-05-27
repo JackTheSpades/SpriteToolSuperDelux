@@ -42,7 +42,7 @@ bool read_cfg_file(sprite* spr) {
 
     std::ifstream cfg_stream(spr->cfg_file);
     if (!cfg_stream) {
-        io.error("Can't find CFG file %s, aborting insertion", spr->cfg_file);
+        io.error("Can't find CFG file %s, aborting insertion", spr->cfg_file.c_str());
         return false;
     }
     std::string current_line;
@@ -51,11 +51,11 @@ bool read_cfg_file(sprite* spr) {
         if (current_line.empty() || current_line.length() == 0)
             continue;
 
-        if (!handlers[line++](current_line.c_str(), spr))
+        if (!handlers[line++](current_line, spr))
             return false;
     };
 
-    io.debug("Parsed: %s, %zu lines\n", spr->cfg_file, line - 1);
+    io.debug("Parsed: %s, %zu lines\n", spr->cfg_file.c_str(), line - 1);
 
     return true;
 }
@@ -83,22 +83,22 @@ bool cfg_prop(const std::string& line, sprite* spr) {
     return true;
 }
 bool cfg_asm(const std::string& line, sprite* spr) {
-    spr->asm_file = append_to_dir(spr->cfg_file, line.data());
+    spr->asm_file = append_to_dir(spr->cfg_file, line);
     return true;
 }
 
-std::pair<int, int> read_byte_count(const std::string& line) {
+std::pair<uint8_t, uint8_t> read_byte_count(const std::string& line) {
     size_t pos = line.find(':');
     if (pos == std::string::npos) {
         // if there's no ':' it means that this cfg is old, because of backwards compat we just return 0 and ignore
-        return {0, 0};
+        return {uint8_t{0}, uint8_t{0}};
     }
-    std::pair<int, int> values{};
+    std::pair<uint8_t, uint8_t> values{};
     try {
         int first = std::stoi(line, nullptr, 16);
         int second = std::stoi(line.substr(pos + 1), nullptr, 16);
-        values.first = first;
-        values.second = second;
+        values.first = static_cast<uint8_t>(first);
+        values.second = static_cast<uint8_t>(second);
     } catch (const std::invalid_argument&) {
         throw std::invalid_argument("Hex values for extra byte count in CFG file were not valid base 16 integers");
     } catch (const std::out_of_range&) {
@@ -115,9 +115,9 @@ bool cfg_extra(const std::string& line, sprite* spr) {
         auto [bc, ebc] = read_byte_count(line);
         spr->byte_count = bc;
         spr->extra_byte_count = ebc;
-    } catch (const std::invalid_argument& e) {
+    } catch (const std::invalid_argument &e) {
         iohandler::get_global().error("Error in reading extra byte settings for file %s, error was \"%s\"\n",
-                                      spr->cfg_file, e.what());
+                                      spr->cfg_file.c_str(), e.what());
         return false;
     }
     return true;

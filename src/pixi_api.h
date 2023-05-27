@@ -22,8 +22,21 @@ struct map16;
 struct status_pointers;
 struct sprite_table;
 struct sprite;
+struct list_result;
 
+
+enum _list_type : int {
+    pixi_sprite_normal,
+    pixi_sprite_cluster,
+    pixi_sprite_extended,
+    pixi_sprite_minor_extended,
+    pixi_sprite_bounce,
+    pixi_sprite_smoke,
+    pixi_sprite_spinningcoin,
+    pixi_sprite_score
+} typedef list_type_t;
 typedef int pixi_pointer_t;
+typedef const struct list_result* pixi_list_result_t;
 typedef const struct tile* pixi_tile_t;
 typedef const struct display* pixi_display_t;
 typedef const struct collection* pixi_collection_t;
@@ -39,6 +52,7 @@ typedef const pixi_map16_t* pixi_map16_array;
 typedef const pixi_display_t* pixi_display_array;
 typedef const pixi_collection_t* pixi_collection_array;
 typedef const pixi_tile_t* pixi_tile_array;
+typedef const pixi_sprite_t* pixi_sprite_array;
 
 /// <summary>
 /// Runs the complete pixi program.
@@ -66,6 +80,11 @@ PIXI_EXPORT int pixi_api_version();
 /// <param name="version_minor">Minor revision (e.g. for Pixi 1.32 it would be 2)</param>
 /// <returns>1 on equality, 0 otherwise</returns>
 PIXI_EXPORT int pixi_check_api_version(int version_edition, int version_major, int version_minor);
+
+PIXI_EXPORT pixi_list_result_t pixi_parse_list_file(const char* filename, bool per_level);
+PIXI_EXPORT int pixi_list_result_success(pixi_list_result_t);
+PIXI_EXPORT pixi_sprite_array pixi_list_result_sprite_array(pixi_list_result_t, list_type_t, int* size);
+PIXI_EXPORT void pixi_list_result_free(pixi_list_result_t);
 
 PIXI_EXPORT pixi_sprite_t pixi_parse_json_sprite(const char* filename);
 PIXI_EXPORT pixi_sprite_t pixi_parse_cfg_sprite(const char* filename);

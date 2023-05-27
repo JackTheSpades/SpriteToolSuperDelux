@@ -1,9 +1,31 @@
 #include "pixi_api.h"
+#include <array>
 #include <filesystem>
 #include <fstream>
 #include <gtest/gtest.h>
+#include <string>
+#include <string_view>
+#include <vector>
 
+using namespace std::string_view_literals;
 namespace fs = std::filesystem;
+
+#ifdef __MINGW32__
+#define DYLIB_EXT ".dll"
+#define DYLIB_PRE "lib"
+#elif defined(_WIN32)
+#include <windows.h>
+#define DYLIB_EXT ".dll"
+#define DYLIB_PRE ""
+#elif defined(__APPLE__)
+#define DYLIB_EXT ".dylib"
+#define DYLIB_PRE "lib"
+#else
+#define DYLIB_EXT ".so"
+#define DYLIB_PRE "lib"
+#endif
+
+#define MAKE_LIB_NAME(x) DYLIB_PRE #x DYLIB_EXT
 
 #if defined(_WIN32) && defined(_MSC_VER)
 // clang-format off
@@ -34,8 +56,8 @@ auto copy_file_wrap(const fs::path& from, const fs::path& to) {
 // mingw
 struct WinCheckMemLeak {};
 auto copy_file_wrap(const fs::path& from, const fs::path& to) {
-    // mingw throws fs::filesystem_error with "file already exists" even when specifying fs::copy_options::overwrite_existing
-    // so this is a way to go around that issue.
+    // mingw throws fs::filesystem_error with "file already exists" even when specifying
+    // fs::copy_options::overwrite_existing so this is a way to go around that issue.
     if (fs::exists(to)) {
         fs::remove(to);
     }
@@ -68,6 +90,39 @@ TEST(PixiUnitTests, CFGParsing) {
     int extra_byte_count = pixi_sprite_extra_byte_count(cfg_spr);
     EXPECT_EQ(extra_byte_count, 3);
     pixi_sprite_free(cfg_spr);
+}
+
+TEST(PixiUnitTests, ListParsing) {
+    WinCheckMemLeak leakchecker{};
+    std::string_view list_contents{"00 test.json\n01 test.cfg"};
+    try {
+        copy_file_wrap("base.smc", "PixiFullRun.smc");
+        copy_file_wrap("test.json", "sprites/test.json");
+        copy_file_wrap("test.asm", "sprites/test.asm");
+        copy_file_wrap("test.cfg", "sprites/test.cfg");
+    } catch (const fs::filesystem_error& error) {
+        std::cout << "Error happened while copying the files: " << error.what() << '\n';
+        EXPECT_FALSE(true);
+        return;
+    }
+    {
+        std::ofstream list_file{"list.txt", std::ios::trunc};
+        list_file << list_contents;
+    }
+    pixi_list_result_t sprites = pixi_parse_list_file("list.txt", false);
+    EXPECT_NE(sprites, nullptr);
+    int count = 0;
+    pixi_sprite_array arr = pixi_list_result_sprite_array(sprites, pixi_sprite_normal, &count);
+    EXPECT_EQ(count, 2);
+    pixi_sprite_t spr1 = arr[0];
+    pixi_sprite_t spr2 = arr[1];
+    EXPECT_EQ(pixi_sprite_number(spr1), 0);
+    EXPECT_EQ(pixi_sprite_number(spr2), 1);
+    int size = 0;
+    EXPECT_STREQ(pixi_sprite_cfg_file(spr1, &size), "sprites/test.json");
+    EXPECT_STREQ(pixi_sprite_cfg_file(spr2, &size), "sprites/test.cfg");
+    EXPECT_TRUE(pixi_list_result_success(sprites));
+    pixi_list_result_free(sprites);
 }
 
 TEST(PixiUnitTests, JsonParsing) {
@@ -111,6 +166,43 @@ TEST(PixiUnitTests, PixiFullRun) {
     }
     const char* argv[] = {"PixiFullRun.smc"};
     EXPECT_EQ(pixi_run(sizeof(argv) / sizeof(argv[0]), argv, false), EXIT_SUCCESS);
+}
+
+TEST(PixiUnitTests, PixiPluginTest) {
+    try {
+        fs::create_directory(fs::current_path() / "plugins");
+        copy_file_wrap(MAKE_LIB_NAME(testplugin), fs::current_path() / "plugins" / MAKE_LIB_NAME(testplugin));
+        copy_file_wrap("base.smc", "PixiPluginTest.smc");
+    } catch (const fs::filesystem_error& error) {
+        std::cout << "Error happened while copying the files: " << error.what() << '\n';
+        EXPECT_FALSE(true);
+        return;
+    }
+    { std::ofstream list_file{"list.txt", std::ios::trunc}; }
+    const char* argv[] = {"PixiPluginTest.smc"};
+    int ret = pixi_run(sizeof(argv) / sizeof(argv[0]), argv, false);
+    EXPECT_EQ(ret, EXIT_SUCCESS);
+    if (ret == EXIT_FAILURE) {
+        int size = 0;
+        const char* errors = pixi_last_error(&size);
+        std::string_view se{errors, static_cast<size_t>(size)};
+        std::cout << "Error while running pixi " << se << '\n';
+    } else {
+        std::ifstream plugin_output{"testplugin.txt"};
+        std::array expected_output{"Hello from testplugin! pixi_before_patching()"sv,
+                                   "Hello from testplugin! pixi_after_patching()"sv,
+                                   "Hello from testplugin! pixi_before_unload()"sv};
+        std::vector<std::string> actual_output{};
+        while (std::getline(plugin_output, actual_output.emplace_back()))
+            ;
+        if (actual_output.back().empty())
+            actual_output.pop_back();
+        EXPECT_EQ(expected_output.size(), actual_output.size());
+        for (size_t i = 0; i < actual_output.size(); ++i) {
+            EXPECT_EQ(expected_output[i], actual_output[i]);
+        }
+    }
+    fs::remove(fs::current_path() / "plugins" / MAKE_LIB_NAME(testplugin));
 }
 
 TEST(PixiUnitTests, PixiFullRunPerLevel) {

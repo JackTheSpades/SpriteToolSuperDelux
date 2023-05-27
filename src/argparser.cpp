@@ -14,6 +14,27 @@
 #include <unistd.h>
 #endif
 
+#if defined(__APPLE__) || (defined(__clang__) && __clang_major__ < 14) ||                                              \
+    defined(__MINGW32__)// vvvv clang 13/macos/mingw workaround
+struct ec_compat {
+    const char* ptr;
+    std::errc ec;
+};
+ec_compat from_chars_double(const char* first, [[maybe_unused]] const char* last, double& value) {
+    char* end = nullptr;
+    value = std::strtod(first, &end);
+    if (end == first) {
+        // error
+        return {end, std::errc::invalid_argument};
+    }
+    return {};
+}
+#else  // ^^^^ clang 13/macos/mingw workaround -- vvvv everything else
+auto from_chars_double(const char* first, const char* last, double& value) {
+    return std::from_chars(first, last, value);
+}
+#endif // ^^^^ everything else
+
 static std::string GetExecutableName() {
 #ifdef _WIN32
     WCHAR moduleNameW[MAX_PATH]{};
@@ -51,9 +72,15 @@ bool argparser::init(const nlohmann::json& args) {
             if (val.is_boolean()) {
                 if (val.get<bool>())
                     m_arguments.push_back(key);
-            } else if (val.is_number()) {
+            } else if (val.is_number_unsigned()) {
+                m_arguments.push_back(key);
+                m_arguments.push_back(std::to_string(val.get<unsigned int>()));
+            } else if (val.is_number_integer()) {
                 m_arguments.push_back(key);
                 m_arguments.push_back(std::to_string(val.get<int>()));
+            } else if (val.is_number_float()) {
+                m_arguments.push_back(key);
+                m_arguments.push_back(std::to_string(val.get<float>()));
             } else if (val.is_string()) {
                 m_arguments.push_back(key);
                 m_arguments.push_back(val);
@@ -134,6 +161,32 @@ bool argparser::parse() {
                                  " along with the command line you were using!\n");
                         return false;
                     }
+                } else if (opt.type == option::Type::Uint) {
+                    unsigned int value = std::get<uint_ref>(opt.value);
+                    const auto& strval = *it;
+                    auto ec = std::from_chars(strval.data(), strval.data() + strval.size(), value);
+                    if (ec.ec != std::errc{}) {
+                        io.error("Argument parsing error: option \"%s\" was expecting a number but received %s\n",
+                                 name.data(), strval.data());
+                    }
+                    if (!opt.assign(value)) {
+                        io.error("Internal argument parser error, report this here " GITHUB_ISSUE_LINK
+                                 " along with the command line you were using!\n");
+                        return false;
+                    }
+                } else if (opt.type == option::Type::Real) {
+                    double value = std::get<real_ref>(opt.value);
+                    const auto& strval = *it;
+                    auto ec = from_chars_double(strval.data(), strval.data() + strval.size(), value);
+                    if (ec.ec != std::errc{}) {
+                        io.error("Argument parsing error: option \"%s\" was expecting a number but received %s\n",
+                                 name.data(), strval.data());
+                    }
+                    if (!opt.assign(value)) {
+                        io.error("Internal argument parser error, report this here " GITHUB_ISSUE_LINK
+                                 " along with the command line you were using!\n");
+                        return false;
+                    }
                 }
                 m_arguments.erase(it);
             } else if (opt.type == option::Type::Bool) {
@@ -180,6 +233,18 @@ argparser& argparser::add_option(std::string_view opt_name, std::string_view des
 
 argparser& argparser::add_option(std::string_view opt_name, std::string_view value_name, std::string_view description,
                                  int& value_ref) {
+    m_options.push_back(opt_t{opt_name, option{description, value_name, std::ref(value_ref)}});
+    return *this;
+}
+
+argparser& argparser::add_option(std::string_view opt_name, std::string_view value_name, std::string_view description,
+                                 unsigned int& value_ref) {
+    m_options.push_back(opt_t{opt_name, option{description, value_name, std::ref(value_ref)}});
+    return *this;
+}
+
+argparser& argparser::add_option(std::string_view opt_name, std::string_view value_name, std::string_view description,
+                                 double& value_ref) {
     m_options.push_back(opt_t{opt_name, option{description, value_name, std::ref(value_ref)}});
     return *this;
 }
@@ -239,7 +304,7 @@ void argparser::print_help() const {
 }
 
 bool argparser::option::requires_value() const {
-    return type == Type::Int || type == Type::String;
+    return type == Type::Int || type == Type::String || type == Type::Uint || type == Type::Real;
 }
 
 bool argparser::option::assign(std::string_view arg_value) {
@@ -254,15 +319,6 @@ bool argparser::option::assign(std::string_view arg_value) {
 bool argparser::option::assign(bool arg_value) {
     if (type == Type::Bool) {
         std::get<bool_ref>(value).get() = arg_value;
-    } else {
-        return false;
-    }
-    return true;
-}
-
-bool argparser::option::assign(int arg_value) {
-    if (type == Type::Int) {
-        std::get<int_ref>(value).get() = arg_value;
     } else {
         return false;
     }

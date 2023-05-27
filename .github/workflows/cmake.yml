@@ -45,6 +45,11 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.9'
+        
+    - name: Install python packages
+      run: |
+           python -m pip install --upgrade pip
+           python -m pip install beautifulsoup4 mistune
 
     - name: Setup compilers
       run:  |
@@ -103,7 +108,7 @@ jobs:
     - name: Run basic unit tests
       working-directory: ${{github.workspace}}/build/unittests
       run: ctest --rerun-failed --output-on-failure -C $BUILD_TYPE
-
+    
     - name: Create pixi.zip release
       run: python ${{github.workspace}}/zip.py
 

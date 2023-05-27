@@ -10,7 +10,7 @@ set(PIXI_COMPILE_DEFINITIONS GITHUB_ISSUE_LINK="https://github.com/JackTheSpades
 
 set(PIXI_VERSION_EDITION 1)
 set(PIXI_VERSION_MAJOR 4)
-set(PIXI_VERSION_MINOR 0)
+set(PIXI_VERSION_MINOR 1)
 string(TIMESTAMP PIXI_BUILD_TIMESTAMP "%Y/%m/%d %H:%M:%S" UTC)
 if (MSVC)
     option(MSVC_STATIC_STL "Use the static version of the MSVC STL to link" OFF)
@@ -43,18 +43,20 @@ else()
 endif()
 FetchContent_MakeAvailable(json)
 
-set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
-set(ASAR_GEN_EXE OFF)
-set(ASAR_GEN_EXE_TEST OFF)
-set(ASAR_GEN_DLL_TEST OFF)
-FetchContent_Declare(
-	asar
-	GIT_REPOSITORY https://github.com/RPGHacker/asar
-	GIT_TAG v1.81
-	SOURCE_SUBDIR src
-)
-FetchContent_MakeAvailable(asar)
-set_target_properties(asar PROPERTIES CXX_STANDARD 14)
+if (PIXI_BUILD_EXE OR PIXI_BUILD_DLL OR PIXI_BUILD_LIB)
+    set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+    set(ASAR_GEN_EXE OFF)
+    set(ASAR_GEN_EXE_TEST OFF)
+    set(ASAR_GEN_DLL_TEST OFF)
+    FetchContent_Declare(
+	    asar
+	    GIT_REPOSITORY https://github.com/RPGHacker/asar
+	    GIT_TAG v1.81
+	    SOURCE_SUBDIR src
+    )
+    FetchContent_MakeAvailable(asar)
+    set_target_properties(asar PROPERTIES CXX_STANDARD 14)
+endif()
 
 list(
     APPEND PIXI_LINK_LIBRARIES
@@ -124,6 +126,9 @@ list(
 
     "${CMAKE_CURRENT_SOURCE_DIR}/libconsole/libconsole.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/libconsole/libconsole.cpp"
+
+    "${CMAKE_CURRENT_SOURCE_DIR}/libplugin/libplugin.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/libplugin/libplugin.cpp"
     
     "${CMAKE_CURRENT_SOURCE_DIR}/pixi_information_impl.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/pixi_api.h"
@@ -131,25 +136,53 @@ list(
 
 check_ipo_supported(RESULT has_ipo OUTPUT ipo_support_error)
 
-add_executable(pixi "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp" ${PIXI_SOURCE_FILES})
-add_library(pixi_api SHARED ${PIXI_SOURCE_FILES})
-add_library(pixi_api_static STATIC ${PIXI_SOURCE_FILES})
+if (PIXI_BUILD_EXE)
+    add_executable(pixi "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp" ${PIXI_SOURCE_FILES})
+endif()
+if (PIXI_BUILD_DLL)
+    add_library(pixi_api SHARED ${PIXI_SOURCE_FILES})
+endif()
+if (PIXI_BUILD_LIB)
+    add_library(pixi_api_static STATIC ${PIXI_SOURCE_FILES})
+endif()
 
-if (has_ipo)
+if (has_ipo AND PIXI_BUILD_EXE)
     set_property(TARGET pixi PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
-else()
+elseif (PIXI_BUILD_EXE)
     message(WARNING "IPO is not supported: ${ipo_support_error}")
 endif()
 
-set(ON_MINGW FALSE)
-
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if (WIN32)
-        set(ON_MINGW TRUE PARENT_SCOPE)
-        message(STATUS "Windows build (on Clang/MINGW)")
+        list(APPEND PIXI_COMPILE_DEFINITIONS
+            _CRT_SECURE_NO_WARNINGS 
+            WIN32_LEAN_AND_MEAN
+            VC_EXTRALEAN
+            NOMINMAX
+            ON_WINDOWS
+            _UNICODE
+            UNICODE
+        )
         list(APPEND PIXI_LINK_OPTIONS -static -static-libgcc -static-libstdc++)
-        list(APPEND PIXI_COMPILE_OPTIONS -Wno-deprecated-declarations -municode)
-        list(APPEND PIXI_COMPILE_DEFINITIONS -D_UNICODE -DUNICODE)
+        if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_SIMULATE_ID MATCHES "MSVC")
+            message(STATUS "Windows build (clang-cl)")
+            list(APPEND PIXI_COMPILE_OPTIONS /EHsc -Wno-deprecated-declarations)
+            if (PIXI_BUILD_EXE)
+                set_property(TARGET pixi PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+            endif()
+            if (PIXI_BUILD_DLL)
+                set_property(TARGET pixi_api PROPERTY MSVC_RUNTIME_LIBRARY ${PIXI_MSVC_LIB_TYPE})
+            endif()
+            if (PIXI_BUILD_LIB)
+                set_property(TARGET pixi_api_static PROPERTY MSVC_RUNTIME_LIBRARY ${PIXI_MSVC_LIB_TYPE})
+            endif()
+        elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+            message(STATUS "Windows build (gcc-mingw)")
+            list(APPEND PIXI_COMPILE_OPTIONS -Wno-deprecated-declarations -municode)
+        else()
+            message(FATAL_ERROR "Unsupported OS-compiler combination, on Windows you can use MSVC, clang-cl or gcc with mingw")
+        endif()
+
         if (CMAKE_BUILD_TYPE STREQUAL "Debug")  # if debug mode, don't add -s and --gc-sections
             message(STATUS "Building debug mode")
         else()
@@ -178,10 +211,9 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
         endif()
         list(APPEND PIXI_COMPILE_OPTIONS -Wall -Wextra -Wpedantic)
         list(APPEND PIXI_LINK_LIBRARIES dl)
-    endif() 
-    message(STATUS "GCC/Clang detected, adding compile flags")
-else()
-    message(STATUS "MSVC detected, adding compile flags")
+    endif()
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    message(STATUS "Windows build (MSVC)")
     list(APPEND PIXI_COMPILE_DEFINITIONS 
         _CRT_SECURE_NO_WARNINGS 
         UNICODE 
@@ -192,7 +224,7 @@ else()
         ON_WINDOWS
     )
     # manifest file only runs on msvc
-    if (WIN32 AND NOT CMAKE_COMPILER_IS_GNUCXX)
+    if (WIN32 AND NOT CMAKE_COMPILER_IS_GNUCXX AND PIXI_BUILD_EXE)
         add_custom_command(
             TARGET pixi
             POST_BUILD
@@ -200,60 +232,84 @@ else()
             COMMENT "Applying manifest file"
         )
     endif()
-    set_property(TARGET pixi PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    set_property(TARGET pixi_api PROPERTY MSVC_RUNTIME_LIBRARY ${PIXI_MSVC_LIB_TYPE})
-    set_property(TARGET pixi_api_static PROPERTY MSVC_RUNTIME_LIBRARY ${PIXI_MSVC_LIB_TYPE})
+    if (PIXI_BUILD_EXE)
+        set_property(TARGET pixi PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    endif()
+    if (PIXI_BUILD_DLL)
+        set_property(TARGET pixi_api PROPERTY MSVC_RUNTIME_LIBRARY ${PIXI_MSVC_LIB_TYPE})
+    endif()
+    if (PIXI_BUILD_LIB)
+        set_property(TARGET pixi_api_static PROPERTY MSVC_RUNTIME_LIBRARY ${PIXI_MSVC_LIB_TYPE})
+    endif()
     list(APPEND PIXI_COMPILE_OPTIONS /utf-8 /W4 /std:c++20 /EHsc)
     list(APPEND PIXI_COMPILE_OPTIONS
         /wd4090 # function different 'const' qualifiers (from asardll.c)
 	)
+else()
+    message(FATAL_ERROR "Unsupported compiler")
 endif()
 
 list(APPEND PIXI_COMPILE_DEFINITIONS
     PIXI_VERSION_EDITION=${PIXI_VERSION_EDITION}
     PIXI_VERSION_MAJOR=${PIXI_VERSION_MAJOR}
     PIXI_VERSION_MINOR=${PIXI_VERSION_MINOR}
-    PIXI_VERSION_DEBUG=${PIXI_BUILD_TIMESTAMP}
+    PIXI_VERSION_DEBUG="${PIXI_BUILD_TIMESTAMP}"
 )
 
-target_link_libraries(pixi PRIVATE ${PIXI_LINK_LIBRARIES})
-target_link_options(pixi PRIVATE ${PIXI_LINK_OPTIONS})
-target_compile_options(pixi PRIVATE ${PIXI_COMPILE_OPTIONS})
-target_compile_definitions(pixi PRIVATE ${PIXI_COMPILE_DEFINITIONS} PIXI_EXE_BUILD)
-
-target_link_libraries(pixi_api PRIVATE ${PIXI_LINK_LIBRARIES})
-target_link_options(pixi_api PRIVATE ${PIXI_LINK_OPTIONS})
-target_compile_options(pixi_api PRIVATE ${PIXI_COMPILE_OPTIONS})
-target_compile_definitions(pixi_api PRIVATE ${PIXI_COMPILE_DEFINITIONS} PIXI_DLL_BUILD)
-
-target_link_libraries(pixi_api_static PRIVATE ${PIXI_LINK_LIBRARIES})
-target_link_options(pixi_api_static PRIVATE ${PIXI_LINK_OPTIONS})
-target_compile_options(pixi_api_static PRIVATE ${PIXI_COMPILE_OPTIONS})
-target_compile_definitions(pixi_api_static PRIVATE ${PIXI_COMPILE_DEFINITIONS})
-
-add_custom_command(TARGET pixi POST_BUILD 
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    $<TARGET_FILE:asar> $<TARGET_FILE_DIR:pixi>
-    COMMENT "Copying asar dynamic library to output directory"
+list(APPEND PIXI_COMPILE_OPTIONS
+    ${PIXI_SANITIZERS_FLAGS}
 )
-
-if (ON_MINGW)
-    add_custom_command(TARGET pixi POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E rename $<TARGET_FILE_DIR:pixi>/libasar.dll $<TARGET_FILE_DIR:pixi>/asar.dll
-        COMMENT "Renaming libasar.dll to asar.dll because MinGW is a mess"
+if (NOT MSVC)
+    list(APPEND PIXI_LINK_OPTIONS
+        ${PIXI_SANITIZERS_FLAGS}
     )
 endif()
 
-set_target_properties(pixi PROPERTIES ASAR_LIB_PATH $<TARGET_FILE:asar>)
+if (PIXI_BUILD_EXE)
+    target_link_libraries(pixi PRIVATE ${PIXI_LINK_LIBRARIES})
+    target_link_options(pixi PRIVATE ${PIXI_LINK_OPTIONS})
+    target_compile_options(pixi PRIVATE ${PIXI_COMPILE_OPTIONS})
+    target_compile_definitions(pixi PRIVATE ${PIXI_COMPILE_DEFINITIONS} PIXI_EXE_BUILD)
+endif()
 
-add_custom_command(TARGET pixi POST_BUILD 
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/asm $<TARGET_FILE_DIR:pixi>/asm
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/cluster $<TARGET_FILE_DIR:pixi>/cluster 
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/extended $<TARGET_FILE_DIR:pixi>/extended 
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/generators $<TARGET_FILE_DIR:pixi>/generators 
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/shooters $<TARGET_FILE_DIR:pixi>/shooters 
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/misc_sprites $<TARGET_FILE_DIR:pixi>/misc_sprites 
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/sprites $<TARGET_FILE_DIR:pixi>/sprites 
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/routines $<TARGET_FILE_DIR:pixi>/routines 
-    COMMENT "Copying folders in output directory"
-)
+if (PIXI_BUILD_DLL)
+    target_link_libraries(pixi_api PRIVATE ${PIXI_LINK_LIBRARIES})
+    target_link_options(pixi_api PRIVATE ${PIXI_LINK_OPTIONS})
+    target_compile_options(pixi_api PRIVATE ${PIXI_COMPILE_OPTIONS})
+    target_compile_definitions(pixi_api PRIVATE ${PIXI_COMPILE_DEFINITIONS} PIXI_DLL_BUILD)
+endif()
+
+if (PIXI_BUILD_LIB)
+    target_link_libraries(pixi_api_static PRIVATE ${PIXI_LINK_LIBRARIES})
+    target_link_options(pixi_api_static PRIVATE ${PIXI_LINK_OPTIONS})
+    target_compile_options(pixi_api_static PRIVATE ${PIXI_COMPILE_OPTIONS})
+    target_compile_definitions(pixi_api_static PRIVATE ${PIXI_COMPILE_DEFINITIONS})
+endif()
+
+
+if (PIXI_BUILD_EXE)
+    add_custom_command(TARGET pixi POST_BUILD 
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:asar> $<TARGET_FILE_DIR:pixi>
+        COMMENT "Copying asar dynamic library to output directory"
+    )
+
+    if (MINGW)
+        add_custom_command(TARGET pixi POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E rename $<TARGET_FILE_DIR:pixi>/libasar.dll $<TARGET_FILE_DIR:pixi>/asar.dll
+            COMMENT "Renaming libasar.dll to asar.dll because MinGW is a mess"
+        )
+    endif()
+    set_target_properties(pixi PROPERTIES ASAR_LIB_PATH $<TARGET_FILE:asar>)
+    add_custom_command(TARGET pixi POST_BUILD 
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/asm $<TARGET_FILE_DIR:pixi>/asm
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/cluster $<TARGET_FILE_DIR:pixi>/cluster 
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/extended $<TARGET_FILE_DIR:pixi>/extended 
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/generators $<TARGET_FILE_DIR:pixi>/generators 
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/shooters $<TARGET_FILE_DIR:pixi>/shooters 
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/misc_sprites $<TARGET_FILE_DIR:pixi>/misc_sprites 
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/sprites $<TARGET_FILE_DIR:pixi>/sprites 
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/routines $<TARGET_FILE_DIR:pixi>/routines 
+        COMMENT "Copying folders in output directory"
+    )
+endif()

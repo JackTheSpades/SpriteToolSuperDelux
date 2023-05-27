@@ -3,23 +3,23 @@
 
 class MeiMei {
   private:
-    static inline std::string name;
-    static inline ROM prev;
-    static inline unsigned char prevEx[0x400];
-    static inline unsigned char nowEx[0x400];
-    static inline bool always;
-    static inline bool debug;
-    static inline bool keepTemp;
-    static inline std::string sa1DefPath;
+    std::string name;
+    ROM prev;
+    unsigned char prevEx[0x400];
+    unsigned char nowEx[0x400];
+    bool always;
+    bool debug;
+    bool keepTemp;
+    std::string sa1DefPath;
 
-    static bool patch(const patchfile& file, const patchfile& binfile, ROM &rom);
-    static int run(ROM &rom);
+    bool patch(const patchfile& file, const patchfile& binfile, ROM &rom);
+    int run(ROM &rom);
 
   public:
-    [[nodiscard]] static bool initialize(const char *n);
-    static int run();
-    static bool& Debug();
-    static bool& AlwaysRemap();
-    static bool& KeepTemp();
-    static void configureSa1Def(const std::string& pathToSa1Def);
+    [[nodiscard]] bool initialize(const char *n);
+    int run();
+    bool& Debug();
+    bool& AlwaysRemap();
+    bool& KeepTemp();
+    void configureSa1Def(const std::string& pathToSa1Def);
 };

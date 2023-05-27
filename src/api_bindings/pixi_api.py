@@ -2,9 +2,20 @@ from __future__ import annotations
 from ctypes import CDLL, POINTER, c_char, c_char_p, c_int, c_void_p, c_ubyte, byref, c_bool, string_at
 import sys
 from typing import Callable, Optional
+from enum import IntEnum
 
-__all__ = ["run", "api_version", "check_api_version", "Sprite", "SpriteTable", "Tile", "StatusPointers", "Map8x8", "Map16", "Display", "Collection"]
+__all__ = ["run", "api_version", "check_api_version", "Sprite", "ParsedListResult", "SpriteTable", "Tile", "StatusPointers", "Map8x8", "Map16", "Display", "Collection"]
 _pixi = None
+
+class ListType(IntEnum):
+    Normal = 0
+    Cluster = 1
+    Extended = 2
+    MinorExtended = 3
+    Bounce = 4
+    Smoke = 5
+    SpinningCoin = 6
+    Score = 7
 
 class _PixiDll:
     def __init__(self, dllname):
@@ -33,6 +44,12 @@ def __init_pixi_dll():
     _pixi.setup_func("run", [c_int, POINTER(c_char_p), c_bool], c_int)
     _pixi.setup_func("api_version", [], c_int)
     _pixi.setup_func("check_api_version", [c_int, c_int, c_int], c_int)
+
+    _pixi.setup_func("parse_list_file", [c_char_p, c_bool], c_void_p)
+    _pixi.setup_func("list_result_success", [c_void_p], c_int)
+    _pixi.setup_func("list_result_sprite_array", [c_void_p, c_int, POINTER(c_int)], POINTER(c_void_p))
+    _pixi.setup_func("list_result_free", [c_void_p], None)
+
     _pixi.setup_func("parse_json_sprite", [c_char_p], c_void_p)
     _pixi.setup_func("parse_cfg_sprite", [c_char_p], c_void_p)
     _pixi.setup_func("sprite_free", [c_void_p], None)
@@ -97,7 +114,7 @@ def __init_pixi_dll():
     _pixi.setup_func("last_error", [POINTER(c_int)], c_char_p)
     _pixi.setup_func("output", [POINTER(c_int)], POINTER(c_char_p))
 
-    _pixi.setup_func("create_map16_array", [c_int], POINTER(c_void_p))
+    _pixi.setup_func("create_map16_buffer", [c_int], POINTER(c_void_p))
     _pixi.setup_func("generate_s16", [c_void_p, POINTER(c_void_p), c_int, POINTER(c_int), POINTER(c_int)], POINTER(c_void_p))
     _pixi.setup_func("generate_ssc", [c_void_p, c_int, c_int], c_void_p)
     _pixi.setup_func("generate_mwt", [c_void_p, c_void_p, c_int], c_void_p)
@@ -265,16 +282,20 @@ class Collection:
 class Sprite:
     data_ptr: c_void_p
     freed: bool
+    _constructed_from_raw: bool
     map16_data: c_void_p
     map16_tile: c_int
     _s16: Optional[list[Map16]]
 
 
-    def __init__(self, filename: str):
+    def __init__(self, filename: str = None):
         self.freed = False
         self.map16_data = c_void_p(0)
         self._s16 = None
         self.map16_tile = c_int(0)
+        self._constructed_from_raw = False
+        if filename is None:
+            return
         cfilename = c_char_p(filename.encode())
         if filename.endswith(".json"):
             self.data_ptr = _pixi.funcs["parse_json_sprite"](cfilename)
@@ -288,7 +309,8 @@ class Sprite:
     
     def __exit__(self):
         if not self.freed:
-            _pixi.funcs["sprite_free"](self.data_ptr)
+            if not self._constructed_from_raw:
+                _pixi.funcs["sprite_free"](self.data_ptr)
             _pixi.funcs["free_map16_array"](self.map16_data)
             self.data_ptr = c_void_p(0)
             self.map16_data = c_void_p(0)
@@ -296,7 +318,8 @@ class Sprite:
 
     def __del__(self):
         if not self.freed:
-            _pixi.funcs["sprite_free"](self.data_ptr)
+            if not self._constructed_from_raw:
+                _pixi.funcs["sprite_free"](self.data_ptr)
             _pixi.funcs["free_map16_array"](self.map16_data)
             self.data_ptr = c_void_p(0)
             self.map16_data = c_void_p(0)
@@ -310,6 +333,13 @@ class Sprite:
     @staticmethod
     def from_cfg(cfg_file: str) -> Sprite:
         spr: Sprite = Sprite(cfg_file)
+        return spr
+    
+    @staticmethod
+    def from_raw_ptr(data_ptr: c_void_p) -> Sprite:
+        spr: Sprite = Sprite()
+        spr.data_ptr = data_ptr
+        spr._constructed_from_raw = True
         return spr
 
     def line(self) -> int:
@@ -426,6 +456,47 @@ class Sprite:
     def type(self) -> int:
         return int(_pixi.funcs["sprite_type"](self.data_ptr))
 
+class ParsedListResult:
+    data_ptr: c_void_p
+    freed: bool
+    _success: bool
+
+    def __init__(self, list_filename: str, per_level: bool = False):
+        self.freed = False
+        self._success = False
+        cfilename = c_char_p(list_filename.encode())
+        self.data_ptr = _pixi.funcs["parse_list_file"](cfilename, c_bool(per_level))
+        self._success = _pixi.funcs["list_result_success"](self.data_ptr)
+
+    def success(self) -> bool:
+        return self._success
+    
+    def sprite_array(self, sprite_type: ListType) -> list[Sprite]:
+        size = c_int()
+        ptr: POINTER(c_void_p) = _pixi.funcs["list_result_sprite_array"](self.data_ptr, c_int(sprite_type.value), byref(size))
+        sprites = []
+        for i in range(int(size.value)):
+            sprites.append(Sprite.from_raw_ptr(ptr[i]))
+        return sprites
+
+    def __enter__(self):
+        return self
+    
+    def __exit__(self):
+        if not self.freed:
+            _pixi.funcs["list_result_free"](self.data_ptr)
+            self.data_ptr = c_void_p(0)
+            self.freed = True
+
+    def __del__(self):
+        if not self.freed:
+            _pixi.funcs["list_result_free"](self.data_ptr)
+            self.data_ptr = c_void_p(0)
+            self.freed = True
+
+
+
+
 def run(
     argv: list[list[str]]
 ) -> int:
@@ -438,8 +509,7 @@ def run(
     argv = (c_char_p * len(argv))(*[arg.encode() for arg in argv])
     argc = c_int(len(argv))
     skip_first = c_bool(False)
-    return int(_pixi.funcs["run"](argc, argv, skip_first))
-
+    return int(_pixi.funcs["run"](argc, argv, skip_first)) 
 
 def api_version() -> int:
     """

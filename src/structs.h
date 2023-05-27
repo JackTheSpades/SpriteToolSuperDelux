@@ -17,8 +17,11 @@ constexpr auto RTL_BANK = 0x01;
 constexpr auto RTL_HIGH = 0x80;
 constexpr auto RTL_LOW = 0x21;
 
-// 10 per level, 200 level + 100 global
-constexpr auto MAX_SPRITE_COUNT = 0x2100;
+// 0x10 per level, 0x200 level + 0x100 global
+constexpr size_t MAX_SPRITE_COUNT = 0x2100;
+constexpr size_t SPRITE_COUNT = 0x80; // count for other sprites like cluster, ow, extended
+constexpr size_t LESS_SPRITE_COUNT = 0x3F;
+constexpr size_t MINOR_SPRITE_COUNT = 0x1F;
 
 class patchfile {
     std::string m_fs_path{};
@@ -35,7 +38,9 @@ class patchfile {
     enum class placeholder {};
 
     constexpr static bool om_en = std::is_enum_v<std::ios::openmode>;
-    using openmode_t = std::conditional_t<om_en, std::underlying_type_t<std::conditional_t<om_en, std::ios::openmode, placeholder>>, std::ios::openmode>;
+    using openmode_t =
+        std::conditional_t<om_en, std::underlying_type_t<std::conditional_t<om_en, std::ios::openmode, placeholder>>,
+                           std::ios::openmode>;
 
   public:
     enum class openflags : openmode_t {
@@ -98,28 +103,35 @@ struct tile {
     std::string text{};
 };
 
+struct sprite;
+struct list_result {
+    bool success = false;
+    std::vector<sprite*> sprite_arrays[FromEnum(ListType::__SIZE__)];
+};
+
 struct gfx_info {
     struct {
         uint32_t gfx_num = 0x7F;
         bool sep = false;
 
-		uint32_t value() const {
+        uint32_t value() const {
             return sep ? gfx_num | 0x8000 : gfx_num;
         }
     } gfx_files[4] = {};
     bool has_value() const {
-        return std::any_of(std::begin(gfx_files), std::end(gfx_files), [](const auto& gfx) { return gfx.gfx_num != 0x7F; });
+        return std::any_of(std::begin(gfx_files), std::end(gfx_files),
+                           [](const auto& gfx) { return gfx.gfx_num != 0x7F; });
     }
 };
 
-enum class display_type { XYPosition, ExtensionByte };
+enum class display_type : bool { XYPosition, ExtensionByte };
 
 struct display {
     std::string description{};
     std::vector<tile> tiles{};
     bool extra_bit = false;
-    int x_or_index = 0;
-    int y_or_value = 0;
+    uint8_t x_or_index = 0;
+    uint8_t y_or_value = 0;
     gfx_info gfx_files{};
 };
 
@@ -179,13 +191,12 @@ struct sprite {
     sprite_table table;
     status_pointers ptrs;
     pointer extended_cape_ptr;
-    int byte_count = 0;
-    int extra_byte_count = 0;
+    uint8_t byte_count = 0;
+    uint8_t extra_byte_count = 0;
 
-    const char* directory = nullptr;
-    const char* asm_file = nullptr;
-    const char* cfg_file = nullptr;
-
+    std::string directory{};
+    std::string asm_file{};
+    std::string cfg_file{};
     std::vector<map16> map_data{};
 
     display_type disp_type = display_type::XYPosition;
@@ -196,7 +207,6 @@ struct sprite {
     ListType sprite_type = ListType::Sprite;
     bool has_empty_table() const;
     void clear();
-    ~sprite();
     void print();
 };
 
@@ -211,7 +221,7 @@ struct ROM {
     int header_size{0};
     MapperType mapper{MapperType::lorom};
 
-    [[nodiscard]] bool open(const char* n);
+    [[nodiscard]] bool open(std::string n);
     [[nodiscard]] bool open();
     void close();
 
@@ -227,5 +237,7 @@ struct ROM {
 };
 
 bool is_empty_table(std::span<sprite> sprites);
-
+[[nodiscard]] bool populate_sprite_list(const Paths& paths,
+                                        const std::array<sprite*, FromEnum(ListType::__SIZE__)>& sprite_lists,
+                                        std::string_view listPath);
 #endif

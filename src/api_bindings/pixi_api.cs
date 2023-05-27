@@ -18,6 +18,16 @@ namespace PixiCLR
         [return: MarshalAs(UnmanagedType.I4)]
         private static extern int _check_api_version(int edition, int major, int minor);
 
+        [DllImport("pixi_api", EntryPoint = "pixi_parse_list_file", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr _parse_list_file(string filename, bool per_level);
+        [DllImport("pixi_api", EntryPoint = "pixi_list_result_success", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I4)]
+        private static extern int _list_result_success(IntPtr result);
+        [DllImport("pixi_api", EntryPoint = "pixi_list_result_sprite_array", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr* _list_result_sprite_array(IntPtr result, int type, out int size);
+        [DllImport("pixi_api", EntryPoint = "pixi_list_result_free", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void _list_result_free(IntPtr result);
+
         [DllImport("pixi_api", EntryPoint = "pixi_parse_json_sprite", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr _pixi_parse_json_sprite(string filename);
         [DllImport("pixi_api", EntryPoint = "pixi_parse_cfg_sprite", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
@@ -170,7 +180,7 @@ namespace PixiCLR
         [DllImport("pixi_api", EntryPoint = "pixi_output", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern sbyte** _pixi_output(out int size);
 
-        [DllImport("pixi_api", EntryPoint = "pixi_create_map16_array", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("pixi_api", EntryPoint = "pixi_create_map16_buffer", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr* _pixi_create_map16_array(int size);
         [DllImport("pixi_api", EntryPoint = "pixi_generate_s16", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr _pixi_generate_s16(IntPtr sprite, IntPtr* map16_array, int map16_size, out int size, out int map16_tile);
@@ -401,6 +411,7 @@ namespace PixiCLR
             private IntPtr* _map16_data;
             private Map16[]? _s16;
             private int _map16_tile;
+            private bool _from_raw_ptr = false;
 
             public Sprite(IntPtr sprite_pointer) : base(sprite_pointer)
             {
@@ -413,7 +424,10 @@ namespace PixiCLR
                     if (disposing)
                     {
                     }
-                    _pixi_sprite_free(data_pointer);
+                    if (!_from_raw_ptr)
+                    {
+                        _pixi_sprite_free(data_pointer);
+                    }
                     if (_map16_data != null)
                     {
                         _pixi_free_map16_array(_map16_data);
@@ -432,6 +446,15 @@ namespace PixiCLR
             {
                 IntPtr intPtr = _pixi_parse_cfg_sprite(filename);
                 Sprite sprite = new(intPtr);
+                return sprite;
+            }
+
+            public static Sprite FromRawPtr(IntPtr dataPtr)
+            {
+                Sprite sprite = new(dataPtr)
+                {
+                    _from_raw_ptr = true
+                };
                 return sprite;
             }
 
@@ -557,6 +580,50 @@ namespace PixiCLR
                 Marshal.Copy((IntPtr)bytes, mw2, 0, mw2_size);
                 _pixi_free_byte_array(bytes);
                 return mw2;
+            }
+        }
+
+        public enum SpriteType : int
+        {
+            Normal = 0,
+            Cluster = 1,
+            Extended = 2,
+            MinorExtended = 3,
+            Bounce = 4,
+            Smoke = 5,
+            SpinningCoin = 6,
+            Score = 7,
+        }
+
+        public class ParseListResult : PointerInternalBase
+        {
+            private readonly bool _success;
+            public ParseListResult(string list_filename, bool per_level) : base(_parse_list_file(list_filename, per_level))
+            {
+                _success = _list_result_success(data_pointer) != 0;
+            }
+            protected override void Dispose(bool disposing)
+            {
+                if (!disposedValue)
+                {
+                    if (disposing)
+                    {
+                    }
+                    _list_result_free(data_pointer);
+                    disposedValue = true;
+                }
+            }
+            public bool Success() { return _success; }
+            public Sprite[] SpriteArray(SpriteType type)
+            {
+                int type_int = (int)type;
+                IntPtr* ret = _list_result_sprite_array(data_pointer, type_int, out int size);
+                Sprite[] sprites = new Sprite[size];
+                for (int i = 0; i < size; i++)
+                {
+                    sprites[i] = Sprite.FromRawPtr(ret[i]);
+                }
+                return sprites;
             }
         }
 

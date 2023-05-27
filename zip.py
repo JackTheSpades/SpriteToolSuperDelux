@@ -3,6 +3,7 @@ import zipfile
 import re
 import glob
 import sys
+from mdtohtml import mdtohtml
 
 def in_github_ci():
     val = os.getenv('GITHUB_ACTIONS', default='false')
@@ -162,6 +163,9 @@ with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
         pixizip.write(to_asm_folder(asm_folder_file))
 
     # misc
+    md_files = ['README.md', 'CHANGELOG.md', 'CONTRIBUTING.md']
+    for md_file in md_files:
+        mdtohtml(md_file)
     pixizip.write("README.html")
     pixizip.write("CHANGELOG.html")
     pixizip.write("CONTRIBUTING.html")

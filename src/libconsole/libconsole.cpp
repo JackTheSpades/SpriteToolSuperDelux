@@ -1,10 +1,12 @@
 #include "libconsole.h"
+#include <bit>
 #include <concepts>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <type_traits>
+#include <utility>
 #ifdef ON_WINDOWS
 #include <Windows.h>
 #include <bit>
@@ -63,13 +65,13 @@ struct ConversionResult {
 HANDLE handle_from_file(FILE* ptr) {
     return std::bit_cast<HANDLE>(_get_osfhandle(_fileno(ptr)));
 }
-bool WideToUTF8(const wchar_t* from, const int from_size, char* to, const int to_max) {
+std::optional<size_t> WideToUTF8(const wchar_t* from, const int from_size, char* to, const int to_max) {
     int required_size = WideCharToMultiByte(CP_UTF8, 0, from, from_size, NULL, 0, NULL, NULL);
     if (to_max < required_size)
-        return false;
+        return std::nullopt;
     int size = WideCharToMultiByte(CP_UTF8, 0, from, from_size, to, to_max, NULL, NULL);
     to[size] = '\0';
-    return true;
+    return size_t{static_cast<size_t>(size)};
 }
 ConversionResult UTF8ToWide(const char* from, const int from_size, DWORD& conv) {
     int convertResult = MultiByteToWideChar(CP_UTF8, 0, from, from_size, NULL, 0);
@@ -153,22 +155,24 @@ BOOL GenericWrite(HANDLE hdl, const char* buffer, DWORD bufsize) {
 }
 #endif
 
-bool read(char* buffer, int bufsize, handle hdl) {
+std::optional<size_t> read(char* buffer, int bufsize, handle hdl) {
 #ifdef ON_WINDOWS
     wctbuf wstr{bufsize};
     DWORD read = 0;
     HANDLE real_hdl = map_handle(hdl);
     if (BOOL ptr = GenericRead(real_hdl, wstr, bufsize, buffer, bufsize, &read); !ptr)
-        return false;
+        return std::nullopt;
     if (winutil::HasConsole(real_hdl)) {
         return winutil::WideToUTF8(wstr, read, buffer, bufsize);
     } else {
         buffer[read] = '\0';
     }
+    return size_t{read};
 #else
     fgets(buffer, bufsize, map_handle(hdl));
+    const size_t read_size = strlen(buffer);
+    return read_size;
 #endif
-    return true;
 }
 
 bool write(const char* buffer, int bufsize, handle hdl) {
@@ -216,9 +220,6 @@ bool write_args_handle(const char* fmt, FILE* hdl, va_list list) {
 }
 #endif
 
-size_t bytelen(const char* buffer) {
-    return std::strlen(buffer);
-}
 bool isspace(const char ch) {
     return (ch == '\r' || ch == '\n' || ch == ' ' || ch == '\v' || ch == '\f' || ch == '\t');
 }

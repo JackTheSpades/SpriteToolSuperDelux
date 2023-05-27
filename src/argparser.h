@@ -14,10 +14,29 @@ struct no_value_tag {};
 using string_ref = std::reference_wrapper<std::string>;
 using bool_ref = std::reference_wrapper<bool>;
 using int_ref = std::reference_wrapper<int>;
+using uint_ref = std::reference_wrapper<unsigned int>;
+using real_ref = std::reference_wrapper<double>;
+
+
+#if defined(__clang__) && __clang_major__ < 14 // vvvv clang 13 workaround
+template <typename T>
+concept signed_integral = std::is_integral_v<T> && std::is_signed_v<T>;
+template <typename T>
+concept unsigned_integral = std::is_integral_v<T> && std::is_unsigned_v<T>;
+template <typename T>
+concept floating_point = std::is_floating_point_v<T>;
+#else // ^^^^ clang 13 workaround -- vvvv everything else
+template <typename T>
+concept signed_integral = std::signed_integral<T>;
+template <typename T>
+concept unsigned_integral = std::unsigned_integral<T>;
+template <typename T>
+concept floating_point = std::floating_point<T>;
+#endif // ^^^^ everything else
 
 template <typename T>
-concept option_type = std::same_as<T, int_ref> || std::same_as<T, string_ref> || std::same_as<T, no_value_tag> ||
-    std::same_as<T, bool_ref>;
+concept option_type = std::same_as<T, int_ref> || std::same_as<T, uint_ref> || std::same_as<T, real_ref> ||
+                      std::same_as<T, string_ref> || std::same_as<T, no_value_tag> || std::same_as<T, bool_ref>;
 
 class argparser {
     std::vector<std::string> m_unmatched_arguments;
@@ -26,11 +45,11 @@ class argparser {
 
     using arg_iter_t = decltype(m_arguments)::iterator;
     struct option {
-        enum class Type { String, Bool, Int, NoValue } type;
+        enum class Type { String, Bool, Int, Uint, Real, NoValue } type;
         std::string_view description;
         std::string_view value_name;
 
-        std::variant<no_value_tag, bool_ref, string_ref, int_ref> value;
+        std::variant<no_value_tag, bool_ref, string_ref, int_ref, uint_ref, real_ref> value;
         bool found;
         static constexpr inline size_t npos = static_cast<size_t>(-1);
 
@@ -42,11 +61,15 @@ class argparser {
                 return Type::Bool;
             } else if constexpr (std::same_as<T, int_ref>) {
                 return Type::Int;
+            } else if constexpr (std::same_as<T, uint_ref>) {
+                return Type::Uint;
+            } else if constexpr (std::same_as<T, real_ref>) {
+                return Type::Real;
             } else if constexpr (std::same_as<T, no_value_tag>) {
                 return Type::NoValue;
             }
         }
-
+        option() : type{Type::NoValue}, description{}, value_name{}, value(no_value_tag{}), found{false} {}
         option(std::string_view desc, std::string_view name, option_type auto&& val)
             : type{map_t_to_type(val)}, description{desc}, value_name{name}, found{false} {
             value = std::move(val);
@@ -54,13 +77,36 @@ class argparser {
         bool requires_value() const;
         bool assign(std::string_view arg_value);
         bool assign(bool arg_value);
-        bool assign(int arg_value);
+        bool assign(signed_integral auto arg_value) {
+            if (type == Type::Int) {
+                std::get<int_ref>(value).get() = static_cast<int>(arg_value);
+            } else {
+                return false;
+            }
+            return true;
+        }
+        bool assign(unsigned_integral auto arg_value) {
+            if (type == Type::Uint) {
+                std::get<uint_ref>(value).get() = static_cast<unsigned int>(arg_value);
+            } else {
+                return false;
+            }
+            return true;
+        }
+        bool assign(floating_point auto arg_value) {
+            if (type == Type::Real) {
+                std::get<real_ref>(value).get() = static_cast<double>(arg_value);
+            } else {
+                return false;
+            }
+            return true;
+        }
         bool has_default() const;
     };
 
     using opt_t = std::pair<std::string_view, option>;
     using opt_iter_v = std::tuple<std::string_view, option::Type, std::string_view, std::string_view,
-                                  std::variant<no_value_tag, bool_ref, string_ref, int_ref>, bool>;
+                                  std::variant<no_value_tag, bool_ref, string_ref, int_ref, uint_ref, real_ref>, bool>;
 
     struct opt_iter {
         const std::vector<opt_t>& m_options;
@@ -119,6 +165,10 @@ class argparser {
                           std::string& value_ref);
     argparser& add_option(std::string_view opt_name, std::string_view value_name, std::string_view description,
                           int& value_ref);
+    argparser& add_option(std::string_view opt_name, std::string_view value_name, std::string_view description,
+                          unsigned int& value_ref);
+    argparser& add_option(std::string_view opt_name, std::string_view value_name, std::string_view description,
+                          double& value_ref);
     argparser& add_option(std::string_view opt_name, std::string_view description, bool& value_ref);
     argparser& add_option(std::string_view opt_name, std::string_view description, no_value_tag);
     void print_help() const;
@@ -160,6 +210,18 @@ class argparser {
                 return std::get<int_ref>(value.value).get();
             } else {
                 throw std::invalid_argument("Requested type `int` for option containing bool, string or none");
+            }
+        } else if constexpr (std::same_as<Tp, unsigned int>) {
+            if (value.type == option::Type::Uint) {
+                return std::get<uint_ref>(value.value).get();
+            } else {
+                throw std::invalid_argument("Requested type `unsigned int` for option containing bool, string or none");
+            }
+        } else if constexpr (std::same_as<Tp, double>) {
+            if (value.type == option::Type::Real) {
+                return std::get<real_ref>(value.value).get();
+            } else {
+                throw std::invalid_argument("Requested type `double` for option containing bool, string or none");
             }
         } else {
             static_assert(dependant_false<T>, "Invalid get() call");

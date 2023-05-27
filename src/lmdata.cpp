@@ -55,13 +55,13 @@ std::string generate_ssc_data(const sprite* spr, int i, size_t map16_tile) {
             if (!d.description.empty())
                 ssc << fstring("%02X %1X%02X%02X %s\n", i, d.x_or_index, d.y_or_value, ref, d.description.c_str());
             else
-                ssc << fstring("%02X %1X%02X%02X %s\n", i, d.x_or_index, d.y_or_value, ref, spr->asm_file);
+                ssc << fstring("%02X %1X%02X%02X %s\n", i, d.x_or_index, d.y_or_value, ref, spr->asm_file.c_str());
         } else {
             ref = d.y_or_value * 0x1000 + d.x_or_index * 0x100 + 0x20 + (d.extra_bit ? 0x10 : 0);
             if (!d.description.empty())
                 ssc << fstring("%02X %04X %s\n", i, ref, d.description.c_str());
             else
-                ssc << fstring("%02X %04X %s\n", i, ref, spr->asm_file);
+                ssc << fstring("%02X %04X %s\n", i, ref, spr->asm_file.c_str());
         }
 
         if (d.gfx_files.has_value()) {
@@ -121,7 +121,9 @@ bool generate_lm_data(const sprite (&sprite_list)[MAX_SPRITE_COUNT], map16 (&map
                         map16_span.size());
                     return false;
                 }
-                memcpy(map + map16_tile, map16_span.data(), map16_span.size_bytes());
+                if (map16_span.size_bytes() > 0) {
+                    memcpy(map + map16_tile, map16_span.data(), map16_span.size_bytes());
+                }
 
                 //----- ssc / display -----------------------------------------------
                 std::string ssc_data = generate_ssc_data(spr, i, map16_tile);
