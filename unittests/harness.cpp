@@ -180,8 +180,14 @@ TEST(PixiUnitTests, PixiPluginTest) {
     }
     { std::ofstream list_file{"list.txt", std::ios::trunc}; }
     const char* argv[] = {"PixiPluginTest.smc"};
-    EXPECT_EQ(pixi_run(sizeof(argv) / sizeof(argv[0]), argv, false), EXIT_SUCCESS);
-    {
+    int ret = pixi_run(sizeof(argv) / sizeof(argv[0]), argv, false);
+    EXPECT_EQ(ret, EXIT_SUCCESS);
+    if (ret == EXIT_FAILURE) {
+        int size = 0;
+        const char* errors = pixi_last_error(&size);
+        std::string_view se{errors, static_cast<size_t>(size)};
+        std::cout << "Error while running pixi " << se << '\n';
+    } else {
         std::ifstream plugin_output{"testplugin.txt"};
         std::array expected_output{"Hello from testplugin! pixi_before_patching()"sv,
                                    "Hello from testplugin! pixi_after_patching()"sv,
@@ -192,7 +198,7 @@ TEST(PixiUnitTests, PixiPluginTest) {
         if (actual_output.back().empty())
             actual_output.pop_back();
         EXPECT_EQ(expected_output.size(), actual_output.size());
-        for (size_t i = 0; i < expected_output.size(); ++i) {
+        for (size_t i = 0; i < actual_output.size(); ++i) {
             EXPECT_EQ(expected_output[i], actual_output[i]);
         }
     }
