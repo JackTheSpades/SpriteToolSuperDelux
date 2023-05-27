@@ -1574,8 +1574,8 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
     if (optparser.unmatched().empty() && rom.name.empty()) {
         io.print("Enter a ROM file name, or drag and drop the ROM here: ");
         char ROM_name[FILENAME_MAX];
-        if (libconsole::read(ROM_name, FILENAME_MAX, libconsole::handle::in)) {
-            size_t length = libconsole::bytelen(ROM_name);
+        if (auto readlen = libconsole::read(ROM_name, FILENAME_MAX, libconsole::handle::in); readlen.has_value()) {
+            size_t length = readlen.value();
             if (length == 0) {
                 io.error("Rom name can't be empty");
                 return EXIT_FAILURE;
@@ -1595,11 +1595,15 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
                     ROM_name[i] = ROM_name[i + 1]; // no buffer overflow there are two null chars.
                 }
             }
-        }
-        if (!rom.open(ROM_name))
+            if (!rom.open(std::string{ROM_name, length}))
+                return EXIT_FAILURE;
+        } else {
+            // failed to libconsole::read for some reason
+            io.error("Failed to read ROM name from console\n");
             return EXIT_FAILURE;
+        }
     } else if (rom.name.empty()) {
-        if (!rom.open(optparser.unmatched().front().c_str()))
+        if (!rom.open(optparser.unmatched().front()))
             return EXIT_FAILURE;
     } else {
         if (!rom.open())

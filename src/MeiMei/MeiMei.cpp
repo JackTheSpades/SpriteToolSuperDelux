@@ -98,7 +98,7 @@ bool MeiMei::initialize(const char* rom_name) {
     memset(prevEx, 0x03, 0x400);
     memset(nowEx, 0x03, 0x400);
 
-    if (!prev.open(MeiMei::name.c_str()))
+    if (!prev.open(MeiMei::name))
         return false;
     if (prev.read_byte(0x07730F) == 0x42) {
         int addr = prev.snes_to_pc(prev.read_long(0x07730C), false);
@@ -110,7 +110,7 @@ bool MeiMei::initialize(const char* rom_name) {
 int MeiMei::run() {
     ROM rom;
     iohandler& io = iohandler::get_global();
-    if (!rom.open(MeiMei::name.c_str()))
+    if (!rom.open(MeiMei::name))
         return 1;
     if (!asar_init()) {
         io.error(
@@ -135,7 +135,7 @@ int MeiMei::run() {
 int MeiMei::run(ROM& rom) {
     iohandler& io = iohandler::get_global();
     ROM now;
-    if (!now.open(MeiMei::name.c_str()))
+    if (!now.open(MeiMei::name))
         return 1;
     if (prev.read_byte(0x07730F) == 0x42) {
         int addr = now.snes_to_pc(now.read_long(0x07730C), false);

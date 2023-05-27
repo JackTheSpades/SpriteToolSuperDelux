@@ -92,10 +92,8 @@ void patchfile::clear() {
     m_vfile.reset(new memoryfile);
 }
 
-bool ROM::open(const char* n) {
-    size_t len = libconsole::bytelen(n) + 1;
-    name.resize(len);
-    std::memcpy(name.data(), n, len);
+bool ROM::open(std::string n) {
+    name = std::move(n);
     return open();
 }
 

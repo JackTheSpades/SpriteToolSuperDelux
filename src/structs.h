@@ -221,7 +221,7 @@ struct ROM {
     int header_size{0};
     MapperType mapper{MapperType::lorom};
 
-    [[nodiscard]] bool open(const char* n);
+    [[nodiscard]] bool open(std::string n);
     [[nodiscard]] bool open();
     void close();
 
