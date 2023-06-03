@@ -18,7 +18,7 @@
     CMP #$40
     BPL ?.SpriteSpdNoGravity
     CLC
-    ADC #$03
+    ADC #$02
     STA !extended_y_speed,x
 
 ;; sprite x + y speed handler; no gravity.
