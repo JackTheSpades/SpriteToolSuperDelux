@@ -104,6 +104,9 @@ std::vector<memoryfile> g_memory_files{};
 patchfile g_shared_patch{"shared.asm"};
 patchfile g_shared_inscrc_patch{"shared_incsrc.asm"};
 std::vector<definedata> g_config_defines{};
+// first one owns strings, second is to get the format asar_patch_ex wants
+std::vector<string> g_include_paths{};
+std::vector<const char *> g_include_path_ptrs{};
 
 struct addtempfile {
     addtempfile(const patchfile& file) {
@@ -199,8 +202,8 @@ template <typename T> T* from_table(T* table, int level, int number) {
         .romdata = reinterpret_cast<char*>(rom.real_data),
         .buflen = MAX_ROM_SIZE,
         .romlen = &rom.size, 
-        .includepaths = nullptr,
-        .numincludepaths = 0,
+        .includepaths = g_include_path_ptrs.data(),
+        .numincludepaths = static_cast<int>(g_include_path_ptrs.size()),
         .should_reset = true,
         .additional_defines = g_config_defines.data(), 
         .additional_define_count = static_cast<int>(g_config_defines.size()),
@@ -257,8 +260,8 @@ template <typename T> T* from_table(T* table, int level, int number) {
         .romdata = reinterpret_cast<char*>(rom.real_data),
         .buflen = MAX_ROM_SIZE,
         .romlen = &rom.size, 
-        .includepaths = nullptr,
-        .numincludepaths = 0,
+        .includepaths = g_include_path_ptrs.data(),
+        .numincludepaths = static_cast<int>(g_include_path_ptrs.size()),
         .should_reset = true,
         .additional_defines = g_config_defines.data(), 
         .additional_define_count = static_cast<int>(g_config_defines.size()),
@@ -1513,6 +1516,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         .add_option("-meimei-k", "Enables keep temp patches files", meimei.KeepTemp())
         .add_option("-meimei-d", "Enables debug for MeiMei patches", meimei.Debug())
         .add_option("--onepatch", "Applies all sprites into a single big path", cfg.AllSpritesOnePatch)
+        .add_option("--include", "Specify a text file with a list of directories for asar.dll to search for included files", cfg.AsarIncludePaths)
 #ifdef ON_WINDOWS
         .add_option("-lm-handle", "lm_handle_code",
                     "To be used only within LM's custom user toolbar file, it receives LM's handle to reload the rom",
@@ -1667,6 +1671,25 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
     if (!cfg.DisableMeiMei) {
         if (!meimei.initialize(rom.name.data()))
             return EXIT_FAILURE;
+    }
+
+    //------------------------------------------------------------------------------------------
+    // validate stdincludes file if passed, and populate list.
+    //------------------------------------------------------------------------------------------
+    // NOTE: do we want to validate the path in each line of the file?
+    set_paths_relative_to(cfg.AsarIncludePaths, argv[0]);
+    std::ifstream asarIncludeStream{cfg.AsarIncludePaths.data()}
+    if !asarIncludeStream {
+        io.error("Could not open asar includes list file \"%s\" for reading", cfg.AsarIncludePaths.data());
+        return EXIT_FAILURE;
+    }
+    std::string line;
+    while (std::getline(asarIncludeStream, line)) {
+        g_include_paths.push_back(line)
+    }
+    // Create const char**
+    for (std::string const& path : g_include_paths) {
+        g_include_path_ptrs.push_back(path.data());
     }
 
     //------------------------------------------------------------------------------------------
