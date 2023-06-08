@@ -22,7 +22,8 @@ CapeInteract:
 	LDA !extended_num,x		; restore vanilla code
 	CMP #!ExtendedOffset
 	BCC .NotCustom
-	SEC : SBC #!ExtendedOffset
+	;SEC
+	SBC #!ExtendedOffset
 	AND #$7F
 	%CallExtCape(CapePtr)
 	JML $029653|!BankB
@@ -40,7 +41,7 @@ Main:
 	CMP #!ExtendedOffset  ; check if number higher than #$13
 	BCC .NotCustom        ;
 
-	SEC
+	;SEC
    SBC #!ExtendedOffset  ; 13 is the first custom one
 	AND #$7F              ;	
 	%CallSprite(Ptr)      ;

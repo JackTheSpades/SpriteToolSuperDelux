@@ -20,11 +20,11 @@
     sta $02
     lda.w $1A|!dp,y
     sta $04
-    sep #$20
+    sep #$21
 
     lda !score_x_low,x
-    clc 
-    adc #$0C
+    ;clc 
+    adc #$0B ;adc #$0C
     php 
     sec 
     sbc $04

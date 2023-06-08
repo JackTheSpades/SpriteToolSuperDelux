@@ -18,8 +18,8 @@
     bcc ?.return
     lda $00
     sta $0200|!addr,y
-    clc 
-    adc #$08
+    ;clc
+    adc #$07 ;adc #$08
     sta $0204|!addr,y 
     lda $01
     sta $0201|!addr,y

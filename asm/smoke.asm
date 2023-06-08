@@ -19,7 +19,7 @@ Main:
     BCC .original
 
 .custom
-    SEC 
+    ;SEC 
     SBC.b #!SmokeOffset             ; substract
     AND #$1F                        ; self imposed limit
     %CallSprite(Ptr)

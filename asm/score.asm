@@ -19,7 +19,7 @@ Main:
     BCC .original
 
 .custom
-    SEC 
+    ;SEC 
     SBC.b #!ScoreOffset
     AND #$1F
     %CallSprite(Ptr)

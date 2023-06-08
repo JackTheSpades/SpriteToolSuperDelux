@@ -14,14 +14,12 @@
 ?main:
     %SmokeGetDrawInfo()
     bcc ?.return
+    rep #$20
     lda $00
     sta $0200|!addr,y
-    lda $01
-    sta $0201|!addr,y
     lda $02
-    sta $0202|!addr,y
-    lda $03
     sta $0203|!addr,y
+    sep #$20
     tya 
     lsr #2
     tay 

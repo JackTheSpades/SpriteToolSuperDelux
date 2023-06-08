@@ -11,10 +11,10 @@
     %BounceGetDrawInfo()
     bcc ?.skip
     
+    rep #$20
     lda $00
     sta $0200|!addr,y
-    lda $01
-    sta $0201|!addr,y
+    sep #$20
     lda $02
     sta $0202|!addr,y
     lda !bounce_properties,x
