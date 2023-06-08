@@ -18,7 +18,7 @@
     lda $00
     sta $0200|!addr,y
     lda $02
-    sta $0203|!addr,y
+    sta $0202|!addr,y
     sep #$20
     tya 
     lsr #2
