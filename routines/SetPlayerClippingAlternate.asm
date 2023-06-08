@@ -34,7 +34,7 @@
     STA $06
     STZ $07
     LDA.l $03B65C|!bank,x
-    REP #$20
+    REP #$21
     AND #$00FF
     ADC $96
     STA $02
