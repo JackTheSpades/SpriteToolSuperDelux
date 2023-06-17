@@ -1,15 +1,40 @@
-image: Visual Studio 2022
-
+image: 
+    - Visual Studio 2022
+    - Ubuntu2004
+    - macos-monterey
 environment:
   ATARISMWC_AUTH_KEY:
     secure: vlzlBrls8WMRZ/TcnsuPMRp18dmhpznf+hZVaXEf9HE=
 
-build_script:
-  - ps: .\build_script.ps1
-
-artifacts:
-  - path: pixi-x64.zip
-  - path: pixi-x86.zip
+for:
+  -
+   matrix:
+     only:
+       - image: Visual Studio 2022
+   build_script:
+     - ps: .\build_script.ps1
+   artifacts:
+     - path: pixi-windows-x64.zip
+     - path: pixi-windows-x86.zip
+  -
+   matrix:
+     only:
+       - image: Ubuntu2004
+   build_script:
+     - sh: chmod +x ./build_script.sh
+     - sh: ./build_script.sh
+   artifacts:
+     - path: pixi-linux-x64.zip
+  -
+   matrix:
+     only:
+       - image: macos-monterey
+   build_script:
+     - sh: chmod +x ./build_script.sh
+     - sh: ./build_script.sh
+   artifacts:
+     - path: pixi-macos-x64.zip
+  
 
 deploy:
   provider: Webhook

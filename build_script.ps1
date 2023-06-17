@@ -16,7 +16,7 @@ Pop-Location
 
 py -m pip install mistune bs4
 py .\zip.py
-Rename-Item pixi.zip pixi-x64.zip
+Rename-Item pixi.zip pixi-windows-x64.zip
 
 Remove-Item -Recurse -Force build
 
@@ -28,4 +28,4 @@ cmake --build . --config Release --target pixi
 Pop-Location
 
 py .\zip.py
-Rename-Item pixi.zip pixi-x86.zip
+Rename-Item pixi.zip pixi-windows-x86.zip
