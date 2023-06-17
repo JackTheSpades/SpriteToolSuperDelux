@@ -29,7 +29,7 @@ The changelog is available [here](CHANGELOG.md).
 - [New Additions and Changes](#new-additions-and-changes)
   - [Custom status handling and extra property bytes](#custom-status-handling-and-extra-property-bytes)
   - [Softcoding](#softcoding)
-  - [Per-Level Sprites](#per-level-sprites-1)
+  - [Per-Level Sprites](#per-level-sprites)
   - [SA-1 Detection and Default Labels](#sa-1-detection-and-default-labels)
   - [CFG Files and the new CFG Editor](#cfg-files-and-the-new-cfg-editor)
   - [JSON Files](#json-files)
@@ -483,7 +483,7 @@ The changelog is available [here](CHANGELOG.md).
 
   All hooks are expected to take no arguments and return an integer, except for `pixi_plugin_error` which returns a null terminated `const char*`. The returned integer is used to determine if the hook was successful or not except for `pixi_check_version` which uses it as a version number. 
 
-  An exit code of 0 is assumed to be success, everythign else is failure. If a plugin returns an error, Pixi will treat it as fatal and stop execution.
+  An exit code of 0 is assumed to be success, everything else is failure. If a plugin returns an error, Pixi will treat it as fatal and stop execution.
   
   The version number is MAJOR\*100+MINOR\*10+PATCH, for example 1.32 will be 132 and 1.40 will be 140.
 
