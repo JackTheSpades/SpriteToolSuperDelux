@@ -174,7 +174,12 @@ The changelog is available [here](CHANGELOG.md).
   -s16 <base s16>         Specify s16 file to be used as a base for <romname>.s16
                           Do not use <romname>.xxx as an argument as the file will be overwriten
 
-  -ext-off 		Turns off extmod logging
+  --onepatch                   Applies all sprites into a single big path (Default value: false)
+  --stdincludes <includepath>  Specify a text file with a list of search paths for asar (Default value: "<empty>")
+  --stddefines <definepath>    Specify a text file with a list of defines for asar (Default value: "<empty>")
+
+  -no-lm-aux        Disables all of the Lunar Magic auxiliary files creation (ssc, mwt, mw2, s16) (Default value: false)
+  -extmod-off 		Disables extmod file logging (check LM's readme for more info on what extmod is) (Default value: false)
   -lm-handle <lm_handle_code>		Special command line to be used only within LM's custom user toolbar file. Available only on Windows.
 ```
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 1.41 (TBD)
+- (mellonpizza) Add --stddefines and --stdincludes command line options
+- (Atari2.0) Fixed a routine name
+- (Atari2.0) Add plugin system, see README.md for more details
+
 ## Version 1.40 (November 23, 2022)
 - (Atari2.0) Fix list.txt parsing bug when paths would get wrongly split for containing spaces.
 - (Atari2.0) Now pixi also prints warnings that asar gives instead of silently ignoring them.

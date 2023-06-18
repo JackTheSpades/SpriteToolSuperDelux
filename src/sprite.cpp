@@ -1567,7 +1567,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         return EXIT_SUCCESS;
     }
 
-	AsarHandler asar_handler;
+	AsarHandler asar_handler{};
 	if (!asar_handler.ok) {
         io.error(
             "Error: Asar library is missing or couldn't be initialized, please redownload the tool or add the dll.\n");
