@@ -112,23 +112,17 @@ int MeiMei::run() {
     iohandler& io = iohandler::get_global();
     if (!rom.open(MeiMei::name))
         return 1;
-    if (!asar_init()) {
-        io.error(
-            "Error: Asar library is missing or couldn't be initialized, please redownload the tool or add the dll.\n");
-    }
 
     int returnValue = MeiMei::run(rom);
 
     if (returnValue) {
         prev.close();
-        asar_close();
         io.error("\n\nError occurred in MeiMei.\n"
                  "Your rom has reverted to before pixi insert.\n");
         return returnValue;
     }
 
     rom.close();
-    asar_close();
     return returnValue;
 }
 

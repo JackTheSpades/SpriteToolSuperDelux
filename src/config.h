@@ -4,6 +4,7 @@
 #include <array>
 #include <cstdio>
 #include <string>
+#include <cstdint>
 
 constexpr int DEFAULT_ROUTINES = 100;
 #define MAX_ROUTINES 310
@@ -144,6 +145,8 @@ class PixiConfig {
         AsmDir = "";
         AsmDirPath = "";
         SymbolsType = "";
+        AsarStdIncludes = "";
+        AsarStdDefines = "";
         for (size_t i = 0; i < FromEnum(PathType::__SIZE__); i++) {
             m_Paths[static_cast<PathType>(i)] = DefaultPaths::get(static_cast<PathType>(i));
         }
@@ -179,4 +182,6 @@ class PixiConfig {
     std::string AsmDir{};
     std::string AsmDirPath{};
     std::string SymbolsType{};
+    std::string AsarStdIncludes{};
+    std::string AsarStdDefines{};
 };

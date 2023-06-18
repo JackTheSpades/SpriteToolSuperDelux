@@ -124,34 +124,40 @@ template <typename T, size_t N> constexpr size_t array_size(T (&)[N]) {
     return N;
 }
 
-static void asar_cleanup() {
-    // This is a hack to prevent a memory leak that's present in asar (ver 1.81 and previous)
-    // basically when calling getalllabels(), the labeldata structer gets populated
-    // but then it doesn't get cleaned up when asar_close() is called.
-    // the workaround for this is to apply an empty patch, because before applying the patch
-    // asar cleans up all the related data structures (labels included).
-    // this prevents the leak.
-    // tl,dr: remove this when the new asar version comes out because that version fixes the leak.
-    int size = 0;
-    const memoryfile file{"clean_labels.asm", "", 0};
-    char fake_romdata = '\0';
-    struct patchparams params {
-        .structsize = sizeof(struct patchparams), .patchloc = "clean_labels.asm", .romdata = &fake_romdata, .buflen = 0,
-        .romlen = &size, .includepaths = nullptr, .numincludepaths = 0, .should_reset = true,
-        .additional_defines = nullptr, .additional_define_count = 0, .stdincludesfile = nullptr,
-        .stddefinesfile = nullptr, .warning_settings = nullptr, .warning_setting_count = 0, .memory_files = &file,
-        .memory_file_count = 1, .override_checksum_gen = false, .generate_checksum = true
-    };
-    if (!asar_patch_ex(&params)) {
-        io.error("Failed to apply cleanup patch\n");
-    }
-    int labels = 0;
-    asar_getalllabels(&labels);
-    if (labels != 0) {
-        io.error("Label count should be 0 after cleanup\n");
-    }
-    asar_close();
-}
+struct AsarHandler {
+	bool ok;
+	AsarHandler() {
+		ok = asar_init();
+	}
+	~AsarHandler() {
+		// This is a hack to prevent a memory leak that's present in asar (ver 1.81 and previous)
+		// basically when calling getalllabels(), the labeldata structer gets populated
+		// but then it doesn't get cleaned up when asar_close() is called.
+		// the workaround for this is to apply an empty patch, because before applying the patch
+		// asar cleans up all the related data structures (labels included).
+		// this prevents the leak.
+		// tl,dr: remove this when the new asar version comes out because that version fixes the leak.
+		int size = 0;
+		const memoryfile file{"clean_labels.asm", "", 0};
+		char fake_romdata = '\0';
+		struct patchparams params {
+			.structsize = sizeof(struct patchparams), .patchloc = "clean_labels.asm", .romdata = &fake_romdata, .buflen = 0,
+			.romlen = &size, .includepaths = nullptr, .numincludepaths = 0, .should_reset = true,
+			.additional_defines = nullptr, .additional_define_count = 0, .stdincludesfile = nullptr,
+			.stddefinesfile = nullptr, .warning_settings = nullptr, .warning_setting_count = 0, .memory_files = &file,
+			.memory_file_count = 1, .override_checksum_gen = false, .generate_checksum = true
+		};
+		if (!asar_patch_ex(&params)) {
+			io.error("Failed to apply cleanup patch\n");
+		}
+		int labels = 0;
+		asar_getalllabels(&labels);
+		if (labels != 0) {
+			io.error("Label count should be 0 after cleanup\n");
+		}
+		asar_close();
+	}
+};
 
 void clean_sprite_generic(patchfile& clean_patch, int table_address, int original_value, size_t count,
                           const char* preface, ROM& rom) {
@@ -204,8 +210,8 @@ template <typename T> T* from_table(T* table, int level, int number) {
         .should_reset = true,
         .additional_defines = g_config_defines.data(), 
         .additional_define_count = static_cast<int>(g_config_defines.size()),
-        .stdincludesfile = nullptr,
-        .stddefinesfile = nullptr,
+        .stdincludesfile = cfg.AsarStdIncludes.empty() ? nullptr : cfg.AsarStdIncludes.c_str(),
+        .stddefinesfile = cfg.AsarStdDefines.empty() ? nullptr : cfg.AsarStdDefines.c_str(),
         .warning_settings = disabled_warnings,
         .warning_setting_count = static_cast<int>(array_size(disabled_warnings)),
         .memory_files = g_memory_files.data(),
@@ -262,8 +268,8 @@ template <typename T> T* from_table(T* table, int level, int number) {
         .should_reset = true,
         .additional_defines = g_config_defines.data(), 
         .additional_define_count = static_cast<int>(g_config_defines.size()),
-        .stdincludesfile = nullptr,
-        .stddefinesfile = nullptr,
+        .stdincludesfile = cfg.AsarStdIncludes.empty() ? nullptr : cfg.AsarStdIncludes.c_str(),
+        .stddefinesfile = cfg.AsarStdDefines.empty() ? nullptr : cfg.AsarStdDefines.c_str(),
         .warning_settings = disabled_warnings,
         .warning_setting_count = static_cast<int>(array_size(disabled_warnings)),
         .memory_files = g_memory_files.data(),
@@ -1513,6 +1519,8 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         .add_option("-meimei-k", "Enables keep temp patches files", meimei.KeepTemp())
         .add_option("-meimei-d", "Enables debug for MeiMei patches", meimei.Debug())
         .add_option("--onepatch", "Applies all sprites into a single big path", cfg.AllSpritesOnePatch)
+        .add_option("--stdincludes", "INCLUDEPATH", "Specify a text file with a list of search paths for asar", cfg.AsarStdIncludes)
+        .add_option("--stddefines", "DEFINEPATH", "Specify a text file with a list of defines for asar", cfg.AsarStdDefines)
 #ifdef ON_WINDOWS
         .add_option("-lm-handle", "lm_handle_code",
                     "To be used only within LM's custom user toolbar file, it receives LM's handle to reload the rom",
@@ -1559,7 +1567,8 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         return EXIT_SUCCESS;
     }
 
-    if (!asar_init()) {
+	AsarHandler asar_handler;
+	if (!asar_handler.ok) {
         io.error(
             "Error: Asar library is missing or couldn't be initialized, please redownload the tool or add the dll.\n");
         return EXIT_FAILURE;
@@ -1634,7 +1643,6 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         io.error("This is version %d.%d\n", VERSION_EDITION, VERSION_PARTIAL);
         io.error("Please get a newer version.");
         rom.close();
-        asar_cleanup();
         return EXIT_FAILURE;
     }
 
@@ -1647,7 +1655,6 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         char c = io.getc();
         if (tolower(c) == 'y') {
             rom.close();
-            asar_cleanup();
             io.error("Insertion was stopped, press any button to exit...\n");
             io.getc();
             return EXIT_FAILURE;
@@ -1682,6 +1689,13 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         debug_print("paths[%d] = %s\n", i, cfg.m_Paths[i].c_str());
 #endif
     }
+	set_paths_relative_to(cfg.AsarStdIncludes, argv[0]);
+	set_paths_relative_to(cfg.AsarStdDefines, argv[0]);
+#ifdef DEBUGMSG
+	debug_print("asar std includes = %s\n", cfg.AsarStdIncludes.c_str());
+	debug_print("asar std defines = %s\n", cfg.AsarStdDefines.c_str());
+#endif
+	
     cfg.AsmDir = cfg[PathType::Asm];
     cfg.AsmDirPath = cleanPathTrail(cfg.AsmDir);
 
@@ -1748,7 +1762,6 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         io.print("Do you want to continue insertion anyway? [Y/n] (Default is yes):\n");
         char c = io.getc();
         if (tolower(c) == 'n') {
-            asar_cleanup();
             io.print("Insertion was stopped, press any button to exit...\n");
             io.getc();
             return EXIT_FAILURE;
@@ -1927,7 +1940,6 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         if (!create_lm_restore(rom.name.data()))
             return EXIT_FAILURE;
     rom.close();
-    asar_cleanup();
     int retval = 0;
     if (!cfg.DisableMeiMei) {
         meimei.configureSa1Def(cfg.AsmDirPath + "/sa1def.asm");
