@@ -676,14 +676,14 @@ namespace CFG
                 height = size.Height;
                 width = (height / img.Height) * img.Width;
                 y = 0;
-                x = (size.Width / 2) - (width / 2);
+                x = (float)Math.Floor((size.Width / 2) - (width / 2));
             }
             else
             {
                 width = size.Width;
                 height = (width / img.Width) * img.Height;
                 x = 0;
-                y = (size.Height / 2) - (height / 2);
+                y = (float)Math.Floor((size.Height / 2) - (height / 2));
             }
 
             Bitmap bm = new Bitmap(size.Width, size.Height);
