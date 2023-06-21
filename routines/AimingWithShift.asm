@@ -64,20 +64,14 @@ Aim_NotToNeg:		db $00,$01,$01
 					
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					
-Aim_Dist0_Inverted:	LDA $00
-					BEQ Aim_XDist_Zero
-					LDA $02
-					BEQ Aim_YDist_Zero
-					SEP #$20
+Aim_Dist0_Inverted:	LDA $00 : BEQ Aim_XDist_Zero
+					LDA $02 : BEQ Aim_YDist_Zero
 					RTS
 Aim_XDist_Zero:		SEP #$20
-					LDA $05
-					EOR #$01
-					STA $04
+					LDA $05 : EOR #$01 : STA $04
 					RTS
 Aim_YDist_Zero:		SEP #$20
-					LDA $04
-					STA $05
+					LDA $04 : STA $05
 					RTS
 					
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -126,7 +120,7 @@ Aim_Rounding:		LDA $06
 					LDA #$00
 					ROL
 					EOR #$01
-					CLC : ADC $00
+					ADC $00
 					JSR Angle_Shifted
 					LDY #$00
 					TAX
@@ -186,11 +180,11 @@ Angle_Shifted:		STA $08
 					STY $0B
 					LDA $04
 					EOR $05
-					TAY
-.Loops:				LDA $0B
-					EOR Aim_Not_Flag,y
+					TAX
+					LDA $0B
+					EOR.l Aim_Not_Flag,x
 					CLC
-					ADC Aim_NotToNeg,y
+					ADC.l Aim_NotToNeg,x
 					STA $0B
 					CLC : ADC $08
 					CMP #$5B
@@ -206,7 +200,6 @@ Angle_Shifted:		STA $08
 					PLA
 					EOR #$FF
 					INC
-					SEC
 					SBC #$4C
 					RTS
 					
