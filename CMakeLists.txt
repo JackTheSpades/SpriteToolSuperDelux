@@ -36,11 +36,15 @@ if (PIXI_DISABLE_SANITIZERS)
 	set(PIXI_SANITIZERS_FLAGS "")
 endif()
 message(STATUS "Setting sanitizers flags to \"${PIXI_SANITIZERS_FLAGS}\"")
-add_subdirectory(src)
-if (PIXI_BUILD_TESTS AND PIXI_BUILD_LIB)
-	message(STATUS "Building test suite")
-	add_subdirectory(unittests)
-endif()
+# this execute process is to generate the json_const.h and JsonConst.cs files
+# at configure time, so that they can be included in the project
+# and be picked up by any intellisense/clangd/whatever lsp you use
+# then we add a custom command to generate them at build time if they are not there
+# and to indicate the dependency between the targets
+execute_process(
+	COMMAND ${Python_EXECUTABLE} generate_json.py
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
 add_custom_command(
 	OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/src/json_const.h" "${CMAKE_CURRENT_SOURCE_DIR}/src/CFG Editor/CFG Editor/Json/JsonConst.cs"
 	COMMAND ${Python_EXECUTABLE} generate_json.py
@@ -53,6 +57,11 @@ add_custom_target(
 	DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/json_const.h" "${CMAKE_CURRENT_SOURCE_DIR}/src/CFG Editor/CFG Editor/Json/JsonConst.cs" 
 	COMMENT "Check if we need to re-run the generator"
 )
+add_subdirectory(src)
+if (PIXI_BUILD_TESTS AND PIXI_BUILD_LIB)
+	message(STATUS "Building test suite")
+	add_subdirectory(unittests)
+endif()
 if (PIXI_BUILD_EXE)
 	add_dependencies(pixi JsonBitGenerator)
 endif()
