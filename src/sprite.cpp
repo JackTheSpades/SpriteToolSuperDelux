@@ -37,7 +37,7 @@ namespace fs = std::filesystem;
 #include <chrono>
 namespace cr = std::chrono;
 struct PatchTimer {
-    decltype(cr::high_resolution_clock::now()) m_start;
+    cr::high_resolution_clock::time_point m_start;
     std::string m_name;
 
     PatchTimer(std::string name) : m_start(cr::high_resolution_clock::now()), m_name(std::move(name)) {
@@ -47,7 +47,7 @@ struct PatchTimer {
         auto end = cr::high_resolution_clock::now();
         [[maybe_unused]] auto dur = cr::duration_cast<cr::milliseconds>(end - m_start);
 #if 0
-        printf("%s took %lld ms\n", m_name.c_str(), dur.count());
+        iohandler::get_global().debug("%s took %lld ms to patch\n", m_name.c_str(), dur.count());
 #endif
     }
 };
