@@ -28,7 +28,6 @@ build
 .idea
 .vs
 CMakeSettings.json
-CMakePresets.json
 StructLayoutSettings.json
 pixi.aps
 test/*
