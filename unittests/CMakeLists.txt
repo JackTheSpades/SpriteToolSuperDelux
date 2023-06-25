@@ -56,4 +56,12 @@ if (MINGW)
         COMMENT "Renaming libasar.dll to asar.dll because MinGW is a mess"
     )
 endif()
+if (MSVC)
+    add_custom_command(
+        TARGET PixiUnitTest POST_BUILD
+        COMMAND ${POWERSHELL_PATH} -ExecutionPolicy Bypass -File ${CMAKE_CURRENT_SOURCE_DIR}/../copy_asan_dll.ps1 -TargetPath $<TARGET_FILE:PixiUnitTest> -TargetDir $<TARGET_FILE_DIR:PixiUnitTest>
+        USES_TERMINAL
+        VERBATIM
+    )
+endif()
 gtest_discover_tests(PixiUnitTest WORKING_DIRECTORY $<TARGET_FILE_DIR:PixiUnitTest>)
