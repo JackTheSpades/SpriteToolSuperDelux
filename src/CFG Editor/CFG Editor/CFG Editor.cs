@@ -238,7 +238,8 @@ namespace CFG
                     dgvDisplay.Columns[2].HeaderText = Data.DispType == Json.DisplayType.ExtraByte ? "Value" : "Y";
                     label8.Text = Data.DispType == Json.DisplayType.ExtraByte ? "I:" : "X:";
                     label9.Text = Data.DispType == Json.DisplayType.ExtraByte ? "V:" : "Y:";
-
+                    nudY.Maximum = Data.DispType == Json.DisplayType.ExtraByte ? 0xFF : 15;
+                    nudY.Hexadecimal = Data.DispType == Json.DisplayType.ExtraByte;
                     chbExtraByte.CheckedChanged += CheckedExtraByteChanged;
                 }
             };

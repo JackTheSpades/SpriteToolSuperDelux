@@ -1575,7 +1575,7 @@
             this.tsb8x8Mode.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb8x8Mode.Name = "tsb8x8Mode";
             this.tsb8x8Mode.Size = new System.Drawing.Size(27, 26);
-            this.tsb8x8Mode.Text = "toolStripButton1";
+            this.tsb8x8Mode.Text = "Enable 8x8 selection mode";
             // 
             // tsb8x8Editor
             // 
@@ -1585,7 +1585,7 @@
             this.tsb8x8Editor.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb8x8Editor.Name = "tsb8x8Editor";
             this.tsb8x8Editor.Size = new System.Drawing.Size(27, 26);
-            this.tsb8x8Editor.Text = "toolStripButton1";
+            this.tsb8x8Editor.Text = "Open 8x8 tile viewer";
             this.tsb8x8Editor.Click += new System.EventHandler(this.Tsb8x8Editor_Click);
             // 
             // tsbGrid
@@ -1597,7 +1597,8 @@
             this.tsbGrid.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbGrid.Name = "tsbGrid";
             this.tsbGrid.Size = new System.Drawing.Size(27, 26);
-            this.tsbGrid.Text = "toolStripButton1";
+            this.tsbGrid.Text = "Show grid";
+            this.tsbGrid.ToolTipText = "Show grid";
             // 
             // tsbPage
             // 
@@ -1608,7 +1609,7 @@
             this.tsbPage.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbPage.Name = "tsbPage";
             this.tsbPage.Size = new System.Drawing.Size(27, 26);
-            this.tsbPage.Text = "toolStripButton1";
+            this.tsbPage.Text = "Show page borders";
             // 
             // tsbPalette
             // 
@@ -1618,7 +1619,7 @@
             this.tsbPalette.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbPalette.Name = "tsbPalette";
             this.tsbPalette.Size = new System.Drawing.Size(27, 26);
-            this.tsbPalette.Text = "toolStripButton1";
+            this.tsbPalette.Text = "Open palette viewer";
             this.tsbPalette.Click += new System.EventHandler(this.TsbPalette_Click);
             // 
             // groupBox2
