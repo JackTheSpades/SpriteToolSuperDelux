@@ -89,28 +89,6 @@
       }
     },
     {
-      "name": "mingw-debug",
-      "displayName": "MinGW Debug",
-      "description": "Target Windows using MinGW (Debug)",
-      "inherits": "windows-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_C_COMPILER": "gcc.exe",
-        "CMAKE_CXX_COMPILER": "g++.exe"
-      }
-    },
-	{
-    "name": "mingw-release",
-      "displayName": "MinGW Release",
-      "description": "Target Windows using MinGW (Release)",
-      "inherits": "windows-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "CMAKE_C_COMPILER": "gcc.exe",
-        "CMAKE_CXX_COMPILER": "g++.exe"
-      }
-	},
-    {
       "name": "windows-x64-debug",
       "displayName": "Windows x64 Debug (cl)",
       "description": "Target Windows (64-bit) with the Visual Studio development environment. (Debug)",
@@ -172,6 +150,28 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang-cl.exe",
         "CMAKE_CXX_COMPILER": "clang-cl.exe"
+      }
+    },
+    {
+      "name": "mingw-debug",
+      "displayName": "MinGW Debug",
+      "description": "Target Windows using MinGW (Debug)",
+      "inherits": "windows-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER": "gcc.exe",
+        "CMAKE_CXX_COMPILER": "g++.exe"
+      }
+    },
+    {
+      "name": "mingw-release",
+      "displayName": "MinGW Release",
+      "description": "Target Windows using MinGW (Release)",
+      "inherits": "windows-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_C_COMPILER": "gcc.exe",
+        "CMAKE_CXX_COMPILER": "g++.exe"
       }
     }
   ]
