@@ -56,6 +56,13 @@ if (PIXI_BUILD_EXE OR PIXI_BUILD_DLL OR PIXI_BUILD_LIB)
     )
     FetchContent_MakeAvailable(asar)
     set_target_properties(asar PROPERTIES CXX_STANDARD 14)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        set_target_properties(asar PROPERTIES COMPILE_OPTIONS "-w")
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        set_target_properties(asar PROPERTIES COMPILE_OPTIONS "/w")
+    else()
+        message(FATAL_ERROR "Unrecognized compiler")
+    endif()
 endif()
 
 list(
