@@ -24,7 +24,7 @@ With Visual Studio, simply open the repository in VS, let it configure the proje
 
 This is the preferred building method and by far the easiest. 
 
-To add a new configuration add it from the dropdown menu near the `x64-Debug` label at the top of VS and then press `Manage Configurations`, from there, you can add whatever configuration you prefer (for example, for release, add `x64-Release`). 
+To add a new configuration add it from the dropdown menu near the `Windows x64 Debug (cl)` label at the top of VS and then press `Manage Configurations`, from there, you can add whatever configuration you prefer, there should be a fair few already pre-made ones. 
 
 The new configuration will already have all the necessary compiler/linker options and all the defines already set up.
 
