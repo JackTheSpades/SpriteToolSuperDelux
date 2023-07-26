@@ -39,6 +39,7 @@ The changelog is available [here](CHANGELOG.md).
   - [Extend PIXI (extra defines and hijacks)](#extend-pixi-extra-defines-and-hijacks)
   - [`pixi_settings.json` file](#pixi_settingsjson)
   - [Plugin system](#plugin-system)
+  - [Pixi as a library](#consuming-pixi-as-a-library)
 
 - [Common Errors](#common-errors)
   - [JMP (label,x) or JSR (label,x)](#jmp-labelx-or-jsr-labelx)
@@ -109,10 +110,10 @@ The changelog is available [here](CHANGELOG.md).
 
   ### Other sprite types
 
-  PIXI also has the ability to insert other types of sprites, such as cluster or extended sprites.
+  PIXI also has the ability to insert other types of sprites, such as cluster, extended, minor extended, bounce, smoke, spinning coin and score sprites.
   To insert these other types, you just have to change the list type within your list file. This is simply done by a
   type of headline with the all caps type followed by a colon. Valid headlines are: "SPRITE:" (default), "EXTENDED:",
-  "CLUSTER:", all without quotes. You probably won't need the SPRITE: header, since it's the default but it's there
+  "CLUSTER:", "MINOREXTENDED:", "BOUNCE:", "SMOKE:", "SPINNINGCOIN:", "SCORE:" all without quotes. You probably won't need the SPRITE: header, since it's the default but it's there
   anyway.
   After that header, you can proceed to place sprites just like before, except they are taken from their respective
   directories. An example:
@@ -127,9 +128,12 @@ The changelog is available [here](CHANGELOG.md).
 
   	EXTENDED:
   	00 hammer.asm
+
+  	SMOKE:
+  	00 mysmoke.asm
   ```
 
-  Note that cluster and extended sprites use the .asm extension, while normal sprites have .cfg.
+  Note that all sprites except normal sprites use the .asm extension, while normal sprites have .cfg/.json.
   Also keep in mind that shooters and generators are part of the SPRITE: group and are seperated by their slot.
 
 ## Sprite Insertion
@@ -150,7 +154,9 @@ The changelog is available [here](CHANGELOG.md).
   Usage: pixi <options> <ROM>
   Options are:
   -d              Enable debug output
+  --debug         Enable debug output
   -k              Keep debug files
+  --symbols <symbols_type>       Enable writing debugging symbols files in format wla or nocash (Default value: <empty>)
   -l  <listpath>  Specify a custom list file (Default: list.txt)
   -pl				Per level sprites - will insert perlevel sprite code
   -npl            Same as the current default, no sprite per level will be inserted, left dangling for compatibility reasons
@@ -202,7 +208,7 @@ The changelog is available [here](CHANGELOG.md).
 
   - `pixi.exe -l differentlistfile.txt rom.smc` -> will use "differentlistfile.txt" instead of "list.txt"
 
-  - `pixi.exe -d -out debug_out.txt -k -l differentlistfile.txt rom.smc`	-> will print debug output to "debug_out.txt", keep debug files and use "differentlistfile.txt"
+  - `pixi.exe -d -k -l differentlistfile.txt rom.smc`	-> will print debug output to the terminal, keep temporary files and use "differentlistfile.txt"
 
 ## New Additions and Changes
   If you are used to using Romi's SpriteTool, here is a quick rundown of everything new added in PIXI:
@@ -491,6 +497,15 @@ The changelog is available [here](CHANGELOG.md).
   An exit code of 0 is assumed to be success, everything else is failure. If a plugin returns an error, Pixi will treat it as fatal and stop execution.
   
   The version number is MAJOR\*100+MINOR\*10+PATCH, for example 1.32 will be 132 and 1.40 will be 140.
+
+  ### Consuming pixi as a library
+  Since version 1.41, Pixi can now be built as a dynamic (or static) library to be embedded and used within other applications. The bindings are available for C#, Python and C/C++ in the `src/api_bindings/` folder.
+
+  Building pixi normally via CMake as described in the BUILDING documentation will automatically build both the static and dynamic version of the library.
+
+  The documentation for the API offered is embedded as comments in the C binding `pixi_api.h`.  
+
+  This will be improved in the future when a proper documentation will be written, but since for now the API is very young and potentially subject to big changes, it'll stay this way for now.
 
 ## Common Errors
   The vast majority of the time, xkas code will work just fine with Asar, the assembler that PIXI uses exclusively.

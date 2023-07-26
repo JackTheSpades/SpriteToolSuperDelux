@@ -1,9 +1,15 @@
 # Changelog
 
 ## Version 1.41 (TBD)
-- (mellonpizza) Add --stddefines and --stdincludes command line options
+- (mellonpizza) Add --stddefines and --stdincludes command line options.
+- (spooonsss) Add --symbols command line option to make asar output symbols file (can be WLA or nocash)
+- (spooonsss) Fix CFG Editor small visual bug
+- (Iwakoro) Add define support for the "More Extended Sprites" patch
+- (RunicRain) Split shared routines in a way that makes it safe for routines to call each other
+- (Atari2.0) Add a way to consume pixi as a library (dynamic or static), and add C,C++,C# and Python bindings, see the README for more details.
 - (Atari2.0) Fixed a routine name
-- (Atari2.0) Add plugin system, see README.md for more details
+- (Atari2.0) Add plugin system, see the README for more details
+- (Atari2.0) Correct on-hover tooltips on icons in CFG Editor, aswell as fix maximum value of spinbox for value when using extra byte in json.
 
 ## Version 1.40 (November 23, 2022)
 - (Atari2.0) Fix list.txt parsing bug when paths would get wrongly split for containing spaces.
