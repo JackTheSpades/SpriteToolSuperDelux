@@ -104,7 +104,7 @@ std::pair<uint8_t, uint8_t> read_byte_count(const std::string& line) {
     } catch (const std::out_of_range&) {
         throw std::invalid_argument("Hex values for extra byte count in CFG file were out of range of a valid integer");
     }
-    if (values.first > 12 || values.second > 12 || values.first < 0 || values.second < 0) {
+    if (values.first > 12 || values.second > 12) {
         throw std::invalid_argument("Hex value for extra byte count in CFG file out of range, valid range is 00-0C");
     }
     return values;

@@ -1,11 +1,7 @@
 #include "paths.h"
 
-bool nameEndWithAsmExtension(const char *name) {
-    return !strcmp(".asm", name + strlen(name) - 4) && name[0] != '.';
-}
-
 bool nameEndWithAsmExtension(std::string_view name) {
-    return nameEndWithAsmExtension(name.data());
+    return name.ends_with(".asm");
 }
 
 std::string cleanPathTrail(std::string path) {

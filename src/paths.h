@@ -8,7 +8,6 @@ template <typename... A> void debug_print(const char *msg, A... args) {
 }
 #endif
 
-bool nameEndWithAsmExtension(const char *name);
 bool nameEndWithAsmExtension(std::string_view name);
 std::string cleanPathTrail(std::string path);
 void set_paths_relative_to(std::string &path, const char *arg0);
