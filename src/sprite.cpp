@@ -309,12 +309,9 @@ template <typename T> T* from_table(T* table, int level, int number) {
 }
 
 [[nodiscard]] bool patch(std::string_view dir, const char* patch_name, ROM& rom) {
-    char* path = new char[dir.length() + strlen(patch_name) + 1];
-    path[0] = 0;
-    strcat(path, dir.data());
-    strcat(path, patch_name);
-    bool ret = patch(path, rom);
-    delete[] path;
+    std::string patchloc{dir};
+    patchloc += patch_name;
+    bool ret = patch(patchloc.c_str(), rom);
     return ret;
 }
 
@@ -376,11 +373,8 @@ std::string escapeDefines(std::string_view path, const char* repl = "\\!") {
 static bool strccmp(std::string_view first, std::string_view second) {
     if (first.size() != second.size())
         return false;
-    for (size_t i = 0; i < first.size(); i++) {
-        if (std::tolower(first[i]) != std::tolower(second[i]))
-            return false;
-    }
-    return true;
+    return std::equal(first.begin(), first.end(), second.begin(), second.end(),
+                          [](char a, char b) { return std::tolower(a) == std::tolower(b); });
 }
 
 [[nodiscard]] patchfile create_base_sprite_patch(const std::vector<std::string>& extraDefines, const std::string& dir) {
