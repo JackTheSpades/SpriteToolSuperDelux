@@ -439,7 +439,7 @@ The changelog is available [here](CHANGELOG.md).
   Check the Extend pixi section right below this to see how to do that.
 
   ### Extend PIXI (extra defines and hijacks)
-  From pixi 1.2.11+ we have two 'secret' folders called ExtraDefines and ExtraHijacks. They do not come in with pixi by default, they have to be created.
+  From pixi 1.2.11+ we have two folders called ExtraDefines and ExtraHijacks. They used to not come in with pixi by default, but since 1.41 they do.
 
   Folder structure:
 ```

@@ -10,6 +10,7 @@
 - (Atari2.0) Fixed a routine name
 - (Atari2.0) Add plugin system, see the README for more details
 - (Atari2.0) Correct on-hover tooltips on icons in CFG Editor, aswell as fix maximum value of spinbox for value when using extra byte in json.
+- (Atari2.0) Add list.txt aswell as asm/ExtraDefines asm/ExtraHijacks to the zip file so users don't have to create them on their own.
 
 ## Version 1.40 (November 23, 2022)
 - (Atari2.0) Fix list.txt parsing bug when paths would get wrongly split for containing spaces.

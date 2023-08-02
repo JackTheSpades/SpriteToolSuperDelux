@@ -161,6 +161,9 @@ with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
         "spritetool_clean.asm",
     ]:
         pixizip.write(to_asm_folder(asm_folder_file))
+    pixizip.write(os.path.join("asm", "ExtraDefines", "placeholder.txt"))
+    pixizip.write(os.path.join("asm", "ExtraHijacks", "placeholder.txt"))
+    pixizip.write("list.txt")
 
     # misc
     md_files = ['README.md', 'CHANGELOG.md', 'CONTRIBUTING.md']

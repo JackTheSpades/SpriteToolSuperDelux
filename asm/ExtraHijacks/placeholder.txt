@@ -1,0 +1,3 @@
+this file is here to make sure that the directory is included in the zip file
+for more information about how to use the ExtraHijacks directory
+read the README file in the "Extend PIXI" section.
