@@ -41,3 +41,4 @@ src/pixi.rc
 !unittests/testing_files/base.smc
 mingw-build/
 __pycache__
+*.html
