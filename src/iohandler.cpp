@@ -22,6 +22,7 @@ void iohandler::init() {
         delete[] ptr;
     }
     handler.m_output_lines.clear();
+    handler.m_last_error.clear();
 }
 
 iohandler& iohandler::get_global() {
