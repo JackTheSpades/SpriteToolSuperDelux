@@ -251,6 +251,21 @@ TEST(PixiUnitTests, PixiFullRunPerLevelFail) {
     EXPECT_STREQ(error, expected_error.data());
 }
 
+TEST(PixiUnitTests, Disable255PerLevelUnsupported) {
+    {
+        std::ofstream list_file{"list.txt", std::ios::trunc};
+    }
+    const char* argv[] = {"PixiFullRun.smc", "-d255spl"};
+    EXPECT_EQ(pixi_run(sizeof(argv) / sizeof(argv[0]), argv, false), EXIT_FAILURE);
+    int size = 0;
+    constexpr std::string_view expected_error{
+        "Disabling the 255 sprites per level patch is not supported since 1.41 because the RAM recovered by moving the "
+        "table from 1938 is used by misc tables for minor sprite types"};
+    pixi_string error = pixi_last_error(&size);
+    EXPECT_EQ(size, expected_error.size());
+    EXPECT_STREQ(error, expected_error.data());
+}
+
 TEST(PixiUnitTests, LMDataTest) {
     WinCheckMemLeak leakchecker{};
     constexpr const char expected_ssc[] =

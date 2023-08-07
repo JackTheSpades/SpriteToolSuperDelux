@@ -1,6 +1,10 @@
 !PerLevel ?= 0
 !Disable255SpritesPerLevel ?= 0
 
+if !Disable255SpritesPerLevel
+	error "Since Pixi 1.41 disabling the 255 sprites per level isn't supported"
+endif
+
 ;only works for SA-1 version 1.10+
 
 !CustomBit		= $08

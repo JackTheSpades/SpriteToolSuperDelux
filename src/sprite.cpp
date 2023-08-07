@@ -1534,6 +1534,11 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
     }
     if (!parsed_correctly)
         return EXIT_FAILURE;
+    if (cfg.Disable255Sprites) {
+        io.error("Disabling the 255 sprites per level patch is not supported since 1.41 because the RAM recovered by "
+                 "moving the table from 1938 is used by misc tables for minor sprite types");
+        return EXIT_FAILURE;
+    }
     if (argc < 2) {
         atexit(double_click_exit);
     }
