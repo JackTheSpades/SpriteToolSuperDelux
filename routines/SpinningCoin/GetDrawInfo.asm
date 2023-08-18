@@ -26,10 +26,10 @@
     lda !spinning_coin_y_low,x
     cmp $02
     lda !spinning_coin_y_high,x
-    sbc $04
+    sbc $03
     bne ?.return
     lda !spinning_coin_x_low,x
-    sbc $03
+    sbc $04
     cmp #$F8
     bcs ?.kill
     sta $00
