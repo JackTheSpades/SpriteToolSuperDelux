@@ -37,10 +37,6 @@ jobs:
            echo "WIN_PLAT_TYPE=x64" >> $GITHUB_ENV
       if: matrix.platform == 'x64' && matrix.os == 'windows-latest'
 
-    - name: Get branch name
-      id: branch-name
-      uses: tj-actions/branch-names@v6.2
-
     - name: Setup python
       uses: actions/setup-python@v4
       with:
@@ -154,6 +150,10 @@ jobs:
               sudo apt install gcc-11 g++-11
         shell: bash
         if: matrix.os == 'ubuntu-latest'
+
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v6.2
 
       - name: Test (linux)
         working-directory: ${{github.workspace}}/test

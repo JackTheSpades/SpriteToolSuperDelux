@@ -79,7 +79,7 @@ def download_if_smwc_failed():
         z.extractall()
     os.remove('pixi_test_sprites.zip')
 
-def create_list_files(cached: bool = False):
+def create_list_files(cached = False):
     for name, info in list_types.items():
         typename, start_id = info
         zipfiles = glob.glob(name + '/*.zip')
@@ -153,7 +153,7 @@ def exec_pixi(*, pixi_executable, current_rom, listname):
     return good, stdout
 
 
-def test_normal_sprites(sprites: list[int]|None = None):
+def test_normal_sprites(sprites = None):
     execlist = [executable_name('./pixi'), 'work.smc']
     successes = {}
     errors = {}
