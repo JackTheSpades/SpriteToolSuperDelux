@@ -208,8 +208,8 @@ def read_expected():
     return expected_results
 
 argparser = argparse.ArgumentParser('runner.py', description='Test sprites with pixi')
-argparser.add_argument('-c', '--cached', action='store_true', help='Use cached sprites', required=True)
-argparser.add_argument('-s', '--sprites', nargs='*', help='Sprites to test (ids)', required=False)
+argparser.add_argument('-c', '--cached', action='store_true', help='Use cached sprites', required=False, default=False)
+argparser.add_argument('-s', '--sprites', nargs='*', help='Sprites to test (ids)', required=False, default=None)
 args = argparser.parse_args()
 
 try:
