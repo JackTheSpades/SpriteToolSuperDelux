@@ -106,11 +106,12 @@ patchfile g_shared_inscrc_patch{"shared_incsrc.asm"};
 std::vector<definedata> g_config_defines{};
 
 struct addtempfile {
-    addtempfile(const patchfile& file) {
-        g_memory_files.push_back(file.vfile());
+    const memoryfile& m_memory_file;
+    addtempfile(const patchfile& file) : m_memory_file{g_memory_files.emplace_back(file.vfile())} {
     }
     ~addtempfile() {
-        g_memory_files.pop_back();
+        [[maybe_unused]] size_t s = std::erase_if(g_memory_files, [&](const memoryfile& mem) { return &mem == &m_memory_file; });
+        assert(s == 1);
     }
 };
 
@@ -338,19 +339,18 @@ constexpr bool ends_with(const char* str, const char* suffix) {
     FILE* res = open(restorename.c_str(), "a+");
     if (res) {
         size_t size = file_size(res);
-        char* contents = new char[size + 1];
-        size_t read_size = fread(contents, 1, size, res);
+        auto contents = std::make_unique<char[]>(size + 1);
+        size_t read_size = fread(contents.get(), 1, size, res);
         if (size != read_size) {
             io.error("Couldn't fully read file %s, please check file permissions", restorename.c_str());
             return false;
         }
         contents[size] = '\0';
-        if (!ends_with(contents, to_write)) {
+        if (!ends_with(contents.get(), to_write)) {
             fseek(res, 0, SEEK_END);
             fprintf(res, "%s", to_write);
         }
         fclose(res);
-        delete[] contents;
         return true;
     } else {
         io.error("Couldn't open restore file for writing (%s)\n", restorename.c_str());
@@ -374,39 +374,48 @@ static bool strccmp(std::string_view first, std::string_view second) {
     if (first.size() != second.size())
         return false;
     return std::equal(first.begin(), first.end(), second.begin(), second.end(),
-                          [](char a, char b) { return std::tolower(a) == std::tolower(b); });
+                      [](char a, char b) { return std::tolower(a) == std::tolower(b); });
 }
 
 [[nodiscard]] patchfile create_base_sprite_patch(const std::vector<std::string>& extraDefines, const std::string& dir) {
     std::string escapedDir = escapeDefines(dir);
     std::string escapedAsmdir = escapeDefines(cfg.AsmDir);
     patchfile sprite_patch{TEMP_SPR_FILE};
-    sprite_patch.fprintf("namespace nested on\n");
-    sprite_patch.fprintf("warnings push\n");
-    sprite_patch.fprintf("warnings disable w1005\n");
-    sprite_patch.fprintf("warnings disable w1001\n");
-    sprite_patch.fprintf("incsrc \"%ssa1def.asm\"\n", escapedAsmdir.c_str());
+
+    const char prelude[] = R"(namespace nested on
+warnings push
+warnings disable w1005
+warnings disable w1001
+incsrc "%ssa1def.asm"
+)";
+    const char epilogue[] = R"(incsrc "shared.asm"
+incsrc "%s_header.asm"
+)";
+    sprite_patch.fprintf(prelude, escapedAsmdir.c_str());
     addIncScrToFile(sprite_patch, extraDefines);
-    sprite_patch.fprintf("incsrc \"shared.asm\"\n");
-    sprite_patch.fprintf("incsrc \"%s_header.asm\"\n", escapedDir.c_str());
+    sprite_patch.fprintf(epilogue, escapedDir.c_str());
     return sprite_patch;
 }
 
 void add_epilogue_to_sprite_patch(patchfile& sprite_patch) {
-    sprite_patch.fprintf("incsrc \"shared_incsrc.asm\"\n");
-    sprite_patch.fprintf("warnings pull\n");
-    sprite_patch.fprintf("namespace nested off\n");
+    const char epilogue[] = R"(incsrc "shared_incsrc.asm"
+warnings pull
+namespace nested off
+)";
+    sprite_patch.fprintf(epilogue);
     sprite_patch.close();
 }
 
 void add_sprite_to_patch(patchfile& sprite_patch, sprite* spr) {
     std::string escapedAsmfile = escapeDefines(spr->asm_file);
-    sprite_patch.fprintf("freecode cleaned\n");
-    sprite_patch.fprintf("namespace SPRITE_ENTRY_%d\n", spr->number);
-    sprite_patch.fprintf("SPRITE_ENTRY_%d:\n", spr->number);
-    sprite_patch.fprintf("\tincsrc \"%s\"\n", escapedAsmfile.c_str());
-    sprite_patch.fprintf("namespace off\n");
-    sprite_patch.fprintf("print \"__PIXI_INTERNAL_SPRITE_SEPARATOR__\"\n");
+    const char patchstr[] = R"(freecode cleaned
+namespace SPRITE_ENTRY_%d
+SPRITE_ENTRY_%d:
+    incsrc "%s"
+namespace off
+print "__PIXI_INTERNAL_SPRITE_SEPARATOR__"
+)";
+    sprite_patch.fprintf(patchstr, spr->number, spr->number, escapedAsmfile.c_str());
 }
 
 [[nodiscard]] bool patch_sprite(const std::vector<std::string>& extraDefines, sprite* spr, ROM& rom) {
@@ -414,20 +423,24 @@ void add_sprite_to_patch(patchfile& sprite_patch, sprite* spr) {
     std::string escapedAsmfile = escapeDefines(spr->asm_file);
     std::string escapedAsmdir = escapeDefines(cfg.AsmDir);
     patchfile sprite_patch{TEMP_SPR_FILE};
-    sprite_patch.fprintf("namespace nested on\n");
-    sprite_patch.fprintf("warnings push\n");
-    sprite_patch.fprintf("warnings disable w1005\n");
-    sprite_patch.fprintf("warnings disable w1001\n");
-    sprite_patch.fprintf("incsrc \"%ssa1def.asm\"\n", escapedAsmdir.c_str());
+    const char prefix[] = R"(namespace nested on
+warnings push
+warnings disable w1005
+warnings disable w1001
+incsrc "%ssa1def.asm"
+)";
+    const char postfix[] = R"(incsrc "shared.asm"
+incsrc "%s_header.asm"
+freecode cleaned
+SPRITE_ENTRY_%d:
+    incsrc "%s"
+incsrc "shared_incsrc.asm"
+warnings pull
+namespace nested off
+)";
+    sprite_patch.fprintf(prefix, escapedAsmdir.c_str());
     addIncScrToFile(sprite_patch, extraDefines);
-    sprite_patch.fprintf("incsrc \"shared.asm\"\n");
-    sprite_patch.fprintf("incsrc \"%s_header.asm\"\n", escapedDir.c_str());
-    sprite_patch.fprintf("freecode cleaned\n");
-    sprite_patch.fprintf("SPRITE_ENTRY_%d:\n", spr->number);
-    sprite_patch.fprintf("\tincsrc \"%s\"\n", escapedAsmfile.c_str());
-    sprite_patch.fprintf("incsrc \"shared_incsrc.asm\"\n");
-    sprite_patch.fprintf("warnings pull\n");
-    sprite_patch.fprintf("namespace nested off\n");
+    sprite_patch.fprintf(postfix, escapedDir.c_str(), spr->number, escapedAsmfile.c_str());
     sprite_patch.close();
 
     if (!patch(sprite_patch, rom))
@@ -1870,15 +1883,14 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
                 fputc(0x00, mw2);
             } else {
                 fs_size--; // -1 to skip the 0xFF byte at the end
-                auto* mw2_data = new unsigned char[fs_size];
-                size_t read_size = fread(mw2_data, 1, fs_size, fp);
+                auto mw2_data = std::make_unique<unsigned char[]>(fs_size);
+                size_t read_size = fread(mw2_data.get(), 1, fs_size, fp);
                 if (read_size != fs_size) {
                     fclose(fp);
                     io.error("Couldn't fully read file %s, please check file permissions", cfg[ExtType::Mw2].c_str());
                     return EXIT_FAILURE;
                 }
-                fwrite(mw2_data, 1, fs_size, mw2);
-                delete[] mw2_data;
+                fwrite(mw2_data.get(), 1, fs_size, mw2);
             }
             fclose(fp);
         } else {

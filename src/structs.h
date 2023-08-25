@@ -57,7 +57,7 @@ class patchfile {
     const auto& path() const {
         return m_path;
     }
-    const memoryfile vfile() const {
+    const memoryfile& vfile() const {
         return *m_vfile;
     }
     void fprintf(const char* format, ...);

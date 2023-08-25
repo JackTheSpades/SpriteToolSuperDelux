@@ -7,59 +7,17 @@
 #include <cstring>
 #include <type_traits>
 #include <utility>
+#include <vector>
 #ifdef ON_WINDOWS
 #include <Windows.h>
 #include <bit>
 #include <io.h>
 #endif
 
-template <typename Tp> struct tbuf {
-    using Tpp = std::add_pointer_t<Tp>;
-    Tpp buffer;
-    size_t m_size;
-    tbuf() {
-        buffer = nullptr;
-        m_size = 0;
-    }
-    tbuf(size_t size) {
-        m_size = size;
-        buffer = new Tp[size];
-    }
-    tbuf(int size) {
-        m_size = static_cast<size_t>(size);
-        buffer = new Tp[size];
-    }
-    tbuf(tbuf&& other) noexcept : buffer(other.buffer), m_size(other.m_size) {
-        other.buffer = nullptr;
-        other.m_size = 0;
-    }
-    tbuf& operator=(tbuf&& other) {
-        if (buffer != nullptr && m_size > 0)
-            delete[] buffer;
-        buffer = other.buffer;
-        m_size = other.m_size;
-        other.buffer = nullptr;
-        other.m_size = 0;
-        return *this;
-    }
-    operator Tpp() {
-        return buffer;
-    }
-    size_t size() const {
-        return m_size;
-    }
-    ~tbuf() {
-        delete[] buffer;
-    }
-};
-
-using wctbuf = tbuf<wchar_t>;
-using ctbuf = tbuf<char>;
-
 #ifdef ON_WINDOWS
 namespace winutil {
 struct ConversionResult {
-    wctbuf buf;
+    std::vector<wchar_t> buf;
     bool success;
 };
 HANDLE handle_from_file(FILE* ptr) {
@@ -78,9 +36,9 @@ ConversionResult UTF8ToWide(const char* from, const int from_size, DWORD& conv) 
     if (convertResult <= 0) {
         return {{}, false};
     } else {
-        wctbuf wstr{convertResult + 1}; // +1 for the NULL byte.
-        conv = MultiByteToWideChar(CP_UTF8, 0, from, from_size, wstr, convertResult);
-        wstr.buffer[conv] = L'\0';
+        auto wstr = std::vector(convertResult + 1, L'\0'); // +1 for the NULL byte.
+        conv = MultiByteToWideChar(CP_UTF8, 0, from, from_size, wstr.data(), convertResult);
+        wstr[conv] = L'\0';
         return {std::move(wstr), true};
     }
 }
@@ -143,11 +101,11 @@ BOOL GenericWrite(HANDLE hdl, const char* buffer, DWORD bufsize) {
         return FALSE;
     if (hdl == NULL) {
         if (IsDebuggerPresent()) {
-            OutputDebugString(wstr);
+            OutputDebugString(wstr.data());
         }
         return TRUE;
     } else if (winutil::HasConsole(hdl)) {
-        ret = WriteConsole(hdl, wstr, static_cast<DWORD>(wstr.size()), &written, NULL) && (written == conv);
+        ret = WriteConsole(hdl, wstr.data(), static_cast<DWORD>(wstr.size()), &written, NULL) && (written == conv);
     } else {
         ret = WriteFile(hdl, buffer, bufsize, &written, NULL);
     }
@@ -157,13 +115,13 @@ BOOL GenericWrite(HANDLE hdl, const char* buffer, DWORD bufsize) {
 
 std::optional<size_t> read(char* buffer, int bufsize, handle hdl) {
 #ifdef ON_WINDOWS
-    wctbuf wstr{bufsize};
+    auto wstr = std::vector(bufsize, L'\0');
     DWORD read = 0;
     HANDLE real_hdl = map_handle(hdl);
-    if (BOOL ptr = GenericRead(real_hdl, wstr, bufsize, buffer, bufsize, &read); !ptr)
+    if (BOOL ptr = GenericRead(real_hdl, wstr.data(), bufsize, buffer, bufsize, &read); !ptr)
         return std::nullopt;
     if (winutil::HasConsole(real_hdl)) {
-        return winutil::WideToUTF8(wstr, read, buffer, bufsize);
+        return winutil::WideToUTF8(wstr.data(), read, buffer, bufsize);
     } else {
         buffer[read] = '\0';
     }
@@ -191,16 +149,16 @@ bool write_handle(const char* buffer, int bufsize, FILE* fp) {
 
 bool write_args(const char* fmt, handle hdl, va_list list) {
     int needed = _vscprintf_l(fmt, nullptr, list);
-    tbuf<char> buf{needed + 1};
-    int written = _vsprintf_l(buf, fmt, nullptr, list);
-    return write(buf, written, hdl);
+    auto buf = std::vector(needed + 1, '\0');
+    int written = _vsprintf_l(buf.data(), fmt, nullptr, list);
+    return write(buf.data(), written, hdl);
 }
 
 bool write_args_handle(const char* fmt, FILE* hdl, va_list list) {
     int needed = _vscprintf_l(fmt, nullptr, list);
-    tbuf<char> buf{needed + 1};
-    int written = _vsprintf_l(buf, fmt, nullptr, list);
-    return write_handle(buf, written, hdl);
+    auto buf = std::vector(needed + 1, '\0');
+    int written = _vsprintf_l(buf.data(), fmt, nullptr, list);
+    return write_handle(buf.data(), written, hdl);
 }
 #else
 
