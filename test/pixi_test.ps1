@@ -1,28 +1,27 @@
-# download base file
-$argc = $args.Count
+param(
+    [Parameter(Mandatory=$false)]
+    [string]$Branch = "master",
+    [Parameter(Mandatory=$false)]
+    [string]$RepoType = "remote",
+    [Parameter(Mandatory=$false)]
+    [bool]$JustSetup = $false
+)
+
 $env:PIXI_TESTING = "true"
 
-if ( $argc -eq 2 ) {
-    $repotype = $args[1]
-}
-else {
-    $repotype = "remote"
-}
-
-if ( $argc -lt 1 ) {
-    $branch = "master"
-    Write-Output "Using master branch"
-}
-else {
-    $branch = $args[0]
-    Write-Output "Using $branch branch"
+if ($JustSetup) {
+    Write-Output "Just running setup"
+} else {
+    Write-Output "Running full test"
 }
 
-if ( $repotype -eq "remote" ) {
+Write-Output "Using $Branch branch"
+
+if ( $RepoType -eq "remote" ) {
     Write-Output "Using remote repository"
     $repourl = @("https://github.com/JackTheSpades/SpriteToolSuperDelux")
 }
-elseif ( $repotype -eq "local" ) {
+elseif ( $RepoType -eq "local" ) {
     Write-Output "Using local repository"
     $repourl = @('..', 'SpriteToolSuperDelux')
 }
@@ -40,7 +39,7 @@ if ($env:ARTIFACT_PATH) {
 } else {
     git clone $repourl
     Set-Location SpriteToolSuperDelux
-    git checkout $branch
+    git checkout $Branch
     mkdir build
     Set-Location build
     cmake ..
@@ -69,13 +68,17 @@ Copy-Item base.smc downloader_test/pixi/base.smc
 if (Test-Path -Path ".sprites_dl_cache") {
     Copy-Item -Recurse -Path .sprites_dl_cache/* -Destination downloader_test
     Set-Location downloader_test
-    py runner.py "true"
+    if (-not $JustSetup) {
+        py runner.py --cached
+    }
     Set-Location ..
 }
 else {
     mkdir .sprites_dl_cache
     Set-Location downloader_test 
-    py runner.py "false"
+    if (-not $JustSetup) {
+        py runner.py
+    }
     Set-Location ..
     Copy-Item -Recurse downloader_test/standard .sprites_dl_cache
     Copy-Item -Recurse downloader_test/shooter .sprites_dl_cache
@@ -83,9 +86,10 @@ else {
     Copy-Item -Recurse downloader_test/cluster .sprites_dl_cache
     Copy-Item -Recurse downloader_test/extended .sprites_dl_cache
 }
+if (-not $JustSetup) {
+    Move-Item -Force downloader_test/result.json result.json
 
-Move-Item -Force downloader_test/result.json result.json
-
-Remove-Item -Recurse -Force downloader_test
-Remove-Item -Recurse -Force pixi
-Remove-Item base.smc
+    Remove-Item -Recurse -Force downloader_test
+    Remove-Item -Recurse -Force pixi
+    Remove-Item base.smc
+}

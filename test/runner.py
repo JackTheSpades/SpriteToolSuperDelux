@@ -11,6 +11,7 @@ import subprocess
 import re
 import traceback
 import sys
+import argparse
 
 types = {
     'standard': (46, 16),
@@ -78,13 +79,13 @@ def download_if_smwc_failed():
         z.extractall()
     os.remove('pixi_test_sprites.zip')
 
-def create_list_files():
+def create_list_files(cached: bool = False):
     for name, info in list_types.items():
         typename, start_id = info
         zipfiles = glob.glob(name + '/*.zip')
         folders = [zname.rstrip('.zip') for zname in zipfiles]
         # if not using cached, extract zips, do nothing otherwise.
-        if sys.argv[1] == "false":
+        if not cached:
             for zname in zipfiles:
                 with zipfile.ZipFile(zname) as z:
                     try:
@@ -110,7 +111,14 @@ def ignore_giepy_dir(_, names):
 
 def get_routines(errors):
     found = []
-    for error in re.findall("Macro '(.+)' wasn't found/. /[.+]", errors):
+    for error in re.findall(r"Macro '(.+)' wasn't found\.", errors):
+        if error not in found:
+            found.append(error)
+    return [err + '.asm' for err in found]
+
+def get_remove_routines(errors):
+    found = []
+    for error in re.findall(r"Macro '(.+)' redefined\.", errors):
         if error not in found:
             found.append(error)
     return [err + '.asm' for err in found]
@@ -125,11 +133,17 @@ def exec_pixi(*, pixi_executable, current_rom, listname):
     if retval != 0:
         stdout = stdout.decode('utf-8')
         routines = get_routines(stdout)
+        routines_to_remove = get_remove_routines(stdout)
         all_files = glob.glob('sprites/**/*.asm', recursive=True)
+        existing_routines = glob.glob('routines/*.asm')
         for routine in routines:
             for file in all_files:
                 if os.path.basename(file) == routine:
                     copyfile(file, 'routines/' + routine)
+        for routine in routines_to_remove:
+            for existing in existing_routines:
+                if os.path.basename(existing) == routine:
+                    os.remove(existing)
         proc = subprocess.Popen([pixi_executable, '-l', listname, current_rom],
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         (stdout, _) = proc.communicate(input=b'yes\n')
@@ -139,21 +153,23 @@ def exec_pixi(*, pixi_executable, current_rom, listname):
     return good, stdout
 
 
-def test_normal_sprites():
+def test_normal_sprites(sprites: list[int]|None = None):
     execlist = [executable_name('./pixi'), 'work.smc']
     successes = {}
     errors = {}
     base = 'standard'
     folders = [folder.rstrip(os.sep) for folder in glob.glob(base + '/*/')]
+    if sprites is not None:
+        folders = [folder for folder in folders if int(folder.split(os.sep)[-1]) in sprites]
     copyfile('pixi/sprites/_header.asm', '_header.asm')
-    copytree('pixi/routines', 'routines')
+    copytree('pixi/routines', 'routines', dirs_exist_ok=True)
     for i, folder in enumerate(folders):
         listname = 'list' + folder.split(os.sep)[-1] + '.txt'
         copyfile(folder + '/' + listname, 'pixi/' + listname)
         rmtree('pixi/sprites/')
         rmtree('pixi/routines/')
-        copytree('routines', 'pixi/routines')
-        copytree(folder, 'pixi/sprites/', ignore=ignore_giepy_dir)
+        copytree('routines', 'pixi/routines', dirs_exist_ok=True)
+        copytree(folder, 'pixi/sprites/', ignore=ignore_giepy_dir, dirs_exist_ok=True)
         for rdir in glob.glob('pixi/sprites/*/'):
             lrdir = rdir.lower()
             if 'routines' in lrdir:
@@ -191,26 +207,42 @@ def read_expected():
         expected_results[res.strip()].append(int(num))
     return expected_results
 
+argparser = argparse.ArgumentParser('runner.py', description='Test sprites with pixi')
+argparser.add_argument('-c', '--cached', action='store_true', help='Use cached sprites', required=True)
+argparser.add_argument('-s', '--sprites', nargs='*', help='Sprites to test (ids)', required=False)
+args = argparser.parse_args()
+
 try:
-    if sys.argv[1] == "false":
+    if not args.cached:
         print("Downloading sprites")
         try:
             download()
         except requests.exceptions.RequestException as e:
             print(f'Download from SMWC failed because {str(e)}, using other source')
             download_if_smwc_failed()
-            sys.argv[1] = "true"
+            args.cached = True
     else:
         print("Using cached sprites")
-    create_list_files()
-    success, error = test_normal_sprites()
+    create_list_files(cached=args.cached)
+    sprites_to_test = [int(spr) for spr in args.sprites] if args.sprites is not None else None
+    success, error = test_normal_sprites(sprites=sprites_to_test)
     expected_res = read_expected()
+    for s in success.keys():
+        if s not in expected_res['PASS'] and s not in expected_res['FAIL']:
+            print(f"Sprite {s} wasn't expected to be tested, but passed")
+    for s in error.keys():
+        if s not in expected_res['PASS'] and s not in expected_res['FAIL']:
+            print(f"Sprite {s} wasn't expected to be tested, but failed")
     for s in expected_res['PASS']:
         if success.get(s) is None and error.get(s) is not None:
             print(f"Sprite {s} should have passed but failed")
+        elif success.get(s) is None and error.get(s) is None:
+            print(f"Sprite {s} wasn't tested, but should have passed")
     for s in expected_res['FAIL']:
         if error.get(s) is None and success.get(s) is not None:
             print(f"Sprite {s} should have failed but passed")
+        elif error.get(s) is None and success.get(s) is None:
+            print(f"Sprite {s} wasn't tested, but should have failed")
     print("Finished testing all sprites")
     filename = 'result.json'
     with open(filename, 'w') as f:

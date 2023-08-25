@@ -1,6 +1,12 @@
 # download base file
 argc=$#
 
+if [ "$argc" -eq "3" ]; then
+    justSetup=$3
+else
+    justSetup="false"
+fi
+
 if [ "$argc" -eq "2" ]; then
     repotype=$2
 else
@@ -65,17 +71,26 @@ cp base.smc downloader_test/pixi/base.smc
 if [ -d ".sprites_dl_cache" ]; then
     cp -r .sprites_dl_cache/* downloader_test
     cd downloader_test 
-    yes | python3 runner.py "true"
+    if [[ "$justSetup" == "false" ]]; then
+        if [[ "$OSTYPE" != "darwin"* ]]; then
+            yes | python3 runner.py --cached
+        else
+            python3 runner.py --cached
+        fi
+        echo "Finished testing all sprites"
+    fi
     cd ..
 else
     mkdir .sprites_dl_cache
     cd downloader_test
-    if [[ "$OSTYPE" != "darwin"* ]]; then
-        yes | python3 runner.py "false"
-    else
-        python3 runner.py "false"
+    if [[ "$justSetup" == "false" ]]; then
+        if [[ "$OSTYPE" != "darwin"* ]]; then
+            yes | python3 runner.py
+        else
+            python3 runner.py
+        fi
+        echo "Finished testing all sprites"
     fi
-    echo "Finished testing all sprites"
     cd ..
     if [[ "$OSTYPE" != "darwin"* ]]; then
         cp -r downloader_test/standard .sprites_dl_cache
@@ -86,10 +101,12 @@ else
      fi
 fi
 
-echo "Moving results"
-mv downloader_test/result.json result.json
+if [[ "$justSetup" == "false" ]]; then
+    echo "Moving results"
+    mv downloader_test/result.json result.json
 
-echo "Deleting temp files"
-rm -rf downloader_test
-rm -rf pixi
-rm base.smc
+    echo "Deleting temp files"
+    rm -rf downloader_test
+    rm -rf pixi
+    rm base.smc
+fi
