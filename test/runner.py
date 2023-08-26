@@ -123,6 +123,18 @@ def get_remove_routines(errors):
             found.append(error)
     return [err + '.asm' for err in found]
 
+def get_not_found_files(errors):
+    found = {}
+    split_errors = errors.split('\n')
+    for single_error in split_errors:
+        if m := re.findall(r"File '(.+)' wasn't found.", single_error):
+            if len(m) > 0:
+                if m[0] not in found:
+                    found[m[0]] = [single_error.split(':')[0]]
+                else:
+                    found[m[0]].append(single_error.split(':')[0])
+    return found
+
 
 def exec_pixi(*, pixi_executable, current_rom, listname):
     proc = subprocess.Popen([pixi_executable, '-l', listname, current_rom],
@@ -130,12 +142,23 @@ def exec_pixi(*, pixi_executable, current_rom, listname):
     (stdout, _) = proc.communicate(input=b'yes\n')
     retval = proc.returncode
     good = True
+    files_in_sprite_folder = {os.path.basename(p): p for p in glob.glob('sprites/**/*.*', recursive=True)}
     if retval != 0:
         stdout = stdout.decode('utf-8')
         routines = get_routines(stdout)
         routines_to_remove = get_remove_routines(stdout)
+        not_found_files = get_not_found_files(stdout)
         all_files = glob.glob('sprites/**/*.asm', recursive=True)
         existing_routines = glob.glob('routines/*.asm')
+        for file_not_found, sprites_called_from in not_found_files.items():
+            filename = os.path.basename(file_not_found)
+            fullpath = files_in_sprite_folder.get(filename)
+            if fullpath is None:
+                continue
+            for sprite_called_from in sprites_called_from:
+                sprite_folder = os.path.abspath(os.path.dirname(sprite_called_from))
+                required_location = os.path.join(sprite_folder, file_not_found if not os.path.isabs(file_not_found) else os.path.relpath(file_not_found, sprite_folder))
+                copyfile(fullpath, required_location)
         for routine in routines:
             for file in all_files:
                 if os.path.basename(file) == routine:
