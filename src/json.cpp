@@ -85,7 +85,8 @@ bool read_json_file(sprite* spr) {
         std::string decoded = base64_decode(j.at("Map16"));
         size_t map_block_count = decoded.size() / sizeof(map16);
         spr->map_data.resize(map_block_count);
-        memcpy(spr->map_data.data(), decoded.c_str(), map_block_count * sizeof(map16));
+        if (map_block_count > 0)
+            memcpy(spr->map_data.data(), decoded.c_str(), map_block_count * sizeof(map16));
         // displays
         auto disp_type_it = j.find("DisplayType");
         if (disp_type_it != j.end()) {
