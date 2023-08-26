@@ -19,7 +19,8 @@
     CMP $08
     BCC ?.checkXSub2
 ?.checkXSub1
-    SEC : SBC $08
+    ;SEC
+    SBC $08
     CMP $0C
     BCS ?.returnNoContact
     BRA ?.checkY
@@ -34,7 +35,8 @@
     CMP $0A
     BCC ?.checkYSub2
 ?.checkYSub1
-    SEC : SBC $0A
+    ;SEC
+    SBC $0A
     CMP $0E
     BCS ?.returnNoContact
 ?.returnContact

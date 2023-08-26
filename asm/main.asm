@@ -804,7 +804,7 @@ SubGenLoad:
     LDA !new_code_flag
     STA $18B9|!Base2
     LDA $05
-    SEC
+    ;SEC
     SBC #!GenStart-1
     ORA $18B9|!Base2
     JML $02A8B8|!BankB
@@ -832,16 +832,16 @@ SubShootLoad:
     SEC
     SBC #$C8
     if !SA1
-        STA $7783,x
+        STA !shoot_num,x
     endif
     JML SubShootLoadReturn
 .IsCustom
-    STA $1783|!Base2,x
+    STA !shoot_num,x
     LDA $04
     SEC
     SBC #$BF
-    ORA $1783|!Base2,x
-    STA $1783|!Base2,x
+    ORA !shoot_num,x
+    STA !shoot_num,x
     PHA
 
     ; A = 000000EE NNNNNNNN (index to size table)
@@ -914,22 +914,22 @@ endif
 
 SubShootExec:
     %debugmsg("SubShootExec")
-    LDY $1783|!Base2,x
+    LDY !shoot_num,x
     BMI .IsCustom
-    LDY $17AB|!Base2,x
+    LDY !shoot_timer,x
     BEQ .Loc2
     JML $02B39A|!BankB
 .Loc2
     JML $02B3A4|!BankB
 
 .IsCustom
-    LDY $17AB|!Base2,x
+    LDY !shoot_timer,x
     BEQ .CallSprite
     PHA
     LDA $13
     LSR A
     BCC .NoDecTimer
-    DEC $17AB|!Base2,x
+    DEC !shoot_timer,x
 .NoDecTimer
     PLA
 .CallSprite

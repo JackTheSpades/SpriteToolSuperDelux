@@ -20,7 +20,7 @@ Main:
     BCC .original
 
 .custom
-    SEC 
+    ;SEC 
     SBC.b #!BounceOffset
     AND #$3F
     %CallSprite(Ptr)

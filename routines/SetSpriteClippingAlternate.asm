@@ -20,14 +20,14 @@
 ?.SetSpriteClippingAlternate
     LDA !sprite_x_high,x
     XBA : LDA !sprite_x_low,x
-    REP #$20
-    CLC : ADC $08
+    REP #$21
+    ADC $08
     STA $08
     SEP #$20
     LDA !sprite_y_high,x
     XBA : LDA !sprite_y_low,x
-    REP #$20
-    CLC : ADC $0A
+    REP #$21
+    ADC $0A
     STA $0A
     SEP #$20
     RTL

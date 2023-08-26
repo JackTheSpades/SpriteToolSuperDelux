@@ -22,8 +22,8 @@
     sta $01
     cmp #$E0
     bcc ?.check_x
-    clc 
-    adc #$10
+    ;clc 
+    adc #$0F ;adc #$10
     bpl ?.check_x
 ?.kill
     stz !minor_extended_num,x

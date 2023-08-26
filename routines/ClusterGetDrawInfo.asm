@@ -1,6 +1,6 @@
-; Routine for minor extended sprites that fetches information to draw a single oam tile on screen.
+; Routine for cluster sprites that fetches information to draw a single oam tile on screen.
 ; It handles offscreen situations, including X position's high bit.
-; If a minor extended sprite is way too offscreen, the sprite will be erased from memory.
+; If a cluster sprite is way too offscreen, the sprite will be erased from memory.
 ;
 ; Input:
 ;   N/A

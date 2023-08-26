@@ -11,9 +11,9 @@
 ?main:
 ?.SetPlayerClippingAlternate
     PHX
-    REP #$20
+    REP #$21
     LDA $94
-    CLC : ADC #$0002
+    ADC #$0002
     STA $00
     LDA #$000C
     STA $04
@@ -34,9 +34,9 @@
     STA $06
     STZ $07
     LDA.l $03B65C|!bank,x
-    REP #$20
+    REP #$21
     AND #$00FF
-    CLC : ADC $96
+    ADC $96
     STA $02
     SEP #$20
     PLX

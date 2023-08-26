@@ -1,4 +1,4 @@
-; Routine for bounce sprites that fetches information to draw a it on screen.
+; Routine for spinning coin sprites that fetches information to draw it on screen.
 ; It handles the offscreen bit and layer 2 offsets.
 ; 
 ; Input:

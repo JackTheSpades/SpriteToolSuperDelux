@@ -19,9 +19,9 @@ NotQuiteMain:
 	STZ $1498|!Base2      ; | 
 	STZ $1495|!Base2      ; /
 	REP #$20
-	LDX #$9E              ; \ Set $1E02-$1EA1 to zero on level load.
+	LDX #$9F              ; \ Set $1E02-$1EA1 to zero on level load.
 .loop                     ; |
-	STZ !cluster_y_low,x  ; |
+	STZ !cluster_y_low-1,x; |
 	DEX                   ; |
 	DEX                   ; |
 	BNE .loop             ; /
@@ -43,8 +43,8 @@ Main:
 
 .custom:
 	;PHB : PHK : PLB       ; magic bank wrapper
-	SEC                   ; \ Subtract 9. (Also allows you to use slots up to $88 instead of $7F in this version.)
-	SBC #$09              ; / (Not that you'll ever use all of them though)
+	;SEC                   ; \ Subtract 9. (Also allows you to use slots up to $88 instead of $7F in this version.)
+	SBC.b #!ClusterOffset ; / (Not that you'll ever use all of them though)
 	AND #$7F
 
 	%CallSprite(Ptr)

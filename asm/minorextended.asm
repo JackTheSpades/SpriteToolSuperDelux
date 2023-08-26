@@ -18,7 +18,7 @@ Main:
     BCC .original
 
 .custom
-    SEC 
+    ;SEC 
     SBC.b #!MinorExtendedOffset     ; substract
     AND #$3F                        ; self imposed limit
     %CallSprite(Ptr)
