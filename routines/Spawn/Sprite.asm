@@ -33,10 +33,9 @@
         LDA !9E,x
         STA !7FAB9E,x
         
-        REP #$20
-        LDA $00 : PHA
-        LDA $02 : PHA
-        SEP #$20
+
+        PEI ($00)
+        PEI ($02)
         
         JSL $0187A7|!BankB            ; this sucker kills $00-$02
                 
