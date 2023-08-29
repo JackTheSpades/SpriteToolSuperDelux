@@ -19,9 +19,9 @@ NotQuiteMain:
 	STZ $1498|!Base2      ; | 
 	STZ $1495|!Base2      ; /
 	REP #$20
-	LDX #$9F              ; \ Set $1E02-$1EA1 to zero on level load.
+	LDX #$9E              ; \ Set $1E02-$1EA1 to zero on level load.
 .loop                     ; |
-	STZ !cluster_y_low-1,x; |
+	STZ !cluster_y_low,x; |
 	DEX                   ; |
 	DEX                   ; |
 	BNE .loop             ; /
