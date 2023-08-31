@@ -60,6 +60,7 @@ Remove-Item pixi.zip
 
 mkdir downloader_test
 Copy-Item runner.py downloader_test/runner.py
+Copy-Item downloader.py downloader_test/downloader.py
 Copy-Item EXPECTED.lst downloader_test/EXPECTED.lst
 
 # move rom and start script
