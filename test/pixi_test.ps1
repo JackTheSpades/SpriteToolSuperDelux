@@ -66,7 +66,8 @@ Copy-Item EXPECTED.lst downloader_test/EXPECTED.lst
 # move rom and start script
 Copy-Item -Recurse pixi downloader_test
 Copy-Item base.smc downloader_test/pixi/base.smc
-if (Test-Path -Path ".sprites_dl_cache") {
+# this if check makes sure that .sprites_dl_cache exists and is not empty
+if ((Test-Path -Path ".sprites_dl_cache") -and (Test-Path -Path ".sprites_dl_cache\*")) {
     Copy-Item -Recurse -Path .sprites_dl_cache/* -Destination downloader_test
     Set-Location downloader_test
     if (-not $JustSetup) {

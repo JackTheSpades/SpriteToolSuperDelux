@@ -69,7 +69,8 @@ cp EXPECTED.lst downloader_test/EXPECTED.lst
 # move rom and start script
 cp -r pixi downloader_test/pixi
 cp base.smc downloader_test/pixi/base.smc
-if [ -d ".sprites_dl_cache" ]; then
+# check if directory exists and is not empty
+if [ -d ".sprites_dl_cache" ] && [ -n "$(ls -A .sprites_dl_cache)" ]; then
     cp -r .sprites_dl_cache/* downloader_test
     cd downloader_test 
     if [[ "$justSetup" == "false" ]]; then
