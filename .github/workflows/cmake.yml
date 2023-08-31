@@ -14,6 +14,9 @@ jobs:
       matrix:
         os: [ windows-latest, ubuntu-latest, macos-latest ]
         platform: [ x64, x86 ]
+        exclude:
+          - os: macos-latest
+            platform: x86
 
     steps:
     - uses: actions/checkout@v3
@@ -24,18 +27,6 @@ jobs:
            echo "CFLAGS=-m32" >> $GITHUB_ENV
            echo "CXXFLAGS=-m32" >> $GITHUB_ENV
       if: matrix.platform == 'x86' && matrix.os == 'ubuntu-latest'
-
-    - name: Set environment variables (x86|Windows)
-      shell: bash
-      run: |
-           echo "WIN_PLAT_TYPE=Win32" >> $GITHUB_ENV
-      if: matrix.platform == 'x86' && matrix.os == 'windows-latest'
-    
-    - name: Set environment variables (x64|Windows)
-      shell: bash
-      run: |
-           echo "WIN_PLAT_TYPE=x64" >> $GITHUB_ENV
-      if: matrix.platform == 'x64' && matrix.os == 'windows-latest'
 
     - name: Setup python
       uses: actions/setup-python@v4
@@ -58,19 +49,25 @@ jobs:
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
 
-    - name: Configure CMake
+    - name: Configure CMake (x86|Windows)
       shell: bash
       working-directory: ${{github.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -A ${{ env.WIN_PLAT_TYPE }} -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPIXI_CI_BUILD=ON
-      if: matrix.os == 'windows-latest'
+      run: cmake $GITHUB_WORKSPACE -A Win32 -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPIXI_CI_BUILD=ON
+      if: matrix.os == 'windows-latest' && matrix.platform == 'x86'
+      
+    - name: Configure CMake (x64|Windows)
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: cmake $GITHUB_WORKSPACE -A x64 -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPIXI_CI_BUILD=ON
+      if: matrix.os == 'windows-latest' && matrix.platform == 'x64'
 
-    - name: Configure CMake
+    - name: Configure CMake (Macos)
       shell: bash
       working-directory: ${{github.workspace}}/build
       run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPIXI_CI_BUILD=ON
       if: matrix.os == 'macos-latest'
     
-    - name: Configure CMake
+    - name: Configure CMake (Linux)
       shell: bash
       working-directory: ${{github.workspace}}/build
       run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPIXI_CI_BUILD=ON
@@ -118,7 +115,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     needs: build
-    if: "!startsWith(github.event.head_commit.message, '[NoTest]')"
+    if: startsWith(github.event.head_commit.message, '[NoTest]') == false
 
     strategy:
       matrix:
@@ -154,6 +151,13 @@ jobs:
       - name: Get branch name
         id: branch-name
         uses: tj-actions/branch-names@v6.2
+
+      - name: Cache sprites
+        id: cache-sprites
+        uses: actions/cache@v3
+        with:
+            path: ${{github.workspace}}/test/.sprites_dl_cache
+            key: pixi-test-sprites
 
       - name: Test (linux)
         working-directory: ${{github.workspace}}/test
