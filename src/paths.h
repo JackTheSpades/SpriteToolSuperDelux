@@ -1,6 +1,6 @@
 #include <cstring>
-#include <filesystem>
 #include <string>
+#include <string_view>
 
 #ifdef DEBUGMSG
 template <typename... A> void debug_print(const char *msg, A... args) {

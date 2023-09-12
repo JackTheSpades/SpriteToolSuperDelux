@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <string>
 #include <cstdint>
+#include <string_view>
 
 constexpr int DEFAULT_ROUTINES = 100;
 #define MAX_ROUTINES 310
@@ -178,6 +179,7 @@ class PixiConfig {
     bool DisableMeiMei = false;
     bool DisableAllExtensionFiles = false;
     bool AllSpritesOnePatch = false;
+    bool SearchForFilesInExePath = false;
     int Routines = DEFAULT_ROUTINES;
     std::string AsmDir{};
     std::string AsmDirPath{};

@@ -1488,6 +1488,8 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         .add_option("-d", "Enable debug output, the option flag -out only works when this is set", cfg.DebugEnabled)
         .add_option("--debug", "Enable debug output, the option flag -out only works when this is set",
                     cfg.DebugEnabled)
+        .add_option("--exerel", "Resolve list.txt and ssc/mw2/mwt/s16 paths relative to the executable rather than the ROM",
+                    cfg.SearchForFilesInExePath)
         .add_option("-k", "Keep debug files", cfg.KeepFiles)
         .add_option("--symbols", "SYMBOLSTYPE", "Enable writing debugging symbols files in format wla or nocash",
                     cfg.SymbolsType)
@@ -1695,7 +1697,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
     //------------------------------------------------------------------------------------------
 
     for (size_t i = 0; i < FromEnum(PathType::__SIZE__); i++) {
-        if (i == FromEnum(PathType::List))
+        if (i == FromEnum(PathType::List) && !cfg.SearchForFilesInExePath)
             set_paths_relative_to(cfg[ToEnum<PathType>(i)], rom.name.data());
         else
             set_paths_relative_to(cfg[ToEnum<PathType>(i)], argv[0]);
@@ -1714,7 +1716,10 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
     cfg.AsmDirPath = cleanPathTrail(cfg.AsmDir);
 
     for (size_t i = 0; i < FromEnum(ExtType::__SIZE__); i++) {
-        set_paths_relative_to(cfg[ToEnum<ExtType>(i)], rom.name.data());
+        if (cfg.SearchForFilesInExePath)
+            set_paths_relative_to(cfg[ToEnum<ExtType>(i)], argv[0]);
+        else
+            set_paths_relative_to(cfg[ToEnum<ExtType>(i)], rom.name.data());
 #ifdef DEBUGMSG
         debug_print("extensions[%d] = %s\n", i, cfg.m_Extensions[i].c_str());
 #endif

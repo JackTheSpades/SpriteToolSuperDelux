@@ -1,4 +1,6 @@
 #include "paths.h"
+#include <filesystem>
+namespace fs = std::filesystem;
 
 bool nameEndWithAsmExtension(std::string_view name) {
     return name.ends_with(".asm");
@@ -10,17 +12,37 @@ std::string cleanPathTrail(std::string path) {
     return path;
 }
 
-void set_paths_relative_to(std::string &path, const char *arg0) {
-
+void set_paths_relative_to(std::string& path, const char* arg0) {
     if (path.empty())
         return;
+    fs::path filePath{path};
+    fs::path arg0p{arg0};
+#ifdef _WIN32
+    // arg0p => either rom path or exe path (rom path in case of list.txt except when --exerel is passed and for
+    // mwt/mw2/ssc/s16, exe path otherwise) filePath => path to make relative
+    if (arg0p.has_root_name() && arg0p.is_absolute() && !filePath.is_absolute()) {
+        fs::path cwd = fs::current_path();
 
-    std::filesystem::path absBasePath = std::filesystem::relative(arg0);
+        fs::path current_drive = cwd.root_name();
+        fs::path arg_drive = arg0p.root_name();
+        if (current_drive != arg_drive) {
+            if (arg0p.has_filename()) {
+                arg0p = arg0p.parent_path();
+            }
+            // if the cwd is on a different drive than arg0, std::filesystem::relative will return "" and subsequently
+            // cause issues therefore the simplest solution is to ignore everything and just append the filepath to
+            // arg0p.
+            path = (arg0p / filePath).generic_string();
+            return;
+        }
+    }
+#endif
+
+    fs::path absBasePath = fs::relative(arg0p);
     absBasePath.remove_filename();
 #ifdef DEBUGMSG
     debug_print("Absolute base path: %s ", absBasePath.generic_string().c_str());
 #endif
-    std::filesystem::path filePath(path);
     std::string newPath{};
     if (filePath.is_relative()) {
         newPath = absBasePath.generic_string() + filePath.generic_string();
@@ -31,7 +53,7 @@ void set_paths_relative_to(std::string &path, const char *arg0) {
     debug_print("%s\n", newPath.c_str());
 #endif
 
-    if (std::filesystem::is_directory(newPath) && newPath.back() != '/') {
+    if (fs::is_directory(newPath) && newPath.back() != '/' && newPath.back() != '\\') {
         path = newPath + "/";
     } else {
         path = newPath;
@@ -55,7 +77,8 @@ std::string append_to_dir(std::string_view src, std::string_view file) {
     std::string new_file{src.substr(0, len)};
     new_file += file;
     for (char& c : new_file) {
-        if (c == '\\') c = '/';
+        if (c == '\\')
+            c = '/';
     }
     return new_file;
 }

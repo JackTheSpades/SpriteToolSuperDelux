@@ -183,6 +183,7 @@ The changelog is available [here](CHANGELOG.md).
   --onepatch                   Applies all sprites into a single big path (Default value: false)
   --stdincludes <includepath>  Specify a text file with a list of search paths for asar (Default value: "<empty>")
   --stddefines <definepath>    Specify a text file with a list of defines for asar (Default value: "<empty>")
+  --exerel                     Resolve list.txt and ssc/mw2/mwt/s16 paths relative to the executable rather than the ROM
 
   -no-lm-aux        Disables all of the Lunar Magic auxiliary files creation (ssc, mwt, mw2, s16) (Default value: false)
   -extmod-off 		Disables extmod file logging (check LM's readme for more info on what extmod is) (Default value: false)
