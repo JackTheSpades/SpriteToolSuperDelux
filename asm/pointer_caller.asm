@@ -161,12 +161,11 @@ macro CallPerLevelStatusPtr(label, indextable, vanillaroutine)
 	LDA $03, s			; get x back from stack
 	TAX
 
-	PHB : PHA : PLB
+	LDA #$01 : PHA : PLB  ; restore bank that got destroyed by GetPerLevelAddr
 	PHK 
 	PEA ?return-1
 	JML [!Base1]
 ?return
-	PLB
 	REP #$30
 	PLY
 	PLX
