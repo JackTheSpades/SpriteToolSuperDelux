@@ -110,7 +110,8 @@ struct addtempfile {
     addtempfile(const patchfile& file) : m_memory_file{g_memory_files.emplace_back(file.vfile())} {
     }
     ~addtempfile() {
-        [[maybe_unused]] size_t s = std::erase_if(g_memory_files, [&](const memoryfile& mem) { return &mem == &m_memory_file; });
+        [[maybe_unused]] size_t s =
+            std::erase_if(g_memory_files, [&](const memoryfile& mem) { return &mem == &m_memory_file; });
         assert(s == 1);
     }
 };
@@ -1151,7 +1152,7 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
 
 [[nodiscard]] bool populate_sprite_list(const Paths& paths,
                                         const std::array<sprite*, FromEnum(ListType::__SIZE__)>& sprite_lists,
-                                        std::string_view listPath) {
+                                        std::string_view listPath, const ROM* rom) {
     using namespace std::string_view_literals;
     std::ifstream listStream{listPath.data()};
     if (!listStream) {
@@ -1222,6 +1223,20 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
             return false;
         }
         dot++;
+
+        if (rom != nullptr) {
+            if (sprite_id == 0x7B && rom->is_exlevel()) {
+                // sprite $7B is the goal post
+                // in LM versions 2.53 and onwards the extra bits of the goal post are used to determine which exit it
+                // triggers therefore custom sprites can't be used in this slot. In fact, in main.asm, there are a few
+                // branches that check if $7B and then just return
+                io.print(
+                    "Warning on list line %d: Sprite number 7B (goal post) in Lunar Magic versions from 2.53 onwards "
+                    "uses the extra bits 2 and 3 to activate secret exits, this means that it can't be used as a "
+                    "custom sprite slot, it will still be inserted in the ROM but will be ignored at runtime\n",
+                    lineno);
+            }
+        }
 
         if (type == ListType::Sprite) {
             spr = from_table<sprite>(sprite_list, level, sprite_id);
@@ -1488,7 +1503,8 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         .add_option("-d", "Enable debug output, the option flag -out only works when this is set", cfg.DebugEnabled)
         .add_option("--debug", "Enable debug output, the option flag -out only works when this is set",
                     cfg.DebugEnabled)
-        .add_option("--exerel", "Resolve list.txt and ssc/mw2/mwt/s16 paths relative to the executable rather than the ROM",
+        .add_option("--exerel",
+                    "Resolve list.txt and ssc/mw2/mwt/s16 paths relative to the executable rather than the ROM",
                     cfg.SearchForFilesInExePath)
         .add_option("-k", "Keep debug files", cfg.KeepFiles)
         .add_option("--symbols", "SYMBOLSTYPE", "Enable writing debugging symbols files in format wla or nocash",
@@ -1733,7 +1749,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
     std::vector<std::string> extraDefines = listExtraAsm(cfg.AsmDirPath + "/ExtraDefines", failed);
     if (failed)
         return EXIT_FAILURE;
-    if (!populate_sprite_list(cfg.GetPaths(), sprites_list_list, cfg[PathType::List]))
+    if (!populate_sprite_list(cfg.GetPaths(), sprites_list_list, cfg[PathType::List], &rom))
         return EXIT_FAILURE;
 
     if (!clean_hack(rom, cfg[PathType::Asm]))

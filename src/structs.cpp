@@ -215,6 +215,21 @@ void ROM::read_data(unsigned char* dst, size_t wsize, int addr) const {
     memcpy(dst, real_data + addr, wsize);
 }
 
+int ROM::get_lm_version() const {
+    constexpr auto lm_ver_snes_addr = 0x0FF0B4;
+    int major_ver = data[snes_to_pc(lm_ver_snes_addr)];
+    // + 2 instead of + 1 to skip the dot in the version
+    int minor_ver = data[snes_to_pc(lm_ver_snes_addr + 2)];
+    int patch_ver = data[snes_to_pc(lm_ver_snes_addr + 3)];
+    int full_ver = major_ver * 100 + minor_ver * 10 + patch_ver;
+    return full_ver;
+}
+
+bool ROM::is_exlevel() const {
+    int LM_version_exlevel = 253;
+    return get_lm_version() > LM_version_exlevel;
+}
+
 ROM::~ROM() {
     delete[] data;
 }

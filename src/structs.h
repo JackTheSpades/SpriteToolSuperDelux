@@ -233,11 +233,13 @@ struct ROM {
     unsigned short read_word(int addr) const;
     unsigned int read_long(int addr) const;
     void read_data(unsigned char* dst, size_t size, int addr) const;
+    int get_lm_version() const;
+    bool is_exlevel() const;
     ~ROM();
 };
 
 bool is_empty_table(std::span<sprite> sprites);
 [[nodiscard]] bool populate_sprite_list(const Paths& paths,
                                         const std::array<sprite*, FromEnum(ListType::__SIZE__)>& sprite_lists,
-                                        std::string_view listPath);
+                                        std::string_view listPath, const ROM* rom);
 #endif

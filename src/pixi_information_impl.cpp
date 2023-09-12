@@ -51,7 +51,7 @@ PIXI_EXPORT pixi_list_result_t pixi_parse_list_file(const char* filename, bool p
     std::array sprites_list_list{sprite_list.data(),         extended_list.data(), cluster_list.data(),
                                  minor_extended_list.data(), bounce_list.data(),   smoke_list.data(),
                                  spinningcoin_list.data(),   score_list.data()};
-    result->success = populate_sprite_list(paths, sprites_list_list, filename);
+    result->success = populate_sprite_list(paths, sprites_list_list, filename, nullptr);
 
     for (auto& sprites : result->sprite_arrays) {
         for (const auto& spr : sprite_list) {
