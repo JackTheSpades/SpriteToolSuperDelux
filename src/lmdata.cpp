@@ -43,9 +43,27 @@ std::vector<char> generate_mw2_data(const sprite* spr, const collection& c) {
     return data;
 }
 
+static std::string escape_description(const std::string& str) {
+    std::string copy{str};
+    if (copy.empty())
+        return copy;
+    if (copy.ends_with("\n"))
+        copy = copy.substr(0, copy.size() - 1);
+    for (size_t i = 0; i < copy.size(); ++i) {
+        char c = copy[i];
+        if (c == '\n') {
+            copy[i] = 'n';
+            copy.insert(i, "\\");
+            ++i;
+        }
+    }
+    return copy;
+}
+
 std::string generate_ssc_data(const sprite* spr, int i, size_t map16_tile) {
     std::stringstream ssc{};
     for (const auto& d : spr->displays) {
+        auto escaped_description = escape_description(d.description);
         // 4 digit hex value. First is Y pos (0-F) then X (0-F) then custom/extra bit combination
         // here custom bit is always set (because why the fuck not?)
         // if no description (or empty) just asm filename instead.
@@ -53,13 +71,14 @@ std::string generate_ssc_data(const sprite* spr, int i, size_t map16_tile) {
         if (spr->disp_type == display_type::ExtensionByte) {
             ref = 0x20 + (d.extra_bit ? 0x10 : 0);
             if (!d.description.empty())
-                ssc << fstring("%02X %1X%02X%02X %s\n", i, d.x_or_index, d.y_or_value, ref, d.description.c_str());
+                ssc << fstring("%02X %1X%02X%02X %s\n", i, d.x_or_index, d.y_or_value, ref,
+                               escaped_description.c_str());
             else
                 ssc << fstring("%02X %1X%02X%02X %s\n", i, d.x_or_index, d.y_or_value, ref, spr->asm_file.c_str());
         } else {
             ref = d.y_or_value * 0x1000 + d.x_or_index * 0x100 + 0x20 + (d.extra_bit ? 0x10 : 0);
             if (!d.description.empty())
-                ssc << fstring("%02X %04X %s\n", i, ref, d.description.c_str());
+                ssc << fstring("%02X %04X %s\n", i, ref, escaped_description.c_str());
             else
                 ssc << fstring("%02X %04X %s\n", i, ref, spr->asm_file.c_str());
         }
