@@ -37,12 +37,30 @@ auto from_chars_double(const char* first, const char* last, double& value) {
 
 static std::string GetExecutableName() {
 #ifdef _WIN32
-    WCHAR moduleNameW[MAX_PATH]{};
-    if (DWORD sz = GetModuleFileName(NULL, moduleNameW, MAX_PATH); sz == 0) {
-        return {};
-    } else {
-        return std::filesystem::path{moduleNameW}.filename().string();
+    // this is an arbitrary path length that I picked that should never hopefully be reached
+    // if you have a path longer than this, what the hell are you even doing
+    constexpr DWORD max_path_size = 4096;
+
+    DWORD base_size = MAX_PATH;
+    std::wstring moduleNameW{};
+    moduleNameW.resize(base_size);
+    while (base_size <= max_path_size) {
+        if (DWORD sz = GetModuleFileName(NULL, moduleNameW.data(), base_size); sz == 0) {
+            return {};
+        } else {
+            DWORD lastError = GetLastError();
+            if (lastError == ERROR_INSUFFICIENT_BUFFER) {
+                base_size *= 2;
+                moduleNameW.resize(base_size);
+            } else {
+                moduleNameW.resize(sz);
+                return std::filesystem::path{moduleNameW}.filename().string();
+            }
+        }
     }
+    // if the path is longer than max_path_size
+    // let's just assume that we didn't get renamed
+    return std::string{"pixi.exe"};
 #elif defined(__APPLE__)
     char exeName[PATH_MAX]{};
     uint32_t size = 0;
