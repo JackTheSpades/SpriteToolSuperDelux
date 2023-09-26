@@ -200,11 +200,12 @@ namespace CFG
             };
             ControlEnabler CustomEnabler = new ControlEnabler(() => FileType == FileType.CfgFile && Data.Type != (int)CFG_SpriteType.Normal)
             {
+                grpActLike,
                 grpAsmActLike,
                 grpExtraByteCount,
                 grpExtraPropByte,
             };
-            ControlEnabler ShooterEnabler = new ControlEnabler(() => FileType == FileType.CfgFile && Data.Type != (int)CFG_SpriteType.GeneratorShooter)
+            ControlEnabler ShooterEnabler = new ControlEnabler(() => (FileType == FileType.CfgFile || FileType == FileType.RomFile) && Data.Type != (int)CFG_SpriteType.GeneratorShooter)
             {
                 txt_1656,
                 txt_1662,

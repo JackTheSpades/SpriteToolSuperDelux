@@ -303,7 +303,7 @@ The changelog is available [here](CHANGELOG.md).
   objects, while the Sprite Clipping determines how it interacts with other sprites, including Mario.
 
   BONUS: As of version 1.1, you can also open your ROM in the CFG Editor and use it to tweak existing sprites in the
-  game, basically replicating the functionality of Tweaker.
+  game, basically replicating the functionality of Tweaker. This feature was accidentally disabled in Pixi 1.21 and brought back in 1.41.
 
   ### JSON Files
   As of version 1.2, PIXI now aso supports JSON files as an alternative to CFG files (CFG files can still be used
