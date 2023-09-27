@@ -17,7 +17,7 @@
     lda #$02
     sta $03
     ldy #$00
-    lda !bounce_properties,x
+    lda !bounce_table,x
     bpl ?.layer_1
 ?.layer_2
     ldy #$04

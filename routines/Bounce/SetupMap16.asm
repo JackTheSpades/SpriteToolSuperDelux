@@ -17,7 +17,7 @@
     lda !bounce_x_high,x
     adc #$00
     sta $9B
-    lda !bounce_properties,x
+    lda !bounce_table,x
     asl
     rol
     and #$01
