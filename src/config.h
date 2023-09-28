@@ -11,7 +11,7 @@ constexpr int DEFAULT_ROUTINES = 100;
 #define MAX_ROUTINES 310
 
 constexpr size_t operator""_sz(unsigned long long n) {
-    return n;
+    return static_cast<size_t>(n);
 }
 
 enum class PathType : size_t {
