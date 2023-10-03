@@ -18,6 +18,7 @@
 ;       Clear = Spawn successful
 
 ?main:
+    xba
     ldy.b #!SmokeSize-1
 ?.loop
     lda !smoke_num,y

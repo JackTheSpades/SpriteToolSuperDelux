@@ -17,7 +17,7 @@
 ;       Clear = Spawn successful
 
 ?main:
-
+    xba
     ldy.b #!ClusterSize-1
 ?.loop
     lda !cluster_num,y

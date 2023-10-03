@@ -19,6 +19,7 @@
 ;       Clear = Spawn successful
 
 ?main:
+    xba
     ldy.b #!ExtendedSize-1
 ?.loop
     lda !extended_num,y

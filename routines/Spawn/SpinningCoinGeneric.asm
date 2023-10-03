@@ -16,6 +16,7 @@
 ;       Clear = Spawn successful
 
 ?main:
+    xba
     ldy.b #!SpinningCoinSize-1
 ?.loop
     lda !spinning_coin_num,y

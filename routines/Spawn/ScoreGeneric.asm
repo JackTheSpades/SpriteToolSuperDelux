@@ -14,6 +14,7 @@
 ;   Y = index to score sprite
 
 ?main:
+    xba
     ldy.b #!ScoreSize-1
 ?.loop
     lda !score_num,y
