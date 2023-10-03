@@ -26,8 +26,9 @@ The changelog is available [here](CHANGELOG.md).
   - [Opening pixi.exe](#opening-pixiexe)
   - [Using the Command Prompt](#using-the-command-prompt)
 
-- [New Additions and Changes](#new-additions-and-changes)
-  - [Custom status handling and extra property bytes](#custom-status-handling-and-extra-property-bytes)
+- [Features, additions and changes](#features-additions-and-changes)
+  - [Extra Property Bytes](#extra-property-bytes)
+  - [Custom status handling](#custom-status-handling)
   - [Softcoding](#softcoding)
   - [Per-Level Sprites](#per-level-sprites)
   - [SA-1 Detection and Default Labels](#sa-1-detection-and-default-labels)
@@ -211,16 +212,29 @@ The changelog is available [here](CHANGELOG.md).
 
   - `pixi.exe -d -k -l differentlistfile.txt rom.smc`	-> will print debug output to the terminal, keep temporary files and use "differentlistfile.txt"
 
-## New Additions and Changes
-  If you are used to using Romi's SpriteTool, here is a quick rundown of everything new added in PIXI:
+## Features, additions and changes
+  If you are used to using Romi's SpriteTool, here is a quick rundown of old and new features that PIXI offers:
+  ### Extra Property Bytes
+  Extra Property Bytes (which are not Extra Bytes, or Extension Bytes, how Lunar Magic calls them), are a feature that was already present in Romi's Spritetool, they represent 2 bytes of data that can be defined in the .cfg/.json file and they will be set globally on that sprites' slot. 
 
-  ### Custom status handling and extra property bytes
+  This means that if you have a sprite in slot 00 and you set the extra property bytes to 01 02, then every instance of that sprite in the game will have those bytes set to 01 02.
+  
+  This feature is completely superseded by the Extra Bytes, which are pretty much superior in every way. However, for retro-compatibility purposes, they are still supported. 
+
+  The second extra property byte ($7FAB34) also holds some extra information for some obscure features in the top 2 bits:
+  
+  ov------
+
+  o: if this bit is set to 1, the sprite will run the MAIN code in any state (e.g. any value of $14C8) and will skip the corresponding vanilla code
+
+  v: if this bit is set to 1, the sprite will run both MAIN and vanilla code in any state (e.g. any value of $14C8) 
+  ### Custom status handling
 
   As most people know, Pixi relies on 2 print statements to tell the game what code to run in which state of the sprite.
 
   Most importantly, state 08 will run whatever code is under the "MAIN" print statement and state 01 will run whatever code is under the "INIT" print statement.
 
-  All the other states will run the corresponding vanilla code, however, some bits in !extra_prop_2 can be set to activate certain functions. Setting bit 7 of that byte will make the sprite run its MAIN code in any state and it won't run the vanilla code, setting bit 6 will make it run both vanilla code and the custom MAIN.
+  All the other states will run the corresponding vanilla code, however, some bits in !extra_prop_2 can be set to activate certain functions. Setting bit 7 of that byte will make the sprite run its MAIN code in any state and it won't run the vanilla code, setting bit 6 will make it run both vanilla code and the custom MAIN. This is already explained above but repeated for clarity.
 
   Since Pixi 1.2.16 you can have more control over other states that are not 08 and 01 by using new print statements crafted just for the occasion, valid print statements FOR NORMAL CUSTOM SPRITES are: 
   
@@ -292,6 +306,18 @@ The changelog is available [here](CHANGELOG.md).
   ### CFG Files and the new CFG Editor
   CFG files themselves are mostly unchanged, except for the fact that all sprites will be assembled with Asar,
   rendering the final assembler bit that SpriteTool uses to determine whether to use xkas or TRASM unused.
+
+  This means that the CFG file format is now:
+  ```
+  <type>
+  <sprite num>
+  <tweak 0> <tweak 1> <tweak 2> <tweak 3> <tweak 4> <tweak 5>
+  <prop 0> <prop 1>
+  <asm file>
+  <ex. byte count>:<ex. byte count with extra bit>
+  ```
+
+  Pixi will accept cfg files that have the old format with the assembler bit at the end, but it will be ignored since Pixi uses Asar exclusively, however both extra bytes counts will be set to 0.
 
   This also means that the new CFG Editor does not actually come with any new functionality. All the changes in it
   are purely cosmetic and meant to make CFG file editing a little easier by giving visual hints for clipping boxes

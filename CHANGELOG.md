@@ -14,6 +14,8 @@
 - (Atari2.0) Add --exerel command line option to make Pixi search for the list.txt and the mwt/mw2/ssc/s16 files relative to the exe instead of relative to the ROM
 - (Atari2.0) Partially fix an issue that could occur with wrong path resolution when the ROM and the pixi exe are on different drives on windows.
 - (Atari2.0) Fix a bug from 1.21 where the CFG editor feature to be able to edit ROMs directly (akin to Tweaker) introduced in 1.1 was accidentally disabled, thanks to SubconsciousEye for reporting this.
+- (Atari2.0) Fix a bug from 1.40 with some spawning routines where a missing XBA was making the routine not work properly. Special thanks to RussianMan for reporting this.
+- (Atari2.0) Minor README improvements (document the CFG file format mostly).
 
 ## Version 1.40 (November 23, 2022)
 - (Atari2.0) Fix list.txt parsing bug when paths would get wrongly split for containing spaces.
