@@ -20,7 +20,8 @@
     PHX                             ; Preserve X.
     LDY #$00                        ; Set initial fireball index.
 ?-   LDA !extended_num+8,y           ; If there is no fireball in this slot,
-    BEQ ?.nothing                    ; check the next one.
+    CMP #$05
+    BNE ?.nothing                    ; check the next one.
     LDA !extended_x_low+8,y         ; Store clipping B of fireball.
     SEC : SBC #$02
     STA $00
