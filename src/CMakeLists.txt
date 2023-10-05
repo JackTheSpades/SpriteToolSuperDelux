@@ -307,6 +307,15 @@ if (PIXI_BUILD_EXE)
             COMMENT "Renaming libasar.dll to asar.dll because MinGW is a mess"
         )
     endif()
+    if (MSVC)
+        add_custom_command(
+            TARGET pixi POST_BUILD
+            COMMAND ${POWERSHELL_PATH} -ExecutionPolicy Bypass -File ${CMAKE_CURRENT_SOURCE_DIR}/../copy_asan_dll.ps1 -TargetPath $<TARGET_FILE:pixi> -TargetDir $<TARGET_FILE_DIR:pixi>
+            USES_TERMINAL
+            VERBATIM
+            COMMENT "Copying required asan dlls into the output directory"
+        )
+    endif()
     set_target_properties(pixi PROPERTIES ASAR_LIB_PATH $<TARGET_FILE:asar>)
     add_custom_command(TARGET pixi POST_BUILD 
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/asm $<TARGET_FILE_DIR:pixi>/asm

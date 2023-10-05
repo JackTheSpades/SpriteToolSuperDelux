@@ -15,6 +15,8 @@ function PrintIfVerbose {
     }
 }
 
+PrintIfVerbose "Found dependencies $dlls"
+
 foreach ($dll in $dlls) {
     $dll = $dll.Trim()
     PrintIfVerbose "Trying to copy dependency $dll"
