@@ -127,11 +127,12 @@ template <typename T, size_t N> constexpr size_t array_size(T (&)[N]) {
 }
 
 struct AsarHandler {
-    bool ok;
-    AsarHandler() {
-        ok = asar_init();
-    }
-    ~AsarHandler() {
+    //                                             1.81
+    static constexpr int s_asar_leak_max_version = 10801;
+    bool m_ok{false};
+    int m_asar_version{0};
+
+    void asar_leak_fix() {
         // This is a hack to prevent a memory leak that's present in asar (ver 1.81 and previous)
         // basically when calling getalllabels(), the labeldata structer gets populated
         // but then it doesn't get cleaned up when asar_close() is called.
@@ -150,14 +151,32 @@ struct AsarHandler {
             .memory_file_count = 1, .override_checksum_gen = false, .generate_checksum = true
         };
         if (!asar_patch_ex(&params)) {
-            io.error("Failed to apply cleanup patch\n");
+            io.error("Failed to apply cleanup patch, this is an internal error, please report it here " GITHUB_ISSUE_LINK "\n");
         }
         int labels = 0;
         asar_getalllabels(&labels);
         if (labels != 0) {
-            io.error("Label count should be 0 after cleanup\n");
+            io.error("Label count should be 0 after cleanup, this is an internal error, please report it here " GITHUB_ISSUE_LINK "\n");
         }
-        asar_close();
+    }
+
+    public:
+    AsarHandler() {
+        m_ok = asar_init();
+        if (m_ok) {
+            m_asar_version = asar_version();
+        }
+    }
+    bool ok() const {
+        return m_ok;
+    }
+    ~AsarHandler() {
+        if (m_ok) {
+            if (m_asar_version <= s_asar_leak_max_version) {
+                asar_leak_fix();
+            }
+            asar_close();
+        }
     }
 };
 
@@ -1600,7 +1619,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
     }
 
     AsarHandler asar_handler{};
-    if (!asar_handler.ok) {
+    if (!asar_handler.ok()) {
         io.error(
             "Error: Asar library is missing or couldn't be initialized, please redownload the tool or add the dll.\n");
         return EXIT_FAILURE;
