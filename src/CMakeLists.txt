@@ -100,7 +100,6 @@ file(WRITE "${CMAKE_CURRENT_SOURCE_DIR}/pixi.rc" "${PIXI_RC_CONTENTS}")
 
 list(
     APPEND PIXI_SOURCE_FILES
-    "${CMAKE_CURRENT_SOURCE_DIR}/pixi.rc"
     "${CMAKE_CURRENT_SOURCE_DIR}/cfg.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/file_io.cpp" 
     "${CMAKE_CURRENT_SOURCE_DIR}/json.cpp"
@@ -139,6 +138,8 @@ list(
     
     "${CMAKE_CURRENT_SOURCE_DIR}/pixi_information_impl.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/pixi_api.h"
+
+    "${CMAKE_CURRENT_SOURCE_DIR}/pixi.rc"
 )
 
 check_ipo_supported(RESULT has_ipo OUTPUT ipo_support_error)
