@@ -1,9 +1,6 @@
 import requests
 from contextlib import suppress
-from bs4 import BeautifulSoup
-from urllib import parse
 import os
-import re
 import json
 import zipfile
 
@@ -15,23 +12,12 @@ types = {
     'extended': (65, 1),
 }
 
-def _getnum(pageno: str):
-    try:
-        return int(pageno)
-    except ValueError:
-        return -1
-
 def _get_pagecount(name):
     spid, expectedpages = types[name]
-    uri = f'https://www.smwcentral.net/?p=section&s=smwsprites&f[tool][]=142&f[type][]={spid}'
+    uri = f'https://www.smwcentral.net/ajax.php?a=getsectionlist&s=smwsprites&f[tool][]=142&f[type][]={spid}'
     with requests.get(uri) as res:
-        soup = BeautifulSoup(res.text, 'html.parser')
-    page_lists = soup.find_all('ul', attrs={'class': 'page-list'})
-    if page_lists is None or len(page_lists) == 0:
-        return expectedpages
-    page_list = page_lists[0]
-    pages = max(map(lambda li:  _getnum(li.text), page_list.find_all('li')))
-    return pages
+        response = res.json()
+    return response.get('last_page', expectedpages)
 
 def _download():
     with requests.Session() as sess:
@@ -42,24 +28,25 @@ def _download():
             spid, _ = value
             pages = _get_pagecount(name)
             for page in range(pages):
-                uri = f'https://www.smwcentral.net/?p=section&s=smwsprites&u=0&g=0&n={page + 1}' \
+                uri = f'https://www.smwcentral.net/ajax.php?a=getsectionlist&s=smwsprites&u=0&g=0&n={page + 1}' \
                       f'&o=date&d=desc&f%5Btool%5D%5B%5D=142&f%5Btype%5D%5B%5D={spid}'
                 with sess.get(uri) as res:
-                    soup = BeautifulSoup(res.text, 'html.parser')
-                links = ['https:' + link['href'] for link in soup.find_all('a', href=re.compile('dl.smwcentral.net'))]
-                print(f"Downloading {name} sprites page {page + 1} of {pages} ({len(links)} sprites)")
-                for link in links:
-                    submission_id = link.split('/')[-2]
-                    sublink = 'https://www.smwcentral.net/?p=section&a=details&id=' + submission_id
-                    spritename = link.split('/')[-1].rstrip('.zip')
-                    nameids[sublink] = [int(submission_id), parse.unquote(spritename)]
+                    response = res.json()
+                objects = response['data']
+                print(f"Downloading {name} sprites page {page + 1} of {pages} ({len(objects)} sprites)")
+                for obj in objects:
+                    link = obj['download_url']
+                    submission_id = obj['id']
+                    sublink = f'https://www.smwcentral.net/?p=section&a=details&id={submission_id}'
+                    spritename = obj['name']
+                    nameids[sublink] = [submission_id, spritename]
                     with sess.get(link) as res:
                         if res.status_code != 200:
                             del nameids[sublink]
-                            with open(name + '/' + submission_id + '_error.html', 'wb') as p:
+                            with open(f'{name}/{submission_id}_error.html', 'wb') as p:
                                 p.write(res.content)
                         else:
-                            with open(name + '/' + submission_id + '.zip', 'wb') as p:
+                            with open(f'{name}/{submission_id}.zip', 'wb') as p:
                                 p.write(res.content)
             with open(name + '/' + 'names.json', 'w') as f:
                 f.write(json.dumps(nameids, indent=4))
