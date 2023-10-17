@@ -1169,8 +1169,6 @@ SubHandleStatus:
     PLA                            ;sprite status
     CMP #$09
     BCS CallMain2                ;restored for backwards compatibility with sprites
-    CMP #$03                    ;run main for state 03 (smushed)
-    BEQ CallMain2
     JML $0185C2|!BankB        ;goto RTL
 CallMain2:
     PHA
