@@ -166,6 +166,24 @@ org $02A9C9|!BankB
 org $02A9A6|!BankB
     JML TestSilverCoinBit
     NOP
+
+; I wasn't sure where to put this new hijack
+; so it lives here now, I guess.
+; (By SubconsciousEye)
+org $019AFE|!BankB
+    JML Status3GfxHandler
+
+; The following two hijacks here are to fix
+; two sprites' squished graphics because
+; they both set the relevant CFG bit (!167A).
+; These replace the JSLs handling Interaction
+; with Sprites and Mario (only Mario for Dino).
+org $038996|!BankB
+    JSL FixSlidingKoopaSmush
+
+org $039C58|!BankB
+    JSL FixDinoSmush
+
 ; ---------------------------------------------------
 ; dev stuff / LM Hijacks
 ; ---------------------------------------------------
@@ -1289,6 +1307,41 @@ TestSilverCoinBit:
       PLP
       JML $02A9AB|!BankB
    endif
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Custom Squashed Status Gfx Checker & Handler
+; by SubconsciousEye
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Status3GfxHandler:
+    LDA !167A,x
+    AND #$01
+    BEQ .GenericGfxHandler
+.CustomGfxHandler
+    JML $0185C3|!BankB  ; call Sprite's Main
+.GenericGfxHandler
+    LDA !9E,x
+    CMP #$6F
+    BNE .NotDinoTorch
+    JML $019B04|!BankB
+.NotDinoTorch
+    JML $01E700|!BankB
+
+; Fix some specific sprites that happen to set the lowest-most
+; bit of !167A, but still use part of the vanilla GFX handler.
+; This is kind of a hacky way to do it, but it ensures we use
+; the proper graphics when squashed.
+FixSlidingKoopaSmush:
+    JSL $018032|!BankB  ; Spr<>Spr Interact
+FixDinoSmush:
+    JSL $01A7DC|!BankB  ; Mario<>Spr Interact
+    LDA !14C8,x
+    CMP #$03
+    BNE .NotSmushed
+    LDA !167A,x
+    AND #$FE
+    STA !167A,x
+.NotSmushed
+    RTL
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Custom sprites' table
