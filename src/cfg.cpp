@@ -54,6 +54,13 @@ bool read_cfg_file(sprite* spr) {
         if (!handlers[line++](current_line, spr))
             return false;
     };
+    
+    collection new_collection;
+    std::string sprite_name = spr->cfg_file.substr(spr->cfg_file.find_last_of("/") + 1);
+    sprite_name = sprite_name.substr(0, sprite_name.find_last_of("."));
+    new_collection.name = sprite_name;
+    
+    spr->collections.push_back(new_collection);
 
     io.debug("Parsed: %s, %zu lines\n", spr->cfg_file.c_str(), line - 1);
 
