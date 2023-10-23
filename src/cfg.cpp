@@ -55,13 +55,25 @@ bool read_cfg_file(sprite* spr) {
             return false;
     };
     
-    collection new_collection;
     std::string sprite_name = spr->cfg_file.substr(spr->cfg_file.find_last_of("/") + 1);
     sprite_name = sprite_name.substr(0, sprite_name.find_last_of("."));
-    new_collection.name = sprite_name;
     
-    spr->collections.push_back(new_collection);
-
+    spr->collections.push_back(collection{.name = sprite_name});
+    spr->displays.push_back(
+        display{
+            .description = sprite_name,
+            .tiles = {tile{}},
+            .extra_bit = false
+        }
+    );
+    spr->displays.push_back(
+        display{
+            .description = sprite_name,
+            .tiles = {tile{}},
+            .extra_bit = true
+        }
+    );
+    
     io.debug("Parsed: %s, %zu lines\n", spr->cfg_file.c_str(), line - 1);
 
     return true;
