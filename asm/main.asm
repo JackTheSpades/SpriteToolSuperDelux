@@ -170,8 +170,13 @@ org $02A9A6|!BankB
 ; I wasn't sure where to put this new hijack
 ; so it lives here now, I guess.
 ; (By SubconsciousEye)
-org $019AFE|!BankB
-    JML Status3GfxHandler
+if !SA1 == 0
+    org $019AFE|!BankB
+        JML Status3GfxHandler
+else
+    org $019B00|!BankB
+        JML Status3GfxHandler
+endif
 
 ; The following two hijacks here are to fix
 ; two sprites' squished graphics because
