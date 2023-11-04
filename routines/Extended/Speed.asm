@@ -1,13 +1,13 @@
 
 ;Input:  A   = type of speed update
-;              0 ... x+y with high gravity (YSpeed +3 exery flame)
+;              0 ... x+y with high gravity (YSpeed +3 every flame)
 ;              1 ... x+y without gravity
 ;              2 ... x only
 ;              3 ... y only
-;              4 ... x+y with low gravity (YSpeed +1 exery flame)
-;              5 ... x+y with normal gravity (YSpeed +2 exery flame)(Recommendation)
-;              6 ... x+y with high gravity (YSpeed +3 exery flame)(Same as 0)
-;              7 ... x+y with very high gravity (YSpeed +4 exery flame)
+;              4 ... x+y with low gravity (YSpeed +1 every flame)
+;              5 ... x+y with normal gravity (YSpeed +2 every flame)(Recommendation)
+;              6 ... x+y with high gravity (YSpeed +3 every flame)(Same as 0)
+;              7 ... x+y with very high gravity (YSpeed +4 every flame)
 
 ?main:
    CMP #$04 : BCS ?+ : CMP #$00
