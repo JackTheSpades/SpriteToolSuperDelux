@@ -9,53 +9,54 @@
    BEQ ?.XY_Speed
    DEC : BEQ ?.XY_SpeedNoGravity
    DEC : BEQ ?.X_Speed
-   DEC : BEQ ?.Y_Speed
+   BRA ?.Y_Speed
    RTL
    
 ?.X_Speed:
-PHY
-TYA
+PHX
+TXA
 CLC
 ADC #!ClusterSize	; YSpeed to XSpeed
-TAY
+TAX
 JSL ?.Y_Speed
-PLY
+PLX
 RTL
 
 ?.XY_Speed:
-LDA !cluster_misc_1e52,y	; YSpeed
+LDA !cluster_misc_1e52,x	; YSpeed
+BMI $04
 CMP #$40 : BPL ?.XY_SpeedNoGravity
 CLC : ADC #$02
-STA !cluster_misc_1e52,y	; YSpeed
+STA !cluster_misc_1e52,x	; YSpeed
 
 ?.XY_SpeedNoGravity:
-PHY
-TYA
+PHX
+TXA
 CLC
 ADC #$14	; YSpeed to XSpeed
-TAY
+TAX
 JSL ?.Y_Speed
-PLY
+PLX
 
 ?.Y_Speed:
-LDA !cluster_misc_1e52,y	; YSpeed
+LDA !cluster_misc_1e52,x	; YSpeed
 ASL #4
 CLC
-ADC !cluster_misc_1e7a,y	; YSpeed fraction
-STA !cluster_misc_1e7a,y	; YSpeed fraction
+ADC !cluster_misc_1e7a,x	; YSpeed fraction
+STA !cluster_misc_1e7a,x	; YSpeed fraction
 PHP
-LDX #$00
-LDA !cluster_misc_1e52,y	; YSpeed
+LDY #$00
+LDA !cluster_misc_1e52,x	; YSpeed
 LSR #4
 CMP #$08
 BCC ?+
 ORA #$F0
-DEX
+DEY
 ?+
 PLP
-ADC !cluster_y_low,y	; Yposition Low byte.
-STA !cluster_y_low,y	; Yposition Low byte.
-TXA
-ADC !cluster_y_high,y	; Yposition High byte.
-STA !cluster_y_high,y	; Yposition High byte.
+ADC !cluster_y_low,x	; Yposition Low byte.
+STA !cluster_y_low,x	; Yposition Low byte.
+TYA
+ADC !cluster_y_high,x	; Yposition High byte.
+STA !cluster_y_high,x	; Yposition High byte.
 RTL
