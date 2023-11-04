@@ -17,6 +17,7 @@
    BRA ?.SpriteYSpd
 ?+ SBC #$03
    LDY !extended_y_speed,x
+   BMI $04
    CPY #$40 : BPL ?.SpriteSpdNoGravity
    CLC : ADC !extended_y_speed,x
    STA !extended_y_speed,x
@@ -25,6 +26,7 @@
 ;; sprite x + y speed handler; has gravity.
 ?.SpriteSpd
     LDA !extended_y_speed,x
+    BMI $04
     CMP #$40 : BPL ?.SpriteSpdNoGravity
     CLC : ADC #$03
     STA !extended_y_speed,x
