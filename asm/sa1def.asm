@@ -245,6 +245,25 @@ endmacro
 %define_exsprite_table(extended_table_4,$19A0,$79A0)
 %define_exsprite_table(extended_table_5,$19AA,$34B2)
 
+%define_exsprite_table("170B",$170B,$770B)
+%define_exsprite_table("1715",$1715,$3426)
+%define_exsprite_table("1729",$1729,$771F)
+%define_exsprite_table("171F",$171F,$343A)
+%define_exsprite_table("1733",$1733,$7733)
+%define_exsprite_table("1747",$1747,$3462)
+%define_exsprite_table("173D",$173D,$344E)
+%define_exsprite_table("175B",$175B,$775B)
+%define_exsprite_table("1751",$1751,$7747)
+%define_exsprite_table("1765",$1765,$3476)
+%define_exsprite_table("176F",$176F,$776F)
+%define_exsprite_table("1779",$1779,$348A)
+
+%define_exsprite_table("1765",$1765,$3476)
+%define_exsprite_table("198C",$198C,$798C)
+%define_exsprite_table("1996",$1996,$349E)
+%define_exsprite_table("19A0",$19A0,$79A0)
+%define_exsprite_table("19AA",$19AA,$34B2)
+
 ;minor extended defines
 %define_base2_address(minor_extended_num,$17F0)
 %define_base2_address(minor_extended_y_low,$17FC)
