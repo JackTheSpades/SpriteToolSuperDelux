@@ -75,9 +75,9 @@
     STA !14D4,y                ; /
     
     LDA $02                    ; \ store x speed
-    STA.w !B6,y                ; /
+    STA.w !B6|!dp,y                ; /
     LDA $03                    ; \ store y speed
-    STA.w !AA,y                ; /    
+    STA.w !AA|!dp,y                ; /    
     
     CLC
     RTL    
