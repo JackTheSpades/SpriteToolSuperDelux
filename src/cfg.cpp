@@ -5,6 +5,7 @@
 #include <cstdio>
 
 #include <array>
+#include <filesystem>
 #include <fstream>
 #include <string>
 
@@ -33,6 +34,8 @@ bool cfg_prop(const std::string& line, sprite* spr);
 bool cfg_asm(const std::string& line, sprite* spr);
 bool cfg_extra(const std::string& line, sprite* spr);
 
+namespace fs = std::filesystem;
+
 bool read_cfg_file(sprite* spr) {
     iohandler& io = iohandler::get_global();
 
@@ -54,26 +57,16 @@ bool read_cfg_file(sprite* spr) {
         if (!handlers[line++](current_line, spr))
             return false;
     };
-    
-    std::string sprite_name = spr->cfg_file.substr(spr->cfg_file.find_last_of("/") + 1);
-    sprite_name = sprite_name.substr(0, sprite_name.find_last_of("."));
-    
-    spr->collections.push_back(collection{.name = sprite_name});
+
+    std::string sprite_name = fs::path{spr->cfg_file}.filename().replace_extension("").generic_string();
+
+    spr->collections.push_back(collection{.name = sprite_name + " (extra bit clear)", .extra_bit = false, .prop = {}});
+    spr->collections.push_back(collection{.name = sprite_name + " (extra bit set)", .extra_bit = true, .prop = {}});
     spr->displays.push_back(
-        display{
-            .description = sprite_name,
-            .tiles = {tile{}},
-            .extra_bit = false
-        }
-    );
+        display{.description = sprite_name + " (extra bit clear)", .tiles = {tile{}}, .extra_bit = false});
     spr->displays.push_back(
-        display{
-            .description = sprite_name,
-            .tiles = {tile{}},
-            .extra_bit = true
-        }
-    );
-    
+        display{.description = sprite_name + " (extra bit set)", .tiles = {tile{}}, .extra_bit = true});
+
     io.debug("Parsed: %s, %zu lines\n", spr->cfg_file.c_str(), line - 1);
 
     return true;
