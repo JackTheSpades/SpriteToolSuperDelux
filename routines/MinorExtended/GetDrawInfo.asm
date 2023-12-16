@@ -47,7 +47,7 @@
     bcs ?.kill
     inc $02
 ?.on_screen_x
-    lda.l $028B77|!BankB,x
+    lda.l $028B78|!BankB,x
     tay
     sec 
     rtl
