@@ -1,13 +1,14 @@
 #include "file_io.h"
-#include "paths.h"
 #include "iohandler.h"
+#include "paths.h"
+#include <cerrno>
 #include <cstdio>
 #include <cstring>
 
-FILE *open(const char *name, const char *mode) {
-    FILE *file = fopen(name, mode);
+FILE* open(const char* name, const char* mode) {
+    FILE* file = fopen(name, mode);
     if (!file) {
-        iohandler::get_global().error("Could not open \"%s\"\n", name);
+        iohandler::get_global().error("Could not open \"%s\": %s\n", name, strerror(errno));
         return nullptr;
     }
     return file;

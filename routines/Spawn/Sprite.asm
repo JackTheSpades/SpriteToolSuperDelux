@@ -33,10 +33,9 @@
         LDA !9E,x
         STA !7FAB9E,x
         
-        REP #$20
-        LDA $00 : PHA
-        LDA $02 : PHA
-        SEP #$20
+
+        PEI ($00)
+        PEI ($02)
         
         JSL $0187A7|!BankB            ; this sucker kills $00-$02
                 
@@ -76,9 +75,9 @@
     STA !14D4,y                ; /
     
     LDA $02                    ; \ store x speed
-    STA.w !B6,y                ; /
+    STA.w !B6|!dp,y                ; /
     LDA $03                    ; \ store y speed
-    STA.w !AA,y                ; /    
+    STA.w !AA|!dp,y                ; /    
     
     CLC
     RTL    
