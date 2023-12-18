@@ -74,7 +74,7 @@ The changelog is available [here](CHANGELOG.md).
     D0 Generator.cfg
   ```
 
-  Keep in mind that the areas for sprites (00-BF), shooters (C0-CF) and generators (D0-FF) are fixed.
+  Keep in mind that the areas for sprites (00-BF), shooters (C0-CF) and generators (D0-DF) are fixed.
   If you want to insert a shooter, it has to be in the range of C0 to CF due to the sprite type's different coding.
 
   ### Per-Level Sprites
