@@ -38,7 +38,12 @@ macro EraseCoinAbove()
 ?label
 endmacro
 
+;; this macro preserves A because usually the routines that use it
+;; subsequently use it to do something else (e.g. sprite number to spawn)
+;; if you ask "why not XBA", it's because we don't know if who called us
+;; is using the whole 16-bit A or just the low byte
 macro SetupCoords()
+    pha
     lda !bounce_x_low,x
     sta $04
     lda !bounce_x_high,x
@@ -47,34 +52,30 @@ macro SetupCoords()
     sta $06
     lda !bounce_y_high,x
     sta $07
+    pla
 endmacro
 
 macro SpawnExtendedAlt()
-    xba
     %SetupCoords()
     %SpawnExtendedGeneric()
 endmacro
 
 macro SpawnSmokeAlt()
-    xba
     %SetupCoords()
     %SpawnSmokeGeneric()
 endmacro
 
 macro SpawnCluster()
-    xba
     %SetupCoords()
     %SpawnClusterGeneric()
 endmacro
 
 macro SpawnMinorExtended()
-    xba
     %SetupCoords()
     %SpawnMinorExtendedGeneric()
 endmacro
 
 macro SpawnSpinningCoin()
-    xba
     %SetupCoords()
     %SpawnSpinningCoinGeneric()
 endmacro

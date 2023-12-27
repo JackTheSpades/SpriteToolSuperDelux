@@ -7,8 +7,8 @@
 ;   A   = number
 ;   $00 = x offset
 ;   $01 = y offset
-;   $02 = origin x pos  ; since this is a generic routine it can be called from any other sprite
-;   $04 = origin y pos  ; type, so i opted for adding macros in _header.asm that helps to setup this
+;   $04-05 = origin (16-bit) x pos  ; since this is a generic routine it can be called from any other sprite
+;   $06-07 = origin (16-bit) y pos  ; type, so i opted for adding macros in _header.asm that helps to setup this
 
 ; Output:
 ;   Y = index to cluster sprite ($FF means no sprite spawned)
@@ -34,25 +34,27 @@
     
     lda $00
     clc 
-    adc $02
+    adc $04
     sta !cluster_x_low,y
     lda #$00
     bit $00
     bpl $01
     dec 
-    adc $03
+    adc $05
     sta !cluster_x_high,y
 
     lda $01
     clc 
-    adc $04
+    adc $06
     sta !cluster_y_low,y
     lda #$00
     bit $01
     bpl $01
     dec 
-    adc $05
+    adc $07
     sta !cluster_y_high,y
 
+    lda #$01
+    sta $18B8|!addr ; turn on cluster sprites code
     clc 
     rtl
