@@ -49,35 +49,35 @@ namespace CFG.Map16
         [JsonProperty(PropertyName = "0", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [SingleFileDefaultValue()]
         [Browsable(false)]
-        public SingleFile Sp0 { get => _Sp0; set => _Sp0 = value; }
+        public SingleFile Sp0 { get => _Sp0; set { _Sp0 = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp0))); } }
         [JsonProperty(PropertyName = "1", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [SingleFileDefaultValue()]
         [Browsable(false)]
-        public SingleFile Sp1 { get => _Sp1; set => _Sp1 = value; }
+        public SingleFile Sp1 { get => _Sp1; set { _Sp1 = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp1))); } }
         [JsonProperty(PropertyName = "2", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [SingleFileDefaultValue()]
         [Browsable(false)]
-        public SingleFile Sp2 { get => _Sp2; set => _Sp2 = value; }
+        public SingleFile Sp2 { get => _Sp2; set { _Sp2 = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp2))); } }
         [JsonProperty(PropertyName = "3", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [SingleFileDefaultValue()]
         [Browsable(false)]
-        public SingleFile Sp3 { get => _Sp3; set => _Sp3 = value; }
+        public SingleFile Sp3 { get => _Sp3; set { _Sp3 = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp3))); } }
 
         [JsonIgnore]
-        public int Sp0Value { get => _Sp0.Value; set => _Sp0.Value = value; }
+        public int Sp0Value { get => _Sp0.Value; set { _Sp0.Value = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp0.Value))); } }
         [JsonIgnore]
-        public bool Sp0Sep { get => _Sp0.Separate; set => _Sp0.Separate = value; }
+        public bool Sp0Sep { get => _Sp0.Separate; set { _Sp0.Separate = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp0.Separate)));  } }
         [JsonIgnore]
-        public int Sp1Value { get => _Sp1.Value; set => _Sp1.Value = value; }
+        public int Sp1Value { get => _Sp1.Value; set { _Sp1.Value = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp1.Value))); } }
         [JsonIgnore]
-        public bool Sp1Sep { get => _Sp1.Separate; set => _Sp1.Separate = value; }
+        public bool Sp1Sep { get => _Sp1.Separate; set { _Sp1.Separate = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp1.Separate))); } }
         [JsonIgnore]
-        public int Sp2Value { get => _Sp2.Value; set => _Sp2.Value = value; }
+        public int Sp2Value { get => _Sp2.Value; set { _Sp2.Value = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp2.Value))); } }
         [JsonIgnore]
-        public bool Sp2Sep { get => _Sp2.Separate; set => _Sp2.Separate = value; }
+        public bool Sp2Sep { get => _Sp2.Separate; set { _Sp2.Separate = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp2.Separate))); } }
         [JsonIgnore]
-        public int Sp3Value { get => _Sp3.Value; set => _Sp3.Value = value; }
+        public int Sp3Value { get => _Sp3.Value; set { _Sp3.Value = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp3.Value))); } }
         [JsonIgnore]
-        public bool Sp3Sep { get => _Sp3.Separate; set => _Sp3.Separate = value; }
+        public bool Sp3Sep { get => _Sp3.Separate; set {_Sp3.Separate = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp3.Separate))); } }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -453,18 +453,18 @@ namespace CFG.Map16
         public int BottomLeft
         {
             get { return Objects.GetAll(o => o.BottomLeft, 0xFFF); }
-            set { Objects.ForEach(o => o.BottomLeft = value); }
+            set { Objects.ForEach(o => o.BottomLeft = value); PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(BottomLeft))); }
         }
         public int BottomRight
         {
             get { return Objects.GetAll(o => o.BottomRight, 0xFFF); }
-            set { Objects.ForEach(o => o.BottomRight = value); }
+            set { Objects.ForEach(o => o.BottomRight = value); PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(BottomRight))); }
         }
 
         public int Palette
         {
             get { return Objects.GetAll(o => o.Palette, 0xFFF); }
-            set { Objects.ForEach(o => o.Palette = value); }
+            set { Objects.ForEach(o => o.Palette = value); PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Palette))); }
         }
 
         public int PixelX => Objects.Min(o => o.PixelX);
@@ -478,13 +478,21 @@ namespace CFG.Map16
         public int TopLeft
         {
             get { return Objects.GetAll(o => o.TopLeft, 0xFFF); }
-            set { Objects.ForEach(o => o.TopLeft = value); }
+            set
+            {
+                Objects.ForEach(o => o.TopLeft = value);
+                PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(TopLeft)));
+            }
         }
 
         public int TopRight
         {
             get { return Objects.GetAll(o => o.TopRight, 0xFFF); }
-            set { Objects.ForEach(o => o.TopRight = value); }
+            set
+            {
+                Objects.ForEach(o => o.TopRight = value);
+                PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(TopRight)));
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

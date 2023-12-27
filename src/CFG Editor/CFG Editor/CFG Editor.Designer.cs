@@ -2689,7 +2689,6 @@
         private System.Windows.Forms.BindingSource gfxInfoBindingSource;
         private System.Windows.Forms.DataGridView dgvDisplay;
         private System.Windows.Forms.DataGridView dgvGFXInfo;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn separateDataGridViewCheckBoxColumn;
         private System.Windows.Forms.DataGridViewCheckBoxColumn ExtraBit;
         private System.Windows.Forms.DataGridViewTextBoxColumn X_or_index;
         private System.Windows.Forms.DataGridViewTextBoxColumn Y_or_value;
