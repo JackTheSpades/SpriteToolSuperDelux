@@ -1,4 +1,3 @@
-import requests
 import os
 import json
 import glob
@@ -91,7 +90,12 @@ def exec_pixi(*, pixi_executable, current_rom, listname):
     retval = proc.returncode
     good = True
     files_in_sprite_folder = {os.path.basename(p): p for p in glob.glob('sprites/**/*.*', recursive=True)}
-    if retval != 0:
+    with open(listname, 'r') as t:
+        listlen = len(t.readlines())
+    tries = 0
+    while retval != 0:
+        good = True
+        tries += 1
         stdout = stdout.decode('utf-8')
         routines = get_routines(stdout)
         routines_to_remove = get_remove_routines(stdout)
@@ -121,6 +125,8 @@ def exec_pixi(*, pixi_executable, current_rom, listname):
         retval = proc.returncode
         if retval != 0:
             good = False
+        if tries > listlen:
+            break
     return good, stdout
 
 
@@ -198,16 +204,24 @@ try:
     for s in error.keys():
         if s not in expected_res['PASS'] and s not in expected_res['FAIL']:
             print(f"Sprite {s} wasn't expected to be tested, but failed")
-    for s in expected_res['PASS']:
-        if success.get(s) is None and error.get(s) is not None:
-            print(f"Sprite {s} should have passed but failed")
-        elif success.get(s) is None and error.get(s) is None:
-            print(f"Sprite {s} wasn't tested, but should have passed")
-    for s in expected_res['FAIL']:
-        if error.get(s) is None and success.get(s) is not None:
-            print(f"Sprite {s} should have failed but passed")
-        elif error.get(s) is None and success.get(s) is None:
-            print(f"Sprite {s} wasn't tested, but should have failed")
+
+    if sprites_to_test is None:
+        for s in expected_res['PASS']:
+            if success.get(s) is None and error.get(s) is not None:
+                print(f"Sprite {s} should have passed but failed")
+            elif success.get(s) is None and error.get(s) is None:
+                print(f"Sprite {s} wasn't tested, but should have passed")
+        for s in expected_res['FAIL']:
+            if error.get(s) is None and success.get(s) is not None:
+                print(f"Sprite {s} should have failed but passed")
+            elif error.get(s) is None and success.get(s) is None:
+                print(f"Sprite {s} wasn't tested, but should have failed")
+    else:
+        for s in sprites_to_test:
+            if s in expected_res['PASS'] and success.get(s) is None and error.get(s) is not None:
+                print(f"Sprite {s} should have passed but failed")
+            elif s in expected_res['FAIL'] and success.get(s) is not None and error.get(s) is None:
+                print(f"Sprite {s} should have failed but passed")
     print("Finished testing all sprites")
     filename = 'result.json'
     with open(filename, 'w') as f:
