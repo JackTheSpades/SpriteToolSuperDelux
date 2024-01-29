@@ -35,11 +35,11 @@ endif()
 
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24.0")
     FetchContent_Declare(json 
-        URL https://github.com/nlohmann/json/releases/download/v3.10.5/json.tar.xz
+        URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
         DOWNLOAD_EXTRACT_TIMESTAMP TRUE
     )
 else()
-    FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.10.5/json.tar.xz)
+    FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
 endif()
 FetchContent_MakeAvailable(json)
 
