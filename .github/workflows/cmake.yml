@@ -154,7 +154,7 @@ jobs:
 
       - name: Cache sprites
         id: cache-sprites
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
             path: ${{github.workspace}}/test/.sprites_dl_cache
             key: pixi-test-sprites
