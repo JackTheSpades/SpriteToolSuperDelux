@@ -66,6 +66,7 @@ static_assert(VERSION_FULL <= std::numeric_limits<unsigned char>::max());
 
 constexpr auto INIT_PTR = 0x01817D; // snes address of default init pointers
 constexpr auto MAIN_PTR = 0x0185CC; // guess what?
+constexpr auto GOAL_POST_SPRITE_ID = 0x7B;
 
 constexpr auto TEMP_SPR_FILE = "spr_temp.asm";
 
@@ -1244,7 +1245,7 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
         dot++;
 
         if (rom != nullptr) {
-            if (sprite_id == 0x7B && rom->is_exlevel()) {
+            if (sprite_id == GOAL_POST_SPRITE_ID && rom->is_exlevel()) {
                 // sprite $7B is the goal post
                 // in LM versions 2.53 and onwards the extra bits of the goal post are used to determine which exit it
                 // triggers therefore custom sprites can't be used in this slot. In fact, in main.asm, there are a few
