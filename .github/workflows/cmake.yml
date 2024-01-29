@@ -19,7 +19,7 @@ jobs:
             platform: x86
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set environment variables (x86|Ubuntu)
       shell: bash
@@ -29,7 +29,7 @@ jobs:
       if: matrix.platform == 'x86' && matrix.os == 'ubuntu-latest'
 
     - name: Setup python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.9'
         
@@ -82,11 +82,11 @@ jobs:
       run: cmake --build . --config $BUILD_TYPE
 
     - name: Setup msbuild
-      uses: microsoft/setup-msbuild@v1.1
+      uses: microsoft/setup-msbuild@v1.3.2
       if: matrix.os == 'windows-latest'
     
     - name: Setup nuget
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       if: matrix.os == 'windows-latest'
     
     - name: Build CFG Editor
@@ -106,7 +106,7 @@ jobs:
       run: python ${{github.workspace}}/zip.py
 
     - name: Upload
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: pixi_${{matrix.os}}_${{matrix.platform}}
         path: ${{github.workspace}}/pixi.zip
@@ -122,7 +122,7 @@ jobs:
         os: [ windows-latest, ubuntu-latest ]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Download build artifact
         id: download
@@ -132,7 +132,7 @@ jobs:
           path: ${{github.workspace}}/build_artifact
 
       - name: Setup python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
@@ -180,7 +180,7 @@ jobs:
         if: matrix.os == 'windows-latest'
 
       - name: Upload test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-result-${{matrix.os}}
           path: ${{github.workspace}}/test/result.json
