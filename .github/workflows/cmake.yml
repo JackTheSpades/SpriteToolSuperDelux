@@ -126,7 +126,7 @@ jobs:
 
       - name: Download build artifact
         id: download
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: pixi_${{matrix.os}}_x64
           path: ${{github.workspace}}/build_artifact
