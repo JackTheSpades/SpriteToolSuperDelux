@@ -57,6 +57,11 @@ macro SpawnMinorExtended()
     %SpawnMinorExtendedGeneric()
 endmacro
 
+macro SpawnMinorExtendedOverwrite()
+    %SetupCoords()
+    %SpawnMinorExtendedOverwriteGeneric()
+endmacro
+
 macro SpawnSpinningCoin()
     %SetupCoords()
     %SpawnSpinningCoinGeneric()
