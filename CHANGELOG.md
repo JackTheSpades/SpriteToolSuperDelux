@@ -16,6 +16,14 @@
 - (Atari2.0) Fix a bug from 1.21 where the CFG editor feature to be able to edit ROMs directly (akin to Tweaker) introduced in 1.1 was accidentally disabled, thanks to SubconsciousEye for reporting this.
 - (Atari2.0) Fix a bug from 1.40 with some spawning routines where a missing XBA was making the routine not work properly. Special thanks to RussianMan for reporting this.
 - (Atari2.0) Minor README improvements (document the CFG file format mostly).
+- (Atari2.0) Warn when inserting sprite number $7B (goal tape) in ROMs that use LM 2.53+
+- (zuccha) FireballContact now checks exactly for player fireball value
+- (SubconsciousEye) Add custom GFX handler for sprite status 3
+- (MarioFanGamer) CFG Sprites will now also show up in the custom sprite collection in LM
+- (zuccha) Add command line flags for custom misc sprites directories in README
+- (Atari2.0) Fix SpawnCluster & other misc sprites routines using wrong positions and overwriting A, additionally set $18B8 to 1 when spawning a cluster sprite, thanks to kkevinm for reporting this.
+- (Atari2.0) Add %SpawnMinorExtendedOverwrite routine to spawn the sprite even if there's no slots free (overwrites oldest one)
+- (Atari2.0) Fix %ExtendedSpeed routine not applying gravity when speed was between $80 and $C0, thanks to anonimzwx for reporting this. 
 
 ## Version 1.40 (November 23, 2022)
 - (Atari2.0) Fix list.txt parsing bug when paths would get wrongly split for containing spaces.
