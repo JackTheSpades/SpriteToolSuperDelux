@@ -6,7 +6,7 @@ incsrc "pointer_caller.asm"
 org $0296C0|!BankB
     autoclean JML Main
     dl Ptr
-    warnpc $0296C7|!BankB
+    assert pc() <= $0296C7|!BankB
 
 freecode
 

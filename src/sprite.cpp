@@ -405,8 +405,8 @@ static bool strccmp(std::string_view first, std::string_view second) {
 
     const char prelude[] = R"(namespace nested on
 warnings push
-warnings disable w1005
-warnings disable w1001
+warnings disable Wrelative_path_used
+warnings disable W65816_xx_y_assume_16_bit
 incsrc "%ssa1def.asm"
 )";
     const char epilogue[] = R"(incsrc "shared.asm"
@@ -446,8 +446,8 @@ print "__PIXI_INTERNAL_SPRITE_SEPARATOR__"
     patchfile sprite_patch{TEMP_SPR_FILE};
     const char prefix[] = R"(namespace nested on
 warnings push
-warnings disable w1005
-warnings disable w1001
+warnings disable Wrelative_path_used
+warnings disable W65816_xx_y_assume_16_bit
 incsrc "%ssa1def.asm"
 )";
     const char postfix[] = R"(incsrc "shared.asm"
@@ -1156,7 +1156,7 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                                       "while !pixi_incsrc_again != 0\n"
                                       "\t!pixi_incsrc_again #= 0\n"
                                       "\t%%safe_macro_label_wrapper()    ; actually insert wrapped routines\n"
-                                      "endif\n");
+                                      "endwhile\n");
     } catch (const fs::filesystem_error& err) {
         io.error("Trying to read folder \"%s\" returned \"%s\", aborting insertion\n", routine_path.c_str(),
                  err.what());

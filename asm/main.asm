@@ -37,7 +37,7 @@ TableLoc:
     autoclean dl CustomStatusPtr
 
 ;I think asar warns you for bank crossing anyway, but no harm done.
-warnpc $038000
+assert pc() <= $038000
 
 InitSpriteTables = $07F7D2|!BankB
 
@@ -259,7 +259,7 @@ if !SA1 == 0
         DEY
         DEY
         JML SprtOffset
-    warnpc $02B60E|!BankB
+    assert pc() <= $02B60E|!BankB
 
     org $02ABEF|!BankB
         JMP DisplaceIndex
@@ -280,7 +280,7 @@ if !SA1 == 0
 
                 org $<addr>
                     JML .remap
-                    rep <nop_count> : NOP
+                    NOP #<nop_count>
                     .back
                 pullpc
 
@@ -336,7 +336,7 @@ else
             ; displacement back to the beginning
             DEY
             JML SprtOffset
-    warnpc $02B5FB|!BankB
+    assert pc() <= $02B5FB|!BankB
 endif
 
 ; ---------------------------------------------------

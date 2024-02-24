@@ -51,7 +51,7 @@ if (PIXI_BUILD_EXE OR PIXI_BUILD_DLL OR PIXI_BUILD_LIB)
     FetchContent_Declare(
 	    asar
 	    GIT_REPOSITORY https://github.com/RPGHacker/asar
-	    GIT_TAG v1.81
+	    GIT_TAG v1.90
 	    SOURCE_SUBDIR src
     )
     FetchContent_MakeAvailable(asar)
