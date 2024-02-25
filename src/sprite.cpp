@@ -152,16 +152,19 @@ struct AsarHandler {
             .memory_file_count = 1, .override_checksum_gen = false, .generate_checksum = true
         };
         if (!asar_patch_ex(&params)) {
-            io.error("Failed to apply cleanup patch, this is an internal error, please report it here " GITHUB_ISSUE_LINK "\n");
+            io.error(
+                "Failed to apply cleanup patch, this is an internal error, please report it here " GITHUB_ISSUE_LINK
+                "\n");
         }
         int labels = 0;
         asar_getalllabels(&labels);
         if (labels != 0) {
-            io.error("Label count should be 0 after cleanup, this is an internal error, please report it here " GITHUB_ISSUE_LINK "\n");
+            io.error("Label count should be 0 after cleanup, this is an internal error, please report it "
+                     "here " GITHUB_ISSUE_LINK "\n");
         }
     }
 
-    public:
+  public:
     AsarHandler() {
         m_ok = asar_init();
         if (m_ok) {
@@ -1390,6 +1393,23 @@ void remove(std::string_view dir, const char* file) {
     fs::remove(fs::path{dir} / file);
 }
 
+bool check_warnings() {
+    if (!warnings.empty() && cfg.Warnings) {
+        io.print("One or more warnings have been detected:\n");
+        for (const std::string& warning : warnings) {
+            io.print("%s\n", warning.c_str());
+        }
+        io.print("Do you want to continue insertion anyway? [Y/n] (Default is yes):\n");
+        char c = io.getc();
+        if (tolower(c) == 'n') {
+            io.print("Insertion was stopped, press any button to exit...\n");
+            io.getc();
+            return false;
+        }
+    }
+    return true;
+}
+
 #ifdef PIXI_DLL_BUILD
 #ifdef _WIN32
 #define PIXI_EXPORT extern "C" __declspec(dllexport)
@@ -1809,19 +1829,9 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         }
     }
 
-    if (!warnings.empty() && cfg.Warnings) {
-        io.print("One or more warnings have been detected:\n");
-        for (const std::string& warning : warnings) {
-            io.print("%s\n", warning.c_str());
-        }
-        io.print("Do you want to continue insertion anyway? [Y/n] (Default is yes):\n");
-        char c = io.getc();
-        if (tolower(c) == 'n') {
-            io.print("Insertion was stopped, press any button to exit...\n");
-            io.getc();
-            return EXIT_FAILURE;
-        }
-    }
+    if (!check_warnings())
+        return EXIT_FAILURE;
+
 #ifdef DEBUGMSG
     debug_print("Sprites successfully patched.\n");
 #endif
@@ -1982,6 +1992,9 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         }
     }
 
+    if (!check_warnings())
+        return EXIT_FAILURE;
+
     // patch(paths[ASM], "asm/overworld.asm", rom);
 
     //------------------------------------------------------------------------------------------
@@ -1999,6 +2012,10 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         meimei.configureSa1Def(cfg.AsmDirPath + "/sa1def.asm");
         retval = meimei.run();
     }
+
+    if (!check_warnings())
+        return EXIT_FAILURE;
+
     if (plugins::for_each_plugin(plugin_list, &plugins::plugin::after_patching) != EXIT_SUCCESS) {
         return EXIT_FAILURE;
     };
