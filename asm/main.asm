@@ -21,7 +21,7 @@ TableLoc:
 
     ; yeah, kinda wasting 4 byte here by having the tables twice.
     ; but the above makes access easier and these are for cleanup.
-   if !PerLevel = 1
+   if !PerLevel == 1
         autoclean dl PerLevelLvlPtrs
         dl $FFFFFF
         dl $FFFFFF
@@ -134,7 +134,7 @@ org $018151|!BankB
 org $02A866|!BankB
     JML SubGenLoad
 
-if !SA1 = 0
+if !SA1 == 0
     org $02ABA0|!BankB
         JML SubShootLoad
         NOP
@@ -608,7 +608,7 @@ GetMainPtr:
     REP #$30
     AND #$00FF
 
-   if !PerLevel = 1
+   if !PerLevel == 1
       CMP #$00B0
       BCC .normal
       CMP #$00C0
@@ -629,7 +629,7 @@ GetMainPtr:
     RTS
 
 
-   if !PerLevel = 1
+   if !PerLevel == 1
     .perlevel
         JSR GetPerLevelAddr
         BNE +
@@ -651,7 +651,7 @@ GetMainPtr:
 
 
 
-if !PerLevel = 1
+if !PerLevel == 1
     ; Input, A=Sprite number (inbetween B0-BF)
     GetPerLevelAddr:
         ASL
@@ -1021,7 +1021,7 @@ SetSpriteTables:
     AND #$00FF
 
 
-   if !PerLevel = 1
+   if !PerLevel == 1
       CMP #$00B0
       BCC .normal
       CMP #$00C0
@@ -1083,7 +1083,7 @@ SetSpriteTables:
     PLY
     RTL
 
-   if !PerLevel = 1
+   if !PerLevel == 1
     .perlevel
         JSR GetPerLevelAddr
         BNE +
@@ -1191,7 +1191,7 @@ ExecuteCustomPtr:
 .CustomStatus
     STA $03                    ; load status in $03 and number in A
     LDA !new_sprite_num,x
-    if !PerLevel = 1
+    if !PerLevel == 1
         REP #$30
         AND #$00FF
         CMP #$00B0
@@ -1259,7 +1259,7 @@ TestSilverCoinBit:
     AND #!CustomBit
     BNE .Custom
 
-    if !SA1 = 0
+    if !SA1 == 0
         PLX
     else
         LDA #$00
@@ -1279,7 +1279,7 @@ TestSilverCoinBit:
     AND #$00FF
 
 
-   if !PerLevel = 1
+   if !PerLevel == 1
       CMP #$00B0
       BCC .normal
       CMP #$00C0
@@ -1294,7 +1294,7 @@ TestSilverCoinBit:
     PLP
     JML $02A9AB|!BankB
 
-   if !PerLevel = 1
+   if !PerLevel == 1
    .perlevel
       JSR GetPerLevelAddr
       BNE +
@@ -1360,7 +1360,7 @@ CustomStatusPtr:
 ; per-level tables for sprite B0-BF 0x8000 bytes each.
 ; ---------------------------------------------------
 
-if !PerLevel = 1
+if !PerLevel == 1
     freedata
     prot PerLevelSprPtrs_data
     prot PerLevelTable_data

@@ -1,4 +1,4 @@
-@include
+include
 
 ;input:  A     = Custom Sprite Number
 ;        X     = Sprite RAM Index
