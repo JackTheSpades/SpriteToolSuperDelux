@@ -24,6 +24,7 @@
 - (Atari2.0) Fix SpawnCluster & other misc sprites routines using wrong positions and overwriting A, additionally set $18B8 to 1 when spawning a cluster sprite, thanks to kkevinm for reporting this.
 - (Atari2.0) Add %SpawnMinorExtendedOverwrite routine to spawn the sprite even if there's no slots free (overwrites oldest one)
 - (Atari2.0) Fix %ExtendedSpeed routine not applying gravity when speed was between $80 and $C0, thanks to anonimzwx for reporting this. 
+- (Atari2.0) Upgrade to Asar 1.90.
 
 ## Version 1.40 (November 23, 2022)
 - (Atari2.0) Fix list.txt parsing bug when paths would get wrongly split for containing spaces.
