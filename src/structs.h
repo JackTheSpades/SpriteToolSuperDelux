@@ -1,7 +1,11 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
+#ifdef ASAR_USE_DLL
 #include "asar/asardll.h"
+#else
+#include "interface-lib.h"
+#endif
 #include "config.h"
 #include <cstring>
 #include <memory>
