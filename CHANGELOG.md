@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 1.41 (TBD)
+## Version 1.41 (March 07, 2024)
 - (mellonpizza) Add --stddefines and --stdincludes command line options.
 - (spooonsss) Add --symbols command line option to make asar output symbols file (can be WLA or nocash)
 - (spooonsss) Fix CFG Editor small visual bug
