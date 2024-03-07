@@ -115,7 +115,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     needs: build
-    if: startsWith(github.event.head_commit.message, '[NoTest]') == false
+    if: startsWith(github.event.head_commit.message, '[NoTest]') == false && startsWith(github.event.ref, 'refs/tags') == false
 
     strategy:
       matrix:
