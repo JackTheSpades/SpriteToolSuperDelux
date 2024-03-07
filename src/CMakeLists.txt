@@ -12,14 +12,20 @@ set(PIXI_VERSION_EDITION 1)
 set(PIXI_VERSION_MAJOR 4)
 set(PIXI_VERSION_MINOR 1)
 string(TIMESTAMP PIXI_BUILD_TIMESTAMP "%Y/%m/%d %H:%M:%S" UTC)
+option(ASAR_USE_DLL "Use asar as a dll instead of statically linking it" ON)
+if (ASAR_USE_DLL)
+    message(STATUS "Using asar as a dynamic library")
+else()
+    message(STATUS "Linking asar statically")
+endif()
 if (MSVC)
-    option(MSVC_STATIC_STL "Use the static version of the MSVC STL to link" OFF)
-    if (NOT MSVC_STATIC_STL)
-        set(PIXI_MSVC_LIB_TYPE "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-        message(STATUS "Using DLL flavor of MSVC's STL")
-    else()
+    option(MSVC_DYNAMIC_STL "Use the static version of the MSVC STL to link" OFF)
+    if (NOT MSVC_DYNAMIC_STL)
         set(PIXI_MSVC_LIB_TYPE "MultiThreaded$<$<CONFIG:Debug>:Debug>")
         message(STATUS "Using LIB flavor of MSVC's STL")
+    else()
+        set(PIXI_MSVC_LIB_TYPE "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+        message(STATUS "Using DLL flavor of MSVC's STL")
     endif()
 endif()
 
@@ -44,10 +50,28 @@ endif()
 FetchContent_MakeAvailable(json)
 
 if (PIXI_BUILD_EXE OR PIXI_BUILD_DLL OR PIXI_BUILD_LIB)
+
     set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+
+    if (ASAR_USE_DLL)
+        set(ASAR_TARGET "asar")
+        set(ASAR_GEN_DLL ON)
+        set(ASAR_GEN_LIB OFF)
+    else()
+        set(ASAR_TARGET "asar-static")
+        if (MSVC_DYNAMIC_STL)
+            set(MSVC_LIB_TYPE "D")
+        else()
+            set(MSVC_LIB_TYPE "T")
+        endif()
+        set(ASAR_GEN_DLL OFF)
+        set(ASAR_GEN_LIB ON)
+    endif()
+
     set(ASAR_GEN_EXE OFF)
     set(ASAR_GEN_EXE_TEST OFF)
     set(ASAR_GEN_DLL_TEST OFF)
+
     FetchContent_Declare(
 	    asar
 	    GIT_REPOSITORY https://github.com/RPGHacker/asar
@@ -55,13 +79,25 @@ if (PIXI_BUILD_EXE OR PIXI_BUILD_DLL OR PIXI_BUILD_LIB)
 	    SOURCE_SUBDIR src
     )
     FetchContent_MakeAvailable(asar)
-    set_target_properties(asar PROPERTIES CXX_STANDARD 14)
+
+    set_target_properties(${ASAR_TARGET} PROPERTIES CXX_STANDARD 14)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-        set_target_properties(asar PROPERTIES COMPILE_OPTIONS "-w")
+        if (ASAR_USE_DLL)
+            set_target_properties(${ASAR_TARGET} PROPERTIES COMPILE_OPTIONS "-w")
+        else()
+            # it is necessary to add -fPIC to compile asar statically when we're compiling with something that is not msvc.
+            set_target_properties(${ASAR_TARGET} PROPERTIES COMPILE_OPTIONS "-w;-fPIC")
+        endif()
     elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        set_target_properties(asar PROPERTIES COMPILE_OPTIONS "/w")
+        set_target_properties(${ASAR_TARGET} PROPERTIES COMPILE_OPTIONS "/w")
     else()
         message(FATAL_ERROR "Unrecognized compiler")
+    endif()
+    if (NOT ASAR_USE_DLL)
+        list(
+            APPEND PIXI_LINK_LIBRARIES
+            asar-static
+        )
     endif()
 endif()
 
@@ -108,7 +144,6 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/sprite.cpp" 
     "${CMAKE_CURRENT_SOURCE_DIR}/structs.cpp" 
     "${CMAKE_CURRENT_SOURCE_DIR}/MeiMei/MeiMei.cpp" 
-    "${CMAKE_CURRENT_SOURCE_DIR}/asar/asardll.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/json/base64.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/argparser.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/lmdata.cpp"
@@ -120,7 +155,6 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/paths.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/structs.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/MeiMei/MeiMei.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/asar/asardll.h" 
     "${CMAKE_CURRENT_SOURCE_DIR}/json/base64.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/json_const.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/config.h"
@@ -141,6 +175,16 @@ list(
 
     "${CMAKE_CURRENT_SOURCE_DIR}/pixi.rc"
 )
+
+if (ASAR_USE_DLL)
+    list(APPEND PIXI_SOURCE_FILES
+        "${CMAKE_CURRENT_SOURCE_DIR}/asar/asardll.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/asar/asardll.c"
+    )
+    list(APPEND PIXI_COMPILE_DEFINITIONS
+        ASAR_USE_DLL
+    )
+endif()
 
 check_ipo_supported(RESULT has_ipo OUTPUT ipo_support_error)
 
@@ -176,7 +220,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
             message(STATUS "Windows build (clang-cl)")
             list(APPEND PIXI_COMPILE_OPTIONS /EHsc -Wno-deprecated-declarations)
             if (PIXI_BUILD_EXE)
-                set_property(TARGET pixi PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+                set_property(TARGET pixi PROPERTY MSVC_RUNTIME_LIBRARY ${PIXI_MSVC_LIB_TYPE})
             endif()
             if (PIXI_BUILD_DLL)
                 set_property(TARGET pixi_api PROPERTY MSVC_RUNTIME_LIBRARY ${PIXI_MSVC_LIB_TYPE})
@@ -241,7 +285,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
         )
     endif()
     if (PIXI_BUILD_EXE)
-        set_property(TARGET pixi PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+        set_property(TARGET pixi PROPERTY MSVC_RUNTIME_LIBRARY ${PIXI_MSVC_LIB_TYPE})
     endif()
     if (PIXI_BUILD_DLL)
         set_property(TARGET pixi_api PROPERTY MSVC_RUNTIME_LIBRARY ${PIXI_MSVC_LIB_TYPE})
@@ -273,11 +317,18 @@ if (NOT MSVC)
     )
 endif()
 
+if (NOT ASAR_USE_DLL)
+    get_target_property(ASAR_INCLUDE_DIR asar-static INCLUDE_DIRECTORIES)
+endif()
+
 if (PIXI_BUILD_EXE)
     target_link_libraries(pixi PRIVATE ${PIXI_LINK_LIBRARIES})
     target_link_options(pixi PRIVATE ${PIXI_LINK_OPTIONS})
     target_compile_options(pixi PRIVATE ${PIXI_COMPILE_OPTIONS})
     target_compile_definitions(pixi PRIVATE ${PIXI_COMPILE_DEFINITIONS} PIXI_EXE_BUILD)
+    if (NOT ASAR_USE_DLL)
+        target_include_directories(pixi SYSTEM PRIVATE ${ASAR_INCLUDE_DIR})
+    endif()
 endif()
 
 if (PIXI_BUILD_DLL)
@@ -285,6 +336,9 @@ if (PIXI_BUILD_DLL)
     target_link_options(pixi_api PRIVATE ${PIXI_LINK_OPTIONS})
     target_compile_options(pixi_api PRIVATE ${PIXI_COMPILE_OPTIONS})
     target_compile_definitions(pixi_api PRIVATE ${PIXI_COMPILE_DEFINITIONS} PIXI_DLL_BUILD)
+    if (NOT ASAR_USE_DLL)
+        target_include_directories(pixi_api SYSTEM PRIVATE ${ASAR_INCLUDE_DIR})
+    endif()
 endif()
 
 if (PIXI_BUILD_LIB)
@@ -292,22 +346,28 @@ if (PIXI_BUILD_LIB)
     target_link_options(pixi_api_static PRIVATE ${PIXI_LINK_OPTIONS})
     target_compile_options(pixi_api_static PRIVATE ${PIXI_COMPILE_OPTIONS})
     target_compile_definitions(pixi_api_static PRIVATE ${PIXI_COMPILE_DEFINITIONS})
+    if (NOT ASAR_USE_DLL)
+        target_include_directories(pixi_api_static SYSTEM PRIVATE ${ASAR_INCLUDE_DIR})
+    endif()
 endif()
 
 
 if (PIXI_BUILD_EXE)
-    add_custom_command(TARGET pixi POST_BUILD 
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:asar> $<TARGET_FILE_DIR:pixi>
-        COMMENT "Copying asar dynamic library to output directory"
-    )
-
-    if (MINGW)
-        add_custom_command(TARGET pixi POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E rename $<TARGET_FILE_DIR:pixi>/libasar.dll $<TARGET_FILE_DIR:pixi>/asar.dll
-            COMMENT "Renaming libasar.dll to asar.dll because MinGW is a mess"
+    if (ASAR_USE_DLL)
+        add_custom_command(TARGET pixi POST_BUILD 
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:asar> $<TARGET_FILE_DIR:pixi>
+            COMMENT "Copying asar dynamic library to output directory"
         )
+
+        if (MINGW)
+            add_custom_command(TARGET pixi POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E rename $<TARGET_FILE_DIR:pixi>/libasar.dll $<TARGET_FILE_DIR:pixi>/asar.dll
+                COMMENT "Renaming libasar.dll to asar.dll because MinGW is a mess"
+            )
+        endif()
     endif()
+
     if (MSVC)
         add_custom_command(
             TARGET pixi POST_BUILD
@@ -317,7 +377,9 @@ if (PIXI_BUILD_EXE)
             COMMENT "Copying required asan dlls into the output directory"
         )
     endif()
-    set_target_properties(pixi PROPERTIES ASAR_LIB_PATH $<TARGET_FILE:asar>)
+    if (ASAR_USE_DLL)
+        set_target_properties(pixi PROPERTIES ASAR_LIB_PATH $<TARGET_FILE:asar>)
+    endif()
     add_custom_command(TARGET pixi POST_BUILD 
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/asm $<TARGET_FILE_DIR:pixi>/asm
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/cluster $<TARGET_FILE_DIR:pixi>/cluster 

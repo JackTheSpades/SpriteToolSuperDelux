@@ -1,4 +1,4 @@
-﻿{
+{
   "version": 4,
   "configurePresets": [
     {
@@ -102,17 +102,28 @@
       }
     },
     {
-      "name": "windows-x64-release",
-      "displayName": "2 - Windows x64 Release (cl)",
+      "name": "windows-x64-release-libstl",
+      "displayName": "2 - Windows x64 Release (cl) - STL lib",
       "description": "Target Windows (64-bit) with the Visual Studio development environment. (RelWithDebInfo)",
       "inherits": "windows-x64-debug",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "ASAR_USE_DLL": false
+      }
+    },
+    {
+      "name": "windows-x64-release-dynstl",
+      "displayName": "3 - Windows x64 Release (cl) - STL dll",
+      "description": "Target Windows (64-bit) with the Visual Studio development environment. (RelWithDebInfo)",
+      "inherits": "windows-x64-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "MSVC_DYNAMIC_STL":  true
       }
     },
     {
       "name": "windows-x86-debug",
-      "displayName": "3 - Windows x86 Debug (cl)",
+      "displayName": "4 - Windows x86 Debug (cl)",
       "description": "Target Windows (32-bit) with the Visual Studio development environment. (Debug)",
       "inherits": "windows-base",
       "architecture": {
@@ -125,7 +136,7 @@
     },
     {
       "name": "windows-x86-release",
-      "displayName": "4 - Windows x86 Release (cl)",
+      "displayName": "5 - Windows x86 Release (cl)",
       "description": "Target Windows (32-bit) with the Visual Studio development environment. (RelWithDebInfo)",
       "inherits": "windows-x86-debug",
       "cacheVariables": {
@@ -134,7 +145,7 @@
     },
     {
       "name": "windows-x64-clang-debug",
-      "displayName": "5 - Windows x64 Debug (clang-cl)",
+      "displayName": "6 - Windows x64 Debug (clang-cl)",
       "description": "Target Windows (64-bit) with clang-cl",
       "inherits": "windows-x64-debug",
       "cacheVariables": {
@@ -144,9 +155,9 @@
     },
     {
       "name": "windows-x64-clang-release",
-      "displayName": "6 - Windows x64 Release (clang-cl)",
+      "displayName": "7 - Windows x64 Release (clang-cl)",
       "description": "Target Windows (64-bit) with clang-cl",
-      "inherits": "windows-x64-release",
+      "inherits": "windows-x64-release-libstl",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang-cl.exe",
         "CMAKE_CXX_COMPILER": "clang-cl.exe"
@@ -154,7 +165,7 @@
     },
     {
       "name": "mingw-debug",
-      "displayName": "7 - MinGW Debug",
+      "displayName": "8 - MinGW Debug",
       "description": "Target Windows using MinGW (Debug)",
       "inherits": "windows-base",
       "cacheVariables": {
@@ -165,7 +176,7 @@
     },
     {
       "name": "mingw-release",
-      "displayName": "8 - MinGW Release",
+      "displayName": "9 - MinGW Release",
       "description": "Target Windows using MinGW (Release)",
       "inherits": "windows-base",
       "cacheVariables": {

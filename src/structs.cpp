@@ -1,5 +1,9 @@
 #include "structs.h"
+#ifdef ASAR_USE_DLL
 #include "asar/asardll.h"
+#else
+#include "interface-lib.h"
+#endif
 #include "file_io.h"
 #include "iohandler.h"
 #include <cctype>

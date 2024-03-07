@@ -11,7 +11,11 @@
 
 #include "MeiMei/MeiMei.h"
 #include "argparser.h"
+#ifdef ASAR_USE_DLL
 #include "asar/asardll.h"
+#else
+#include "interface-lib.h"
+#endif
 #include "cfg.h"
 #include "config.h"
 #include "file_io.h"
@@ -127,6 +131,7 @@ template <typename T, size_t N> constexpr size_t array_size(T (&)[N]) {
     return N;
 }
 
+#ifdef ASAR_USE_DLL
 struct AsarHandler {
     //                                             1.81
     static constexpr int s_asar_leak_max_version = 10801;
@@ -183,6 +188,7 @@ struct AsarHandler {
         }
     }
 };
+#endif
 
 void clean_sprite_generic(patchfile& clean_patch, int table_address, int original_value, size_t count,
                           const char* preface, ROM& rom) {
@@ -1638,13 +1644,14 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         io.print(message, VERSION_EDITION, VERSION_PARTIAL);
         return EXIT_SUCCESS;
     }
-
+#ifdef ASAR_USE_DLL
     AsarHandler asar_handler{};
     if (!asar_handler.ok()) {
         io.error(
             "Error: Asar library is missing or couldn't be initialized, please redownload the tool or add the dll.\n");
         return EXIT_FAILURE;
     }
+#endif
 
 #ifdef ON_WINDOWS
     if (!lm_handle.empty()) {

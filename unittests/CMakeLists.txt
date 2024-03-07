@@ -37,7 +37,9 @@ endif()
 target_compile_options(PixiUnitTest PRIVATE ${PIXI_SANITIZERS_FLAGS})
 target_link_options(PixiUnitTest PRIVATE ${PIXI_SANITIZERS_FLAGS})
 
-get_target_property(ASAR_LIB_PATH pixi ASAR_LIB_PATH)
+if (ASAR_USE_DLL)
+    get_target_property(ASAR_LIB_PATH pixi ASAR_LIB_PATH)
+endif()
 add_custom_command(TARGET PixiUnitTest POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/testing_files $<TARGET_FILE_DIR:PixiUnitTest>
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/asm $<TARGET_FILE_DIR:PixiUnitTest>/asm
@@ -48,10 +50,14 @@ add_custom_command(TARGET PixiUnitTest POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/misc_sprites $<TARGET_FILE_DIR:PixiUnitTest>/misc_sprites 
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/sprites $<TARGET_FILE_DIR:PixiUnitTest>/sprites 
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${TOP_LEVEL_DIR}/routines $<TARGET_FILE_DIR:PixiUnitTest>/routines 
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${ASAR_LIB_PATH} $<TARGET_FILE_DIR:PixiUnitTest>
     COMMENT "Copying necessary files in test output directory"
 )
-if (MINGW)
+if (ASAR_USE_DLL)
+    add_custom_command(TARGET PixiUnitTest POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${ASAR_LIB_PATH} $<TARGET_FILE_DIR:PixiUnitTest>
+    )
+endif()
+if (MINGW AND ASAR_USE_DLL)
     add_custom_command(TARGET PixiUnitTest POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E rename $<TARGET_FILE_DIR:PixiUnitTest>/libasar.dll $<TARGET_FILE_DIR:PixiUnitTest>/asar.dll
         COMMENT "Renaming libasar.dll to asar.dll because MinGW is a mess"

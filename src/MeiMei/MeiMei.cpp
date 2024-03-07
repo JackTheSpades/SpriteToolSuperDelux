@@ -8,7 +8,11 @@
 #include "../iohandler.h"
 #include "MeiMei.h"
 
+#ifdef ASAR_USE_DLL
 #include "../asar/asardll.h"
+#else
+#include "interface-lib.h"
+#endif
 
 constexpr auto SPR_ADDR_LIMIT = 0x800;
 
