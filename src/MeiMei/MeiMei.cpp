@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <unordered_set>
 
 #include "../iohandler.h"
 #include "MeiMei.h"
@@ -55,9 +56,13 @@ void MeiMei::configureSa1Def(const std::string& pathToSa1Def) {
     MeiMei::sa1DefPath = escapedPath;
 }
 
-bool MeiMei::patch(const patchfile& patch, const patchfile& binfile, ROM& rom) {
+bool MeiMei::patch(const patchfile& patch, const std::vector<patchfile>& patchfiles, ROM& rom) {
     iohandler& io = iohandler::get_global();
-    const memoryfile memfiles[]{patch.vfile(), binfile.vfile()};
+    std::vector<memoryfile> memfiles{};
+    memfiles.reserve(patchfiles.size() + 1);
+    memfiles.push_back(patch.vfile());
+    std::transform(patchfiles.begin(), patchfiles.end(), std::back_inserter(memfiles),
+                   [](const auto& p) { return p.vfile(); });
     patchparams params{.structsize = sizeof(patchparams),
                        .patchloc = patch.path().c_str(),
                        .romdata = reinterpret_cast<char*>(rom.real_data),
@@ -72,8 +77,8 @@ bool MeiMei::patch(const patchfile& patch, const patchfile& binfile, ROM& rom) {
                        .stddefinesfile = nullptr,
                        .warning_settings = nullptr,
                        .warning_setting_count = 0,
-                       .memory_files = memfiles,
-                       .memory_file_count = 2,
+                       .memory_files = memfiles.data(),
+                       .memory_file_count = static_cast<int>(memfiles.size()),
                        .override_checksum_gen = false,
                        .generate_checksum = true};
     if (!asar_patch_ex(&params)) {
@@ -89,12 +94,19 @@ bool MeiMei::patch(const patchfile& patch, const patchfile& binfile, ROM& rom) {
         int print_count = 0;
         const char* const* prints = asar_getprints(&print_count);
         for (int i = 0; i < print_count; ++i) {
-            io.print("\t%s\n", prints[i]);
+            io.print("%s\n", prints[i]);
         }
     }
 
     return true;
 }
+
+struct AddressConstants {
+    static constexpr int LMLevelSpriteDataBankBytePointer = 0x077100; /* $0EF100 */
+    static constexpr int LMPresentFlagPointer = 0x07730F;             /* $0EF30F should be 0x42 */
+    static constexpr int LMSizeTableAddressPointer = 0x07730C;        /* $0EF30C points to the actual table */
+    static constexpr int LevelSpriteDataPointerTable = 0x02EC00;      /* $05EC00 */
+};
 
 bool MeiMei::initialize(const char* rom_name) {
     MeiMei::name = std::string(rom_name);
@@ -104,8 +116,8 @@ bool MeiMei::initialize(const char* rom_name) {
 
     if (!prev.open(MeiMei::name))
         return false;
-    if (prev.read_byte(0x07730F) == 0x42) {
-        int addr = prev.snes_to_pc(prev.read_long(0x07730C), false);
+    if (prev.read_byte(AddressConstants::LMPresentFlagPointer) == 0x42) {
+        int addr = prev.snes_to_pc(prev.read_long(AddressConstants::LMSizeTableAddressPointer), false);
         prev.read_data(prevEx, 0x0400, addr);
     }
     return true;
@@ -135,8 +147,8 @@ int MeiMei::run(ROM& rom) {
     ROM now;
     if (!now.open(MeiMei::name))
         return 1;
-    if (prev.read_byte(0x07730F) == 0x42) {
-        int addr = now.snes_to_pc(now.read_long(0x07730C), false);
+    if (prev.read_byte(AddressConstants::LMPresentFlagPointer) == 0x42) {
+        int addr = now.snes_to_pc(now.read_long(AddressConstants::LMSizeTableAddressPointer), false);
         now.read_data(nowEx, 0x0400, addr);
     }
 
@@ -150,23 +162,29 @@ int MeiMei::run(ROM& rom) {
 
     bool revert = changeEx || MeiMei::always;
     if (changeEx) {
-        io.print("\nExtra bytes change detected\n");
+        io.print("\nExtra bytes change detected, MeiMei will autofix the sprite data\n\n");
     }
 
     if (changeEx || MeiMei::always) {
         uint8_t sprAllData[SPR_ADDR_LIMIT]{};
         uint8_t sprCommonData[3];
-        bool remapped[0x0200]{};
+        std::unordered_set<int> sprDataPointers{};
+
+        patchfile meimei_patch{"_meimei_fixup.asm", patchfile::openflags::w, /* from_mei_mei= */ true};
+        meimei_patch.fprintf("incsrc \"%s\"\n", MeiMei::sa1DefPath.c_str());
+        std::vector<patchfile> meimei_fixup_patches{};
 
         for (int lv = 0; lv < 0x200; lv++) {
-            if (remapped[lv])
-                continue;
 
-            int sprAddrSNES = (now.read_byte(0x077100 + lv) << 16) + now.read_word(0x02EC00 + lv * 2);
+            int sprAddrSNES = (now.read_byte(AddressConstants::LMLevelSpriteDataBankBytePointer + lv) << 16) +
+                              now.read_word(AddressConstants::LevelSpriteDataPointerTable + lv * 2);
             int sprAddrPC = now.snes_to_pc(sprAddrSNES, false);
             if (sprAddrPC == -1) {
                 ERR("Sprite Data has invalid address.")
             }
+            auto [_, inserted] = sprDataPointers.insert(sprAddrPC);
+            if (!inserted)
+                continue;
 
             memset(sprAllData, 0, SPR_ADDR_LIMIT);
 
@@ -249,51 +267,48 @@ int MeiMei::run(ROM& rom) {
                 binaryLabel.append(lvlstr);
 
                 // create actual asar patch
-                const int levelBankAddress = now.pc_to_snes(0x077100 + lv, false);
-                const int levelWordAddress = now.pc_to_snes(0x02EC00 + lv * 2, false);
+                const int levelBankAddress =
+                    now.pc_to_snes(AddressConstants::LMLevelSpriteDataBankBytePointer + lv, false);
+                const int levelWordAddress =
+                    now.pc_to_snes(AddressConstants::LevelSpriteDataPointerTable + lv * 2, false);
                 const char* binL = binaryLabel.c_str();
                 spriteDataPatch.fprintf(
-                    "incsrc \"%s\"\n\n"
-                    "!oldDataPointer = read2($%06X)|(read1($%06X)<<16)\n"
-                    "!oldDataSize = read2(pctosnes(snestopc(!oldDataPointer)-4))+1\n"
-                    "autoclean !oldDataPointer\n\n"
+                    "!level_%03X_oldDataPointer = read2($%06X)|(read1($%06X)<<16)\n"
+                    "!level_%03X_oldDataSize = read2(pctosnes(snestopc(!level_%03X_oldDataPointer)-4))+1\n"
+                    "autoclean !level_%03X_oldDataPointer\n\n"
                     "org $%06X\n"
                     "\tdb %s>>16\n\n"
                     "org $%06X\n"
                     "\tdw %s\n\n"
                     "freedata cleaned\n"
                     "%s:\n"
-                    "\t!newDataPointer = %s\n"
+                    "\t!level_%03X_newDataPointer = %s\n"
                     "\tincbin \"%s\"\n"
                     "%s_end:\n"
-                    "\tprint \"Data pointer $\",hex(!oldDataPointer),\" : $\",hex(!newDataPointer)\n"
-                    "\tprint \"Data size    $\",hex(!oldDataSize),\" : $\",hex(%s_end-%s-1)\n",
-                    MeiMei::sa1DefPath.c_str(), levelWordAddress, levelBankAddress, levelBankAddress, binL,
-                    levelWordAddress, binL, binL, binL, binaryFileName.c_str(), binL, binL, binL);
+                    "\tprint \"---- Level %03X ----\"\n"
+                    "\tprint \"Data pointer from $\",hex(!level_%03X_oldDataPointer),\" to "
+                    "$\",hex(!level_%03X_newDataPointer)\n"
+                    "\tprint \"Data size    from $\",hex(!level_%03X_oldDataSize),\" to $\",hex(%s_end-%s)\n",
+                    lv, levelWordAddress, levelBankAddress, lv, lv, lv, levelBankAddress, binL, levelWordAddress, binL,
+                    binL, lv, binL, binaryFileName.c_str(), binL, lv, lv, lv, lv, binL, binL);
                 spriteDataPatch.close();
 
-                if (MeiMei::debug) {
-                    io.print("__________________________________\n");
-                    io.print("Fixing sprite data for level %03X\n", lv);
-                }
+                meimei_fixup_patches.push_back(std::move(binFile));
+                meimei_fixup_patches.push_back(std::move(spriteDataPatch));
 
-                if (!MeiMei::patch(spriteDataPatch, binFile, rom)) {
-                    ERR("An error occured when patching sprite data with asar.")
-                }
-
-                if (MeiMei::debug) {
-                    io.print("Done!\n");
-                }
-
-                remapped[lv] = true;
+                meimei_patch.fprintf("incsrc \"%s\"\n", fileName.c_str());
             }
         }
 
-        if (MeiMei::debug) {
-            io.print("__________________________________\n\n");
+        meimei_patch.close();
+
+        if (!meimei_fixup_patches.empty()) {
+            if (!MeiMei::patch(meimei_patch, meimei_fixup_patches, rom)) {
+                ERR("An error occured when patching sprite data with asar.")
+            }
         }
 
-        io.print("Sprite data remapped successfully.\n");
+        io.print("\nSprite data remapped successfully.\n");
         revert = false;
     }
 end:

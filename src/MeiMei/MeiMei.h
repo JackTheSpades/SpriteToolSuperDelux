@@ -12,7 +12,7 @@ class MeiMei {
     bool keepTemp;
     std::string sa1DefPath;
 
-    bool patch(const patchfile& file, const patchfile& binfile, ROM &rom);
+    bool patch(const patchfile& patch, const std::vector<patchfile>& patchfiles, ROM& rom);
     int run(ROM &rom);
 
   public:
