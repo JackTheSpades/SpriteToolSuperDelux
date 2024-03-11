@@ -1589,7 +1589,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         .add_option("-meimei-a", "Enables always remap sprite data", meimei.AlwaysRemap())
         .add_option("-meimei-k", "Enables keep temp patches files", meimei.KeepTemp())
         .add_option("-meimei-d", "Enables debug for MeiMei patches", meimei.Debug())
-        .add_option("--onepatch", "Applies all sprites into a single big path", cfg.AllSpritesOnePatch)
+        .add_option("--onepatch", "Applies all sprites into a single big patch", cfg.AllSpritesOnePatch)
         .add_option("--stdincludes", "INCLUDEPATH", "Specify a text file with a list of search paths for asar",
                     cfg.AsarStdIncludes)
         .add_option("--stddefines", "DEFINEPATH", "Specify a text file with a list of defines for asar",

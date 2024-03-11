@@ -186,7 +186,7 @@ The changelog is available [here](CHANGELOG.md).
   -s16 <base s16>         Specify s16 file to be used as a base for <romname>.s16
                           Do not use <romname>.xxx as an argument as the file will be overwriten
 
-  --onepatch                   Applies all sprites into a single big path (Default value: false)
+  --onepatch                   Applies all sprites into a single big patch (Default value: false)
   --stdincludes <includepath>  Specify a text file with a list of search paths for asar (Default value: "<empty>")
   --stddefines <definepath>    Specify a text file with a list of defines for asar (Default value: "<empty>")
   --exerel                     Resolve list.txt and ssc/mw2/mwt/s16 paths relative to the executable rather than the ROM
