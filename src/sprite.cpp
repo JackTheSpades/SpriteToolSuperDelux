@@ -59,14 +59,14 @@ struct PatchTimer {
 #define STRIMPL(x) #x
 #define STR(x) STRIMPL(x)
 
-// change these values from the CMakeLists, not here, changes will propagate.
-constexpr unsigned char VERSION_EDITION = PIXI_VERSION_EDITION;
-constexpr unsigned char VERSION_MAJOR = PIXI_VERSION_MAJOR;
-constexpr unsigned char VERSION_MINOR = PIXI_VERSION_MINOR;
+// change the version in the project() call in the main CMakeLists, not here, changes will propagate.
+constexpr uint8_t VERSION_MAJOR = PIXI_VERSION_MAJOR;
+constexpr uint8_t VERSION_MINOR = PIXI_VERSION_MINOR;
+constexpr uint8_t VERSION_PATCH = PIXI_VERSION_PATCH;
 constexpr const char VERSION_DEBUG[] = STR(PIXI_VERSION_DEBUG);
-constexpr unsigned char VERSION_PARTIAL = VERSION_MAJOR * 10 + VERSION_MINOR;
-constexpr unsigned char VERSION_FULL = VERSION_EDITION * 100 + VERSION_MAJOR * 10 + VERSION_MINOR;
-static_assert(VERSION_FULL <= std::numeric_limits<unsigned char>::max());
+constexpr uint8_t VERSION_PARTIAL = VERSION_MINOR * 10 + VERSION_PATCH;
+constexpr uint8_t VERSION_FULL = VERSION_MAJOR * 100 + VERSION_MINOR * 10 + VERSION_PATCH;
+static_assert(VERSION_FULL <= std::numeric_limits<uint8_t>::max());
 
 constexpr auto INIT_PTR = 0x01817D; // snes address of default init pointers
 constexpr auto MAIN_PTR = 0x0185CC; // guess what?
@@ -362,7 +362,7 @@ constexpr bool ends_with(const char* str, const char* suffix) {
 
 [[nodiscard]] bool create_lm_restore(const char* rom) {
     char to_write[50];
-    sprintf(to_write, "Pixi v%d.%d\t", VERSION_EDITION, VERSION_PARTIAL);
+    sprintf(to_write, "Pixi v%d.%d\t", VERSION_MAJOR, VERSION_PARTIAL);
     std::string romname(rom);
     std::string restorename = romname.substr(0, romname.find_last_of('.')) + ".extmod";
 
@@ -1448,7 +1448,7 @@ PIXI_EXPORT int pixi_api_version() {
 }
 
 PIXI_EXPORT int pixi_check_api_version(int version_edition, int version_major, int version_minor) {
-    return version_edition == VERSION_EDITION && version_major == VERSION_MAJOR && version_minor == VERSION_MINOR;
+    return version_edition == VERSION_MAJOR && version_major == VERSION_MINOR && version_minor == VERSION_PATCH;
 }
 
 PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
@@ -1539,7 +1539,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
     } else {
         optparser.init(skip_first ? argc - 1 : argc, skip_first ? argv + 1 : argv);
     }
-    optparser.add_version(VERSION_PARTIAL, VERSION_EDITION);
+    optparser.add_version(VERSION_PARTIAL, VERSION_MAJOR);
     optparser.allow_unmatched(1);
     optparser.add_usage_string("pixi <options> [ROM]");
     optparser.add_option("-v", "Print version information", version_requested)
@@ -1635,13 +1635,13 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
 
     // DEV_BUILD means either debug build or CI build.
     if constexpr (PIXI_DEV_BUILD) {
-        io.print("Pixi development version %d.%d - %s\n", VERSION_EDITION, VERSION_PARTIAL, VERSION_DEBUG);
+        io.print("Pixi development version %d.%d - %s\n", VERSION_MAJOR, VERSION_PARTIAL, VERSION_DEBUG);
     } else if (version_requested) {
         const char message[]{"Pixi version %d.%d\n"
                              "Originally developed in 2017 by JackTheSpades\n"
                              "Maintained by RPGHacker (2018), Tattletale (2018-2020)\n"
-                             "Currently maintained by Atari2.0 (2020-2023)\n"};
-        io.print(message, VERSION_EDITION, VERSION_PARTIAL);
+                             "Currently maintained by Atari2.0 (2020-2024)\n"};
+        io.print(message, VERSION_MAJOR, VERSION_PARTIAL);
         return EXIT_SUCCESS;
     }
 #ifdef ASAR_USE_DLL
@@ -1719,7 +1719,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         int edition = version / 100;
         int partial = version % (edition * 100);
         io.error("The ROM has been patched with a newer version of PIXI (%d.%d) already.\n", edition, partial);
-        io.error("This is version %d.%d\n", VERSION_EDITION, VERSION_PARTIAL);
+        io.error("This is version %d.%d\n", VERSION_MAJOR, VERSION_PARTIAL);
         io.error("Please get a newer version.");
         rom.close();
         return EXIT_FAILURE;
