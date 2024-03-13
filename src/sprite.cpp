@@ -225,8 +225,8 @@ template <typename T> T* from_table(T* table, int level, int number) {
 [[nodiscard]] bool patch(const patchfile& file, ROM& rom) {
     // clang-format off
     constexpr struct warnsetting disabled_warnings[] {
-        {.warnid = "W1001", .enabled = false},
-        {.warnid = "W1005", .enabled = false}
+        {.warnid = "Wrelative_path_used", .enabled = false},
+        {.warnid = "W65816_xx_y_assume_16_bit", .enabled = false}
     };
     addtempfile tmp{file};
     const int memfiles_size = static_cast<int>(g_memory_files.size());
@@ -285,8 +285,8 @@ template <typename T> T* from_table(T* table, int level, int number) {
     std::string patch_path{patch_name_rel}; //  = std::filesystem::absolute(patch_name_rel).generic_string();
     // clang-format off
     constexpr warnsetting disabled_warnings[] {
-        {.warnid = "W1001", .enabled = false},
-        {.warnid = "W1005", .enabled = false}
+        {.warnid = "Wrelative_path_used", .enabled = false},
+        {.warnid = "W65816_xx_y_assume_16_bit", .enabled = false}
     };
     patchparams params {
         .structsize = sizeof(patchparams), 
