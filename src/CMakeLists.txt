@@ -75,7 +75,7 @@ if (PIXI_BUILD_EXE OR PIXI_BUILD_DLL OR PIXI_BUILD_LIB)
     FetchContent_Declare(
 	    asar
 	    GIT_REPOSITORY https://github.com/RPGHacker/asar
-	    GIT_TAG v1.90
+	    GIT_TAG v1.91
 	    SOURCE_SUBDIR src
     )
     FetchContent_MakeAvailable(asar)
@@ -183,6 +183,10 @@ if (ASAR_USE_DLL)
     )
     list(APPEND PIXI_COMPILE_DEFINITIONS
         ASAR_USE_DLL
+    )
+else()
+    list(APPEND PIXI_SOURCE_FILES
+        "${CMAKE_CURRENT_SOURCE_DIR}/asar/asar.h"
     )
 endif()
 

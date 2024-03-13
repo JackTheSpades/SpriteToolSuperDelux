@@ -12,7 +12,7 @@
 #ifdef ASAR_USE_DLL
 #include "../asar/asardll.h"
 #else
-#include "interface-lib.h"
+#include "../asar/asar.h"
 #endif
 
 constexpr auto SPR_ADDR_LIMIT = 0x800;

@@ -2,7 +2,7 @@
 #ifdef ASAR_USE_DLL
 #include "asar/asardll.h"
 #else
-#include "interface-lib.h"
+#include "asar/asar.h"
 #endif
 #include "file_io.h"
 #include "iohandler.h"
