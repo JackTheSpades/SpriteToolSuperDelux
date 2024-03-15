@@ -25,7 +25,6 @@ namespace CFG
         public UserException() { }
         public UserException(string message) : base(message) { }
         public UserException(string message, Exception innerException) : base(message, innerException) { }
-        protected UserException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
         public UserException(string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon) : base(message)
         {
@@ -53,12 +52,11 @@ namespace CFG
         /// <summary>
         /// Restarts the stopwatch.
         /// </summary>
-        public static Stopwatch Stopwatch;
+        private static Stopwatch Stopwatch;
         [Conditional("DEBUG")]
         public static void Start()
         {
-            if (Stopwatch == null)
-                Stopwatch = new Stopwatch();
+            Stopwatch ??= new Stopwatch();
             Stopwatch.Restart();
         }
         /// <summary>
@@ -178,11 +176,10 @@ namespace CFG
         }
         public static TRet GetAll<T, TRet>(this IEnumerable<T> list, Func<T, TRet> get, TRet fallback, IEqualityComparer<TRet> comp = null)
         {
-            if (comp == null)
-                comp = EqualityComparer<TRet>.Default;
+            comp ??= EqualityComparer<TRet>.Default;
 
             bool first = true;
-            TRet prev = default(TRet);
+            TRet prev = default;
             foreach(T t in list)
             {
                 TRet ret = get(t);
@@ -204,12 +201,12 @@ namespace CFG
         /// <param name="start">The top color of the gradient</param>
         public static void SetBackgroundGradient(this Control control, Color end, Color start)
         {
-            Bitmap bm = new Bitmap(control.Width, control.Height);
+            Bitmap bm = new(control.Width, control.Height);
             using (Graphics g = Graphics.FromImage(bm))
             {
-                Rectangle rec = new Rectangle(0, 0, bm.Width, bm.Height);
-                using (LinearGradientBrush lgd = new LinearGradientBrush(rec, start, end, 90))
-                    g.FillRectangle(lgd, rec);
+                Rectangle rec = new(0, 0, bm.Width, bm.Height);
+                using LinearGradientBrush lgd = new(rec, start, end, 90);
+                g.FillRectangle(lgd, rec);
             }
             control.BackgroundImage = bm;
         }
@@ -227,13 +224,13 @@ namespace CFG
 
             //TOProp is expected to be a number type, like byte, int, long, etz.
 
-            Func<TOProp, int> castToControl = prop =>
+            int castToControl(TOProp prop)
             {
                 ulong val = Convert.ToUInt64(prop);
 
                 ulong and = (1ul << bitsToGet) - 1;
                 return (int)((val & (and << lsb)) >> lsb);
-            };
+            }
 
             Binding binding = control.Bind(obj, controlProperty, objectProperty, castToControl, null);
 
@@ -276,11 +273,11 @@ namespace CFG
 
             //TOProp is expected to be a number type, like byte, int, long, etz.
 
-            Func<TOProp, bool> castToControl = prop =>
+            bool castToControl(TOProp prop)
             {
                 ulong val = Convert.ToUInt64(prop);
                 return (val & (1ul << bit)) != 0;
-            };
+            }
 
             Binding binding = control.Bind(obj, controlProperty, objectProperty, castToControl, null);
 
@@ -340,7 +337,7 @@ namespace CFG
             if (objectProperty.Body as MemberExpression != null)
                 objectProp = GetName((MemberExpression)objectProperty.Body);
 
-            Binding bind = new Binding(controlProp, list, objectProp);
+            Binding bind = new(controlProp, list, objectProp);
 
             if (castToControl != null)
                 bind.Format += (_, e) => e.Value = castToControl(e.Value);
@@ -384,7 +381,7 @@ namespace CFG
             if (objectProperty.Body as MemberExpression != null)
                 objectProp = GetName((MemberExpression)objectProperty.Body);
 
-            Binding bind = new Binding(controlProp, obj, objectProp);
+            Binding bind = new(controlProp, obj, objectProp);
 
             if (castToControl != null)
                 bind.Format += (_, e) => e.Value = castToControl((TOProp)e.Value);
@@ -419,12 +416,8 @@ namespace CFG
     }
 
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
-    public class DisplayNameAttribute : Attribute
+    public class DisplayNameAttribute(string name) : Attribute
     {
-        public string Name { get; set; }
-        public DisplayNameAttribute(string name)
-        {
-            Name = name;
-        }
+        public string Name { get; set; } = name;
     }
 }

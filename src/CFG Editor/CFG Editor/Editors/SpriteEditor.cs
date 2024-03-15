@@ -97,7 +97,7 @@ namespace CFG.Map16
         public SpriteEditor()
         {
             InitializeComponent();
-            pcbSprite.MouseWheel += pcbSprite_MouseWheel;
+            pcbSprite.MouseWheel += PcbSprite_MouseWheel;
             UpdateGrid(16);
 
             rtbDisplayText.Bind(this, c => c.Text, s => s.Sprite.DisplayText);
@@ -127,19 +127,21 @@ namespace CFG.Map16
         {
             pcbSprite.BackgroundImage?.Dispose();
 
-            Bitmap bm = new Bitmap(pcbSprite.Width, pcbSprite.Height);
+            Bitmap bm = new(pcbSprite.Width, pcbSprite.Height);
 
             //SpriteBM = new Bitmap(pcbSprite.Width, pcbSprite.Height);
             using (Graphics g = Graphics.FromImage(bm))
             {
-                Rectangle rec = new Rectangle(0, 0, bm.Width, bm.Height);
-                using (LinearGradientBrush lgd = new LinearGradientBrush(rec, Color.Red, Color.FromArgb(255, 96, 0, 0), 90))
+                Rectangle rec = new(0, 0, bm.Width, bm.Height);
+                using (LinearGradientBrush lgd = new(rec, Color.Red, Color.FromArgb(255, 96, 0, 0), 90))
                     g.FillRectangle(lgd, rec);
 
                 if (size > 4)
                 {
-                    Pen dashed = new Pen(Color.White);
-                    dashed.DashStyle = DashStyle.Dot;
+                    Pen dashed = new(Color.White)
+                    {
+                        DashStyle = DashStyle.Dot
+                    };
 
                     for (int x = 0; x < pcbSprite.Width; x += size)
                         g.DrawLine(dashed, x, 0, x, pcbSprite.Height - 1);
@@ -157,7 +159,7 @@ namespace CFG.Map16
         public void UpdateSpriteScreen(Size imageSize)
         {
             pcbSprite.Image?.Dispose();
-            Bitmap Image = new Bitmap(imageSize.Width, imageSize.Height);
+            Bitmap Image = new(imageSize.Width, imageSize.Height);
 
             using (Graphics g = Graphics.FromImage(Image))
             {
@@ -185,16 +187,16 @@ namespace CFG.Map16
                             int yGet = (t.Map16Number / 16) * 16;
 
                             Image img = Map16Data.Image.Clone(new Rectangle(xGet, yGet, 16, 16), System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                            System.Drawing.Imaging.ImageAttributes attr = new System.Drawing.Imaging.ImageAttributes();
+                            System.Drawing.Imaging.ImageAttributes attr = new();
                             if (t.Selected)
-                                attr.SetColorMatrix(new System.Drawing.Imaging.ColorMatrix(new float[][]
-                            {
-                            new float[] {-1f, 0, 0, 0, 0},
-                            new float[] {0, -1f, 0, 0, 0},
-                            new float[] {0, 0, -1f, 0, 0},
-                            new float[] {0, 0, 0, +1f, 0},
-                            new float[] {1, 1, 1, 0, +1f},
-                            }));
+                                attr.SetColorMatrix(new System.Drawing.Imaging.ColorMatrix(
+                            [
+                            [-1f, 0, 0, 0, 0],
+                            [0, -1f, 0, 0, 0],
+                            [0, 0, -1f, 0, 0],
+                            [0, 0, 0, +1f, 0],
+                            [1, 1, 1, 0, +1f],
+                            ]));
 
                             g.DrawImage(img, new Rectangle(xDraw, yDraw, 16, 16), 0, 0, 16, 16, GraphicsUnit.Pixel, attr);
                         }
@@ -205,16 +207,16 @@ namespace CFG.Map16
             pcbSprite.Image = Image;
         }
 
-        private Bitmap ConvertStringToImage(string text)
+        private static Bitmap ConvertStringToImage(string text)
         {
             string[] lines = text.Replace("\\n", "\n").Split('\n');
             if (lines.All(s => s.Length == 0))
                 return null;
             int max = lines.Max(s => s.Length);
-            Bitmap bm = new Bitmap(max * 8, lines.Length * 8);
+            Bitmap bm = new(max * 8, lines.Length * 8);
 
-            char[] special = new char[] { ',', '.', '!', '?', '-', ' ', '\'', '"', '&' };
-            Size sz = new System.Drawing.Size(8, 8);
+            char[] special = [',', '.', '!', '?', '-', ' ', '\'', '"', '&'];
+            Size sz = new(8, 8);
 
             int yDest = 0;
             Bitmap letter = Properties.Resources.Letters;
@@ -253,8 +255,8 @@ namespace CFG.Map16
                             xSrc = 16 * 8;  //srouce = ' '
                         }
 
-                        Point src = new Point(xSrc, ySrc);
-                        Point dest = new Point(xDest, yDest);
+                        Point src = new(xSrc, ySrc);
+                        Point dest = new(xDest, yDest);
 
                         g.DrawImage(letter.Clone(new Rectangle(src, sz), letter.PixelFormat), new Rectangle(dest, sz));
                     }
@@ -301,14 +303,14 @@ namespace CFG.Map16
         }
 
         private Point _startDrawPos;
-        private void pcbSprite_MouseMove(object sender, MouseEventArgs e)
+        private void PcbSprite_MouseMove(object sender, MouseEventArgs e)
         {
             if (Sprite == null)
                 return;
 
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
-                if (Sprite.Tiles.Count(s => s.Selected) == 0)
+                if (!Sprite.Tiles.Any(s => s.Selected))
                     return;
 
                 if (Cursor.Current == Cursors.SizeAll)
@@ -338,7 +340,7 @@ namespace CFG.Map16
                 Cursor.Current = Cursors.Default;
             }
         }
-        private void pcbSprite_MouseDown(object sender, MouseEventArgs e)
+        private void PcbSprite_MouseDown(object sender, MouseEventArgs e)
         {
             if (UseText)
                 return;
@@ -350,7 +352,7 @@ namespace CFG.Map16
             {
                 int xPix = e.X / GridSize;
                 int yPix = e.Y / GridSize;
-                Point p = new Point(xPix * GridSize, yPix * GridSize);
+                Point p = new(xPix * GridSize, yPix * GridSize);
 
                 int xOff = p.X - (pcbSprite.Width / 2 - 8);
                 int yOff = p.Y - (pcbSprite.Height / 2 - 8);
@@ -373,12 +375,12 @@ namespace CFG.Map16
                 UpdateSpriteScreen(pcbSprite.Size);
             }
         }
-        private void pcbSprite_MouseWheel(object sender, MouseEventArgs e)
+        private void PcbSprite_MouseWheel(object sender, MouseEventArgs e)
         {
             if (Sprite == null)
                 return;
 
-            if (Sprite.Tiles.Count(s => s.Selected) == 0)
+            if (!Sprite.Tiles.Any(s => s.Selected))
                 return;
 
             int val = (e.Delta / -120); //scrolling up negative value, which will decrease the Z order.
@@ -400,12 +402,10 @@ namespace CFG.Map16
                     off = limit--;
 
                 //swap them
-                Tile sp = Sprite.Tiles[i];
-                Sprite.Tiles[i] = Sprite.Tiles[off];
-                Sprite.Tiles[off] = sp;
+                (Sprite.Tiles[off], Sprite.Tiles[i]) = (Sprite.Tiles[i], Sprite.Tiles[off]);
             }
         }
-        private void pcbSprite_MouseEnter(object sender, EventArgs e)
+        private void PcbSprite_MouseEnter(object sender, EventArgs e)
         {
             pcbSprite.Focus();
         }

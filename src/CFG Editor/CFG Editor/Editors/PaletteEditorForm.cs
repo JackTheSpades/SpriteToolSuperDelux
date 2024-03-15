@@ -40,13 +40,13 @@ namespace CFG.Editors
                 return;
             }
 
-            Bitmap bm = new Bitmap(pcbDisplay.Width, pcbDisplay.Height);
+            Bitmap bm = new(pcbDisplay.Width, pcbDisplay.Height);
 
             using(Graphics g = Graphics.FromImage(bm))
                 for(int x = 0; x < 16; x++)
                     for(int y = 0; y < 8; y++)
                     {
-                        Rectangle rec = new Rectangle(x * 16 * Zoom, y * 16 * Zoom, 16 * Zoom, 16 * Zoom);
+                        Rectangle rec = new(x * 16 * Zoom, y * 16 * Zoom, 16 * Zoom, 16 * Zoom);
                         g.FillRectangle(new SolidBrush(Resources.Palette[y][x]), rec);
                     }
 
@@ -54,7 +54,7 @@ namespace CFG.Editors
         }
 
 
-        private void pcbDisplay_MouseDown(object sender, MouseEventArgs e)
+        private void PcbDisplay_MouseDown(object sender, MouseEventArgs e)
         {
             int row = e.Y / (16 * Zoom);
             int col = e.X / (16 * Zoom);
@@ -65,9 +65,11 @@ namespace CFG.Editors
                 return;
             }
 
-            ColorDialog cd = new ColorDialog();
-            cd.Color = Resources.Palette[row][col];
-            cd.FullOpen = true;
+            ColorDialog cd = new()
+            {
+                Color = Resources.Palette[row][col],
+                FullOpen = true
+            };
             if (cd.ShowDialog() != DialogResult.OK)
                 return;
 
@@ -89,7 +91,7 @@ namespace CFG.Editors
             if (copy && entireRow)
                 clipboard = (Color[])Resources.Palette[row].Clone();
             else if (copy && !entireRow)
-                clipboard = new Color[1] { Resources.Palette[row][col] };
+                clipboard = [Resources.Palette[row][col]];
             else if (!copy && entireRow && clipboard.Length != 1)
                 Resources.Palette[row] = (Color[])clipboard.Clone();
             else if (!copy && !entireRow && clipboard.Length == 1)
@@ -121,11 +123,13 @@ namespace CFG.Editors
             return palette;
         }
 
-        private void btnLoad_Click(object sender, EventArgs e)
+        private void BtnLoad_Click(object sender, EventArgs e)
         {
-            var ofd = new OpenFileDialog();
-            ofd.Title = "Load Palette";
-            ofd.Filter = "Palette File|*.pal";
+            var ofd = new OpenFileDialog
+            {
+                Title = "Load Palette",
+                Filter = "Palette File|*.pal"
+            };
             if (ofd.ShowDialog() != DialogResult.OK)
                 return;
 
@@ -135,16 +139,10 @@ namespace CFG.Editors
         }
     }
 
-    public class PaletteChangedEventArges : EventArgs
+    public class PaletteChangedEventArges(int row, int col) : EventArgs
     {
         public const int EntireRow = -1;
-        public int Column { get; set; }
-        public int Row { get; set; }
-
-        public PaletteChangedEventArges(int row, int col)
-        {
-            Row = row;
-            Column = col;
-        }
+        public int Column { get; set; } = col;
+        public int Row { get; set; } = row;
     }
 }

@@ -32,8 +32,6 @@ namespace CFG.Editors
 
         public int HoverTile { get; private set; }
 
-        int SelectedTileX;
-        int SelectedTileY;
         public int SelectedTile { get; private set; }
 
         public Tile8x8EditorForm(Map16Resources map16Resources)
@@ -53,7 +51,7 @@ namespace CFG.Editors
 
             using (Graphics g = Graphics.FromImage(img))
             {
-                Rectangle rec = new Rectangle(0, 0, img.Width, img.Height);
+                Rectangle rec = new(0, 0, img.Width, img.Height);
                 using (var lgd = new System.Drawing.Drawing2D.LinearGradientBrush(rec, Color.FromArgb(0, 64, 0), Color.FromArgb(0, 255, 0), 90))
                     g.FillRectangle(lgd, rec);
 
@@ -74,20 +72,18 @@ namespace CFG.Editors
             return base.ProcessDialogKey(keyData);
         }
 
-        private void pcb_MouseMove(object sender, MouseEventArgs e)
+        private void Pcb_MouseMove(object sender, MouseEventArgs e)
         {
             int HoverX = e.X / 16;
             int HoverY = e.Y / 16;
             int off = vScrollBar1.Value * 0x100;
 
             HoverTile = off + (HoverY * 16) + HoverX;
-            toolStripStatusLabel1.Text = $"Tile: {HoverTile.ToString("X3")}";
+            toolStripStatusLabel1.Text = $"Tile: {HoverTile:X3}";
         }
 
-        private void pcb_MouseClick(object sender, MouseEventArgs e)
+        private void Pcb_MouseClick(object sender, MouseEventArgs e)
         {
-            SelectedTileX = e.X / 16;
-            SelectedTileY = e.Y / 16;
             SelectedTile = HoverTile;
         }
     }

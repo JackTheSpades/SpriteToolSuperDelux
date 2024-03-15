@@ -28,43 +28,45 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.rtbDisplayText = new System.Windows.Forms.RichTextBox();
-            this.pcbSprite = new System.Windows.Forms.PictureBox();
-            ((System.ComponentModel.ISupportInitialize)(this.pcbSprite)).BeginInit();
-            this.SuspendLayout();
+            rtbDisplayText = new System.Windows.Forms.RichTextBox();
+            pcbSprite = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)pcbSprite).BeginInit();
+            SuspendLayout();
             // 
             // rtbDisplayText
             // 
-            this.rtbDisplayText.Location = new System.Drawing.Point(0, 118);
-            this.rtbDisplayText.Name = "rtbDisplayText";
-            this.rtbDisplayText.Size = new System.Drawing.Size(176, 58);
-            this.rtbDisplayText.TabIndex = 19;
-            this.rtbDisplayText.Text = "";
-            this.rtbDisplayText.Visible = false;
-            this.rtbDisplayText.WordWrap = false;
+            rtbDisplayText.Location = new System.Drawing.Point(0, 136);
+            rtbDisplayText.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            rtbDisplayText.Name = "rtbDisplayText";
+            rtbDisplayText.Size = new System.Drawing.Size(205, 66);
+            rtbDisplayText.TabIndex = 19;
+            rtbDisplayText.Text = "";
+            rtbDisplayText.Visible = false;
+            rtbDisplayText.WordWrap = false;
             // 
             // pcbSprite
             // 
-            this.pcbSprite.Location = new System.Drawing.Point(0, 0);
-            this.pcbSprite.Name = "pcbSprite";
-            this.pcbSprite.Size = new System.Drawing.Size(176, 176);
-            this.pcbSprite.TabIndex = 16;
-            this.pcbSprite.TabStop = false;
-            this.pcbSprite.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pcbSprite_MouseDown);
-            this.pcbSprite.MouseEnter += new System.EventHandler(this.pcbSprite_MouseEnter);
-            this.pcbSprite.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pcbSprite_MouseMove);
+            pcbSprite.Location = new System.Drawing.Point(0, 0);
+            pcbSprite.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            pcbSprite.Name = "pcbSprite";
+            pcbSprite.Size = new System.Drawing.Size(205, 203);
+            pcbSprite.TabIndex = 16;
+            pcbSprite.TabStop = false;
+            pcbSprite.MouseDown += PcbSprite_MouseDown;
+            pcbSprite.MouseEnter += PcbSprite_MouseEnter;
+            pcbSprite.MouseMove += PcbSprite_MouseMove;
             // 
             // SpriteEditor
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.rtbDisplayText);
-            this.Controls.Add(this.pcbSprite);
-            this.Name = "SpriteEditor";
-            this.Size = new System.Drawing.Size(176, 176);
-            ((System.ComponentModel.ISupportInitialize)(this.pcbSprite)).EndInit();
-            this.ResumeLayout(false);
-
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            Controls.Add(rtbDisplayText);
+            Controls.Add(pcbSprite);
+            Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            Name = "SpriteEditor";
+            Size = new System.Drawing.Size(205, 203);
+            ((System.ComponentModel.ISupportInitialize)pcbSprite).EndInit();
+            ResumeLayout(false);
         }
 
         #endregion

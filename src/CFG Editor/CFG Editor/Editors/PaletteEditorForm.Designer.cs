@@ -28,54 +28,57 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.pcbDisplay = new System.Windows.Forms.PictureBox();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.btnLoad = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.pcbDisplay)).BeginInit();
-            this.SuspendLayout();
+            pcbDisplay = new System.Windows.Forms.PictureBox();
+            comboBox1 = new System.Windows.Forms.ComboBox();
+            btnLoad = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)pcbDisplay).BeginInit();
+            SuspendLayout();
             // 
             // pcbDisplay
             // 
-            this.pcbDisplay.BackColor = System.Drawing.Color.Black;
-            this.pcbDisplay.Location = new System.Drawing.Point(12, 12);
-            this.pcbDisplay.Name = "pcbDisplay";
-            this.pcbDisplay.Size = new System.Drawing.Size(256, 128);
-            this.pcbDisplay.TabIndex = 0;
-            this.pcbDisplay.TabStop = false;
-            this.pcbDisplay.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pcbDisplay_MouseDown);
+            pcbDisplay.BackColor = System.Drawing.Color.Black;
+            pcbDisplay.Location = new System.Drawing.Point(14, 14);
+            pcbDisplay.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            pcbDisplay.Name = "pcbDisplay";
+            pcbDisplay.Size = new System.Drawing.Size(299, 148);
+            pcbDisplay.TabIndex = 0;
+            pcbDisplay.TabStop = false;
+            pcbDisplay.MouseDown += PcbDisplay_MouseDown;
             // 
             // comboBox1
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(93, 146);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(109, 21);
-            this.comboBox1.TabIndex = 1;
+            comboBox1.FormattingEnabled = true;
+            comboBox1.Location = new System.Drawing.Point(108, 168);
+            comboBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            comboBox1.Name = "comboBox1";
+            comboBox1.Size = new System.Drawing.Size(126, 23);
+            comboBox1.TabIndex = 1;
             // 
             // btnLoad
             // 
-            this.btnLoad.Location = new System.Drawing.Point(12, 146);
-            this.btnLoad.Name = "btnLoad";
-            this.btnLoad.Size = new System.Drawing.Size(75, 21);
-            this.btnLoad.TabIndex = 2;
-            this.btnLoad.Text = "Load";
-            this.btnLoad.UseVisualStyleBackColor = true;
-            this.btnLoad.Click += new System.EventHandler(this.btnLoad_Click);
+            btnLoad.Location = new System.Drawing.Point(14, 168);
+            btnLoad.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            btnLoad.Name = "btnLoad";
+            btnLoad.Size = new System.Drawing.Size(88, 24);
+            btnLoad.TabIndex = 2;
+            btnLoad.Text = "Load";
+            btnLoad.UseVisualStyleBackColor = true;
+            btnLoad.Click += BtnLoad_Click;
             // 
             // PaletteEditorForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(286, 180);
-            this.Controls.Add(this.btnLoad);
-            this.Controls.Add(this.comboBox1);
-            this.Controls.Add(this.pcbDisplay);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-            this.Name = "PaletteEditorForm";
-            this.Text = "Palette";
-            ((System.ComponentModel.ISupportInitialize)(this.pcbDisplay)).EndInit();
-            this.ResumeLayout(false);
-
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(334, 208);
+            Controls.Add(btnLoad);
+            Controls.Add(comboBox1);
+            Controls.Add(pcbDisplay);
+            FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            Name = "PaletteEditorForm";
+            Text = "Palette";
+            ((System.ComponentModel.ISupportInitialize)pcbDisplay).EndInit();
+            ResumeLayout(false);
         }
 
         #endregion

@@ -35,12 +35,14 @@ namespace CFG.Map16
         {
             InitializeComponent();
 
-            FileDialog = new OpenFileDialog();
-            FileDialog.Filter = "All files|*.*|Binary files|*.bin";
-            FileDialog.Title = "Select File";
+            FileDialog = new OpenFileDialog
+            {
+                Filter = "All files|*.*|Binary files|*.bin",
+                Title = "Select File"
+            };
         }
 
-        private void btnButton_Click(object sender, EventArgs e)
+        private void BtnButton_Click(object sender, EventArgs e)
         {
             if (FileDialog.ShowDialog() != DialogResult.OK)
                 return;

@@ -9,13 +9,9 @@ using System.Threading.Tasks;
 namespace CFG.Map16
 {
     public delegate void TileChangedEventHandler(object sender, TileChangedEventArgs e);
-    public class TileChangedEventArgs : EventArgs
+    public class TileChangedEventArgs(IEnumerable<int> tiles) : EventArgs
     {
-        public int[] Tiles { get; set; }
-        public TileChangedEventArgs(IEnumerable<int> tiles)
-        {
-            Tiles = tiles.ToArray();
-        }
+        public int[] Tiles { get; set; } = tiles.ToArray();
     }
 
     public interface INotifyTileChanged : INotifyPropertyChanged
@@ -27,14 +23,9 @@ namespace CFG.Map16
     /// Class is a 4BPP representation of SNES Graphics given raw byte data.
     /// Is is only used for displaying purpose, no editing or otherwise manipulation of the underlying data.
     /// </summary>
-    public class SnesGraphics : INotifyTileChanged
+    public class SnesGraphics(byte[] data) : INotifyTileChanged
     {
-        public readonly byte[] Data;
-
-        public SnesGraphics(byte[] data)
-        {
-            Data = data;
-        }
+        public readonly byte[] Data = data;
 
         public event TileChangedEventHandler TileChanged;
         public event PropertyChangedEventHandler PropertyChanged;
@@ -50,7 +41,7 @@ namespace CFG.Map16
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Data)));
         }
 
-        private IEnumerable<int> CountTo(int start, int length)
+        private static IEnumerable<int> CountTo(int start, int length)
         {
             for (int i = 0; i < length; i++)
                 yield return start + i;
@@ -69,7 +60,7 @@ namespace CFG.Map16
         {
             //create new bitmap and marshal the thing to a byte array... because Bitmap.GetPixel/SetPixel are insanely slow.
             //byte array is simple 4 byte per pixel with BGRA format.
-            Bitmap bm = new Bitmap(size.Width * 8, size.Height * 8);
+            Bitmap bm = new(size.Width * 8, size.Height * 8);
             var bmdata = bm.LockBits(new Rectangle(0, 0, bm.Width, bm.Height), System.Drawing.Imaging.ImageLockMode.ReadWrite, bm.PixelFormat);
             byte[] content = new byte[bmdata.Stride * bmdata.Height];
             System.Runtime.InteropServices.Marshal.Copy(bmdata.Scan0, content, 0, content.Length);
@@ -82,10 +73,8 @@ namespace CFG.Map16
                     int targetTile = tile + ((x / 8) % loopX) + (((y / 8) * loopX) % loopY);
 
                     //4 byte per pixel
-                    int byteOffset = (x + y * bm.Width) * 4;            
-                    int pal = 0;
-                    
-                    pal = GetPixel8x8(targetTile, x, y);        //x and y are being modolod in the method
+                    int byteOffset = (x + y * bm.Width) * 4;
+                    int pal = GetPixel8x8(targetTile, x, y);
 
                     Color c = Color.Transparent;
                     if (pal != 0)

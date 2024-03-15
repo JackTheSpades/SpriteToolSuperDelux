@@ -106,18 +106,11 @@ namespace CFG
             timer1.Start();
         }
 
-        private int ToInt(string str)
-        {
-            if (string.IsNullOrWhiteSpace(str))
-                return 0;
-            return Convert.ToInt32(str, 16);
-        }
-
         public void StartAnimation() => timer1.Start();
         public void StopAnimation() => timer1.Stop();
         
         int last = 0;
-        private void vScrollBar_ValueChanged(object sender, EventArgs e)
+        private void VScrollBar_ValueChanged(object sender, EventArgs e)
         {
             int inc = (last - vScrollBar.Value) * 2;
             last = vScrollBar.Value;
@@ -153,7 +146,7 @@ namespace CFG
         }
 
 
-        private void pcbMap16_MouseClick(object sender, MouseEventArgs e)
+        private void PcbMap16_MouseClick(object sender, MouseEventArgs e)
         {
             byte[] previousData = null;
             if (e.Button == MouseButtons.Right)
@@ -177,7 +170,7 @@ namespace CFG
             SelectionChanged?.Invoke(this, new TileChangedEventArgs(SelectedTile, XY_ToPoint(x8Selected, y8Selected)));
         }
 
-        private void pcbMap16_MouseMove(object sender, MouseEventArgs e)
+        private void PcbMap16_MouseMove(object sender, MouseEventArgs e)
         {
             x8LastHover = e.X / 8;
             y8LastHover = e.Y / 8;
@@ -191,41 +184,38 @@ namespace CFG
         {
             Diagnose.Start();
             Bitmap bg = pcbMap16.BackgroundImage as Bitmap;
-            if (bg != null)
-                bg.Dispose();
+            bg?.Dispose();
 
             bg = new Bitmap(pcbMap16.Width, pcbMap16.Height);
 
             using (Graphics g = Graphics.FromImage(bg))
             {
-                Rectangle recGrad = new Rectangle(0, 0, bg.Width, bg.Height);
-                using (LinearGradientBrush lgd = new LinearGradientBrush(recGrad, Color.Blue, Color.FromArgb(255, 0, 0, 96), 90))
+                Rectangle recGrad = new(0, 0, bg.Width, bg.Height);
+                using (LinearGradientBrush lgd = new(recGrad, Color.Blue, Color.FromArgb(255, 0, 0, 96), 90))
                     g.FillRectangle(lgd, recGrad);
 
-                Rectangle rec = new Rectangle(0, vScrollBar.Value * 16, 256, 256);
+                Rectangle rec = new(0, vScrollBar.Value * 16, 256, 256);
                 g.DrawImage(Map.Image, 0, 0, rec, GraphicsUnit.Pixel);
 
                 if (ShowGrid)
                 {
-                    using (Pen p = new Pen(Color.White))
-                    {
-                        for (int x = 15; x < bg.Width; x += 16)
-                            g.DrawLine(p, x, 0, x, bg.Height - 1);
-                        for (int y = 15; y < bg.Height; y += 16)
-                            g.DrawLine(p, 0, y, bg.Width - 1, y);
-                    }
+                    using Pen p = new(Color.White);
+                    for (int x = 15; x < bg.Width; x += 16)
+                        g.DrawLine(p, x, 0, x, bg.Height - 1);
+                    for (int y = 15; y < bg.Height; y += 16)
+                        g.DrawLine(p, 0, y, bg.Width - 1, y);
                 }
                 if (PrintPage)
                 {
                     int end = 16 - (vScrollBar.Value % 16);
 
-                    Point[] points = new Point[]
-                    {
-                        new Point(0, 0),
-                        new Point(0, end * 16),
-                        new Point(bg.Width, end * 16),
-                        new Point(bg.Width, 0),
-                    };
+                    Point[] points =
+                    [
+                        new(0, 0),
+                        new(0, end * 16),
+                        new(bg.Width, end * 16),
+                        new(bg.Width, 0),
+                    ];
                     g.DrawLines(new Pen(Color.FromArgb(128, Color.Blue), 6), points);
                 }
 
@@ -235,10 +225,10 @@ namespace CFG
             Diagnose.Time();
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private void Timer1_Tick(object sender, EventArgs e)
         {
             pcbMap16.Image?.Dispose();
-            Bitmap fg = new Bitmap(pcbMap16.Width, pcbMap16.Height);
+            Bitmap fg = new(pcbMap16.Width, pcbMap16.Height);
 
             using (Graphics g = Graphics.FromImage(fg))
             {
@@ -247,20 +237,18 @@ namespace CFG
                 int upperLimit = 32 - dev;
                 if (x8Selected >= 0 && x8Selected <= upperLimit && y8Selected >= 0 && y8Selected <= upperLimit)
                 {
-                    Rectangle recSelected = new Rectangle(x8Selected / dev * size, y8Selected / dev * size, size, size);
+                    Rectangle recSelected = new(x8Selected / dev * size, y8Selected / dev * size, size, size);
                     g.DrawRectangle(new Pen(Color.White), recSelected);
 
-                    using (Pen pDash = new Pen(Color.Blue))
-                    {
-                        pDash.DashStyle = DashStyle.Dash;
-                        pDash.DashOffset = dashOffset;
-                        dashOffset -= 0.5f;
-                        g.DrawRectangle(pDash, recSelected);
-                    }
+                    using Pen pDash = new(Color.Blue);
+                    pDash.DashStyle = DashStyle.Dash;
+                    pDash.DashOffset = dashOffset;
+                    dashOffset -= 0.5f;
+                    g.DrawRectangle(pDash, recSelected);
                 }
                 if (x8LastHover != -1 && y8LastHover != -1)
                 {
-                    Rectangle recSelected = new Rectangle(x8LastHover / dev * size, y8LastHover / dev * size, size, size);
+                    Rectangle recSelected = new(x8LastHover / dev * size, y8LastHover / dev * size, size, size);
                     g.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Magenta)), recSelected);
                 }
             }
@@ -289,19 +277,14 @@ namespace CFG
             return base.ProcessDialogKey(keyData);
         }
 
-        private void pcbMap16_MouseEnter(object sender, EventArgs e)
+        private void PcbMap16_MouseEnter(object sender, EventArgs e)
         {
             pcbMap16.Focus();
         }
     }
 
-    public class Map16Empty : IMap16Object
+    public class Map16Empty(int size) : IMap16Object
     {
-        public Map16Empty(int size)
-        {
-            Size = new Size(size, size);
-        }
-
         public int BottomLeft
         {
             get { return 0xFFF; }
@@ -331,7 +314,7 @@ namespace CFG
 
         public int PixelX => 0;
         public int PixelY => 0;
-        public Size Size { get; private set; }
+        public Size Size { get; private set; } = new Size(size, size);
 
         public Map16Resources Resources
         {
@@ -352,16 +335,10 @@ namespace CFG
         public byte[] GetData() => new byte[Size.Width * Size.Height / 32];
     }
 
-    public class TileChangedEventArgs : EventArgs
+    public class TileChangedEventArgs(int tile, Point point) : EventArgs
     {
-        public int Tile { get; set; }
-        public Point Point { get; set; }
-
-        public TileChangedEventArgs(int tile, Point point)
-        {
-            Tile = tile;
-            Point = point;
-        }
+        public int Tile { get; set; } = tile;
+        public Point Point { get; set; } = point;
     }
     public delegate void SelectionChangedEventHandler(object sender, TileChangedEventArgs e);
     public delegate void HoverChangedEventHandler(object sender, TileChangedEventArgs e);

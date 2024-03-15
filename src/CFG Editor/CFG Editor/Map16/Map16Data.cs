@@ -71,7 +71,7 @@ namespace CFG.Map16
         public int TileNumber { get; private set; }
         public int PixelX { get; private set; }
         public int PixelY { get; private set; }
-        public Size Size => new Size(8, 8);
+        public Size Size => new(8, 8);
 
         public int GFXNumber
         {
@@ -80,7 +80,7 @@ namespace CFG.Map16
             set
             {
                 if (value < 0 || value > 0x3FF)
-                    throw new ArgumentOutOfRangeException("Tile must be inbetween 0 and 0x3FF");
+                    throw new ArgumentOutOfRangeException("GFXNumber");
                 Data[0] = (byte)value;
                 Data[1] = Data[1].SetBits((value >> 8) & 0x03, 2, 0);
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(GFXNumber)));
@@ -109,7 +109,7 @@ namespace CFG.Map16
 			set
 			{
 				if (value < 0 || value > 7)
-					throw new ArgumentOutOfRangeException("Palette must be inbetween 0 and 7");
+					throw new ArgumentOutOfRangeException("Palette");
                 Data[1] = Data[1].SetBits(value, 3, 2);
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Palette)));
             }
@@ -190,7 +190,7 @@ namespace CFG.Map16
 			if (this is null)
 				return false;
 
-            if (!(obj is Map16Tile8x8 m))
+            if (obj is not Map16Tile8x8 m)
                 return false;
 
             return Data[0] == m.Data[0] && Data[1] == m.Data[1];
@@ -241,7 +241,7 @@ namespace CFG.Map16
         public int TileNumber { get; private set; }
 		public int PixelX { get { return (TileNumber % 16) * 16; } }
 		public int PixelY { get { return (TileNumber / 16) * 16; } }
-        public Size Size => new Size(16, 16);
+        public Size Size => new(16, 16);
 
         public const int TopLeftIndex = 0;
         public const int BottomLeftIndex = 1;
@@ -331,7 +331,7 @@ namespace CFG.Map16
 
 		public Image GetImage()
 		{
-			Bitmap bm = new Bitmap(16, 16);
+            Bitmap bm = new(16, 16);
 			using(Graphics g = System.Drawing.Graphics.FromImage(bm))
 			{
                 foreach (Map16Tile8x8 sub in SubTiles)
@@ -342,10 +342,10 @@ namespace CFG.Map16
 
         public byte[] GetData()
         {
-            List<byte> b = new List<byte>();
+            List<byte> b = [];
             foreach (var m in SubTiles)
                 b.AddRange(m.Data);
-            return b.ToArray();
+            return [.. b];
         }
         
         public bool IsEmpty()
@@ -358,7 +358,7 @@ namespace CFG.Map16
 			if (object.ReferenceEquals(obj, this))
 				return true;
 
-            if (!(obj is Map16Tile16x16 m))
+            if (obj is not Map16Tile16x16 m)
                 return false;
 
             for (int i = 0; i < 4; i++)
@@ -419,7 +419,7 @@ namespace CFG.Map16
                 throw new ArgumentException("Length must be 8 or 2", nameof(data));
         }
 
-        private void SwapData(byte[] bytes1, byte[] bytes2)
+        private static void SwapData(byte[] bytes1, byte[] bytes2)
         {
             if (bytes1.Length != bytes2.Length)
                 throw new ArgumentException("Arrays need same length");
@@ -447,7 +447,7 @@ namespace CFG.Map16
             }
         }
 
-        protected Size SizeInBlocks => new Size(Size.Width / 8, Size.Height / 16);
+        protected Size SizeInBlocks => new(Size.Width / 8, Size.Height / 16);
 
 
         public int BottomLeft
@@ -693,7 +693,7 @@ namespace CFG.Map16
         /// <returns></returns>
         public byte[] GetNotEmptyData()
         {
-            List<byte> data = new List<byte>();
+            List<byte> data = [];
             int size = 0x3FF;
             while (Map[size].IsEmpty() && size >= 0x300)
                 size--;
@@ -701,7 +701,7 @@ namespace CFG.Map16
 
             for(int index = 0x300; index <= size; index++)
                 data.AddRange(Map[index].GetData());
-            return data.ToArray();
+            return [.. data];
         }
 
         public void ChangeData(byte[] data, int x8, int y8)
@@ -793,14 +793,12 @@ namespace CFG.Map16
 
 
             //redraw.
-            Rectangle rec = new Rectangle(obj.PixelX, obj.PixelY, obj.Size.Width, obj.Size.Height);
-            using (Graphics g = Graphics.FromImage(Image))
-            {
-                g.SetClip(rec);
-                g.Clear(Color.Transparent);
-                g.SetClip(new Rectangle(Point.Empty, Image.Size));
-                g.DrawImage(obj.GetImage(), rec);
-            }
+            Rectangle rec = new(obj.PixelX, obj.PixelY, obj.Size.Width, obj.Size.Height);
+            using Graphics g = Graphics.FromImage(Image);
+            g.SetClip(rec);
+            g.Clear(Color.Transparent);
+            g.SetClip(new Rectangle(Point.Empty, Image.Size));
+            g.DrawImage(obj.GetImage(), rec);
         }
         
     }

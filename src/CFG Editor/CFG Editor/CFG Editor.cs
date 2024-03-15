@@ -71,7 +71,7 @@ namespace CFG
                 if (unsaved != value)
                 {
                     unsaved = value;
-                    Filename = Filename;    //update filename using setter method
+                    Filename = filename;    //update filename using setter method
                 }
             }
         }
@@ -90,16 +90,16 @@ namespace CFG
 
         #endregion
 
-        readonly BindingList<ComboBoxItem> types_list = new BindingList<ComboBoxItem>();
-        readonly BindingList<ComboBoxItem> sprites_list = new BindingList<ComboBoxItem>();
-        readonly Map16Resources resources = new Map16.Map16Resources();
+        readonly BindingList<ComboBoxItem> types_list = [];
+        readonly BindingList<ComboBoxItem> sprites_list = [];
+        readonly Map16Resources resources = new();
         Editors.PaletteEditorForm paletteEditorForm = null;
         Editors.Tile8x8EditorForm tile8X8EditorForm = null;
         NumericUpDown extraByteIndexUpDown = null;
 
         FileType FileType;
         byte[] RomData = null;
-        readonly List<ControlEnabler> control_enablers = new List<ControlEnabler>();
+        readonly List<ControlEnabler> control_enablers = [];
 
         public void DisplaySourceCurrentChanged(object o, EventArgs e)
         {
@@ -175,12 +175,14 @@ namespace CFG
 
             #region map16 resources
 
-            List<byte> gfx = new List<byte>();
-            gfx.AddRange(Enumerable.Repeat<byte>(0, 0x4000));
-            gfx.AddRange(GetGfxArray(0x33, 0x3000));
-            gfx.AddRange(Enumerable.Repeat<byte>(0, 0x800));
+            List<byte> gfx =
+            [
+                .. Enumerable.Repeat<byte>(0, 0x4000),
+                .. GetGfxArray(0x33, 0x3000),
+                .. Enumerable.Repeat<byte>(0, 0x800),
+            ];
 
-            resources.Graphics = new Map16.SnesGraphics(gfx.ToArray());
+            resources.Graphics = new Map16.SnesGraphics([.. gfx]);
             resources.Palette = Editors.PaletteEditorForm.ColorArrayFromBytes(CFG.Properties.Resources.sprites_palettes, rows: 22);
 
             byte[] map16data = new byte[0x2000];
@@ -189,7 +191,7 @@ namespace CFG
             #endregion
 
 
-            ControlEnabler FileTypeEnabler = new ControlEnabler(() => FileType == FileType.CfgFile)
+            ControlEnabler FileTypeEnabler = new(() => FileType == FileType.CfgFile)
             {
                 grpAsmActLike,
                 grpExtraByteCount,
@@ -198,14 +200,14 @@ namespace CFG
                 tpgList,
                 //saveAsToolStripMenuItem,
             };
-            ControlEnabler CustomEnabler = new ControlEnabler(() => FileType == FileType.CfgFile && Data.Type != (int)CFG_SpriteType.Normal)
+            ControlEnabler CustomEnabler = new(() => FileType == FileType.CfgFile && Data.Type != (int)CFG_SpriteType.Normal)
             {
                 grpActLike,
                 grpAsmActLike,
                 grpExtraByteCount,
                 grpExtraPropByte,
             };
-            ControlEnabler ShooterEnabler = new ControlEnabler(() => (FileType == FileType.CfgFile || FileType == FileType.RomFile) && Data.Type != (int)CFG_SpriteType.GeneratorShooter)
+            ControlEnabler ShooterEnabler = new(() => (FileType == FileType.CfgFile || FileType == FileType.RomFile) && Data.Type != (int)CFG_SpriteType.GeneratorShooter)
             {
                 txt_1656,
                 txt_1662,
@@ -293,12 +295,12 @@ namespace CFG
             //draw bitmap of palette file for sprites.
             for (int i = 0; i < sprPal.Length; i++)
             {
-                Bitmap b = new Bitmap(8 * 16, 16);
+                Bitmap b = new(8 * 16, 16);
                 using (Graphics g = Graphics.FromImage(b))
                     for (int pal = 0; pal < 8; pal++)
                     {
                         Color c = resources.Palette[i][pal];
-                        Rectangle rec = new Rectangle(16 * pal, 0, 16, 16);
+                        Rectangle rec = new(16 * pal, 0, 16, 16);
                         g.FillRectangle(new SolidBrush(c), rec);
                     }
                 sprPal[i] = b;
@@ -352,7 +354,7 @@ namespace CFG
 
             dgvDisplay.AutoGenerateColumns = false;
             dgvDisplay.Columns.Clear();
-            dgvDisplay.Columns.AddRange(new DataGridViewColumn[] {
+            dgvDisplay.Columns.AddRange([
                 new DataGridViewCheckBoxColumn
                 {
                     HeaderText = "ExtraBit",
@@ -371,7 +373,7 @@ namespace CFG
                     Name = "Y_or_value",
                     DataPropertyName = "Y_or_value"
                 }
-            });
+            ]);
             dgvGFXInfo.DataError += DgvGFXInfo_DataError;
 
             //create databindings between display list and controls.
@@ -437,8 +439,8 @@ namespace CFG
             //bind controlls to current selection in list
             BindToSourceCollection(txtListName, collectionSpriteBindingSource, ctrl => ctrl.Text, cs => cs.Name);
             BindToSourceCollection(chbListExtraBit, collectionSpriteBindingSource, ctrl => ctrl.Checked, cs => cs.ExtraBit);
-            Binding[] expropbind = new Binding[]
-            {
+            Binding[] expropbind =
+            [
                 txtListExProp1.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte1)),
                 txtListExProp2.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte2)),
                 txtListExProp3.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte3)),
@@ -451,7 +453,7 @@ namespace CFG
                 txtListExProp10.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte10)),
                 txtListExProp11.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte11)),
                 txtListExProp12.DataBindings.Add(nameof(TextBox.Text), collectionSpriteBindingSource, nameof(CollectionSprite.ExtraPropertyByte12)),
-            };
+            ];
             expropbind.ForEach(b =>
             {
                 b.Format += (_, e) => e.Value = ((byte)e.Value).ToString("X2");
@@ -498,13 +500,12 @@ namespace CFG
 
         private void DgvGFXInfo_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            var dgv = sender as DataGridView;
             if ((e.ColumnIndex & 1) == 0 && e.Value != null)
             {
                 string v = e.Value.ToString();
                 if (v.StartsWith("0x") || v.StartsWith("0X"))
                 {
-                    if (int.TryParse(v.Substring(2), System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.CurrentCulture, out int value))
+                    if (int.TryParse(v.AsSpan(2), System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.CurrentCulture, out int value))
                     {
                         e.Value = $"0x{(value > 0x7F || value < 0 ? 0x7F : value):X02}";
                     }
@@ -594,18 +595,14 @@ namespace CFG
 
         }
 
-        private Binding BindToSourceCollection<TCon, TProp>(TCon control, BindingSource source, Expression<Func<TCon, TProp>> controlMember, Expression<Func<CollectionSprite, TProp>> objectMember)
+        private static Binding BindToSourceCollection<TCon, TProp>(TCon control, BindingSource source, Expression<Func<TCon, TProp>> controlMember, Expression<Func<CollectionSprite, TProp>> objectMember)
             where TCon : Control
             => BindToSource(control, source, controlMember, objectMember);
-        private Binding BindToSourceDisplay<TCon, TProp>(TCon control, BindingSource source, Expression<Func<TCon, TProp>> controlMember, Expression<Func<DisplaySprite, TProp>> objectMember)
-            where TCon : Control
-            => BindToSource(control, source, controlMember, objectMember);
-
-        private Binding BindToSourceGFX<TCon, TProp>(TCon control, BindingSource source, Expression<Func<TCon, TProp>> controlMember, Expression<Func<GFXInfo, TProp>> objectMember)
+        private static Binding BindToSourceDisplay<TCon, TProp>(TCon control, BindingSource source, Expression<Func<TCon, TProp>> controlMember, Expression<Func<DisplaySprite, TProp>> objectMember)
             where TCon : Control
             => BindToSource(control, source, controlMember, objectMember);
 
-        private Binding BindToSource<TCon, TObj, TProp>(TCon control, BindingSource source, Expression<Func<TCon, TProp>> controlMember, Expression<Func<TObj, TProp>> objectMember)
+        private static Binding BindToSource<TCon, TObj, TProp>(TCon control, BindingSource source, Expression<Func<TCon, TProp>> controlMember, Expression<Func<TObj, TProp>> objectMember)
             where TCon : Control
         {
             string ctrlMem = ((MemberExpression)controlMember.Body).GetName();
@@ -628,12 +625,12 @@ namespace CFG
         /// </summary>
         /// <param name="str">The string containing two digits to be parsed</param>
         /// <returns></returns>
-        private byte StringToByte(string str)
+        private static byte StringToByte(string str)
         {
             try
             {
                 if (str.Length > 2)
-                    str = str.Substring(0, 2);
+                    str = str[..2];
                 if (string.IsNullOrWhiteSpace(str))
                     return 0;
                 return Convert.ToByte(str, 16);
@@ -668,7 +665,7 @@ namespace CFG
         /// <param name="size">The new desired size</param>
         /// <param name="img">The base image</param>
         /// <returns></returns>
-        private Image ResizeImg(Size size, Image img)
+        private static Bitmap ResizeImg(Size size, Image img)
         {
             float width, height;
             float x, y;
@@ -688,7 +685,7 @@ namespace CFG
                 y = (float)Math.Floor((size.Height / 2) - (height / 2));
             }
 
-            Bitmap bm = new Bitmap(size.Width, size.Height);
+            Bitmap bm = new(size.Width, size.Height);
             using (Graphics g = Graphics.FromImage(bm))
             {
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
@@ -751,16 +748,14 @@ namespace CFG
             byte[] ret = new byte[size];
             try
             {
-                using (Stream str = this.GetType().Assembly.GetManifestResourceStream("CFG.Resources.Graphics.GFX" + id.ToString("X2") + ".bin"))
-                {
-                    str.Read(ret, 0, ret.Length);
-                }
+                using Stream str = this.GetType().Assembly.GetManifestResourceStream("CFG.Resources.Graphics.GFX" + id.ToString("X2") + ".bin");
+                str.Read(ret, 0, ret.Length);
             }
             catch { }
             return ret;
         }
 
-        private DialogResult ShowException(Exception ex)
+        private static DialogResult ShowException(Exception ex)
         {
             if (ex is UserException exception)
                 return exception.Show();
@@ -927,7 +922,7 @@ namespace CFG
 
         private void LoadToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog
+            OpenFileDialog ofd = new()
             {
                 Filter = "CFG or JSON file|*.json;*.cfg|ROM file|*.smc;*.sfc",
                 Title = "Load CFG file"
@@ -955,7 +950,7 @@ namespace CFG
                 return;
             }
 
-            SaveFileDialog sfd = new SaveFileDialog
+            SaveFileDialog sfd = new()
             {
                 Title = "Save CFG File",
                 Filter = "Json CFG File|*.json|CFG File|*.cfg",
@@ -1052,18 +1047,14 @@ namespace CFG
     /// <summary>
     /// Wrapper class for items with custom display text to be used within a Combobox.
     /// </summary>
-    public class ComboBoxItem
+    public class ComboBoxItem(string name, int value)
     {
         /// <summary>
         /// String representation of the entry
         /// </summary>
-        public string Name { get; set; }
-        public int Value { get; set; }
-        public ComboBoxItem(string name, int value)
-        {
-            Name = name;
-            Value = value;
-        }
+        public string Name { get; set; } = name;
+        public int Value { get; set; } = value;
+
         public override string ToString() => Name;
 
         public override int GetHashCode() => Value;
@@ -1071,26 +1062,19 @@ namespace CFG
         {
             if (ReferenceEquals(this, obj))
                 return true;
-            if (!(obj is ComboBoxItem item))
+            if (obj is not ComboBoxItem item)
                 return false;
             return this.Value == item.Value;
         }
     }
 
-    public class SpriteTileset
+    public class SpriteTileset(int sp3, int sp4, string name)
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = name;
         public int Sp1 { get; set; } = 0;
         public int Sp2 { get; set; } = 1;
-        public int Sp3 { get; set; }
-        public int Sp4 { get; set; }
-
-        public SpriteTileset(int sp3, int sp4, string name)
-        {
-            Sp3 = sp3;
-            Sp4 = sp4;
-            Name = name;
-        }
+        public int Sp3 { get; set; } = sp3;
+        public int Sp4 { get; set; } = sp4;
 
         public override string ToString()
         {
@@ -1100,7 +1084,7 @@ namespace CFG
 
     public class EnablerCollection : IEnumerable<ControlEnabler>
     {
-        readonly List<ControlEnabler> ControlEnablers = new List<ControlEnabler>();
+        readonly List<ControlEnabler> ControlEnablers = [];
 
         public EnablerCollection(params INotifyPropertyChanged[] notifiers)
         {
@@ -1125,7 +1109,7 @@ namespace CFG
         public ControlEnabler(Func<bool> enlabler)
         {
             Enabler = enlabler;
-            Controls = new List<Control>();
+            Controls = [];
         }
         public ControlEnabler(Func<bool> enlabler, IEnumerable<Control> controls)
         {

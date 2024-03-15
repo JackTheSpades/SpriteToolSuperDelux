@@ -21,7 +21,9 @@ namespace CFG.Map16
         private DisplayType _displayType;
 
         [JsonIgnore]
+#pragma warning disable IDE1006 // Naming Styles
         public DisplayType disp_type
+#pragma warning restore IDE1006 // Naming Styles
         {
             get
             {
@@ -55,13 +57,13 @@ namespace CFG.Map16
         /// <summary>
         /// The default sprite with only a description and one tile (a pink X)
         /// </summary>
-        public static DisplaySprite Default => new DisplaySprite()
+        public static DisplaySprite Default => new()
         {
             Description = "Undefined Sprite",
-            Tiles = new BindingList<Tile>()
-            {
+            Tiles =
+            [
                 new Tile(0, 0, 0),
-            }
+            ]
         };
 
         private string _Description = "";
@@ -166,7 +168,7 @@ namespace CFG.Map16
 
         public DisplaySprite()
         {
-            Tiles = new BindingList<Tile>();
+            Tiles = [];
             GFXInfo = new GFXInfo();
         }
 
@@ -191,11 +193,10 @@ namespace CFG.Map16
         {
             if (object.ReferenceEquals(this, obj))
                 return true;
-            if (object.ReferenceEquals(this, null))
+            if (this is null)
                 return false;
 
-            DisplaySprite sp = obj as DisplaySprite;
-            if (object.ReferenceEquals(sp, null))
+            if (obj is not DisplaySprite sp)
                 return false;
 
             return sp.CustomBit == CustomBit && sp.ExtraBit == ExtraBit
@@ -214,9 +215,9 @@ namespace CFG.Map16
         {
             if (object.ReferenceEquals(sp1, sp2))
                 return true;
-            if (object.ReferenceEquals(sp1, null))
+            if (sp1 is null)
                 return false;
-            if (object.ReferenceEquals(sp2, null))
+            if (sp2 is null)
                 return false;
 
             return sp1.CustomBit == sp2.CustomBit && sp1.ExtraBit == sp2.ExtraBit;
@@ -237,11 +238,13 @@ namespace CFG.Map16
 
         public object Clone()
         {
-            DisplaySprite s = new DisplaySprite();
-            s.CustomBit = this.CustomBit;
-            s.Description = this.Description;
-            s.ExtraBit = this.ExtraBit;
-            s.Tiles = new BindingList<Tile>();
+            DisplaySprite s = new()
+            {
+                CustomBit = this.CustomBit,
+                Description = this.Description,
+                ExtraBit = this.ExtraBit,
+                Tiles = []
+            };
             foreach (Tile t in Tiles)
                 s.Tiles.Add((Tile)t.Clone());
             s.GFXInfo = (GFXInfo)GFXInfo.Clone();
@@ -291,7 +294,7 @@ namespace CFG.Map16
     }
 
     [DebuggerDisplay("{ToString()}")]
-    public class Tile : ICloneable
+    public partial class Tile : ICloneable
     {
 
         [Newtonsoft.Json.JsonProperty("X offset")]
@@ -318,11 +321,10 @@ namespace CFG.Map16
         {
             if (Object.ReferenceEquals(this, obj))
                 return true;
-            if ((object)this == null)
+            if (this is null)
                 return false;
 
-            Tile t = obj as Tile;
-            if ((object)t == null)
+            if (obj is not Tile t)
                 return false;
 
             return t.Map16Number == this.Map16Number && t.XOffset == this.XOffset && t.YOffset == this.YOffset;
@@ -342,7 +344,7 @@ namespace CFG.Map16
 
         public static Tile GetTile(string str)
         {
-            var match = Regex.Match(str, regex);
+            var match = TileRegex().Match(str);
             if (!match.Success)
                 return null;
 
@@ -354,7 +356,7 @@ namespace CFG.Map16
 
         public static IEnumerable<Tile> GetTiles(string str)
         {
-            var matches = Regex.Matches(str, "\\s" + regex);
+            var matches = SpaceTileRegex().Matches(str);
             if (matches.Count == 0)
                 yield break;
 
@@ -371,5 +373,10 @@ namespace CFG.Map16
         {
             return new Tile(XOffset, YOffset, Map16Number);
         }
+
+        [GeneratedRegex(regex)]
+        private static partial Regex TileRegex();
+        [GeneratedRegex(@"\s(?<X>-?\d+),(?<Y>-?\d+),(?<M>[0-9a-fA-F]+)")]
+        private static partial Regex SpaceTileRegex();
     }
 }
