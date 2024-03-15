@@ -1,16 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DCCC92C0-DAAD-4A7F-AC97-8AFBCC508D56}</ProjectGuid>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CFG</RootNamespace>
     <AssemblyName>CFG Editor</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -27,26 +20,9 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>VioletEgg.ico</ApplicationIcon>
@@ -64,104 +40,16 @@
     <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="CollectionSprite.cs" />
-    <Compile Include="Converter.cs" />
-    <Compile Include="Editors\PaletteEditorForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Editors\PaletteEditorForm.Designer.cs">
-      <DependentUpon>PaletteEditorForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Editors\Tile8x8EditorForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Editors\Tile8x8EditorForm.Designer.cs">
-      <DependentUpon>Tile8x8EditorForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Extension.cs" />
-    <Compile Include="CFG Editor.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="CFG Editor.Designer.cs">
-      <DependentUpon>CFG Editor.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Cfg File.cs" />
-    <Compile Include="Editors\FileSelector.cs">
+    <Compile Update="Editors\FileSelector.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Editors\FileSelector.Designer.cs">
-      <DependentUpon>FileSelector.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Json\JsonCfgFile.cs" />
-    <Compile Include="Json\JsonConst.cs" />
-    <Compile Include="Json\JsonTweaker.cs" />
-    <Compile Include="Map16\GFXInfo.cs" />
-    <Compile Include="Map16\Map16Data.cs" />
-    <Compile Include="Editors\Map16Editor.cs">
+    <Compile Update="Editors\Map16Editor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Editors\Map16Editor.Designer.cs">
-      <DependentUpon>Map16Editor.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Map16\SnesGraphics.cs" />
-    <Compile Include="Map16\DisplaySprite.cs" />
-    <Compile Include="Editors\SpriteEditor.cs">
+    <Compile Update="Editors\SpriteEditor.cs">
       <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Editors\SpriteEditor.Designer.cs">
-      <DependentUpon>SpriteEditor.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="CFG Editor.resx">
-      <DependentUpon>CFG Editor.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Editors\FileSelector.resx">
-      <DependentUpon>FileSelector.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Editors\Map16Editor.resx">
-      <DependentUpon>Map16Editor.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Editors\PaletteEditorForm.resx">
-      <DependentUpon>PaletteEditorForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Editors\SpriteEditor.resx">
-      <DependentUpon>SpriteEditor.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Editors\Tile8x8EditorForm.resx">
-      <DependentUpon>Tile8x8EditorForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="CFG Editor Project_TemporaryKey.pfx" />
-    <None Include="packages.config" />
-    <None Include="Properties\DataSources\CFG.Map16.DisplaySprite.datasource" />
-    <None Include="Properties\DataSources\CFG.Map16.GFXInfo.datasource" />
-    <None Include="Properties\DataSources\CFG.Map16.Sprite.datasource" />
     <EmbeddedResource Include="Resources\Graphics\GFX00.bin" />
     <EmbeddedResource Include="Resources\Graphics\GFX01.bin" />
     <EmbeddedResource Include="Resources\Graphics\GFX02.bin" />
@@ -179,13 +67,6 @@
     <EmbeddedResource Include="Resources\Graphics\GFX33.bin" />
     <EmbeddedResource Include="Resources\Graphics\GFX12.bin" />
     <EmbeddedResource Include="Resources\Graphics\GFX13.bin" />
-    <None Include="Properties\DataSources\CollectionSprite.datasource" />
-    <None Include="Resources\m16Page1_3.m16" />
-    <None Include="Resources\sprite.pal" />
-    <None Include="Resources\sprites_palettes.pal" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\SprClipping\01.png" />
@@ -276,16 +157,12 @@
     <EmbeddedResource Include="Resources\ObjClipping\0F.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\SpriteList.txt" />
-    <None Include="Resources\Letters.png" />
     <Content Include="Resources\Icons\8x8.png" />
     <Content Include="Resources\Icons\8x8t.png" />
     <Content Include="Resources\Icons\copy.png" />
     <Content Include="Resources\Icons\grid.png" />
-    <None Include="Resources\Icons\minus.png" />
     <Content Include="Resources\Icons\page.png" />
     <Content Include="Resources\Icons\palette.png" />
-    <None Include="Resources\Icons\plus.png" />
     <Content Include="VioletEgg.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -305,13 +182,9 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
 </Project>
