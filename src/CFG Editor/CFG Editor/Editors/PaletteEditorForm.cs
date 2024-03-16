@@ -26,6 +26,8 @@ namespace CFG.Editors
             InitializeComponent();
             pcbDisplay.Width = 16 * 16 * Zoom;
             pcbDisplay.Height = 8 * 16 * Zoom;
+            AutoSize = true;
+            AutoSizeMode = AutoSizeMode.GrowAndShrink;
 
             Resources = resources;
             DrawPalette();

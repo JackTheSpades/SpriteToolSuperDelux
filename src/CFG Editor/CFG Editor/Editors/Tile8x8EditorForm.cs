@@ -39,7 +39,7 @@ namespace CFG.Editors
             InitializeComponent();
             Map16Resources = map16Resources;
             UpdateImage();
-
+            Size = new Size(287, 317);
             vScrollBar1.Scroll += (_, __) => UpdateImage();
         }
 
@@ -47,6 +47,7 @@ namespace CFG.Editors
         {
             int tile = vScrollBar1.Value * 0x100;
             pcb.BackgroundImage?.Dispose();
+            pcb.Size = new Size(256, 256);
             var img = new Bitmap(pcb.Width, pcb.Height);
 
             using (Graphics g = Graphics.FromImage(img))

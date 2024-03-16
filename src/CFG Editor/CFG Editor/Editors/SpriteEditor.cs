@@ -97,6 +97,10 @@ namespace CFG.Map16
         public SpriteEditor()
         {
             InitializeComponent();
+            pcbSprite.Width = TileSize.Width * 11;
+            pcbSprite.Height = TileSize.Height * 11;
+            pcbSprite.Left = (Width - pcbSprite.Width) / 2;
+            pcbSprite.Top = (Height - pcbSprite.Height) / 2;
             pcbSprite.MouseWheel += PcbSprite_MouseWheel;
             UpdateGrid(16);
 
@@ -114,12 +118,12 @@ namespace CFG.Map16
             if (Sprite.UseText)
             {
                 rtbDisplayText.Visible = true;
-                pcbSprite.Height = 112;
+                pcbSprite.Height = TileSize.Height * (11 - 4);
             }
             else
             {
                 rtbDisplayText.Visible = false;
-                pcbSprite.Height = 176;
+                pcbSprite.Height = TileSize.Height * 11;
             }
         }
 
@@ -138,19 +142,20 @@ namespace CFG.Map16
 
                 if (size > 4)
                 {
+                    int realSize = size == 16 ? TileSize.Width : TileSize.HalfWidth;
                     Pen dashed = new(Color.White)
                     {
                         DashStyle = DashStyle.Dot
                     };
 
-                    for (int x = 0; x < pcbSprite.Width; x += size)
+                    for (int x = 0; x < pcbSprite.Width; x += realSize)
                         g.DrawLine(dashed, x, 0, x, pcbSprite.Height - 1);
-                    for (int y = 0; y < pcbSprite.Height; y += size)
+                    for (int y = 0; y < pcbSprite.Height; y += realSize)
                         g.DrawLine(dashed, 0, y, pcbSprite.Width - 1, y);
 
                     dashed.Color = Color.Blue;
                     dashed.DashStyle = DashStyle.Solid;
-                    g.DrawRectangle(dashed, new Rectangle(pcbSprite.Width / 2 - 8, pcbSprite.Height / 2 - 8, 16, 16));
+                    g.DrawRectangle(dashed, new Rectangle(pcbSprite.Width / 2 - TileSize.HalfWidth, pcbSprite.Height / 2 - TileSize.HalfHeight, TileSize.Width, TileSize.Height));
                 }
             }
             pcbSprite.BackgroundImage = bm;
@@ -180,13 +185,13 @@ namespace CFG.Map16
                     {
                         foreach (Tile t in Sprite.Tiles)
                         {
-                            int xDraw = (imageSize.Width / 2 - 8) + t.XOffset;
-                            int yDraw = (imageSize.Height / 2 - 8) + t.YOffset;
+                            int xDraw = (imageSize.Width / 2 - TileSize.HalfWidth) + t.XOffset;
+                            int yDraw = (imageSize.Height / 2 - TileSize.HalfHeight) + t.YOffset;
 
-                            int xGet = t.Map16Number % 16 * 16;
-                            int yGet = (t.Map16Number / 16) * 16;
+                            int xGet = t.Map16Number % 16 * TileSize.Width;
+                            int yGet = (t.Map16Number / 16) * TileSize.Height;
 
-                            Image img = Map16Data.Image.Clone(new Rectangle(xGet, yGet, 16, 16), System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                            Image img = Map16Data.Image.Clone(new Rectangle(xGet, yGet, TileSize.Width, TileSize.Height), System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                             System.Drawing.Imaging.ImageAttributes attr = new();
                             if (t.Selected)
                                 attr.SetColorMatrix(new System.Drawing.Imaging.ColorMatrix(
@@ -198,7 +203,7 @@ namespace CFG.Map16
                             [1, 1, 1, 0, +1f],
                             ]));
 
-                            g.DrawImage(img, new Rectangle(xDraw, yDraw, 16, 16), 0, 0, 16, 16, GraphicsUnit.Pixel, attr);
+                            g.DrawImage(img, new Rectangle(xDraw, yDraw, TileSize.Width, TileSize.Height), 0, 0, TileSize.Width, TileSize.Height, GraphicsUnit.Pixel, attr);
                         }
                     }
                 }
@@ -350,12 +355,21 @@ namespace CFG.Map16
 
             if (e.Button == System.Windows.Forms.MouseButtons.Right)
             {
-                int xPix = e.X / GridSize;
-                int yPix = e.Y / GridSize;
-                Point p = new(xPix * GridSize, yPix * GridSize);
+                int realGridSize = GridSize switch
+                {
+                    16 => TileSize.Width,
+                    8 => TileSize.HalfWidth,
+                    4 => TileSize.HalfWidth / 2,
+                    2 => TileSize.HalfWidth / 4,
+                    1 => TileSize.HalfWidth / 8,
+                    _ => throw new ArgumentOutOfRangeException(nameof(GridSize)),
+                };
+                int xPix = e.X / realGridSize;
+                int yPix = e.Y / realGridSize;
+                Point p = new(xPix * realGridSize, yPix * realGridSize);
 
-                int xOff = p.X - (pcbSprite.Width / 2 - 8);
-                int yOff = p.Y - (pcbSprite.Height / 2 - 8);
+                int xOff = p.X - (pcbSprite.Width / 2 - TileSize.HalfWidth);
+                int yOff = p.Y - (pcbSprite.Height / 2 - TileSize.HalfHeight);
 
                 Sprite.Tiles.Add(new Tile(xOff, yOff, SelectedPoint.X / 16 + SelectedPoint.Y));
             }

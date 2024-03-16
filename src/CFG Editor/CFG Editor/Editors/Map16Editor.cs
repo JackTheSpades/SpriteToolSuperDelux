@@ -75,7 +75,7 @@ namespace CFG
 
         public int SelectedTile { get; private set; } = -1;
 
-        public Map16Wrapper SelectedObject { get; private set; } = new Map16Wrapper(new Map16Empty(16));
+        public Map16Wrapper SelectedObject { get; private set; } = new Map16Wrapper(new Map16Empty());
 
         [DefaultValue(null)]
         public Map16Data Map { get; set; }
@@ -84,6 +84,10 @@ namespace CFG
         public Map16Editor()
         {
             InitializeComponent();
+            TileSize.Update(pcbMap16.Width, pcbMap16.Height);
+            pcbMap16.Size = new Size(TileSize.Width * 0x10, TileSize.Height * 0x10);
+            pcbMap16.Left = (Size.Width - vScrollBar.Width - pcbMap16.Width) / 2;
+            pcbMap16.Top = (Size.Height - pcbMap16.Height) / 2; 
             pcbMap16.SetBackgroundGradient(Color.Blue, Color.FromArgb(255, 0, 0, 96));
         }
         
@@ -137,12 +141,12 @@ namespace CFG
         private int XY_ToTile(int x8, int y8)
         {
             int yOff = vScrollBar.Value * 2; //2 8x8 tiles scroll step
-            return ((y8 + yOff) / 2) * 16 + (x8 / 2);
+            return ((y8 + yOff) / 2) * TileSize.Width + (x8 / 2);
         }
         private Point XY_ToPoint(int x8, int y8)
         {
             int yOff = vScrollBar.Value * 2; //2 8x8 tiles scroll step
-            return new Point(x8 / 2 * 16, (y8 + yOff) / 2 * 16);
+            return new Point(x8 / 2 * TileSize.Width, (y8 + yOff) / 2 * TileSize.Height);
         }
 
 
@@ -172,8 +176,8 @@ namespace CFG
 
         private void PcbMap16_MouseMove(object sender, MouseEventArgs e)
         {
-            x8LastHover = e.X / 8;
-            y8LastHover = e.Y / 8;
+            x8LastHover = e.X / TileSize.HalfWidth;
+            y8LastHover = e.Y / TileSize.HalfHeight;
 
             HoverChanged?.Invoke(this, new TileChangedEventArgs(
                 XY_ToTile(x8LastHover, y8LastHover),
@@ -188,21 +192,22 @@ namespace CFG
 
             bg = new Bitmap(pcbMap16.Width, pcbMap16.Height);
 
+
             using (Graphics g = Graphics.FromImage(bg))
             {
                 Rectangle recGrad = new(0, 0, bg.Width, bg.Height);
                 using (LinearGradientBrush lgd = new(recGrad, Color.Blue, Color.FromArgb(255, 0, 0, 96), 90))
                     g.FillRectangle(lgd, recGrad);
 
-                Rectangle rec = new(0, vScrollBar.Value * 16, 256, 256);
+                Rectangle rec = new(0, vScrollBar.Value * TileSize.Height, TileSize.Width * 0x10, TileSize.Height * 0x10);
                 g.DrawImage(Map.Image, 0, 0, rec, GraphicsUnit.Pixel);
 
                 if (ShowGrid)
                 {
                     using Pen p = new(Color.White);
-                    for (int x = 15; x < bg.Width; x += 16)
+                    for (int x = TileSize.Width - 1; x < bg.Width; x += TileSize.Width)
                         g.DrawLine(p, x, 0, x, bg.Height - 1);
-                    for (int y = 15; y < bg.Height; y += 16)
+                    for (int y = TileSize.Height - 1; y < bg.Height; y += TileSize.Height)
                         g.DrawLine(p, 0, y, bg.Width - 1, y);
                 }
                 if (PrintPage)
@@ -212,8 +217,8 @@ namespace CFG
                     Point[] points =
                     [
                         new(0, 0),
-                        new(0, end * 16),
-                        new(bg.Width, end * 16),
+                        new(0, end * TileSize.Height),
+                        new(bg.Width, end * TileSize.Height),
                         new(bg.Width, 0),
                     ];
                     g.DrawLines(new Pen(Color.FromArgb(128, Color.Blue), 6), points);
@@ -232,7 +237,7 @@ namespace CFG
 
             using (Graphics g = Graphics.FromImage(fg))
             {
-                int size = In8x8Mode ? 8 : 16;
+                int size = In8x8Mode ? TileSize.HalfWidth : TileSize.Width;
                 int dev = In8x8Mode ? 1 : 2;
                 int upperLimit = 32 - dev;
                 if (x8Selected >= 0 && x8Selected <= upperLimit && y8Selected >= 0 && y8Selected <= upperLimit)
@@ -283,7 +288,56 @@ namespace CFG
         }
     }
 
-    public class Map16Empty(int size) : IMap16Object
+    public static class TileSize
+    {
+        public const int Width = 16;
+        public const int Height = 16;
+        public const int HalfWidth = Width / 2;
+        public const int HalfHeight = Height / 2;
+        public static readonly Size Size = new(Width, Height);
+
+        public static void Update(int _1 /* windowWidth */, int _2 /* windowHeight */) 
+        {
+            // NO-OP
+        }
+    }
+
+    /*
+
+    // Once CFG Editor is flexible enough to handle variable sizes of tile (e.g. not 16x16) (this may never happen)
+    // feel free to uncomment and use this class instead of the above
+    // the above is just an optimization because since the tile size is constant we don't need to do all the song and dance with the singleton and stuff
+
+    public class TileSize
+    {
+        private int width { get; set; } = 16;
+        private int height { get; set; } = 16;
+
+        public static int Width { get => GetInstance().width; set => GetInstance().width = value; }
+        public static int Height { get => GetInstance().height; set => GetInstance().height = value; }
+        public static int HalfWidth { get => GetInstance().width / 2; }
+        public static int HalfHeight { get => GetInstance().height / 2; }
+
+        private TileSize() { }
+
+        private static readonly TileSize Instance = new();
+        public static TileSize GetInstance() { return Instance; }
+        public static Size Size { get => GetInstance(); }
+
+        public static void Update(int windowWidth, int windowHeight)
+        {
+            const int numHorzItems = 0x10;
+            const int numVertItems = 0x10;
+            Instance.width = windowWidth / numHorzItems;
+            Instance.height = windowHeight / numVertItems;
+        }
+
+        public static implicit operator Size(TileSize tileSize) => new(tileSize.width, tileSize.height);
+    }
+
+    */
+
+    public class Map16Empty : IMap16Object
     {
         public int BottomLeft
         {
@@ -314,7 +368,7 @@ namespace CFG
 
         public int PixelX => 0;
         public int PixelY => 0;
-        public Size Size { get; private set; } = new Size(size, size);
+        public Size Size { get => new(TileSize.Width, TileSize.Height); }
 
         public Map16Resources Resources
         {

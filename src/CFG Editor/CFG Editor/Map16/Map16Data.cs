@@ -71,7 +71,7 @@ namespace CFG.Map16
         public int TileNumber { get; private set; }
         public int PixelX { get; private set; }
         public int PixelY { get; private set; }
-        public Size Size => new(8, 8);
+        public Size Size => new(TileSize.HalfWidth, TileSize.HalfHeight);
 
         public int GFXNumber
         {
@@ -154,13 +154,13 @@ namespace CFG.Map16
 
             int corners = (offset % 8) / 2;
             
-            PixelX = (TileNumber % 16) * 16;
-            PixelY = (TileNumber / 16) * 16;
+            PixelX = (TileNumber % TileSize.Width) * TileSize.Width;
+            PixelY = (TileNumber / TileSize.Height) * TileSize.Height;
 
             if ((corners & 0x01) != 0)
-                PixelY += 8;
+                PixelY += TileSize.HalfWidth;
             if ((corners & 0x02) != 0)
-                PixelX += 8;
+                PixelX += TileSize.HalfHeight;
         }
 
 		public Image GetImage()
@@ -239,9 +239,9 @@ namespace CFG.Map16
 	public class Map16Tile16x16 : IMap16Object
 	{
         public int TileNumber { get; private set; }
-		public int PixelX { get { return (TileNumber % 16) * 16; } }
-		public int PixelY { get { return (TileNumber / 16) * 16; } }
-        public Size Size => new(16, 16);
+		public int PixelX { get { return (TileNumber % 16) * TileSize.Width; } }
+		public int PixelY { get { return (TileNumber / 16) * TileSize.Height; } }
+        public Size Size => TileSize.Size;
 
         public const int TopLeftIndex = 0;
         public const int BottomLeftIndex = 1;
@@ -331,11 +331,11 @@ namespace CFG.Map16
 
 		public Image GetImage()
 		{
-            Bitmap bm = new(16, 16);
+            Bitmap bm = new(TileSize.Width, TileSize.Height);
 			using(Graphics g = System.Drawing.Graphics.FromImage(bm))
 			{
                 foreach (Map16Tile8x8 sub in SubTiles)
-                    g.DrawImage(sub.GetImage(), new Point(sub.PixelX % 16, sub.PixelY % 16));
+                    g.DrawImage(sub.GetImage(), new Point(sub.PixelX % TileSize.Width, sub.PixelY % TileSize.Height));
 			}
 			return bm;
 		}
@@ -671,9 +671,8 @@ namespace CFG.Map16
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Image)));
             };
 
-            int height = (int)Math.Ceiling((data.Length / 8.0m) / 16.0m);
             
-            Image = new Bitmap(256, 16 * 320);            
+            Image = new Bitmap(0x10 * TileSize.Width, TileSize.Height * 320);            
             using (Graphics g = Graphics.FromImage(Image))
             {
                 foreach (Map16Tile16x16 m in Map)
