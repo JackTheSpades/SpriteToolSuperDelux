@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace CFG
 {
@@ -19,7 +21,7 @@ namespace CFG
         /// <summary>
         /// The name of the sprite entry.
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("Name")]
+        [JsonPropertyName("Name")]
         public string Name
         {
             get { return _Name; }
@@ -30,7 +32,7 @@ namespace CFG
         /// <summary>
         /// Whether the sprite entry has the custom bit set.
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("ExtraBit")]
+        [JsonPropertyName("ExtraBit")]
         public bool ExtraBit
         {
             get { return _ExtraBit; }
@@ -42,7 +44,7 @@ namespace CFG
         /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 1, 
         /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("Extra Property Byte 1")]
+        [JsonPropertyName("Extra Property Byte 1")]
         public byte ExtraPropertyByte1
         {
             get { return _ExtraPropertyByte1; }
@@ -54,7 +56,7 @@ namespace CFG
         /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 2, 
         /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("Extra Property Byte 2")]
+        [JsonPropertyName("Extra Property Byte 2")]
         public byte ExtraPropertyByte2
         {
             get { return _ExtraPropertyByte2; }
@@ -66,7 +68,7 @@ namespace CFG
         /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 3, 
         /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("Extra Property Byte 3")]
+        [JsonPropertyName("Extra Property Byte 3")]
         public byte ExtraPropertyByte3
         {
             get { return _ExtraPropertyByte3; }
@@ -78,7 +80,7 @@ namespace CFG
         /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 4, 
         /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("Extra Property Byte 4")]
+        [JsonPropertyName("Extra Property Byte 4")]
         public byte ExtraPropertyByte4
         {
             get { return _ExtraPropertyByte4; }
@@ -90,7 +92,7 @@ namespace CFG
         /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 4, 
         /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("Extra Property Byte 5")]
+        [JsonPropertyName("Extra Property Byte 5")]
         public byte ExtraPropertyByte5
         {
             get { return _ExtraPropertyByte5; }
@@ -102,7 +104,7 @@ namespace CFG
         /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 4, 
         /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("Extra Property Byte 6")]
+        [JsonPropertyName("Extra Property Byte 6")]
         public byte ExtraPropertyByte6
         {
             get { return _ExtraPropertyByte6; }
@@ -114,7 +116,7 @@ namespace CFG
         /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 4, 
         /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("Extra Property Byte 7")]
+        [JsonPropertyName("Extra Property Byte 7")]
         public byte ExtraPropertyByte7
         {
             get { return _ExtraPropertyByte7; }
@@ -126,7 +128,7 @@ namespace CFG
         /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 4, 
         /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("Extra Property Byte 8")]
+        [JsonPropertyName("Extra Property Byte 8")]
         public byte ExtraPropertyByte8
         {
             get { return _ExtraPropertyByte8; }
@@ -138,7 +140,7 @@ namespace CFG
         /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 4, 
         /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("Extra Property Byte 9")]
+        [JsonPropertyName("Extra Property Byte 9")]
         public byte ExtraPropertyByte9
         {
             get { return _ExtraPropertyByte9; }
@@ -150,7 +152,7 @@ namespace CFG
         /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 4, 
         /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("Extra Property Byte 10")]
+        [JsonPropertyName("Extra Property Byte 10")]
         public byte ExtraPropertyByte10
         {
             get { return _ExtraPropertyByte10; }
@@ -162,7 +164,7 @@ namespace CFG
         /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 4, 
         /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("Extra Property Byte 11")]
+        [JsonPropertyName("Extra Property Byte 11")]
         public byte ExtraPropertyByte11
         {
             get { return _ExtraPropertyByte11; }
@@ -174,7 +176,7 @@ namespace CFG
         /// The first extra byte. Only used if the sprite has <see cref="CfgFile.ByteCount"/> or <see cref="CfgFile.ExByteCount"/> set to be larger or equal to 4, 
         /// depending on <see cref="ExtraBit"/>. Regardless the value is always saved into the json file.
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("Extra Property Byte 12")]
+        [JsonPropertyName("Extra Property Byte 12")]
         public byte ExtraPropertyByte12
         {
             get { return _ExtraPropertyByte12; }

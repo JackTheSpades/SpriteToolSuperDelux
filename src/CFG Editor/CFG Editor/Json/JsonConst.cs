@@ -1,107 +1,145 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace CFG.Json
 {
-    public class Value1656 : ByteRepresentant 
+    public class Value1656 : ByteRepresentant
     {
-        [JsonProperty(Order = 0, PropertyName = "Object Clipping")]
+        [JsonPropertyName("Object Clipping")]
+        [JsonPropertyOrder(0)]
         [JsonIntProperty(Size = 4)]
         public int ObjectClipping { get; set; }
-        [JsonProperty(Order = 4, PropertyName = "Can be jumped on")]
+        [JsonPropertyName("Can be jumped on")]
+        [JsonPropertyOrder(4)]
         public bool CanBeJumpedOn { get; set; }
-        [JsonProperty(Order = 5, PropertyName = "Dies when jumped on")]
+        [JsonPropertyName("Dies when jumped on")]
+        [JsonPropertyOrder(5)]
         public bool DiesWhenJumpedOn { get; set; }
-        [JsonProperty(Order = 6, PropertyName = "Hop in/kick shell")]
+        [JsonPropertyName("Hop in/kick shell")]
+        [JsonPropertyOrder(6)]
         public bool HopInkickShell { get; set; }
-        [JsonProperty(Order = 7, PropertyName = "Disappears in cloud of smoke")]
+        [JsonPropertyName("Disappears in cloud of smoke")]
+        [JsonPropertyOrder(7)]
         public bool DisappearsInCloudOfSmoke { get; set; }
     }
 
-    public class Value1662 : ByteRepresentant 
+    public class Value1662 : ByteRepresentant
     {
-        [JsonProperty(Order = 0, PropertyName = "Sprite Clipping")]
+        [JsonPropertyName("Sprite Clipping")]
+        [JsonPropertyOrder(0)]
         [JsonIntProperty(Size = 6)]
         public int SpriteClipping { get; set; }
-        [JsonProperty(Order = 6, PropertyName = "Use shell as death frame")]
+        [JsonPropertyName("Use shell as death frame")]
+        [JsonPropertyOrder(6)]
         public bool UseShellAsDeathFrame { get; set; }
-        [JsonProperty(Order = 7, PropertyName = "Fall straight down when killed")]
+        [JsonPropertyName("Fall straight down when killed")]
+        [JsonPropertyOrder(7)]
         public bool FallStraightDownWhenKilled { get; set; }
     }
 
-    public class Value166E : ByteRepresentant 
+    public class Value166E : ByteRepresentant
     {
-        [JsonProperty(Order = 0, PropertyName = "Use second graphics page")]
+        [JsonPropertyName("Use second graphics page")]
+        [JsonPropertyOrder(0)]
         public bool UseSecondGraphicsPage { get; set; }
-        [JsonProperty(Order = 1, PropertyName = "Palette")]
+        [JsonPropertyName("Palette")]
+        [JsonPropertyOrder(1)]
         [JsonIntProperty(Size = 3)]
         public int Palette { get; set; }
-        [JsonProperty(Order = 4, PropertyName = "Disable fireball killing")]
+        [JsonPropertyName("Disable fireball killing")]
+        [JsonPropertyOrder(4)]
         public bool DisableFireballKilling { get; set; }
-        [JsonProperty(Order = 5, PropertyName = "Disable cape killing")]
+        [JsonPropertyName("Disable cape killing")]
+        [JsonPropertyOrder(5)]
         public bool DisableCapeKilling { get; set; }
-        [JsonProperty(Order = 6, PropertyName = "Disable water splash")]
+        [JsonPropertyName("Disable water splash")]
+        [JsonPropertyOrder(6)]
         public bool DisableWaterSplash { get; set; }
-        [JsonProperty(Order = 7, PropertyName = "Don't interact with Layer 2")]
+        [JsonPropertyName("Don't interact with Layer 2")]
+        [JsonPropertyOrder(7)]
         public bool DontInteractWithLayer2 { get; set; }
     }
 
-    public class Value167A : ByteRepresentant 
+    public class Value167A : ByteRepresentant
     {
-        [JsonProperty(Order = 0, PropertyName = "Don't disable cliping when starkilled")]
+        [JsonPropertyName("Don't disable cliping when starkilled")]
+        [JsonPropertyOrder(0)]
         public bool DontDisableClipingWhenStarkilled { get; set; }
-        [JsonProperty(Order = 1, PropertyName = "Invincible to star/cape/fire/bounce blk.")]
+        [JsonPropertyName("Invincible to star/cape/fire/bounce blk.")]
+        [JsonPropertyOrder(1)]
         public bool InvincibleToStarcapefirebounceBlk { get; set; }
-        [JsonProperty(Order = 2, PropertyName = "Process when off screen")]
+        [JsonPropertyName("Process when off screen")]
+        [JsonPropertyOrder(2)]
         public bool ProcessWhenOffScreen { get; set; }
-        [JsonProperty(Order = 3, PropertyName = "Don't change into shell when stunned")]
+        [JsonPropertyName("Don't change into shell when stunned")]
+        [JsonPropertyOrder(3)]
         public bool DontChangeIntoShellWhenStunned { get; set; }
-        [JsonProperty(Order = 4, PropertyName = "Can't be kicked like shell")]
+        [JsonPropertyName("Can't be kicked like shell")]
+        [JsonPropertyOrder(4)]
         public bool CantBeKickedLikeShell { get; set; }
-        [JsonProperty(Order = 5, PropertyName = "Process interaction with Mario every frame")]
+        [JsonPropertyName("Process interaction with Mario every frame")]
+        [JsonPropertyOrder(5)]
         public bool ProcessInteractionWithMarioEveryFrame { get; set; }
-        [JsonProperty(Order = 6, PropertyName = "Gives power-up when eaten by yoshi")]
+        [JsonPropertyName("Gives power-up when eaten by yoshi")]
+        [JsonPropertyOrder(6)]
         public bool GivesPowerupWhenEatenByYoshi { get; set; }
-        [JsonProperty(Order = 7, PropertyName = "Don't use default interaction with Mario")]
+        [JsonPropertyName("Don't use default interaction with Mario")]
+        [JsonPropertyOrder(7)]
         public bool DontUseDefaultInteractionWithMario { get; set; }
     }
 
-    public class Value1686 : ByteRepresentant 
+    public class Value1686 : ByteRepresentant
     {
-        [JsonProperty(Order = 0, PropertyName = "Inedible")]
+        [JsonPropertyName("Inedible")]
+        [JsonPropertyOrder(0)]
         public bool Inedible { get; set; }
-        [JsonProperty(Order = 1, PropertyName = "Stay in Yoshi's mouth")]
+        [JsonPropertyName("Stay in Yoshi's mouth")]
+        [JsonPropertyOrder(1)]
         public bool StayInYoshisMouth { get; set; }
-        [JsonProperty(Order = 2, PropertyName = "Weird ground behaviour")]
+        [JsonPropertyName("Weird ground behaviour")]
+        [JsonPropertyOrder(2)]
         public bool WeirdGroundBehaviour { get; set; }
-        [JsonProperty(Order = 3, PropertyName = "Don't interact with other sprites")]
+        [JsonPropertyName("Don't interact with other sprites")]
+        [JsonPropertyOrder(3)]
         public bool DontInteractWithOtherSprites { get; set; }
-        [JsonProperty(Order = 4, PropertyName = "Don't change direction if touched")]
+        [JsonPropertyName("Don't change direction if touched")]
+        [JsonPropertyOrder(4)]
         public bool DontChangeDirectionIfTouched { get; set; }
-        [JsonProperty(Order = 5, PropertyName = "Don't turn into coin when goal passed")]
+        [JsonPropertyName("Don't turn into coin when goal passed")]
+        [JsonPropertyOrder(5)]
         public bool DontTurnIntoCoinWhenGoalPassed { get; set; }
-        [JsonProperty(Order = 6, PropertyName = "Spawn a new sprite")]
+        [JsonPropertyName("Spawn a new sprite")]
+        [JsonPropertyOrder(6)]
         public bool SpawnANewSprite { get; set; }
-        [JsonProperty(Order = 7, PropertyName = "Don't interact with objects")]
+        [JsonPropertyName("Don't interact with objects")]
+        [JsonPropertyOrder(7)]
         public bool DontInteractWithObjects { get; set; }
     }
 
-    public class Value190F : ByteRepresentant 
+    public class Value190F : ByteRepresentant
     {
-        [JsonProperty(Order = 0, PropertyName = "Make platform passable from below")]
+        [JsonPropertyName("Make platform passable from below")]
+        [JsonPropertyOrder(0)]
         public bool MakePlatformPassableFromBelow { get; set; }
-        [JsonProperty(Order = 1, PropertyName = "Don't erase when goal passed")]
+        [JsonPropertyName("Don't erase when goal passed")]
+        [JsonPropertyOrder(1)]
         public bool DontEraseWhenGoalPassed { get; set; }
-        [JsonProperty(Order = 2, PropertyName = "Can't be killed by sliding")]
+        [JsonPropertyName("Can't be killed by sliding")]
+        [JsonPropertyOrder(2)]
         public bool CantBeKilledBySliding { get; set; }
-        [JsonProperty(Order = 3, PropertyName = "Takes 5 fireballs to kill")]
+        [JsonPropertyName("Takes 5 fireballs to kill")]
+        [JsonPropertyOrder(3)]
         public bool Takes5FireballsToKill { get; set; }
-        [JsonProperty(Order = 4, PropertyName = "Can be jumped on with upwards Y speed")]
+        [JsonPropertyName("Can be jumped on with upwards Y speed")]
+        [JsonPropertyOrder(4)]
         public bool CanBeJumpedOnWithUpwardsYSpeed { get; set; }
-        [JsonProperty(Order = 5, PropertyName = "Death frame two tiles high")]
+        [JsonPropertyName("Death frame two tiles high")]
+        [JsonPropertyOrder(5)]
         public bool DeathFrameTwoTilesHigh { get; set; }
-        [JsonProperty(Order = 6, PropertyName = "Don't turn into a coin with silver POW")]
+        [JsonPropertyName("Don't turn into a coin with silver POW")]
+        [JsonPropertyOrder(6)]
         public bool DontTurnIntoACoinWithSilverPow { get; set; }
-        [JsonProperty(Order = 7, PropertyName = "Don't get stuck in walls (carryable sprites)")]
+        [JsonPropertyName("Don't get stuck in walls (carryable sprites)")]
+        [JsonPropertyOrder(7)]
         public bool DontGetStuckInWallsCarryableSprites { get; set; }
     }
 }

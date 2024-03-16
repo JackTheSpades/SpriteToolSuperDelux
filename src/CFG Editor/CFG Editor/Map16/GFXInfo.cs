@@ -5,8 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.ComponentModel;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json.Serialization;
 
 namespace CFG.Map16
 {
@@ -46,19 +45,23 @@ namespace CFG.Map16
         private SingleFile _Sp2 = new SingleFile { Value = 0x7F, Separate = false };
         private SingleFile _Sp3 = new SingleFile { Value = 0x7F, Separate = false };
 
-        [JsonProperty(PropertyName = "0", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("0")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         [SingleFileDefaultValue()]
         [Browsable(false)]
         public SingleFile Sp0 { get => _Sp0; set { _Sp0 = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp0))); } }
-        [JsonProperty(PropertyName = "1", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("1")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         [SingleFileDefaultValue()]
         [Browsable(false)]
         public SingleFile Sp1 { get => _Sp1; set { _Sp1 = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp1))); } }
-        [JsonProperty(PropertyName = "2", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("2")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         [SingleFileDefaultValue()]
         [Browsable(false)]
         public SingleFile Sp2 { get => _Sp2; set { _Sp2 = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp2))); } }
-        [JsonProperty(PropertyName = "3", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("3")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         [SingleFileDefaultValue()]
         [Browsable(false)]
         public SingleFile Sp3 { get => _Sp3; set { _Sp3 = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp3))); } }

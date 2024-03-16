@@ -9,8 +9,8 @@ using System.Drawing;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using CFG.Json;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace CFG.Map16
 {
@@ -81,7 +81,7 @@ namespace CFG.Map16
         }
 
         private bool _CustomBit = true;
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public bool CustomBit
         {
             get { return _CustomBit; }
@@ -95,46 +95,58 @@ namespace CFG.Map16
         [Bindable(true)]
         public GFXInfo GFXInfo { get; set; }
 
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public bool CheckDispType => disp_type == DisplayType.XY;
 
-        class DisplayTypeConverter : JsonConverter
+        class DisplayTypeConverter : JsonConverter<int?>
         {
+
             public override bool CanConvert(Type objectType)
             {
-                return (objectType == typeof(int));
+                return (objectType == typeof(int?)) || (objectType == typeof(int));
             }
 
-            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+            public override int? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                var token = JToken.Load(reader);
-                if (token.Type == JTokenType.Integer)
+                if (!reader.Read())
                 {
-                    return (int)token;
+                    throw new JsonException();
                 }
-                return null;
+                if (reader.TokenType != JsonTokenType.Number)
+                {
+                    return null;
+                } else
+                {
+                    return reader.GetInt32();
+                }
             }
 
-            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            public override void Write(Utf8JsonWriter writer, int? value, JsonSerializerOptions options)
             {
-                if (value != null)
-                    serializer.Serialize(writer, ((int?)value).Value);
+                if (value.HasValue)
+                {
+                    writer.WriteNumberValue(value.Value);
+                }
             }
         }
 
-        [JsonProperty(PropertyName = "X", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("X")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonConverter(typeof(DisplayTypeConverter))]
         private int? _X = null;
 
-        [JsonProperty(PropertyName = "Y", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("Y")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonConverter(typeof(DisplayTypeConverter))]
         private int? _Y = null;
 
-        [JsonProperty(PropertyName = "Value", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("Value")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonConverter(typeof(DisplayTypeConverter))]
         private int? _Value = null;
 
-        [JsonProperty(PropertyName = "Index", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("Index")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonConverter(typeof(DisplayTypeConverter))]
         private int? _Index = null;
 
@@ -297,14 +309,14 @@ namespace CFG.Map16
     public partial class Tile : ICloneable
     {
 
-        [Newtonsoft.Json.JsonProperty("X offset")]
+        [JsonPropertyName("X offset")]
         public int XOffset { get; set; }
-        [Newtonsoft.Json.JsonProperty("Y offset")]
+        [JsonPropertyName("Y offset")]
         public int YOffset { get; set; }
-        [Newtonsoft.Json.JsonProperty("map16 tile")]
+        [JsonPropertyName("map16 tile")]
         public int Map16Number { get; set; }
 
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public bool Selected { get; set; }
 
         public Tile()

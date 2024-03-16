@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using System.Reflection;
+using System.Text.Json.Serialization;
 
 namespace CFG.Json
 {
+    [AttributeUsage(AttributeTargets.All)]
     public class JsonIntPropertyAttribute : Attribute
     {
         public int Size { get; set; }
@@ -32,7 +33,7 @@ namespace CFG.Json
             var props = GetType().GetProperties();
             foreach(var prop in props)
             {
-                var attr = prop.GetCustomAttribute<JsonPropertyAttribute>();
+                var attr = prop.GetCustomAttribute<JsonPropertyOrderAttribute>();
                 if (attr == null)
                     continue;
                 if (prop.PropertyType == typeof(bool))
@@ -63,7 +64,7 @@ namespace CFG.Json
             var props = GetType().GetProperties();
             foreach (var prop in props)
             {
-                var attr = prop.GetCustomAttribute<JsonPropertyAttribute>();
+                var attr = prop.GetCustomAttribute<JsonPropertyOrderAttribute>();
                 if (attr == null)
                     continue;
                 if (prop.PropertyType == typeof(bool))

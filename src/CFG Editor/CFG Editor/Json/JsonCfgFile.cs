@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace CFG.Json
 {
@@ -16,69 +16,81 @@ namespace CFG.Json
 
     public class JsonCfgFile
     {
-        [JsonProperty(PropertyName = "$1656")]
+        [JsonPropertyName("$1656")]
         public Value1656 Val1656 { get; set; } = new Value1656();
-        [JsonProperty(PropertyName = "$1662")]
+        [JsonPropertyName("$1662")]
         public Value1662 Val1662 { get; set; } = new Value1662();
-        [JsonProperty(PropertyName = "$166E")]
+        [JsonPropertyName("$166E")]
         public Value166E Val166E { get; set; } = new Value166E();
-        [JsonProperty(PropertyName = "$167A")]
+        [JsonPropertyName("$167A")]
         public Value167A Val167A { get; set; } = new Value167A();
-        [JsonProperty(PropertyName = "$1686")]
+        [JsonPropertyName("$1686")]
         public Value1686 Val1686 { get; set; } = new Value1686();
-        [JsonProperty(PropertyName = "$190F")]
+        [JsonPropertyName("$190F")]
         public Value190F Val190F { get; set; } = new Value190F();
 
-        [JsonProperty(PropertyName = "AsmFile")]
+        [JsonPropertyName("AsmFile")]
         public string AsmFile { get; set; }
-        [JsonProperty(PropertyName = "ActLike")]
+        [JsonPropertyName("ActLike")]
         public byte ActLike { get; set; }
-        [JsonProperty(PropertyName = "Type")]
+        [JsonPropertyName("Type")]
         public byte Type { get; set; }
 
-        [JsonProperty("Extra Property Byte 1")]
+        [JsonPropertyName("Extra Property Byte 1")]
         public byte ExProp1 { get; set; }
-        [JsonProperty("Extra Property Byte 2")]
+        [JsonPropertyName("Extra Property Byte 2")]
         public byte ExProp2 { get; set; }
 
-        [JsonProperty("Additional Byte Count (extra bit clear)")]
+        [JsonPropertyName("Additional Byte Count (extra bit clear)")]
         public byte ByteCount { get; set; }
-        [JsonProperty("Additional Byte Count (extra bit set)")]
+        [JsonPropertyName("Additional Byte Count (extra bit set)")]
         public byte ExByteCount { get; set; }
 
-        [JsonProperty(PropertyName = "Map16")]
+        [JsonPropertyName("Map16")]
         public byte[] Map16 { get; set; }
 
-        [JsonProperty(PropertyName = "Displays")]
+        [JsonPropertyName("Displays")]
         public List<Map16.DisplaySprite> Displays { get; set; }
 
-        [JsonProperty(PropertyName = "Collection")]
+        [JsonPropertyName("Collection")]
         public List<CollectionSprite> Collection { get; set; }
 
-        class DisplayTypeConverter : JsonConverter
+        
+        class DisplayTypeConverter : JsonConverter<DisplayType>
         {
+
             public override bool CanConvert(Type objectType)
             {
-                return (objectType == typeof(string));
+                return objectType == typeof(DisplayType);
             }
 
-            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+            public override DisplayType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                var token = JToken.Load(reader);
-                if (token.Type == JTokenType.String)
+                if (!reader.Read())
                 {
-                    return token.ToString() == "ExByte" ? DisplayType.ExtraByte : DisplayType.XY;
+                    throw new JsonException();
+                }    
+                if (reader.TokenType != JsonTokenType.String)
+                {
+                    throw new JsonException();
                 }
-                return null;
+                var val = reader.GetString() ?? throw new JsonException();
+                if (val == "ExByte")
+                {
+                    return DisplayType.ExtraByte;
+                } else
+                {
+                    return DisplayType.XY;
+                }
             }
 
-            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            public override void Write(Utf8JsonWriter writer, DisplayType value, JsonSerializerOptions options)
             {
-                serializer.Serialize(writer, (DisplayType)value == DisplayType.ExtraByte ? "ExByte" : "XY");
+                writer.WriteStringValue(value == DisplayType.ExtraByte ? "ExByte" : "XY");
             }
         }
 
-        [JsonProperty(PropertyName = "DisplayType", Required = Required.Default, Order = 0)]
+        [JsonPropertyName("DisplayType")]
         [JsonConverter(typeof(DisplayTypeConverter))]
         public DisplayType DisplayType { get; set; } = DisplayType.XY;
 

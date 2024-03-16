@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -303,7 +304,7 @@ namespace CFG
         /// <param name="json">The json string</param>
         public void FromJson(string json)
         {
-            var cfgJson = Newtonsoft.Json.JsonConvert.DeserializeObject<CFG.Json.JsonCfgFile>(json);
+            var cfgJson = JsonSerializer.Deserialize<JsonCfgFile>(json);
             cfgJson.FillData(this);
         }
         /// <summary>
@@ -312,7 +313,11 @@ namespace CFG
         /// <returns></returns>
         public string ToJson()
         {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(new Json.JsonCfgFile(this), Newtonsoft.Json.Formatting.Indented);
+            JsonSerializerOptions options = new()
+            {
+                WriteIndented = true
+            };
+            return JsonSerializer.SerializeToUtf8Bytes(new JsonCfgFile(this), options).ToString();
         }
 
         /// <summary>
