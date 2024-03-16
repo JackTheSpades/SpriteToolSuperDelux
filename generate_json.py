@@ -25,7 +25,7 @@ def make_cs_class_name(ram_addr: str) -> str:
 
 cpp_prelude = "#include <nlohmann/json.hpp>\n"
 
-cs_prelude = "using Newtonsoft.Json;\n\n"
+cs_prelude = "using System.Text.Json.Serialization;\n\n"
 
 cpp_func_proto = """
 auto {}(const nlohmann::json& j) {{
@@ -37,7 +37,7 @@ auto {}(const nlohmann::json& j) {{
 """
 
 cs_class_proto = """
-    public class {} : ByteRepresentant 
+    public class {} : ByteRepresentant
     {{
 {}
     }}
@@ -66,21 +66,21 @@ def construct_cpp_func(address: str, values) -> str:
 def construct_cs_class(address: str, values) -> str:
     num_val = len(values)
     if num_val == 8:
-        cs_func_body = '\n'.join([f'        [JsonProperty(Order = {i}, PropertyName = "{v}")]\n        public bool {make_var_name(v)} {{ get; set; }}' for i, v in enumerate(values)])
+        cs_func_body = '\n'.join([f'        [JsonPropertyName("{v}")]\n        [JsonPropertyOrder({i})]\n        public bool {make_var_name(v)} {{ get; set; }}' for i, v in enumerate(values)])
     else:
         diff = 8 - num_val
         if address == "$166E":
             first_val = values[0]
             palette_val = values[1]
-            cs_func_body = f'        [JsonProperty(Order = 0, PropertyName = "{first_val}")]\n        public bool {make_var_name(first_val)} {{ get; set; }}\n'
-            cs_func_body += f'        [JsonProperty(Order = 1, PropertyName = "{palette_val}")]\n        [JsonIntProperty(Size = {diff + 1})]\n        public int {make_var_name(palette_val)} {{ get; set; }}\n'
+            cs_func_body = f'        [JsonPropertyName("{first_val}")]\n        [JsonPropertyOrder(0)]\n        public bool {make_var_name(first_val)} {{ get; set; }}\n'
+            cs_func_body += f'        [JsonPropertyName("{palette_val}")]\n        [JsonPropertyOrder(1)]\n        [JsonIntProperty(Size = {diff + 1})]\n        public int {make_var_name(palette_val)} {{ get; set; }}\n'
             diff += 1
             cut = 2
         else:
             first_val = values[0]
-            cs_func_body = f'        [JsonProperty(Order = 0, PropertyName = "{first_val}")]\n        [JsonIntProperty(Size = {diff + 1})]\n        public int {make_var_name(first_val)} {{ get; set; }}\n'
+            cs_func_body = f'        [JsonPropertyName("{first_val}")]\n        [JsonPropertyOrder(0)]\n        [JsonIntProperty(Size = {diff + 1})]\n        public int {make_var_name(first_val)} {{ get; set; }}\n'
             cut = 1
-        cs_func_body += '\n'.join([f'        [JsonProperty(Order = {i + diff + 1}, PropertyName = "{v}")]\n        public bool {make_var_name(v)} {{ get; set; }}' for i, v in enumerate(values[cut:])])
+        cs_func_body += '\n'.join([f'        [JsonPropertyName("{v}")]\n        [JsonPropertyOrder({i + diff + 1})]\n        public bool {make_var_name(v)} {{ get; set; }}' for i, v in enumerate(values[cut:])])
     return str.format(cs_class_proto, make_cs_class_name(address), cs_func_body)
 
 def construct_cpp_file():

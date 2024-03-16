@@ -111,7 +111,7 @@ def choose_binary(search_path):
     else:
         return exes[0]
 
-cfgexe = "src/CFG Editor/CFG Editor/bin/Release/CFG Editor.exe"
+cfgexe = "src/CFG Editor/CFG Editor/bin/Release/net8.0-windows/CFG Editor.exe"
 pixiexe = choose_binary(f'{os.getcwd()}{os.sep}**{os.sep}{pixi_exe_name()}')
 asarlib = choose_binary(f'{os.getcwd()}{os.sep}**{os.sep}{asar_lib_name()}')
 
