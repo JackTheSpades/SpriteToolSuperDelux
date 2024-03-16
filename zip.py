@@ -136,12 +136,6 @@ with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
     # add cfg editor only on windows
     if sys.platform == 'win32' and not CALLED_BY_TESTS:
         pixizip.write(cfgexe.replace("/", os.sep), "CFG Editor.exe")
-        pixizip.write(
-            os.path.join(
-                os.path.dirname(cfgexe.replace("/", os.sep)), "Newtonsoft.Json.dll"
-            ),
-            "Newtonsoft.Json.dll",
-        )
     pixizip.write(pixiexe.replace("/", os.sep), pixi_exe_name())
     pixizip.write(asarlib.replace("/", os.sep), asar_lib_name())
 
