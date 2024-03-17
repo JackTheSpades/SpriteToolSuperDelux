@@ -92,10 +92,9 @@ jobs:
     - name: Build CFG Editor
       shell: powershell
       run: |
-        cd "${{github.workspace}}/src/CFG Editor"
-        nuget restore "CFG Editor.sln"
-        msbuild.exe "CFG Editor.sln" -p:Configuration=Release
-        Compress-Archive "${{github.workspace}}/src/CFG Editor/CFG Editor/bin/Release/CFG Editor.exe","${{github.workspace}}/src/CFG Editor/CFG Editor/bin/Release/Newtonsoft.Json.dll" ${{github.workspace}}/cfgeditor.zip
+        cd "${{github.workspace}}/src/CFG Editor/CFG Editor"
+        dotnet publish --nologo -p:PublishSingleFile=true --sc false -r win-x64 -c Release -f net8.0-windows -o "bin/Release/net8.0-windows"
+        Compress-Archive "${{github.workspace}}/src/CFG Editor/CFG Editor/bin/Release/net8.0-windows/CFG Editor.exe" ${{github.workspace}}/cfgeditor.zip
       if: matrix.os == 'windows-latest'
       
     - name: Run basic unit tests
