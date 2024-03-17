@@ -360,16 +360,9 @@ if (PIXI_BUILD_EXE)
     if (ASAR_USE_DLL)
         add_custom_command(TARGET pixi POST_BUILD 
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:asar> $<TARGET_FILE_DIR:pixi>
+            $<TARGET_FILE:asar> $<TARGET_FILE_DIR:pixi>/${CMAKE_SHARED_LIBRARY_PREFIX}asar${CMAKE_SHARED_LIBRARY_SUFFIX}
             COMMENT "Copying asar dynamic library to output directory"
         )
-
-        if (MINGW)
-            add_custom_command(TARGET pixi POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E rename $<TARGET_FILE_DIR:pixi>/libasar.dll $<TARGET_FILE_DIR:pixi>/asar.dll
-                COMMENT "Renaming libasar.dll to asar.dll because MinGW is a mess"
-            )
-        endif()
     endif()
 
     if (MSVC)

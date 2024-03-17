@@ -54,13 +54,7 @@ add_custom_command(TARGET PixiUnitTest POST_BUILD
 )
 if (ASAR_USE_DLL)
     add_custom_command(TARGET PixiUnitTest POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${ASAR_LIB_PATH} $<TARGET_FILE_DIR:PixiUnitTest>
-    )
-endif()
-if (MINGW AND ASAR_USE_DLL)
-    add_custom_command(TARGET PixiUnitTest POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E rename $<TARGET_FILE_DIR:PixiUnitTest>/libasar.dll $<TARGET_FILE_DIR:PixiUnitTest>/asar.dll
-        COMMENT "Renaming libasar.dll to asar.dll because MinGW is a mess"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${ASAR_LIB_PATH} $<TARGET_FILE_DIR:PixiUnitTest>/${CMAKE_SHARED_LIBRARY_PREFIX}asar${CMAKE_SHARED_LIBRARY_SUFFIX}
     )
 endif()
 if (MSVC)
