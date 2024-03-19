@@ -49,19 +49,19 @@ namespace CFG.Map16
         [JsonProperty(PropertyName = "0", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [SingleFileDefaultValue()]
         [Browsable(false)]
-        public SingleFile Sp0 { get => _Sp0; set { _Sp0 = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp0))); } }
+        public SingleFile Sp0 { get => _Sp0; set { _Sp0 = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Sp0))); } }
         [JsonProperty(PropertyName = "1", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [SingleFileDefaultValue()]
         [Browsable(false)]
-        public SingleFile Sp1 { get => _Sp1; set { _Sp1 = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp1))); } }
+        public SingleFile Sp1 { get => _Sp1; set { _Sp1 = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Sp1))); } }
         [JsonProperty(PropertyName = "2", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [SingleFileDefaultValue()]
         [Browsable(false)]
-        public SingleFile Sp2 { get => _Sp2; set { _Sp2 = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp2))); } }
+        public SingleFile Sp2 { get => _Sp2; set { _Sp2 = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Sp2))); } }
         [JsonProperty(PropertyName = "3", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [SingleFileDefaultValue()]
         [Browsable(false)]
-        public SingleFile Sp3 { get => _Sp3; set { _Sp3 = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp3))); } }
+        public SingleFile Sp3 { get => _Sp3; set { _Sp3 = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Sp3))); } }
 
         [JsonIgnore]
         public int Sp0Value { get => _Sp0.Value; set { _Sp0.Value = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp0.Value))); } }
