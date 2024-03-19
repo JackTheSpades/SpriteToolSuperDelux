@@ -10,6 +10,10 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
+using CFG.Map16;
+using System.Text.Json.Serialization.Metadata;
 
 namespace CFG
 {
@@ -313,11 +317,18 @@ namespace CFG
         /// <returns></returns>
         public string ToJson()
         {
+            var modifier = new IgnoreSingleFileWithDefault();
+
             JsonSerializerOptions options = new()
             {
-                WriteIndented = true
+                TypeInfoResolver = new DefaultJsonTypeInfoResolver
+                {
+                    Modifiers = { modifier.ModifyTypeInfo }
+                },
+                WriteIndented = true,
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             };
-            return JsonSerializer.SerializeToUtf8Bytes(new JsonCfgFile(this), options).ToString();
+            return Encoding.UTF8.GetString(JsonSerializer.SerializeToUtf8Bytes(new JsonCfgFile(this), options));
         }
 
         /// <summary>

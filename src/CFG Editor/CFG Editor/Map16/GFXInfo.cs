@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 namespace CFG.Map16
 {
@@ -13,14 +14,35 @@ namespace CFG.Map16
     [DebuggerDisplay("Value={Value}, Separate={Separate}")]
     public struct SingleFile
     {
+        [JsonInclude]
         public int Value;
+
+        [JsonInclude]
         public bool Separate;
     }
 
-    public class SingleFileDefaultValueAttribute : DefaultValueAttribute
+    class IgnoreSingleFileWithDefault
     {
-        public SingleFileDefaultValueAttribute() : base(new SingleFile { Value = 0x7F, Separate = false })
+        private readonly static SingleFile defaultSingleFile = new() { Value = 0x7F, Separate = false };
+        public IgnoreSingleFileWithDefault() { }
+        public void ModifyTypeInfo(JsonTypeInfo ti)
         {
+            if (ti.Kind != JsonTypeInfoKind.Object)
+                return;
+            foreach (JsonPropertyInfo propertyInfo in ti.Properties)
+            {
+                if (propertyInfo.PropertyType == typeof(SingleFile))
+                {
+                    propertyInfo.ShouldSerialize = static (obj, value) =>
+                    {
+                        if (value is SingleFile singleFile)
+                        {
+                            return singleFile.Separate != defaultSingleFile.Separate || singleFile.Value != defaultSingleFile.Value;
+                        }
+                        return true;
+                    };
+                }
+            }
         }
     }
 
@@ -31,40 +53,33 @@ namespace CFG.Map16
 
         public object Clone()
         {
-            GFXInfo info = new GFXInfo {
-                _Sp0 = this._Sp0,
-                _Sp1 = this._Sp1,
-                _Sp2 = this._Sp2,
-                _Sp3 = this._Sp3,
+            GFXInfo info = new()
+            {
+                _Sp0 = _Sp0,
+                _Sp1 = _Sp1,
+                _Sp2 = _Sp2,
+                _Sp3 = _Sp3,
             };
             return info;
         }
 
-        private SingleFile _Sp0 = new SingleFile { Value = 0x7F, Separate = false };
-        private SingleFile _Sp1 = new SingleFile { Value = 0x7F, Separate = false };
-        private SingleFile _Sp2 = new SingleFile { Value = 0x7F, Separate = false };
-        private SingleFile _Sp3 = new SingleFile { Value = 0x7F, Separate = false };
+        private SingleFile _Sp0 = new() { Value = 0x7F, Separate = false };
+        private SingleFile _Sp1 = new() { Value = 0x7F, Separate = false };
+        private SingleFile _Sp2 = new() { Value = 0x7F, Separate = false };
+        private SingleFile _Sp3 = new() { Value = 0x7F, Separate = false };
 
         [JsonPropertyName("0")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        [SingleFileDefaultValue()]
         [Browsable(false)]
-        public SingleFile Sp0 { get => _Sp0; set { _Sp0 = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp0))); } }
+        public SingleFile Sp0 { get => _Sp0; set { _Sp0 = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Sp0))); } }
         [JsonPropertyName("1")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        [SingleFileDefaultValue()]
         [Browsable(false)]
-        public SingleFile Sp1 { get => _Sp1; set { _Sp1 = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp1))); } }
+        public SingleFile Sp1 { get => _Sp1; set { _Sp1 = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Sp1))); } }
         [JsonPropertyName("2")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        [SingleFileDefaultValue()]
         [Browsable(false)]
-        public SingleFile Sp2 { get => _Sp2; set { _Sp2 = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp2))); } }
+        public SingleFile Sp2 { get => _Sp2; set { _Sp2 = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Sp2))); } }
         [JsonPropertyName("3")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        [SingleFileDefaultValue()]
         [Browsable(false)]
-        public SingleFile Sp3 { get => _Sp3; set { _Sp3 = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp3))); } }
+        public SingleFile Sp3 { get => _Sp3; set { _Sp3 = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Sp3))); } }
 
         [JsonIgnore]
         public int Sp0Value { get => _Sp0.Value; set { _Sp0.Value = value; PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Sp0.Value))); } }

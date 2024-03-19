@@ -98,56 +98,24 @@ namespace CFG.Map16
         [JsonIgnore]
         public bool CheckDispType => disp_type == DisplayType.XY;
 
-        class DisplayTypeConverter : JsonConverter<int?>
-        {
-
-            public override bool CanConvert(Type objectType)
-            {
-                return (objectType == typeof(int?)) || (objectType == typeof(int));
-            }
-
-            public override int? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            {
-                if (!reader.Read())
-                {
-                    throw new JsonException();
-                }
-                if (reader.TokenType != JsonTokenType.Number)
-                {
-                    return null;
-                } else
-                {
-                    return reader.GetInt32();
-                }
-            }
-
-            public override void Write(Utf8JsonWriter writer, int? value, JsonSerializerOptions options)
-            {
-                if (value.HasValue)
-                {
-                    writer.WriteNumberValue(value.Value);
-                }
-            }
-        }
-
+        [JsonInclude]
         [JsonPropertyName("X")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        [JsonConverter(typeof(DisplayTypeConverter))]
         private int? _X = null;
 
+        [JsonInclude]
         [JsonPropertyName("Y")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        [JsonConverter(typeof(DisplayTypeConverter))]
         private int? _Y = null;
 
+        [JsonInclude]
         [JsonPropertyName("Value")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        [JsonConverter(typeof(DisplayTypeConverter))]
         private int? _Value = null;
 
+        [JsonInclude]
         [JsonPropertyName("Index")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        [JsonConverter(typeof(DisplayTypeConverter))]
         private int? _Index = null;
 
         [JsonIgnore]
