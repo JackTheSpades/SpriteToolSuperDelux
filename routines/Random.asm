@@ -3,32 +3,42 @@
 ; Output: A = random number in the interval [0, A]
  
 ?main:
-    PHX : PHP
-    SEP #$30
-    PHA
-    JSL $01ACF9|!BankB
-    LDA $148D|!Base2
-    PLX
-    CPX #$FF
-    BEQ ?.end
- 
-?.normal
-    INX
- 
-    if !SA1 == 0
-        STA $4202               ; Write first multiplicand.
-        STX $4203               ; Write second multiplicand.
-        NOP #4                  ; Wait 8 cycles.
-        LDA $4217               ; Read multiplication product (high byte).
+    phx : php
+    sep #$30
+
+    pha
+    inc
+    and $01,s
+    beq ?.powOf2                        ; max of the form 2^n - 1, so we can just use a bitwise and instead of a divide
+
+?.divide:
+    if !sa1 == 0
+        jsl $01ACF9|!bank               ; first byte in both A and $148C, second in $148D
+        sta $4204                       ; dividend, low byte
+        lda $148D|!addr : sta $4205     ; dividend, high byte
+        pla : inc
+        sta $4206                       ; divisor
+        nop #8                          ; wait 16 cycles
+        lda $4216                       ; remainder
     else
-        STZ $2250               ; Set multiplication mode.
-        STA $2251               ; Write first multiplicand.
-        STZ $2252
-        STX $2253               ; Write second multiplicand.
-        STZ $2254
-        NOP                     ; Wait 2 cycles, which is enough according to SnesLab docs about sa-1 registers.
-        LDA $2307               ; Read multiplication product.
+        lda #$01 : sta $2250            ; select division
+        jsl $01ACF9|!bank               ; first byte in both A and $148C, second in $148D
+        sta $2251                       ; dividend, low byte
+        lda $148D|!addr : lsr           ; workaround for snes9x bug: https://github.com/snes9xgit/snes9x/issues/799 (don't really want a negative dividend anyway)
+        sta $2252                       ; dividend, high byte
+        pla : inc
+        sta $2253                       ; divisor, low byte
+        stz $2254                       ; divisor, high byte
+        nop : bra $00                   ; wait 5 cycles
+        lda $2308                       ; remainder, low byte
     endif
-?.end
-    PLP : PLX
-    RTL
+
+    plp : plx
+    rtl
+
+?.powOf2:
+    jsl $01ACF9|!bank
+    pla
+    and $148C|!addr
+    plp : plx
+    rtl
