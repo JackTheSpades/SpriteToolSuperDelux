@@ -173,5 +173,6 @@ with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
     pixizip.write("CHANGELOG.html")
     pixizip.write("CONTRIBUTING.html")
     pixizip.write("removedResources.txt")
+    pixizip.write("LICENSE")
 
 print("pixi.zip created")
