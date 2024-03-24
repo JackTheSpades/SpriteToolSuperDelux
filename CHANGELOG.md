@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 1.42 (TBD)
+- (Fernap) Update %Random() routine to avoid having modulo bias.
 - (Atari2.0) Upgrade to Asar 1.91
 - (Atari2.0) Fix CFG Editor bug where loading a JSON file which used GFXInfo would cause a null reference exception.
 
