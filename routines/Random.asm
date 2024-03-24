@@ -18,7 +18,8 @@
         lda $148D|!addr : sta $4205     ; dividend, high byte
         pla : inc
         sta $4206                       ; divisor
-        nop #8                          ; wait 16 cycles
+        nop #5 : bra $00                ; wait 16 cycles (3 cycles are taken up the lda that reads the result, so we only need to wait 13 more)
+                                        ; explanation is below
         lda $4216                       ; remainder
     else
         lda #$01 : sta $2250            ; select division
@@ -29,7 +30,9 @@
         pla : inc
         sta $2253                       ; divisor, low byte
         stz $2254                       ; divisor, high byte
-        nop : bra $00                   ; wait 5 cycles
+        nop                             ; wait 2 cycles
+                                        ; SA-1 research by Vitor shows that the necessary number of 10.74 MHz cycles to wait to get a result from division is 5
+                                        ; however, the lda that reads the result takes 3 cycles to fetch the opcode and operands, and so we just need to wait 2 cycles beforehand
         lda $2308                       ; remainder, low byte
     endif
 
