@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 1.42 (TBD)
+## Version 1.42 (March 27, 2024)
 - (Fernap) Update %Random() routine to avoid having modulo bias.
 - (Atari2.0) Include LICENSE in release zip
 - (Atari2.0) Upgrade to Asar 1.91
