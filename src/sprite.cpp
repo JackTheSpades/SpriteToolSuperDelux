@@ -362,7 +362,7 @@ constexpr bool ends_with(const char* str, const char* suffix) {
 
 [[nodiscard]] bool create_lm_restore(const char* rom) {
     char to_write[50];
-    sprintf(to_write, "Pixi v%d.%d\t", VERSION_MAJOR, VERSION_PARTIAL);
+    snprintf(to_write, sizeof(to_write), "Pixi v%d.%d\t", VERSION_MAJOR, VERSION_PARTIAL);
     std::string romname(rom);
     std::string restorename = romname.substr(0, romname.find_last_of('.')) + ".extmod";
 
@@ -1139,7 +1139,7 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
             fs::path rel = fs::relative(p, routine_path);
             std::string path{rel.generic_string()};
             std::string name{};
-            for (auto& path_part : rel.replace_extension()) {
+            for (const auto& path_part : rel.replace_extension()) {
                 name += path_part.generic_string();
             }
             if (routine_count > config.Routines) {
