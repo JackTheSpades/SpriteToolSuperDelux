@@ -52,25 +52,25 @@ jobs:
     - name: Configure CMake (x86|Windows)
       shell: bash
       working-directory: ${{github.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -A Win32 -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPIXI_CI_BUILD=ON
+      run: cmake $GITHUB_WORKSPACE -A Win32 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DPIXI_CI_BUILD=ON
       if: matrix.os == 'windows-latest' && matrix.platform == 'x86'
       
     - name: Configure CMake (x64|Windows)
       shell: bash
       working-directory: ${{github.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -A x64 -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPIXI_CI_BUILD=ON
+      run: cmake $GITHUB_WORKSPACE -A x64 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DPIXI_CI_BUILD=ON
       if: matrix.os == 'windows-latest' && matrix.platform == 'x64'
 
     - name: Configure CMake (Macos)
       shell: bash
       working-directory: ${{github.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPIXI_CI_BUILD=ON
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DPIXI_CI_BUILD=ON
       if: matrix.os == 'macos-latest'
     
     - name: Configure CMake (Linux)
       shell: bash
       working-directory: ${{github.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPIXI_CI_BUILD=ON
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DPIXI_CI_BUILD=ON
       env:
         CC: gcc-11
         CXX: g++-11
@@ -79,7 +79,7 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}/build
       shell: bash
-      run: cmake --build . --config $BUILD_TYPE
+      run: cmake --build . --config ${{env.BUILD_TYPE}}
 
     - name: Setup msbuild
       uses: microsoft/setup-msbuild@v1.3.2
@@ -100,7 +100,7 @@ jobs:
       
     - name: Run basic unit tests
       working-directory: ${{github.workspace}}/build/unittests
-      run: ctest --rerun-failed --output-on-failure -C $BUILD_TYPE
+      run: ctest --rerun-failed --output-on-failure -C ${{env.BUILD_TYPE}}
     
     - name: Create pixi.zip release
       run: python ${{github.workspace}}/zip.py
