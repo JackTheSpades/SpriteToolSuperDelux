@@ -1530,11 +1530,54 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
     static map16 map[MAP16_SIZE];
     argparser optparser{};
     if (std::filesystem::exists("pixi_settings.json")) {
-        std::ifstream settings_file{"pixi_settings.json"};
         nlohmann::json j;
-        settings_file >> j;
+        try {
+            std::ifstream settings_file{"pixi_settings.json"};
+            if (!settings_file) {
+                io.error("pixi_settings.json was detected but it failed to open, please check file permissions\n");
+                return EXIT_FAILURE;
+            } else {
+                settings_file >> j;
+            }
+        } catch (const nlohmann::json::parse_error& err) {
+            // https://json.nlohmann.me/api/basic_json/operator_gtgt/#exceptions
+            switch (err.id) {
+            case 101:
+                io.error("Unexpected token in pixi_settings.json, please make sure that the json file has the correct "
+                         "format. "
+                         "Error: %s",
+                         err.what());
+                break;
+            case 102:
+                io.error(
+                    "Unicode conversion failure or surrogate error in pixi_settings.json, please make sure that the "
+                    "json file "
+                    "has the correct format. Error: %s",
+                    err.what());
+                break;
+            case 103:
+                io.error("Unicode conversion failure in  pixi_settings.json, please make sure that the json file has "
+                         "the correct "
+                         "format. Error: %s",
+                         err.what());
+                break;
+            default:
+                io.error("An unexpected json parsing error was encountered in pixi_settings.json, please make sure "
+                         "that the json "
+                         "file has the correct format. Error: %s",
+                         err.what());
+                break;
+            }
+            return EXIT_FAILURE;
+        } catch (const std::exception& e) {
+            io.error("An unknown error has occurred while parsing pixi_settings.json, please report the issue "
+                     "at " GITHUB_ISSUE_LINK " (provide as much info as possible): %s\n",
+                     e.what());
+            return EXIT_FAILURE;
+        }
         if (!optparser.init(j)) {
-            io.error("JSON format of Pixi settings is wrong.");
+            io.error("Invalid argument in pixi_settings.json");
+            return EXIT_FAILURE;
         }
     } else {
         optparser.init(skip_first ? argc - 1 : argc, skip_first ? argv + 1 : argv);
