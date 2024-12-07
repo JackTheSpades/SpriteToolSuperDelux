@@ -72,12 +72,27 @@ if (PIXI_BUILD_EXE OR PIXI_BUILD_DLL OR PIXI_BUILD_LIB)
     set(ASAR_GEN_EXE_TEST OFF)
     set(ASAR_GEN_DLL_TEST OFF)
 
-    FetchContent_Declare(
-	    asar
-	    GIT_REPOSITORY https://github.com/RPGHacker/asar
-	    GIT_TAG v1.91
-	    SOURCE_SUBDIR src
-    )
+    # this patch removes the unconditional address sanitizer in debug mode which asar has
+    # this is necessary because with msvc and clang on windows, in debug mode, it causes various issues from not compiling to crashing at program exit.
+    set(asar_patch git apply ${CMAKE_CURRENT_SOURCE_DIR}/patches/0001-Remove-unconditional-address-sanitizer-in-debug-mode.patch)
+
+    if (WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+        FetchContent_Declare(
+	        asar
+	        GIT_REPOSITORY https://github.com/RPGHacker/asar
+	        GIT_TAG v1.91
+	        SOURCE_SUBDIR src
+            PATCH_COMMAND ${asar_patch}
+            UPDATE_DISCONNECTED 1
+        )
+    else()
+        FetchContent_Declare(
+	        asar
+	        GIT_REPOSITORY https://github.com/RPGHacker/asar
+	        GIT_TAG v1.91
+	        SOURCE_SUBDIR src
+        )
+    endif()
     FetchContent_MakeAvailable(asar)
 
     set_target_properties(${ASAR_TARGET} PROPERTIES CXX_STANDARD 14)

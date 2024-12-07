@@ -1,0 +1,27 @@
+From ceced1eec643cfb2f86357aeb3221710e5237fb9 Mon Sep 17 00:00:00 2001
+From: Alessio Rosiello <alex.robassomero@gmail.com>
+Date: Sat, 7 Dec 2024 19:36:52 +0100
+Subject: [PATCH] Remove unconditional address sanitizer in debug mode
+
+---
+ src/asar/CMakeLists.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/asar/CMakeLists.txt b/src/asar/CMakeLists.txt
+index 8526de8..3005a92 100644
+--- a/src/asar/CMakeLists.txt
++++ b/src/asar/CMakeLists.txt
+@@ -16,8 +16,8 @@ set(ASAR_API_VERSION_MINOR 3)
+ set(ASAR_API_VERSION_PATCH 0)
+ set(ASAR_API_VERSION ${ASAR_API_VERSION_MAJOR}.${ASAR_API_VERSION_MINOR}.${ASAR_API_VERSION_PATCH})
+ 
+-set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
+-set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fsanitize=address")
++# set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
++# set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fsanitize=address")
+ 
+ include(GNUInstallDirs)
+ 
+-- 
+2.45.1.windows.1
+
