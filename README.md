@@ -77,6 +77,18 @@ The changelog is available [here](CHANGELOG.md).
   Keep in mind that the areas for sprites (00-BF), shooters (C0-CF) and generators (D0-DF) are fixed.
   If you want to insert a shooter, it has to be in the range of C0 to CF due to the sprite type's different coding.
 
+  ### CFG Lunar magic in-editor displays
+
+  Sprites that use CFG files do not appear by default in Lunar Magic's custom sprite list, nor do they have a custom display.
+  To make your CFG sprite appear in the custom sprite list, you'll need to append "display" to the entry in the list.txt file.
+
+  For example:
+  ```
+    00 Blue.cfg display ; this will make Blue.cfg appear in the custom sprite list
+    01 Red.cfg   ; Red will not appear in the custom sprite list
+  ```
+  
+
   ### Per-Level Sprites
 
   The slots B0 to BF are special, in that if you assign a level to them, they will become per-level sprites. The sprite will only use

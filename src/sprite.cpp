@@ -1194,7 +1194,7 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
     std::string line;
     ListType type = ListType::Sprite;
     sprite* spr = nullptr;
-    char cfgname[FILENAME_MAX] = {0};
+    std::string cfgname{};
     const char* dir = nullptr;
     while (std::getline(listStream, line)) {
         int read_until = -1;
@@ -1215,7 +1215,7 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                 io.error("List line %d was malformed: \"%s\"\n", lineno, line.c_str());
                 return false;
             }
-            strcpy(cfgname, line.c_str() + read_until);
+            cfgname = line.substr(read_until);
         } else if (line.find(':') == line.length() - 1) { // if it's the last char in the string, it's a type change
             using svt = std::pair<std::string_view, ListType>;
             constexpr std::array typeArray{svt{"SPRITE:"sv, ListType::Sprite},
@@ -1243,15 +1243,16 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                          lineno, line.c_str());
                 return false;
             }
-            strcpy(cfgname, line.c_str() + read_until);
+            cfgname = line.substr(read_until);
         }
 
-        char* dot = strrchr(cfgname, '.');
-        if (dot == nullptr) {
-            io.error("Error on list line %d: missing extension on filename %s\n", lineno, cfgname);
+        size_t dot = cfgname.find_last_of('.');
+        if (dot == std::string::npos) {
+            io.error("Error on list line %d: missing extension on filename %s\n", lineno, cfgname.c_str());
             return false;
         }
-        dot++;
+        size_t space_after_ext = cfgname.find_first_of(' ', dot);
+        std::string_view ext = std::string_view{cfgname}.substr(dot + 1, space_after_ext == std::string::npos ? space_after_ext : space_after_ext - dot - 1);
 
         if (rom != nullptr) {
             if (sprite_id == GOAL_POST_SPRITE_ID && rom->is_exlevel()) {
@@ -1324,29 +1325,35 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                 dir = paths[PathType::Generators].c_str();
         }
         spr->directory = dir;
-        std::string fullFileName = std::string{dir} + std::string{cfgname};
+        std::string fullFileName = std::string{dir} + cfgname.substr(0, space_after_ext);
 
         if (type != ListType::Sprite) {
-            if (strcmp(dot, "asm") && strcmp(dot, "ASM")) {
+            if (ext != "asm" && ext != "ASM") {
                 io.error("Error on list line %d: not an asm file\n", lineno, fullFileName.c_str());
                 return false;
             }
             spr->asm_file = std::move(fullFileName);
         } else {
             spr->cfg_file = std::move(fullFileName);
-            if (!strcmp(dot, "cfg") || !strcmp(dot, "CFG")) {
+            if (ext == "cfg" || ext == "CFG") {
+                spr->displays_in_lm = false;
+                if (space_after_ext != std::string::npos) {
+                    // may be "display|nodisplay"
+                    std::string_view display = std::string_view{cfgname}.substr(space_after_ext + 1);
+                    spr->displays_in_lm = display.starts_with("display"sv);
+                }
                 if (!read_cfg_file(spr)) {
                     io.error("Error on list line %d: Cannot parse CFG file %s.\n", lineno, spr->cfg_file.c_str());
                     return false;
                 }
-
-            } else if (!strcmp(dot, "json") || !strcmp(dot, "JSON")) {
+            } else if (ext == "json" || ext == "JSON") {
                 if (!read_json_file(spr)) {
                     io.error("Error on list line %d: Cannot parse JSON file %s.\n", lineno, spr->cfg_file.c_str());
                     return false;
                 }
+                spr->displays_in_lm = true;
             } else {
-                io.error("Error on list line %d: Unknown filetype %s\n", lineno, dot);
+                io.error("Error on list line %d: Unknown filetype %s\n", lineno, ext.data());
                 return false;
             }
         }

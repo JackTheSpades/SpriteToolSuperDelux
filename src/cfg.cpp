@@ -45,7 +45,7 @@ bool read_cfg_file(sprite* spr) {
 
     std::ifstream cfg_stream(spr->cfg_file);
     if (!cfg_stream) {
-        io.error("Can't find CFG file %s, aborting insertion", spr->cfg_file.c_str());
+        io.error("Can't find CFG file %s, aborting insertion\n", spr->cfg_file.c_str());
         return false;
     }
     std::string current_line;
@@ -58,17 +58,19 @@ bool read_cfg_file(sprite* spr) {
             return false;
     };
 
-    std::string sprite_name = fs::path{spr->cfg_file}.filename().replace_extension("").generic_string();
+    if (spr->displays_in_lm) {
+        std::string sprite_name = fs::path{spr->cfg_file}.filename().replace_extension("").generic_string();
 
-    spr->collections.push_back(collection{.name = sprite_name + " (extra bit clear)", .extra_bit = false, .prop = {}});
-    spr->collections.push_back(collection{.name = sprite_name + " (extra bit set)", .extra_bit = true, .prop = {}});
-    spr->displays.push_back(
-        display{.description = sprite_name + " (extra bit clear)", .tiles = {tile{}}, .extra_bit = false});
-    spr->displays.push_back(
-        display{.description = sprite_name + " (extra bit set)", .tiles = {tile{}}, .extra_bit = true});
+        spr->collections.push_back(
+            collection{.name = sprite_name + " (extra bit clear)", .extra_bit = false, .prop = {}});
+        spr->collections.push_back(collection{.name = sprite_name + " (extra bit set)", .extra_bit = true, .prop = {}});
+        spr->displays.push_back(
+            display{.description = sprite_name + " (extra bit clear)", .tiles = {tile{}}, .extra_bit = false});
+        spr->displays.push_back(
+            display{.description = sprite_name + " (extra bit set)", .tiles = {tile{}}, .extra_bit = true});
 
-    io.debug("Parsed: %s, %zu lines\n", spr->cfg_file.c_str(), line - 1);
-
+        io.debug("Parsed: %s, %zu lines\n", spr->cfg_file.c_str(), line - 1);
+    }
     return true;
 }
 

@@ -208,6 +208,8 @@ struct sprite {
 
     std::vector<collection> collections{};
 
+    bool displays_in_lm;
+
     ListType sprite_type = ListType::Sprite;
     bool has_empty_table() const;
     void clear();
