@@ -1332,6 +1332,10 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                 io.error("Error on list line %d: not an asm file\n", lineno, fullFileName.c_str());
                 return false;
             }
+            if (space_after_ext != std::string::npos) {
+                io.error("Error on list line %d: display type not supported for ASM files\n", lineno);
+                return false;
+            }
             spr->asm_file = std::move(fullFileName);
         } else {
             spr->cfg_file = std::move(fullFileName);
@@ -1339,14 +1343,26 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                 spr->displays_in_lm = false;
                 if (space_after_ext != std::string::npos) {
                     // may be "display|nodisplay"
-                    std::string_view display = std::string_view{cfgname}.substr(space_after_ext + 1);
-                    spr->displays_in_lm = display.starts_with("display"sv);
+                    std::string display = std::string{cfgname}.substr(space_after_ext + 1);
+                    trim(display);
+                    if (display == "nodisplay"sv) {
+                        spr->displays_in_lm = false;
+                    } else if (display == "display"sv) {
+                        spr->displays_in_lm = true;
+                    } else {
+                        io.error("Error on list line %d: Unknown display type %s\n", lineno, display.c_str());
+                        return false;
+                    }
                 }
                 if (!read_cfg_file(spr)) {
                     io.error("Error on list line %d: Cannot parse CFG file %s.\n", lineno, spr->cfg_file.c_str());
                     return false;
                 }
             } else if (ext == "json" || ext == "JSON") {
+                if (space_after_ext != std::string::npos) {
+                    io.error("Error on list line %d: display type not supported for JSON files\n", lineno);
+                    return false;
+                }
                 if (!read_json_file(spr)) {
                     io.error("Error on list line %d: Cannot parse JSON file %s.\n", lineno, spr->cfg_file.c_str());
                     return false;

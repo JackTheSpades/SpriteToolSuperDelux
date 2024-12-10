@@ -80,14 +80,18 @@ The changelog is available [here](CHANGELOG.md).
   ### CFG Lunar magic in-editor displays
 
   Sprites that use CFG files do not appear by default in Lunar Magic's custom sprite list, nor do they have a custom display.
-  To make your CFG sprite appear in the custom sprite list, you'll need to append "display" to the entry in the list.txt file.
+  To make your CFG sprite appear in the custom sprite list, you'll need to append `display` to the entry in the list.txt file.
 
   For example:
   ```
     00 Blue.cfg display ; this will make Blue.cfg appear in the custom sprite list
-    01 Red.cfg   ; Red will not appear in the custom sprite list
+    01 Red.cfg   ; Red will not appear in the custom sprite listlist
+    02 Red.cfg   nodisplay ; Red will not appear in the custom sprite list
   ```
   
+  If you want to *explicitely* disable the display for a sprite, you can use `nodisplay` instead of `display`. This is the default behavior when omitted.
+
+  This is only supported CFG entries, JSON and ASM entries do not need and will not use this.
 
   ### Per-Level Sprites
 
