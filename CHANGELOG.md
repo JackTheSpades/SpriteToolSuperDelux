@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 1.43 (TBD)
+- (Atari2.0) Fix bug with -no-lm-aux where it wouldn't generate \_customsize.bin and thus fail insertion.
 - (Atari2.0) Revert a change from 1.41 where CFG sprites would always show up in the custom sprite collection in LM, instead now to have a CFG sprite display in the LM custom sprite collection, append "display" to the corresponding list entry.
 
 ## Version 1.42 (March 27, 2024)

@@ -2027,12 +2027,17 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         if (!generate_lm_data(sprite_list, map, extra_bytes, ssc, mwt, mw2, s16, cfg.PerLevel))
             return EXIT_FAILURE;
 
-        binfiles.push_back(write_all(extra_bytes, asm_path, "_customsize.bin", 0x200));
+        binfiles.push_back(write_all(extra_bytes, asm_path, "_customsize.bin"));
         // close all the files.
         fclose(s16);
         fclose(ssc);
         fclose(mwt);
         fclose(mw2);
+    } else {
+        if (!generate_lm_data_ex_bytes_only(sprite_list, extra_bytes, cfg.PerLevel))
+            return EXIT_FAILURE;
+
+        binfiles.push_back(write_all(extra_bytes, asm_path, "_customsize.bin"));
     }
 
     // apply the actual patches
