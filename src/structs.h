@@ -9,10 +9,16 @@
 #include "config.h"
 #include <cstring>
 #include <memory>
+#include <optional>
 #include <span>
 #include <sstream>
 #include <string>
 #include <vector>
+
+#ifndef _SAL_VERSION
+#define _In_z_
+#define _Printf_format_string_
+#endif
 
 // use 16MB ROM size to avoid asar malloc/memcpy on 8MB of data per block.
 constexpr auto MAX_ROM_SIZE = 16 * 1024 * 1024;
@@ -64,7 +70,7 @@ class patchfile {
     const memoryfile& vfile() const {
         return *m_vfile;
     }
-    void fprintf(const char* format, ...);
+    void fprintf(_In_z_ _Printf_format_string_ const char* const format, ...);
     void fwrite(const char* bindata, size_t size);
     void fwrite(const unsigned char* bindata, size_t size);
     void close();
@@ -72,30 +78,113 @@ class patchfile {
     ~patchfile();
 };
 
+// forward declarations
+struct ROM;
+class romdata;
+class pcaddress;
+class snesaddress;
+struct pointer;
+
+class pcaddress {
+    friend std::hash<pcaddress>;
+    friend ROM;
+    friend romdata;
+    int value;
+
+  public:
+    constexpr pcaddress(int val) : value{val} {};
+    pcaddress(pointer ptr, const ROM& rom);
+    pcaddress(snesaddress addr, const ROM& rom);
+    inline bool operator==(const pcaddress& other) const {
+        return value == other.value;
+    }
+    inline bool operator==(int other) const {
+        return value == other;
+    }
+    inline pcaddress operator+(pcaddress offset) const {
+        return pcaddress{value + offset.value};
+    }
+    inline pcaddress operator+(int offset) const {
+        return pcaddress{value + offset};
+    }
+    inline pcaddress operator-(pcaddress offset) const {
+        return pcaddress{value - offset.value};
+    }
+    inline pcaddress operator-(int offset) const {
+        return pcaddress{value - offset};
+    }
+    int raw_value() const {
+        return value;
+    }
+};
+
+class snesaddress {
+    friend ROM;
+    friend romdata;
+    int value;
+
+  public:
+    constexpr snesaddress(int val) : value{val} {};
+    constexpr snesaddress(unsigned int val) : value{static_cast<int>(val)} {};
+    snesaddress(pointer ptr);
+    snesaddress(pcaddress addr, const ROM& rom);
+    inline bool operator==(const snesaddress& other) const {
+        return value == other.value;
+    }
+    inline bool operator==(int other) const {
+        return value == other;
+    }
+    inline snesaddress operator+(snesaddress offset) const {
+        return snesaddress{value + offset.value};
+    }
+    inline snesaddress operator+(int offset) const {
+        return snesaddress{value + offset};
+    }
+    inline snesaddress operator-(snesaddress offset) const {
+        return snesaddress{value - offset.value};
+    }
+    inline snesaddress operator-(int offset) const {
+        return snesaddress{value - offset};
+    }
+    int raw_value() const {
+        return value;
+    }
+};
+
+template <> struct std::hash<pcaddress> {
+    constexpr static inline std::hash<int> hasher{};
+    std::size_t operator()(const pcaddress& addr) const {
+        return hasher(addr.value);
+    }
+};
+
 struct pointer {
     unsigned char lowbyte = RTL_LOW;   // point to RTL
     unsigned char highbyte = RTL_HIGH; //
     unsigned char bankbyte = RTL_BANK; //
 
-    pointer() = default;
-    explicit pointer(int snes) {
+    constexpr pointer() = default;
+    explicit constexpr pointer(int snes) {
         lowbyte = (unsigned char)(snes & 0xFF);
         highbyte = (unsigned char)((snes >> 8) & 0xFF);
         bankbyte = (unsigned char)((snes >> 16) & 0xFF);
     }
-    pointer(const pointer&) = default;
-    pointer& operator=(int snes) {
+    constexpr pointer(const pointer&) = default;
+    constexpr pointer& operator=(int snes) {
         lowbyte = (unsigned char)(snes & 0xFF);
         highbyte = (unsigned char)((snes >> 8) & 0xFF);
         bankbyte = (unsigned char)((snes >> 16) & 0xFF);
         return *this;
     }
     ~pointer() = default;
-    [[nodiscard]] bool is_empty() const {
+    [[nodiscard]] constexpr bool is_empty() const {
         return lowbyte == RTL_LOW && highbyte == RTL_HIGH && bankbyte == RTL_BANK;
     }
 
-    [[nodiscard]] int addr() const {
+    [[nodiscard]] constexpr snesaddress addr() const {
+        return (bankbyte << 16) + (highbyte << 8) + lowbyte;
+    }
+    [[nodiscard]] constexpr int raw() const {
         return (bankbyte << 16) + (highbyte << 8) + lowbyte;
     }
 };
@@ -208,7 +297,7 @@ struct sprite {
 
     std::vector<collection> collections{};
 
-    bool displays_in_lm;
+    bool displays_in_lm{false};
 
     ListType sprite_type = ListType::Sprite;
     bool has_empty_table() const;
@@ -218,10 +307,33 @@ struct sprite {
 
 enum class MapperType { lorom, sa1rom, fullsa1rom };
 
+class romdata {
+    ROM& m_rom;
+
+  public:
+    romdata(ROM& rom);
+    unsigned char& operator[](pcaddress index);
+    const unsigned char& operator[](pcaddress index) const;
+    unsigned char& operator[](snesaddress index);
+    const unsigned char& operator[](snesaddress index) const;
+    unsigned char* operator+(pcaddress index);
+    const unsigned char* operator+(pcaddress index) const;
+    unsigned char* operator+(snesaddress index);
+    const unsigned char* operator+(snesaddress index) const;
+};
+
 struct ROM {
+    friend romdata;
     inline static const int sa1banks[8] = {0 << 20, 1 << 20, -1, -1, 2 << 20, 3 << 20, -1, -1};
-    unsigned char* data = nullptr;
-    unsigned char* real_data = nullptr;
+
+  private:
+    unsigned char* m_data = nullptr;
+
+  public:
+    romdata data{*this};
+    unsigned char* unheadered_data() {
+        return m_data + header_size;
+    }
     std::string name;
     int size{0};
     int header_size{0};
@@ -231,16 +343,22 @@ struct ROM {
     [[nodiscard]] bool open();
     void close();
 
-    int pc_to_snes(int address, bool header = true) const;
-    int snes_to_pc(int address, bool header = true) const;
+    snesaddress pc_to_snes(pcaddress address) const;
+    pcaddress snes_to_pc(snesaddress address) const;
 
-    pointer pointer_snes(int address, int bank = 0x00) const;
-    unsigned char read_byte(int addr) const;
-    unsigned short read_word(int addr) const;
-    unsigned int read_long(int addr) const;
-    void read_data(unsigned char* dst, size_t size, int addr) const;
+    pointer pointer_snes(snesaddress address, int bank = 0x00) const;
+    unsigned char read_byte(pcaddress addr) const;
+    unsigned short read_word(pcaddress addr) const;
+    unsigned int read_long(pcaddress addr) const;
+    void read_data(unsigned char* dst, size_t size, pcaddress addr) const;
     int get_lm_version() const;
     bool is_exlevel() const;
+    std::optional<uint16_t> get_rats_size(pcaddress addr) const;
+    template <typename T> T read_struct(pcaddress addr = 0) const {
+        T t{};
+        memcpy(&t, data + addr, sizeof(T));
+        return t;
+    }
     ~ROM();
 };
 

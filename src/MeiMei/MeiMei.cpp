@@ -65,7 +65,7 @@ bool MeiMei::patch(const patchfile& patch, const std::vector<patchfile>& patchfi
                    [](const auto& p) { return p.vfile(); });
     patchparams params{.structsize = sizeof(patchparams),
                        .patchloc = patch.path().c_str(),
-                       .romdata = reinterpret_cast<char*>(rom.real_data),
+                       .romdata = reinterpret_cast<char*>(rom.unheadered_data()),
                        .buflen = MAX_ROM_SIZE,
                        .romlen = &rom.size,
                        .includepaths = nullptr,
@@ -102,10 +102,11 @@ bool MeiMei::patch(const patchfile& patch, const std::vector<patchfile>& patchfi
 }
 
 struct AddressConstants {
-    static constexpr int LMLevelSpriteDataBankBytePointer = 0x077100; /* $0EF100 */
-    static constexpr int LMPresentFlagPointer = 0x07730F;             /* $0EF30F should be 0x42 */
-    static constexpr int LMSizeTableAddressPointer = 0x07730C;        /* $0EF30C points to the actual table */
-    static constexpr int LevelSpriteDataPointerTable = 0x02EC00;      /* $05EC00 */
+    // these constants are all headered addresses (e.g. +0x200)
+    static constexpr int LMLevelSpriteDataBankBytePointer = 0x77300;  /* $0EF100 */
+    static constexpr int LMPresentFlagPointer = 0x07750F;             /* $0EF30F should be 0x42 */
+    static constexpr int LMSizeTableAddressPointer = 0x07750C;        /* $0EF30C points to the actual table */
+    static constexpr int LevelSpriteDataPointerTable = 0x02EE00;      /* $05EC00 */
 };
 
 bool MeiMei::initialize(const char* rom_name) {
@@ -117,7 +118,8 @@ bool MeiMei::initialize(const char* rom_name) {
     if (!prev.open(MeiMei::name))
         return false;
     if (prev.read_byte(AddressConstants::LMPresentFlagPointer) == 0x42) {
-        int addr = prev.snes_to_pc(prev.read_long(AddressConstants::LMSizeTableAddressPointer), false);
+        auto addr =
+            prev.snes_to_pc(prev.read_long(AddressConstants::LMSizeTableAddressPointer));
         prev.read_data(prevEx, 0x0400, addr);
     }
     return true;
@@ -148,7 +150,7 @@ int MeiMei::run(ROM& rom) {
     if (!now.open(MeiMei::name))
         return 1;
     if (prev.read_byte(AddressConstants::LMPresentFlagPointer) == 0x42) {
-        int addr = now.snes_to_pc(now.read_long(AddressConstants::LMSizeTableAddressPointer), false);
+        auto addr = now.snes_to_pc(now.read_long(AddressConstants::LMSizeTableAddressPointer));
         now.read_data(nowEx, 0x0400, addr);
     }
 
@@ -168,7 +170,7 @@ int MeiMei::run(ROM& rom) {
     if (changeEx || MeiMei::always) {
         uint8_t sprAllData[SPR_ADDR_LIMIT]{};
         uint8_t sprCommonData[3];
-        std::unordered_set<int> sprDataPointers{};
+        std::unordered_set<pcaddress> sprDataPointers{};
 
         patchfile meimei_patch{"_meimei_fixup.asm", patchfile::openflags::w, /* from_mei_mei= */ true};
         meimei_patch.fprintf("incsrc \"%s\"\n", MeiMei::sa1DefPath.c_str());
@@ -178,7 +180,7 @@ int MeiMei::run(ROM& rom) {
 
             int sprAddrSNES = (now.read_byte(AddressConstants::LMLevelSpriteDataBankBytePointer + lv) << 16) +
                               now.read_word(AddressConstants::LevelSpriteDataPointerTable + lv * 2);
-            int sprAddrPC = now.snes_to_pc(sprAddrSNES, false);
+            auto sprAddrPC = now.snes_to_pc(sprAddrSNES);
             if (sprAddrPC == -1) {
                 ERR("Sprite Data has invalid address.")
             }
@@ -267,10 +269,10 @@ int MeiMei::run(ROM& rom) {
                 binaryLabel.append(lvlstr);
 
                 // create actual asar patch
-                const int levelBankAddress =
-                    now.pc_to_snes(AddressConstants::LMLevelSpriteDataBankBytePointer + lv, false);
-                const int levelWordAddress =
-                    now.pc_to_snes(AddressConstants::LevelSpriteDataPointerTable + lv * 2, false);
+                const auto levelBankAddress =
+                    now.pc_to_snes(AddressConstants::LMLevelSpriteDataBankBytePointer + lv);
+                const auto levelWordAddress =
+                    now.pc_to_snes(AddressConstants::LevelSpriteDataPointerTable + lv * 2);
                 const char* binL = binaryLabel.c_str();
                 spriteDataPatch.fprintf(
                     "!level_%03X_oldDataPointer = read2($%06X)|(read1($%06X)<<16)\n"

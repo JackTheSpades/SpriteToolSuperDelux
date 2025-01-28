@@ -1362,6 +1362,9 @@ CustomStatusPtr:
 
 if !PerLevel == 1
     freedata
+    ; it is VITALLY important that these PROT commands don't change order
+    ; the C++ cleanup code that cleans up the previous pixi run
+    ; relies on them being in this specific order, thus, if the order is changed, the cleanup code will also need to change.
     prot PerLevelSprPtrs_data
     prot PerLevelTable_data
     prot PerLevelCustomPtrTable_data

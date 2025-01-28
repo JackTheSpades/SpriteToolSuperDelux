@@ -8,9 +8,9 @@
 #include "iohandler.h"
 #include <cctype>
 #include <cstring>
+#include <filesystem>
 #include <iomanip>
 #include <sstream>
-#include <filesystem>
 
 namespace fs = std::filesystem;
 
@@ -44,7 +44,7 @@ void patchfile::set_keep(bool pixi, bool meimei) {
     s_pixi_keep = pixi;
 }
 
-void patchfile::fprintf(const char* format, ...) {
+void patchfile::fprintf(_In_z_ _Printf_format_string_ const char* const format, ...) {
     va_list list{};
     va_list copy{};
     va_start(list, format);
@@ -105,29 +105,28 @@ void ROM::close() {
     FILE* romfile = fopen(name.c_str(), "wb");
     if (romfile == nullptr)
         return;
-    fwrite(data, sizeof(char), size + header_size, romfile);
+    fwrite(m_data, sizeof(char), size + header_size, romfile);
     fclose(romfile);
-    delete[] data;
-    data = nullptr; // assign to nullptr so that when the dtor is called and these already got freed the delete[] is a
-                    // no-op
+    delete[] m_data;
+    m_data = nullptr; // assign to nullptr so that when the dtor is called and these already got freed the delete[] is a
+                      // no-op
 }
 
 bool ROM::open() {
     FILE* file = ::open(name.data(), "r+b"); // call global open
     if (file == nullptr) {
-        data = nullptr;
+        m_data = nullptr;
         return false;
     }
     size = static_cast<int>(file_size(file));
     header_size = size & 0x7FFF;
     size -= header_size;
-    data = read_all(name.data(), false, MAX_ROM_SIZE + header_size);
-    if (data == nullptr)
+    m_data = read_all(name.data(), false, MAX_ROM_SIZE + header_size);
+    if (m_data == nullptr)
         return false;
     fclose(file);
-    real_data = data + header_size;
-    if (real_data[0x7fd5] == 0x23) {
-        if (real_data[0x7fd7] == 0x0D) {
+    if (m_data[header_size + 0x7fd5] == 0x23) {
+        if (m_data[header_size + 0x7fd7] == 0x0D) {
             mapper = MapperType::fullsa1rom;
         } else {
             mapper = MapperType::sa1rom;
@@ -140,9 +139,9 @@ bool ROM::open() {
 
 // stolen from GPS, as most of the rest of the code of this cursed tool
 // actually these ones are stolen from asar, an even more cursed tool
-int ROM::pc_to_snes(int address, bool header) const {
-    if (header)
-        address -= header_size;
+snesaddress ROM::pc_to_snes(pcaddress pc_address) const {
+    int address = pc_address.value;
+    address -= header_size;
 
     if (mapper == MapperType::lorom) {
         return ((address << 1) & 0x7F0000) | (address & 0x7FFF) | 0x8000;
@@ -166,8 +165,8 @@ int ROM::pc_to_snes(int address, bool header) const {
     return -1;
 }
 
-int ROM::snes_to_pc(int address, bool header) const {
-
+pcaddress ROM::snes_to_pc(snesaddress snes_address) const {
+    int address = snes_address.value;
     if (mapper == MapperType::lorom) {
         if ((address & 0xFE0000) == 0x7E0000 || (address & 0x408000) == 0x000000 || (address & 0x708000) == 0x700000)
             return -1;
@@ -194,37 +193,37 @@ int ROM::snes_to_pc(int address, bool header) const {
         return -1;
     }
 
-    return address + (header ? header_size : 0);
+    return address + header_size;
 }
 
-pointer ROM::pointer_snes(int address, int bank) const {
-    int pc_address = snes_to_pc(address);
-    int ptr = (data[pc_address]) | (data[pc_address + 1] << 8) | (data[pc_address + 2] << 16);
+pointer ROM::pointer_snes(snesaddress address, int bank) const {
+    auto pc_address = snes_to_pc(address);
+    int ptr = (m_data[pc_address.value]) | (m_data[pc_address.value + 1] << 8) | (m_data[pc_address.value + 2] << 16);
     return pointer{ptr | (bank << 16)};
 }
 
-unsigned char ROM::read_byte(int addr) const {
-    return real_data[addr];
+unsigned char ROM::read_byte(pcaddress addr) const {
+    return m_data[addr.value];
 }
-unsigned short ROM::read_word(int addr) const {
-    return real_data[addr] | (real_data[addr + 1] << 8);
+unsigned short ROM::read_word(pcaddress addr) const {
+    return m_data[addr.value] | (m_data[addr.value + 1] << 8);
 }
-unsigned int ROM::read_long(int addr) const {
-    return real_data[addr] | (real_data[addr + 1] << 8) | (real_data[addr + 2] << 16);
+unsigned int ROM::read_long(pcaddress addr) const {
+    return m_data[addr.value] | (m_data[addr.value + 1] << 8) | (m_data[addr.value + 2] << 16);
 }
 
-void ROM::read_data(unsigned char* dst, size_t wsize, int addr) const {
+void ROM::read_data(unsigned char* dst, size_t wsize, pcaddress addr) const {
     if (dst == nullptr)
         dst = (unsigned char*)malloc(sizeof(unsigned char) * wsize);
-    memcpy(dst, real_data + addr, wsize);
+    memcpy(dst, m_data + addr.value, wsize);
 }
 
 int ROM::get_lm_version() const {
     constexpr auto lm_ver_snes_addr = 0x0FF0B4;
-    int major_ver = data[snes_to_pc(lm_ver_snes_addr)];
+    int major_ver = m_data[snes_to_pc(lm_ver_snes_addr).value];
     // + 2 instead of + 1 to skip the dot in the version
-    int minor_ver = data[snes_to_pc(lm_ver_snes_addr + 2)];
-    int patch_ver = data[snes_to_pc(lm_ver_snes_addr + 3)];
+    int minor_ver = m_data[snes_to_pc(lm_ver_snes_addr + 2).value];
+    int patch_ver = m_data[snes_to_pc(lm_ver_snes_addr + 3).value];
     int full_ver = major_ver * 100 + minor_ver * 10 + patch_ver;
     return full_ver;
 }
@@ -234,8 +233,25 @@ bool ROM::is_exlevel() const {
     return get_lm_version() > LM_version_exlevel;
 }
 
+std::optional<uint16_t> ROM::get_rats_size(pcaddress pcaddr) const {
+    int addr = pcaddr.value;
+    constexpr std::string_view rats_tag = "STAR";
+    constexpr size_t rats_header_offset = rats_tag.size() + sizeof(uint16_t) + sizeof(uint16_t);
+    addr -= rats_header_offset;
+    if (memcmp(m_data + addr, rats_tag.data(), rats_tag.size()) != 0) // verify rats tag.
+        return std::nullopt;
+    addr += static_cast<int>(rats_tag.size());
+    // read a uint16_t in little endian from addr
+    uint16_t tag_size = m_data[addr] | (m_data[addr + 1] << 8);
+    uint16_t chksum = m_data[addr + 2] | (m_data[addr + 3] << 8);
+    if ((tag_size ^ 0xFFFF) != chksum) // verify checksum
+        return std::nullopt;
+    tag_size += 1;
+    return tag_size;
+}
+
 ROM::~ROM() {
-    delete[] data;
+    delete[] m_data;
 }
 
 bool is_empty_table(std::span<sprite> sprites) {
@@ -339,4 +355,39 @@ void sprite::clear() {
     collections.clear();
 
     sprite_type = ListType::Sprite;
+}
+
+pcaddress::pcaddress(pointer ptr, const ROM& rom) : value{rom.snes_to_pc(ptr.addr()).value} {};
+pcaddress::pcaddress(snesaddress addr, const ROM& rom) : value{rom.snes_to_pc(addr).value} {};
+snesaddress::snesaddress(pointer ptr) : value{ptr.raw()} {}
+snesaddress::snesaddress(pcaddress addr, const ROM& rom) : value{rom.pc_to_snes(addr).value} {};
+
+romdata::romdata(ROM& rom) : m_rom{rom} {};
+unsigned char& romdata::operator[](pcaddress index) {
+    return m_rom.m_data[index.value];
+}
+const unsigned char& romdata::operator[](pcaddress index) const {
+    return m_rom.m_data[index.value];
+}
+unsigned char& romdata::operator[](snesaddress index) {
+    auto pcaddress = m_rom.snes_to_pc(index);
+    return m_rom.m_data[pcaddress.value];
+}
+const unsigned char& romdata::operator[](snesaddress index) const {
+    auto pcaddress = m_rom.snes_to_pc(index);
+    return m_rom.m_data[pcaddress.value];
+}
+unsigned char* romdata::operator+(pcaddress index) {
+    return m_rom.m_data + index.value;
+}
+const unsigned char* romdata::operator+(pcaddress index) const {
+    return m_rom.m_data + index.value;
+}
+unsigned char* romdata::operator+(snesaddress index) {
+    auto pcaddress = m_rom.snes_to_pc(index);
+    return m_rom.m_data + pcaddress.value;
+}
+const unsigned char* romdata::operator+(snesaddress index) const {
+    auto pcaddress = m_rom.snes_to_pc(index);
+    return m_rom.m_data + pcaddress.value;
 }

@@ -193,12 +193,12 @@ struct AsarHandler {
 void clean_sprite_generic(patchfile& clean_patch, int table_address, int original_value, size_t count,
                           const char* preface, ROM& rom) {
     clean_patch.fprintf("%s", preface);
-    int table = rom.pointer_snes(table_address).addr();
+    auto table = rom.pointer_snes(table_address).addr();
     if (table != original_value) // check with default/uninserted address
         for (size_t i = 0; i < count; i++) {
             pointer pointer = rom.pointer_snes(table + 3 * static_cast<int>(i));
             if (!pointer.is_empty())
-                clean_patch.fprintf("autoclean $%06X\n", pointer.addr());
+                clean_patch.fprintf("autoclean $%06X\n", pointer.raw());
         }
 }
 
@@ -233,7 +233,7 @@ template <typename T> T* from_table(T* table, int level, int number) {
     struct patchparams params {
         .structsize = sizeof(struct patchparams), 
         .patchloc = file.path().c_str(),
-        .romdata = reinterpret_cast<char*>(rom.real_data),
+        .romdata = reinterpret_cast<char*>(rom.unheadered_data()),
         .buflen = MAX_ROM_SIZE,
         .romlen = &rom.size, 
         .includepaths = nullptr,
@@ -291,7 +291,7 @@ template <typename T> T* from_table(T* table, int level, int number) {
     patchparams params {
         .structsize = sizeof(patchparams), 
         .patchloc = patch_path.c_str(),
-        .romdata = reinterpret_cast<char*>(rom.real_data),
+        .romdata = reinterpret_cast<char*>(rom.unheadered_data()),
         .buflen = MAX_ROM_SIZE,
         .romlen = &rom.size, 
         .includepaths = nullptr,
@@ -601,16 +601,16 @@ namespace nested off
                  "\tCARRIABLE: $%06X\n\tCARRIED: $%06X\n\tKICKED: $%06X\n"
                  "\tMOUTH: $%06X\n\tGOAL: $%06X"
                  "\n__________________________________\n",
-                 spr->table.init.addr(), spr->table.main.addr(), spr->ptrs.carriable.addr(), spr->ptrs.carried.addr(),
-                 spr->ptrs.kicked.addr(), spr->ptrs.mouth.addr(), spr->ptrs.goal.addr());
+                 spr->table.init.raw(), spr->table.main.raw(), spr->ptrs.carriable.raw(), spr->ptrs.carried.raw(),
+                 spr->ptrs.kicked.raw(), spr->ptrs.mouth.raw(), spr->ptrs.goal.raw());
     else if (spr->sprite_type == ListType::Extended)
         io.debug("\tINIT: $%06X\n\tMAIN: $%06X\n\tCAPE: $%06X"
                  "\n__________________________________\n",
-                 spr->table.init.addr(), spr->table.main.addr(), spr->extended_cape_ptr.addr());
+                 spr->table.init.raw(), spr->table.main.raw(), spr->extended_cape_ptr.raw());
     else
         io.debug("\tINIT: $%06X\n\tMAIN: $%06X\n"
                  "\n__________________________________\n",
-                 spr->table.init.addr(), spr->table.main.addr());
+                 spr->table.init.raw(), spr->table.main.raw());
     return true;
 }
 
@@ -693,16 +693,16 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
                  "\tCARRIABLE: $%06X\n\tCARRIED: $%06X\n\tKICKED: $%06X\n"
                  "\tMOUTH: $%06X\n\tGOAL: $%06X"
                  "\n__________________________________\n",
-                 spr->table.init.addr(), spr->table.main.addr(), spr->ptrs.carriable.addr(), spr->ptrs.carried.addr(),
-                 spr->ptrs.kicked.addr(), spr->ptrs.mouth.addr(), spr->ptrs.goal.addr());
+                 spr->table.init.raw(), spr->table.main.raw(), spr->ptrs.carriable.raw(), spr->ptrs.carried.raw(),
+                 spr->ptrs.kicked.raw(), spr->ptrs.mouth.raw(), spr->ptrs.goal.raw());
     else if (spr->sprite_type == ListType::Extended)
         io.debug("\tINIT: $%06X\n\tMAIN: $%06X\n\tCAPE: $%06X"
                  "\n__________________________________\n",
-                 spr->table.init.addr(), spr->table.main.addr(), spr->extended_cape_ptr.addr());
+                 spr->table.init.raw(), spr->table.main.raw(), spr->extended_cape_ptr.raw());
     else
         io.debug("\tINIT: $%06X\n\tMAIN: $%06X\n"
                  "\n__________________________________\n",
-                 spr->table.init.addr(), spr->table.main.addr());
+                 spr->table.init.raw(), spr->table.main.raw());
 
     if (spr->level < 0x200 && spr->number >= 0xB0 && spr->number < 0xC0) {
         int pls_lv_addr = PLS_LEVEL_PTRS[spr->level * 2] + (PLS_LEVEL_PTRS[spr->level * 2 + 1] << 8);
@@ -880,7 +880,7 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
 }
 
 [[nodiscard]] bool clean_hack(ROM& rom, std::string_view pathname) {
-    if (!strncmp((char*)rom.data + rom.snes_to_pc(0x02FFE2), "STSD", 4)) { // already installed load old tables
+    if (memcmp(rom.data + rom.snes_to_pc(0x02FFE2), "STSD", 4) == 0) { // already installed load old tables
 
         std::string path = cfg.AsmDir + "_cleanup.asm";
         patchfile clean_patch{path};
@@ -896,28 +896,75 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
             // version 1.30+
             if (version >= 30) {
                 clean_patch.fprintf(";Per-Level sprites\n");
-                int level_table_address = rom.pointer_snes(0x02FFF1).addr();
+                auto level_table_address = rom.pointer_snes(0x02FFF1).addr();
                 if (level_table_address != 0xFFFFFF && level_table_address != 0x000000) {
-                    int pls_addr = rom.snes_to_pc(level_table_address);
-                    for (int level = 0; level < 0x0400; level += 2) {
-                        int pls_lv_addr = (rom.data[pls_addr + level] + (rom.data[pls_addr + level + 1] << 8));
-                        if (pls_lv_addr == 0)
-                            continue;
-                        pls_lv_addr = rom.snes_to_pc(pls_lv_addr + level_table_address);
-                        for (int i = 0; i < 0x20; i += 2) {
-                            int pls_data_addr = (rom.data[pls_lv_addr + i] + (rom.data[pls_lv_addr + i + 1] << 8));
-                            if (pls_data_addr == 0)
-                                continue;
-                            pointer main_pointer = rom.pointer_snes(pls_data_addr + level_table_address + 0x0B);
-                            if (main_pointer.addr() == 0xFFFFFF) {
-                                // clean_patch.fprintf( ";Encountered pointer to 0xFFFFFF, assuming there to be no
-                                // sprites to clean!\n");
-                                continue;
-                            }
-                            if (!main_pointer.is_empty()) {
-                                clean_patch.fprintf("autoclean $%06X\t;%03X:%02X\n", main_pointer.addr(), level >> 1,
-                                                    0xB0 + (i >> 1));
-                            }
+                    auto cleanup_ptr = [&](pointer ptr, std::string_view comment) {
+                        if (auto addr = ptr.addr(); !ptr.is_empty() && (addr != 0x000000) && (addr != 0xFFFFFF)) {
+                            clean_patch.fprintf("autoclean $%06X; %s\n", addr.raw_value(), comment.data());
+                        }
+                    };
+                    // these pointers are from the PROT commands in main.asm
+                    // this code relies on the order of these commands, so do not change it unless you also change
+                    // main.asm
+                    // offset of last pointer = "STOP" + 1 + 3 = 8
+                    // offset of second to last pointer = "PROT" + 1 + 3 + <offset of last pointer> = 16
+                    auto custom_pointers_address = rom.pointer_snes(level_table_address - 8).addr();
+                    auto sprite_data_address = rom.pointer_snes(level_table_address - 16).addr();
+                    auto verify_pointer = [&rom](snesaddress addr) {
+                        constexpr auto base_addr = pointer{}.addr();
+                        // this function tries to at least make sure that the pointer
+                        // 1 - is not $FFFFFF or $000000, these are obviously nonsensical
+                        // 2 - is not the "base pointer", the one that pixi uses to indicate a sprite that's missing a
+                        // main/init, that address points to original SMW code. 3 - it is a valid snes address that
+                        // points to a valid pc address, otherwise it's not a valid pointer
+                        return addr != 0xFFFFFF && addr != 0x000000 && addr != base_addr && rom.snes_to_pc(addr) != -1;
+                    };
+                    if (!verify_pointer(custom_pointers_address) || !verify_pointer(sprite_data_address)) {
+                        io.error("Invalid custom pointers address or sprite data address, aborting cleanup\n");
+                        return false;
+                    }
+                    if (auto custom_pointers_size = rom.get_rats_size(pcaddress{custom_pointers_address, rom});
+                        custom_pointers_size.has_value()) {
+                        uint16_t block_size = custom_pointers_size.value();
+                        constexpr size_t block_multiplier = sizeof(status_pointers) + 1;
+                        if (block_size % block_multiplier != 0) {
+                            io.error("Custom pointers block size is not a multiple of %d, aborting cleanup\n",
+                                     block_multiplier);
+                            return false;
+                        }
+                        auto pc_address = rom.snes_to_pc(custom_pointers_address);
+                        for (int i = 0; i < block_size / block_multiplier; i++) {
+                            auto offset = pc_address + i * block_multiplier;
+                            auto ptrs = rom.read_struct<status_pointers>(offset);
+                            if (verify_pointer(ptrs.carriable))
+                                cleanup_ptr(ptrs.carriable, "Per-level custom carriable pointer");
+                            if (verify_pointer(ptrs.carried))
+                                cleanup_ptr(ptrs.carried, "Per-level custom carried pointer");
+                            if (verify_pointer(ptrs.goal))
+                                cleanup_ptr(ptrs.goal, "Per-level custom goal pointer");
+                            if (verify_pointer(ptrs.kicked))
+                                cleanup_ptr(ptrs.kicked, "Per-level custom kicked pointer");
+                            if (verify_pointer(ptrs.mouth))
+                                cleanup_ptr(ptrs.mouth, "Per-level custom mouth pointer");
+                        }
+                    }
+                    if (auto sprite_data_size = rom.get_rats_size(pcaddress{sprite_data_address, rom});
+                        sprite_data_size.has_value()) {
+                        uint16_t block_size = sprite_data_size.value();
+                        constexpr size_t block_multiplier = sizeof(sprite_table);
+                        if (block_size % block_multiplier != 0) {
+                            io.error("Custom pointers block size is not a multiple of %d, aborting cleanup\n",
+                                     block_multiplier);
+                            return false;
+                        }
+                        auto pc_address = rom.snes_to_pc(sprite_data_address);
+                        for (int i = 0; i < block_size / block_multiplier; i++) {
+                            auto offset = pc_address + i * block_multiplier;
+                            auto tbl = rom.read_struct<sprite_table>(offset);
+                            if (verify_pointer(tbl.init))
+                                cleanup_ptr(tbl.init, "Per-level custom init pointer");
+                            if (verify_pointer(tbl.main))
+                                cleanup_ptr(tbl.main, "Per-level custom main pointer");
                         }
                     }
                 }
@@ -937,7 +984,7 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
                             break;
                         }
                         if (!main_pointer.is_empty()) {
-                            clean_patch.fprintf("autoclean $%06X\n", main_pointer.addr());
+                            clean_patch.fprintf("autoclean $%06X\n", main_pointer.raw());
                         }
                     }
                     clean_patch.fprintf("\n");
@@ -952,28 +999,28 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
 
         // remove global sprites
         clean_patch.fprintf(";Global sprites: \n");
-        int global_table_address = rom.pointer_snes(0x02FFEE).addr();
+        auto global_table_address = rom.pointer_snes(0x02FFEE).addr();
         if (rom.pointer_snes(global_table_address).addr() != 0xFFFFFF) {
             for (int table_offset = 0x08; table_offset < limit; table_offset += 0x10) {
                 pointer init_pointer = rom.pointer_snes(global_table_address + table_offset);
                 if (!init_pointer.is_empty()) {
-                    clean_patch.fprintf("autoclean $%06X\n", init_pointer.addr());
+                    clean_patch.fprintf("autoclean $%06X\n", init_pointer.raw());
                 }
                 pointer main_pointer = rom.pointer_snes(global_table_address + table_offset + 3);
                 if (!main_pointer.is_empty()) {
-                    clean_patch.fprintf("autoclean $%06X\n", main_pointer.addr());
+                    clean_patch.fprintf("autoclean $%06X\n", main_pointer.raw());
                 }
             }
         }
 
         // remove global sprites' custom pointers
         clean_patch.fprintf(";Global sprite custom pointers: \n");
-        int pointer_table_address = rom.pointer_snes(0x02FFFD).addr();
+        auto pointer_table_address = rom.pointer_snes(0x02FFFD).addr();
         if (pointer_table_address != 0xFFFFFF && rom.pointer_snes(pointer_table_address).addr() != 0xFFFFFF) {
             for (int table_offset = 0; table_offset < 0x100 * 15; table_offset += 3) {
                 pointer ptr = rom.pointer_snes(pointer_table_address + table_offset);
                 if (!ptr.is_empty() && ptr.addr() != 0) {
-                    clean_patch.fprintf("autoclean $%06X\n", ptr.addr());
+                    clean_patch.fprintf("autoclean $%06X\n", ptr.raw());
                 }
             }
         }
@@ -981,9 +1028,9 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
         // shared routines
         clean_patch.fprintf("\n\n;Routines:\n");
         for (int i = 0; i < MAX_ROUTINES; i++) {
-            int routine_pointer = rom.pointer_snes(0x03E05C + i * 3).addr();
+            auto routine_pointer = rom.pointer_snes(0x03E05C + i * 3).addr();
             if (routine_pointer != 0xFFFFFF) {
-                clean_patch.fprintf("autoclean $%06X\n", routine_pointer);
+                clean_patch.fprintf("autoclean $%06X\n", routine_pointer.raw_value());
                 clean_patch.fprintf("\torg $%06X\n", 0x03E05C + i * 3);
                 clean_patch.fprintf("\tdl $FFFFFF\n");
             }
@@ -1004,7 +1051,7 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
         clean_patch.close();
         if (!patch(clean_patch, rom))
             return false;
-    } else if (!strncmp((char*)rom.data + rom.snes_to_pc(rom.pointer_snes(0x02A963 + 1).addr() - 3), "MDK",
+    } else if (!strncmp((char*)(rom.data + rom.snes_to_pc(rom.pointer_snes(0x02A963 + 1).addr() - 3)), "MDK",
                         3)) { // check for old sprite_tool code. (this is annoying)
         std::string spritetool_clean = std::string{pathname} + "spritetool_clean.asm";
         if (!patch(spritetool_clean.c_str(), rom))
@@ -1013,7 +1060,7 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
         const char* mdk = "MDK"; // sprite tool added "MDK" after the rats tag to find it's insertions...
         int number_of_banks = rom.size / 0x8000;
         for (int i = 0x10; i < number_of_banks; ++i) {
-            char* bank = (char*)(rom.real_data + i * 0x8000);
+            char* bank = (char*)(rom.unheadered_data() + i * 0x8000);
 
             int bank_offset = 8;
             while (true) {
@@ -1155,7 +1202,7 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                                    "\t!%s ?= 1\n"
                                    "\tJSL %s\n"
                                    "endmacro\n",
-                                   charName, charName, charName, charName);
+                                   charName, charName, charName);
             g_shared_inscrc_patch.fprintf("\t%%include_once(\"%s%s\", %s, $%02X)\n", escapedRoutinepath.c_str(),
                                           charPath, charName, routine_count * 3);
             routine_count++;
@@ -1252,7 +1299,8 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
             return false;
         }
         size_t space_after_ext = cfgname.find_first_of(' ', dot);
-        std::string_view ext = std::string_view{cfgname}.substr(dot + 1, space_after_ext == std::string::npos ? space_after_ext : space_after_ext - dot - 1);
+        std::string_view ext = std::string_view{cfgname}.substr(
+            dot + 1, space_after_ext == std::string::npos ? space_after_ext : space_after_ext - dot - 1);
 
         if (rom != nullptr) {
             if (sprite_id == GOAL_POST_SPRITE_ID && rom->is_exlevel()) {
