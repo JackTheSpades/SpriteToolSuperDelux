@@ -105,6 +105,9 @@ fi
 
 if [[ "$justSetup" == "false" ]]; then
     echo "Moving results"
+    if [[ -f "downloader_test/diffs.txt" ]]; then
+        mv downloader_test/diffs.txt diffs.txt
+    fi
     mv downloader_test/result.json result.json
 
     echo "Deleting temp files"
