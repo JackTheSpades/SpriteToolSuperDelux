@@ -1,4 +1,4 @@
-; ReplaceCurrent
+; ReplaceSelf
 ;
 ; Spawns a new sprite over top of the current one at the same position.
 ; Everything else about the current one will be overwritten by the new sprite.
