@@ -11,7 +11,11 @@
 
 #include "MeiMei/MeiMei.h"
 #include "argparser.h"
+#ifdef ASAR_USE_DLL
 #include "asar/asardll.h"
+#else
+#include "asar/asar.h"
+#endif
 #include "cfg.h"
 #include "config.h"
 #include "file_io.h"
@@ -55,17 +59,18 @@ struct PatchTimer {
 #define STRIMPL(x) #x
 #define STR(x) STRIMPL(x)
 
-// change these values from the CMakeLists, not here, changes will propagate.
-constexpr unsigned char VERSION_EDITION = PIXI_VERSION_EDITION;
-constexpr unsigned char VERSION_MAJOR = PIXI_VERSION_MAJOR;
-constexpr unsigned char VERSION_MINOR = PIXI_VERSION_MINOR;
+// change the version in the project() call in the main CMakeLists, not here, changes will propagate.
+constexpr uint8_t VERSION_MAJOR = PIXI_VERSION_MAJOR;
+constexpr uint8_t VERSION_MINOR = PIXI_VERSION_MINOR;
+constexpr uint8_t VERSION_PATCH = PIXI_VERSION_PATCH;
 constexpr const char VERSION_DEBUG[] = STR(PIXI_VERSION_DEBUG);
-constexpr unsigned char VERSION_PARTIAL = VERSION_MAJOR * 10 + VERSION_MINOR;
-constexpr unsigned char VERSION_FULL = VERSION_EDITION * 100 + VERSION_MAJOR * 10 + VERSION_MINOR;
-static_assert(VERSION_FULL <= std::numeric_limits<unsigned char>::max());
+constexpr uint8_t VERSION_PARTIAL = VERSION_MINOR * 10 + VERSION_PATCH;
+constexpr uint8_t VERSION_FULL = VERSION_MAJOR * 100 + VERSION_MINOR * 10 + VERSION_PATCH;
+static_assert(VERSION_FULL <= std::numeric_limits<uint8_t>::max());
 
 constexpr auto INIT_PTR = 0x01817D; // snes address of default init pointers
 constexpr auto MAIN_PTR = 0x0185CC; // guess what?
+constexpr auto GOAL_POST_SPRITE_ID = 0x7B;
 
 constexpr auto TEMP_SPR_FILE = "spr_temp.asm";
 
@@ -126,6 +131,7 @@ template <typename T, size_t N> constexpr size_t array_size(T (&)[N]) {
     return N;
 }
 
+#ifdef ASAR_USE_DLL
 struct AsarHandler {
     //                                             1.81
     static constexpr int s_asar_leak_max_version = 10801;
@@ -151,16 +157,19 @@ struct AsarHandler {
             .memory_file_count = 1, .override_checksum_gen = false, .generate_checksum = true
         };
         if (!asar_patch_ex(&params)) {
-            io.error("Failed to apply cleanup patch, this is an internal error, please report it here " GITHUB_ISSUE_LINK "\n");
+            io.error(
+                "Failed to apply cleanup patch, this is an internal error, please report it here " GITHUB_ISSUE_LINK
+                "\n");
         }
         int labels = 0;
         asar_getalllabels(&labels);
         if (labels != 0) {
-            io.error("Label count should be 0 after cleanup, this is an internal error, please report it here " GITHUB_ISSUE_LINK "\n");
+            io.error("Label count should be 0 after cleanup, this is an internal error, please report it "
+                     "here " GITHUB_ISSUE_LINK "\n");
         }
     }
 
-    public:
+  public:
     AsarHandler() {
         m_ok = asar_init();
         if (m_ok) {
@@ -179,16 +188,17 @@ struct AsarHandler {
         }
     }
 };
+#endif
 
 void clean_sprite_generic(patchfile& clean_patch, int table_address, int original_value, size_t count,
                           const char* preface, ROM& rom) {
     clean_patch.fprintf("%s", preface);
-    int table = rom.pointer_snes(table_address).addr();
+    auto table = rom.pointer_snes(table_address).addr();
     if (table != original_value) // check with default/uninserted address
         for (size_t i = 0; i < count; i++) {
             pointer pointer = rom.pointer_snes(table + 3 * static_cast<int>(i));
             if (!pointer.is_empty())
-                clean_patch.fprintf("autoclean $%06X\n", pointer.addr());
+                clean_patch.fprintf("autoclean $%06X\n", pointer.raw());
         }
 }
 
@@ -215,15 +225,15 @@ template <typename T> T* from_table(T* table, int level, int number) {
 [[nodiscard]] bool patch(const patchfile& file, ROM& rom) {
     // clang-format off
     constexpr struct warnsetting disabled_warnings[] {
-        {.warnid = "W1001", .enabled = false},
-        {.warnid = "W1005", .enabled = false}
+        {.warnid = "Wrelative_path_used", .enabled = false},
+        {.warnid = "W65816_xx_y_assume_16_bit", .enabled = false}
     };
     addtempfile tmp{file};
     const int memfiles_size = static_cast<int>(g_memory_files.size());
     struct patchparams params {
         .structsize = sizeof(struct patchparams), 
         .patchloc = file.path().c_str(),
-        .romdata = reinterpret_cast<char*>(rom.real_data),
+        .romdata = reinterpret_cast<char*>(rom.unheadered_data()),
         .buflen = MAX_ROM_SIZE,
         .romlen = &rom.size, 
         .includepaths = nullptr,
@@ -275,13 +285,13 @@ template <typename T> T* from_table(T* table, int level, int number) {
     std::string patch_path{patch_name_rel}; //  = std::filesystem::absolute(patch_name_rel).generic_string();
     // clang-format off
     constexpr warnsetting disabled_warnings[] {
-        {.warnid = "W1001", .enabled = false},
-        {.warnid = "W1005", .enabled = false}
+        {.warnid = "Wrelative_path_used", .enabled = false},
+        {.warnid = "W65816_xx_y_assume_16_bit", .enabled = false}
     };
     patchparams params {
         .structsize = sizeof(patchparams), 
         .patchloc = patch_path.c_str(),
-        .romdata = reinterpret_cast<char*>(rom.real_data),
+        .romdata = reinterpret_cast<char*>(rom.unheadered_data()),
         .buflen = MAX_ROM_SIZE,
         .romlen = &rom.size, 
         .includepaths = nullptr,
@@ -352,7 +362,7 @@ constexpr bool ends_with(const char* str, const char* suffix) {
 
 [[nodiscard]] bool create_lm_restore(const char* rom) {
     char to_write[50];
-    sprintf(to_write, "Pixi v%d.%d\t", VERSION_EDITION, VERSION_PARTIAL);
+    snprintf(to_write, sizeof(to_write), "Pixi v%d.%d\t", VERSION_MAJOR, VERSION_PARTIAL);
     std::string romname(rom);
     std::string restorename = romname.substr(0, romname.find_last_of('.')) + ".extmod";
 
@@ -404,8 +414,8 @@ static bool strccmp(std::string_view first, std::string_view second) {
 
     const char prelude[] = R"(namespace nested on
 warnings push
-warnings disable w1005
-warnings disable w1001
+warnings disable Wrelative_path_used
+warnings disable W65816_xx_y_assume_16_bit
 incsrc "%ssa1def.asm"
 )";
     const char epilogue[] = R"(incsrc "shared.asm"
@@ -445,8 +455,8 @@ print "__PIXI_INTERNAL_SPRITE_SEPARATOR__"
     patchfile sprite_patch{TEMP_SPR_FILE};
     const char prefix[] = R"(namespace nested on
 warnings push
-warnings disable w1005
-warnings disable w1001
+warnings disable Wrelative_path_used
+warnings disable W65816_xx_y_assume_16_bit
 incsrc "%ssa1def.asm"
 )";
     const char postfix[] = R"(incsrc "shared.asm"
@@ -591,16 +601,16 @@ namespace nested off
                  "\tCARRIABLE: $%06X\n\tCARRIED: $%06X\n\tKICKED: $%06X\n"
                  "\tMOUTH: $%06X\n\tGOAL: $%06X"
                  "\n__________________________________\n",
-                 spr->table.init.addr(), spr->table.main.addr(), spr->ptrs.carriable.addr(), spr->ptrs.carried.addr(),
-                 spr->ptrs.kicked.addr(), spr->ptrs.mouth.addr(), spr->ptrs.goal.addr());
+                 spr->table.init.raw(), spr->table.main.raw(), spr->ptrs.carriable.raw(), spr->ptrs.carried.raw(),
+                 spr->ptrs.kicked.raw(), spr->ptrs.mouth.raw(), spr->ptrs.goal.raw());
     else if (spr->sprite_type == ListType::Extended)
         io.debug("\tINIT: $%06X\n\tMAIN: $%06X\n\tCAPE: $%06X"
                  "\n__________________________________\n",
-                 spr->table.init.addr(), spr->table.main.addr(), spr->extended_cape_ptr.addr());
+                 spr->table.init.raw(), spr->table.main.raw(), spr->extended_cape_ptr.raw());
     else
         io.debug("\tINIT: $%06X\n\tMAIN: $%06X\n"
                  "\n__________________________________\n",
-                 spr->table.init.addr(), spr->table.main.addr());
+                 spr->table.init.raw(), spr->table.main.raw());
     return true;
 }
 
@@ -683,16 +693,16 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
                  "\tCARRIABLE: $%06X\n\tCARRIED: $%06X\n\tKICKED: $%06X\n"
                  "\tMOUTH: $%06X\n\tGOAL: $%06X"
                  "\n__________________________________\n",
-                 spr->table.init.addr(), spr->table.main.addr(), spr->ptrs.carriable.addr(), spr->ptrs.carried.addr(),
-                 spr->ptrs.kicked.addr(), spr->ptrs.mouth.addr(), spr->ptrs.goal.addr());
+                 spr->table.init.raw(), spr->table.main.raw(), spr->ptrs.carriable.raw(), spr->ptrs.carried.raw(),
+                 spr->ptrs.kicked.raw(), spr->ptrs.mouth.raw(), spr->ptrs.goal.raw());
     else if (spr->sprite_type == ListType::Extended)
         io.debug("\tINIT: $%06X\n\tMAIN: $%06X\n\tCAPE: $%06X"
                  "\n__________________________________\n",
-                 spr->table.init.addr(), spr->table.main.addr(), spr->extended_cape_ptr.addr());
+                 spr->table.init.raw(), spr->table.main.raw(), spr->extended_cape_ptr.raw());
     else
         io.debug("\tINIT: $%06X\n\tMAIN: $%06X\n"
                  "\n__________________________________\n",
-                 spr->table.init.addr(), spr->table.main.addr());
+                 spr->table.init.raw(), spr->table.main.raw());
 
     if (spr->level < 0x200 && spr->number >= 0xB0 && spr->number < 0xC0) {
         int pls_lv_addr = PLS_LEVEL_PTRS[spr->level * 2] + (PLS_LEVEL_PTRS[spr->level * 2 + 1] << 8);
@@ -870,7 +880,7 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
 }
 
 [[nodiscard]] bool clean_hack(ROM& rom, std::string_view pathname) {
-    if (!strncmp((char*)rom.data + rom.snes_to_pc(0x02FFE2), "STSD", 4)) { // already installed load old tables
+    if (memcmp(rom.data + rom.snes_to_pc(0x02FFE2), "STSD", 4) == 0) { // already installed load old tables
 
         std::string path = cfg.AsmDir + "_cleanup.asm";
         patchfile clean_patch{path};
@@ -886,28 +896,75 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
             // version 1.30+
             if (version >= 30) {
                 clean_patch.fprintf(";Per-Level sprites\n");
-                int level_table_address = rom.pointer_snes(0x02FFF1).addr();
+                auto level_table_address = rom.pointer_snes(0x02FFF1).addr();
                 if (level_table_address != 0xFFFFFF && level_table_address != 0x000000) {
-                    int pls_addr = rom.snes_to_pc(level_table_address);
-                    for (int level = 0; level < 0x0400; level += 2) {
-                        int pls_lv_addr = (rom.data[pls_addr + level] + (rom.data[pls_addr + level + 1] << 8));
-                        if (pls_lv_addr == 0)
-                            continue;
-                        pls_lv_addr = rom.snes_to_pc(pls_lv_addr + level_table_address);
-                        for (int i = 0; i < 0x20; i += 2) {
-                            int pls_data_addr = (rom.data[pls_lv_addr + i] + (rom.data[pls_lv_addr + i + 1] << 8));
-                            if (pls_data_addr == 0)
-                                continue;
-                            pointer main_pointer = rom.pointer_snes(pls_data_addr + level_table_address + 0x0B);
-                            if (main_pointer.addr() == 0xFFFFFF) {
-                                // clean_patch.fprintf( ";Encountered pointer to 0xFFFFFF, assuming there to be no
-                                // sprites to clean!\n");
-                                continue;
-                            }
-                            if (!main_pointer.is_empty()) {
-                                clean_patch.fprintf("autoclean $%06X\t;%03X:%02X\n", main_pointer.addr(), level >> 1,
-                                                    0xB0 + (i >> 1));
-                            }
+                    auto cleanup_ptr = [&](pointer ptr, std::string_view comment) {
+                        if (auto addr = ptr.addr(); !ptr.is_empty() && (addr != 0x000000) && (addr != 0xFFFFFF)) {
+                            clean_patch.fprintf("autoclean $%06X; %s\n", addr.raw_value(), comment.data());
+                        }
+                    };
+                    // these pointers are from the PROT commands in main.asm
+                    // this code relies on the order of these commands, so do not change it unless you also change
+                    // main.asm
+                    // offset of last pointer = "STOP" + 1 + 3 = 8
+                    // offset of second to last pointer = "PROT" + 1 + 3 + <offset of last pointer> = 16
+                    auto custom_pointers_address = rom.pointer_snes(level_table_address - 8).addr();
+                    auto sprite_data_address = rom.pointer_snes(level_table_address - 16).addr();
+                    auto verify_pointer = [&rom](snesaddress addr) {
+                        constexpr auto base_addr = pointer{}.addr();
+                        // this function tries to at least make sure that the pointer
+                        // 1 - is not $FFFFFF or $000000, these are obviously nonsensical
+                        // 2 - is not the "base pointer", the one that pixi uses to indicate a sprite that's missing a
+                        // main/init, that address points to original SMW code. 3 - it is a valid snes address that
+                        // points to a valid pc address, otherwise it's not a valid pointer
+                        return addr != 0xFFFFFF && addr != 0x000000 && addr != base_addr && rom.snes_to_pc(addr) != -1;
+                    };
+                    if (!verify_pointer(custom_pointers_address) || !verify_pointer(sprite_data_address)) {
+                        io.error("Invalid custom pointers address or sprite data address, aborting cleanup\n");
+                        return false;
+                    }
+                    if (auto custom_pointers_size = rom.get_rats_size(pcaddress{custom_pointers_address, rom});
+                        custom_pointers_size.has_value()) {
+                        uint16_t block_size = custom_pointers_size.value();
+                        constexpr size_t block_multiplier = sizeof(status_pointers) + 1;
+                        if (block_size % block_multiplier != 0) {
+                            io.error("Custom pointers block size is not a multiple of %d, aborting cleanup\n",
+                                     block_multiplier);
+                            return false;
+                        }
+                        auto pc_address = rom.snes_to_pc(custom_pointers_address);
+                        for (int i = 0; i < block_size / block_multiplier; i++) {
+                            auto offset = pc_address + i * block_multiplier;
+                            auto ptrs = rom.read_struct<status_pointers>(offset);
+                            if (verify_pointer(ptrs.carriable))
+                                cleanup_ptr(ptrs.carriable, "Per-level custom carriable pointer");
+                            if (verify_pointer(ptrs.carried))
+                                cleanup_ptr(ptrs.carried, "Per-level custom carried pointer");
+                            if (verify_pointer(ptrs.goal))
+                                cleanup_ptr(ptrs.goal, "Per-level custom goal pointer");
+                            if (verify_pointer(ptrs.kicked))
+                                cleanup_ptr(ptrs.kicked, "Per-level custom kicked pointer");
+                            if (verify_pointer(ptrs.mouth))
+                                cleanup_ptr(ptrs.mouth, "Per-level custom mouth pointer");
+                        }
+                    }
+                    if (auto sprite_data_size = rom.get_rats_size(pcaddress{sprite_data_address, rom});
+                        sprite_data_size.has_value()) {
+                        uint16_t block_size = sprite_data_size.value();
+                        constexpr size_t block_multiplier = sizeof(sprite_table);
+                        if (block_size % block_multiplier != 0) {
+                            io.error("Custom pointers block size is not a multiple of %d, aborting cleanup\n",
+                                     block_multiplier);
+                            return false;
+                        }
+                        auto pc_address = rom.snes_to_pc(sprite_data_address);
+                        for (int i = 0; i < block_size / block_multiplier; i++) {
+                            auto offset = pc_address + i * block_multiplier;
+                            auto tbl = rom.read_struct<sprite_table>(offset);
+                            if (verify_pointer(tbl.init))
+                                cleanup_ptr(tbl.init, "Per-level custom init pointer");
+                            if (verify_pointer(tbl.main))
+                                cleanup_ptr(tbl.main, "Per-level custom main pointer");
                         }
                     }
                 }
@@ -927,7 +984,7 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
                             break;
                         }
                         if (!main_pointer.is_empty()) {
-                            clean_patch.fprintf("autoclean $%06X\n", main_pointer.addr());
+                            clean_patch.fprintf("autoclean $%06X\n", main_pointer.raw());
                         }
                     }
                     clean_patch.fprintf("\n");
@@ -942,28 +999,28 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
 
         // remove global sprites
         clean_patch.fprintf(";Global sprites: \n");
-        int global_table_address = rom.pointer_snes(0x02FFEE).addr();
+        auto global_table_address = rom.pointer_snes(0x02FFEE).addr();
         if (rom.pointer_snes(global_table_address).addr() != 0xFFFFFF) {
             for (int table_offset = 0x08; table_offset < limit; table_offset += 0x10) {
                 pointer init_pointer = rom.pointer_snes(global_table_address + table_offset);
                 if (!init_pointer.is_empty()) {
-                    clean_patch.fprintf("autoclean $%06X\n", init_pointer.addr());
+                    clean_patch.fprintf("autoclean $%06X\n", init_pointer.raw());
                 }
                 pointer main_pointer = rom.pointer_snes(global_table_address + table_offset + 3);
                 if (!main_pointer.is_empty()) {
-                    clean_patch.fprintf("autoclean $%06X\n", main_pointer.addr());
+                    clean_patch.fprintf("autoclean $%06X\n", main_pointer.raw());
                 }
             }
         }
 
         // remove global sprites' custom pointers
         clean_patch.fprintf(";Global sprite custom pointers: \n");
-        int pointer_table_address = rom.pointer_snes(0x02FFFD).addr();
+        auto pointer_table_address = rom.pointer_snes(0x02FFFD).addr();
         if (pointer_table_address != 0xFFFFFF && rom.pointer_snes(pointer_table_address).addr() != 0xFFFFFF) {
             for (int table_offset = 0; table_offset < 0x100 * 15; table_offset += 3) {
                 pointer ptr = rom.pointer_snes(pointer_table_address + table_offset);
                 if (!ptr.is_empty() && ptr.addr() != 0) {
-                    clean_patch.fprintf("autoclean $%06X\n", ptr.addr());
+                    clean_patch.fprintf("autoclean $%06X\n", ptr.raw());
                 }
             }
         }
@@ -971,9 +1028,9 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
         // shared routines
         clean_patch.fprintf("\n\n;Routines:\n");
         for (int i = 0; i < MAX_ROUTINES; i++) {
-            int routine_pointer = rom.pointer_snes(0x03E05C + i * 3).addr();
+            auto routine_pointer = rom.pointer_snes(0x03E05C + i * 3).addr();
             if (routine_pointer != 0xFFFFFF) {
-                clean_patch.fprintf("autoclean $%06X\n", routine_pointer);
+                clean_patch.fprintf("autoclean $%06X\n", routine_pointer.raw_value());
                 clean_patch.fprintf("\torg $%06X\n", 0x03E05C + i * 3);
                 clean_patch.fprintf("\tdl $FFFFFF\n");
             }
@@ -994,7 +1051,7 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
         clean_patch.close();
         if (!patch(clean_patch, rom))
             return false;
-    } else if (!strncmp((char*)rom.data + rom.snes_to_pc(rom.pointer_snes(0x02A963 + 1).addr() - 3), "MDK",
+    } else if (!strncmp((char*)(rom.data + rom.snes_to_pc(rom.pointer_snes(0x02A963 + 1).addr() - 3)), "MDK",
                         3)) { // check for old sprite_tool code. (this is annoying)
         std::string spritetool_clean = std::string{pathname} + "spritetool_clean.asm";
         if (!patch(spritetool_clean.c_str(), rom))
@@ -1003,7 +1060,7 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
         const char* mdk = "MDK"; // sprite tool added "MDK" after the rats tag to find it's insertions...
         int number_of_banks = rom.size / 0x8000;
         for (int i = 0x10; i < number_of_banks; ++i) {
-            char* bank = (char*)(rom.real_data + i * 0x8000);
+            char* bank = (char*)(rom.unheadered_data() + i * 0x8000);
 
             int bank_offset = 8;
             while (true) {
@@ -1129,7 +1186,7 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
             fs::path rel = fs::relative(p, routine_path);
             std::string path{rel.generic_string()};
             std::string name{};
-            for (auto& path_part : rel.replace_extension()) {
+            for (const auto& path_part : rel.replace_extension()) {
                 name += path_part.generic_string();
             }
             if (routine_count > config.Routines) {
@@ -1145,7 +1202,7 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                                    "\t!%s ?= 1\n"
                                    "\tJSL %s\n"
                                    "endmacro\n",
-                                   charName, charName, charName, charName);
+                                   charName, charName, charName);
             g_shared_inscrc_patch.fprintf("\t%%include_once(\"%s%s\", %s, $%02X)\n", escapedRoutinepath.c_str(),
                                           charPath, charName, routine_count * 3);
             routine_count++;
@@ -1155,7 +1212,7 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                                       "while !pixi_incsrc_again != 0\n"
                                       "\t!pixi_incsrc_again #= 0\n"
                                       "\t%%safe_macro_label_wrapper()    ; actually insert wrapped routines\n"
-                                      "endif\n");
+                                      "endwhile\n");
     } catch (const fs::filesystem_error& err) {
         io.error("Trying to read folder \"%s\" returned \"%s\", aborting insertion\n", routine_path.c_str(),
                  err.what());
@@ -1175,7 +1232,7 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
     using namespace std::string_view_literals;
     std::ifstream listStream{listPath.data()};
     if (!listStream) {
-        io.error("Could not open list file \"%s\" for reading", listPath.data());
+        io.error("Could not open list file \"%s\" for reading: %s", listPath.data(), strerror(errno));
         return false;
     }
     unsigned int sprite_id, level;
@@ -1184,7 +1241,7 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
     std::string line;
     ListType type = ListType::Sprite;
     sprite* spr = nullptr;
-    char cfgname[FILENAME_MAX] = {0};
+    std::string cfgname{};
     const char* dir = nullptr;
     while (std::getline(listStream, line)) {
         int read_until = -1;
@@ -1205,7 +1262,7 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                 io.error("List line %d was malformed: \"%s\"\n", lineno, line.c_str());
                 return false;
             }
-            strcpy(cfgname, line.c_str() + read_until);
+            cfgname = line.substr(read_until);
         } else if (line.find(':') == line.length() - 1) { // if it's the last char in the string, it's a type change
             using svt = std::pair<std::string_view, ListType>;
             constexpr std::array typeArray{svt{"SPRITE:"sv, ListType::Sprite},
@@ -1233,18 +1290,20 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                          lineno, line.c_str());
                 return false;
             }
-            strcpy(cfgname, line.c_str() + read_until);
+            cfgname = line.substr(read_until);
         }
 
-        char* dot = strrchr(cfgname, '.');
-        if (dot == nullptr) {
-            io.error("Error on list line %d: missing extension on filename %s\n", lineno, cfgname);
+        size_t dot = cfgname.find_last_of('.');
+        if (dot == std::string::npos) {
+            io.error("Error on list line %d: missing extension on filename %s\n", lineno, cfgname.c_str());
             return false;
         }
-        dot++;
+        size_t space_after_ext = cfgname.find_first_of(' ', dot);
+        std::string_view ext = std::string_view{cfgname}.substr(
+            dot + 1, space_after_ext == std::string::npos ? space_after_ext : space_after_ext - dot - 1);
 
         if (rom != nullptr) {
-            if (sprite_id == 0x7B && rom->is_exlevel()) {
+            if (sprite_id == GOAL_POST_SPRITE_ID && rom->is_exlevel()) {
                 // sprite $7B is the goal post
                 // in LM versions 2.53 and onwards the extra bits of the goal post are used to determine which exit it
                 // triggers therefore custom sprites can't be used in this slot. In fact, in main.asm, there are a few
@@ -1314,29 +1373,51 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
                 dir = paths[PathType::Generators].c_str();
         }
         spr->directory = dir;
-        std::string fullFileName = std::string{dir} + std::string{cfgname};
+        std::string fullFileName = std::string{dir} + cfgname.substr(0, space_after_ext);
 
         if (type != ListType::Sprite) {
-            if (strcmp(dot, "asm") && strcmp(dot, "ASM")) {
+            if (ext != "asm" && ext != "ASM") {
                 io.error("Error on list line %d: not an asm file\n", lineno, fullFileName.c_str());
+                return false;
+            }
+            if (space_after_ext != std::string::npos) {
+                io.error("Error on list line %d: display type not supported for ASM files\n", lineno);
                 return false;
             }
             spr->asm_file = std::move(fullFileName);
         } else {
             spr->cfg_file = std::move(fullFileName);
-            if (!strcmp(dot, "cfg") || !strcmp(dot, "CFG")) {
+            if (ext == "cfg" || ext == "CFG") {
+                spr->displays_in_lm = false;
+                if (space_after_ext != std::string::npos) {
+                    // may be "display|nodisplay"
+                    std::string display = std::string{cfgname}.substr(space_after_ext + 1);
+                    trim(display);
+                    if (display == "nodisplay"sv) {
+                        spr->displays_in_lm = false;
+                    } else if (display == "display"sv) {
+                        spr->displays_in_lm = true;
+                    } else {
+                        io.error("Error on list line %d: Unknown display type %s\n", lineno, display.c_str());
+                        return false;
+                    }
+                }
                 if (!read_cfg_file(spr)) {
                     io.error("Error on list line %d: Cannot parse CFG file %s.\n", lineno, spr->cfg_file.c_str());
                     return false;
                 }
-
-            } else if (!strcmp(dot, "json") || !strcmp(dot, "JSON")) {
+            } else if (ext == "json" || ext == "JSON") {
+                if (space_after_ext != std::string::npos) {
+                    io.error("Error on list line %d: display type not supported for JSON files\n", lineno);
+                    return false;
+                }
                 if (!read_json_file(spr)) {
                     io.error("Error on list line %d: Cannot parse JSON file %s.\n", lineno, spr->cfg_file.c_str());
                     return false;
                 }
+                spr->displays_in_lm = true;
             } else {
-                io.error("Error on list line %d: Unknown filetype %s\n", lineno, dot);
+                io.error("Error on list line %d: Unknown filetype %s\n", lineno, ext.data());
                 return false;
             }
         }
@@ -1389,6 +1470,23 @@ void remove(std::string_view dir, const char* file) {
     fs::remove(fs::path{dir} / file);
 }
 
+bool check_warnings() {
+    if (!warnings.empty() && cfg.Warnings) {
+        io.print("One or more warnings have been detected:\n");
+        for (const std::string& warning : warnings) {
+            io.print("%s\n", warning.c_str());
+        }
+        io.print("Do you want to continue insertion anyway? [Y/n] (Default is yes):\n");
+        char c = io.getc();
+        if (tolower(c) == 'n') {
+            io.print("Insertion was stopped, press any button to exit...\n");
+            io.getc();
+            return false;
+        }
+    }
+    return true;
+}
+
 #ifdef PIXI_DLL_BUILD
 #ifdef _WIN32
 #define PIXI_EXPORT extern "C" __declspec(dllexport)
@@ -1421,7 +1519,7 @@ PIXI_EXPORT int pixi_api_version() {
 }
 
 PIXI_EXPORT int pixi_check_api_version(int version_edition, int version_major, int version_minor) {
-    return version_edition == VERSION_EDITION && version_major == VERSION_MAJOR && version_minor == VERSION_MINOR;
+    return version_edition == VERSION_MAJOR && version_major == VERSION_MINOR && version_minor == VERSION_PATCH;
 }
 
 PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
@@ -1503,16 +1601,59 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
     static map16 map[MAP16_SIZE];
     argparser optparser{};
     if (std::filesystem::exists("pixi_settings.json")) {
-        std::ifstream settings_file{"pixi_settings.json"};
         nlohmann::json j;
-        settings_file >> j;
+        try {
+            std::ifstream settings_file{"pixi_settings.json"};
+            if (!settings_file) {
+                io.error("pixi_settings.json was detected but it failed to open, please check file permissions\n");
+                return EXIT_FAILURE;
+            } else {
+                settings_file >> j;
+            }
+        } catch (const nlohmann::json::parse_error& err) {
+            // https://json.nlohmann.me/api/basic_json/operator_gtgt/#exceptions
+            switch (err.id) {
+            case 101:
+                io.error("Unexpected token in pixi_settings.json, please make sure that the json file has the correct "
+                         "format. "
+                         "Error: %s",
+                         err.what());
+                break;
+            case 102:
+                io.error(
+                    "Unicode conversion failure or surrogate error in pixi_settings.json, please make sure that the "
+                    "json file "
+                    "has the correct format. Error: %s",
+                    err.what());
+                break;
+            case 103:
+                io.error("Unicode conversion failure in  pixi_settings.json, please make sure that the json file has "
+                         "the correct "
+                         "format. Error: %s",
+                         err.what());
+                break;
+            default:
+                io.error("An unexpected json parsing error was encountered in pixi_settings.json, please make sure "
+                         "that the json "
+                         "file has the correct format. Error: %s",
+                         err.what());
+                break;
+            }
+            return EXIT_FAILURE;
+        } catch (const std::exception& e) {
+            io.error("An unknown error has occurred while parsing pixi_settings.json, please report the issue "
+                     "at " GITHUB_ISSUE_LINK " (provide as much info as possible): %s\n",
+                     e.what());
+            return EXIT_FAILURE;
+        }
         if (!optparser.init(j)) {
-            io.error("JSON format of Pixi settings is wrong.");
+            io.error("Invalid argument in pixi_settings.json");
+            return EXIT_FAILURE;
         }
     } else {
         optparser.init(skip_first ? argc - 1 : argc, skip_first ? argv + 1 : argv);
     }
-    optparser.add_version(VERSION_PARTIAL, VERSION_EDITION);
+    optparser.add_version(VERSION_PARTIAL, VERSION_MAJOR);
     optparser.allow_unmatched(1);
     optparser.add_usage_string("pixi <options> [ROM]");
     optparser.add_option("-v", "Print version information", version_requested)
@@ -1562,7 +1703,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         .add_option("-meimei-a", "Enables always remap sprite data", meimei.AlwaysRemap())
         .add_option("-meimei-k", "Enables keep temp patches files", meimei.KeepTemp())
         .add_option("-meimei-d", "Enables debug for MeiMei patches", meimei.Debug())
-        .add_option("--onepatch", "Applies all sprites into a single big path", cfg.AllSpritesOnePatch)
+        .add_option("--onepatch", "Applies all sprites into a single big patch", cfg.AllSpritesOnePatch)
         .add_option("--stdincludes", "INCLUDEPATH", "Specify a text file with a list of search paths for asar",
                     cfg.AsarStdIncludes)
         .add_option("--stddefines", "DEFINEPATH", "Specify a text file with a list of defines for asar",
@@ -1608,22 +1749,23 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
 
     // DEV_BUILD means either debug build or CI build.
     if constexpr (PIXI_DEV_BUILD) {
-        io.print("Pixi development version %d.%d - %s\n", VERSION_EDITION, VERSION_PARTIAL, VERSION_DEBUG);
+        io.print("Pixi development version %d.%d - %s\n", VERSION_MAJOR, VERSION_PARTIAL, VERSION_DEBUG);
     } else if (version_requested) {
         const char message[]{"Pixi version %d.%d\n"
                              "Originally developed in 2017 by JackTheSpades\n"
                              "Maintained by RPGHacker (2018), Tattletale (2018-2020)\n"
-                             "Currently maintained by Atari2.0 (2020-2023)\n"};
-        io.print(message, VERSION_EDITION, VERSION_PARTIAL);
+                             "Currently maintained by Atari2.0 (2020-2024)\n"};
+        io.print(message, VERSION_MAJOR, VERSION_PARTIAL);
         return EXIT_SUCCESS;
     }
-
+#ifdef ASAR_USE_DLL
     AsarHandler asar_handler{};
     if (!asar_handler.ok()) {
         io.error(
             "Error: Asar library is missing or couldn't be initialized, please redownload the tool or add the dll.\n");
         return EXIT_FAILURE;
     }
+#endif
 
 #ifdef ON_WINDOWS
     if (!lm_handle.empty()) {
@@ -1691,7 +1833,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         int edition = version / 100;
         int partial = version % (edition * 100);
         io.error("The ROM has been patched with a newer version of PIXI (%d.%d) already.\n", edition, partial);
-        io.error("This is version %d.%d\n", VERSION_EDITION, VERSION_PARTIAL);
+        io.error("This is version %d.%d\n", VERSION_MAJOR, VERSION_PARTIAL);
         io.error("Please get a newer version.");
         rom.close();
         return EXIT_FAILURE;
@@ -1808,19 +1950,9 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         }
     }
 
-    if (!warnings.empty() && cfg.Warnings) {
-        io.print("One or more warnings have been detected:\n");
-        for (const std::string& warning : warnings) {
-            io.print("%s\n", warning.c_str());
-        }
-        io.print("Do you want to continue insertion anyway? [Y/n] (Default is yes):\n");
-        char c = io.getc();
-        if (tolower(c) == 'n') {
-            io.print("Insertion was stopped, press any button to exit...\n");
-            io.getc();
-            return EXIT_FAILURE;
-        }
-    }
+    if (!check_warnings())
+        return EXIT_FAILURE;
+
 #ifdef DEBUGMSG
     debug_print("Sprites successfully patched.\n");
 #endif
@@ -1943,12 +2075,17 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         if (!generate_lm_data(sprite_list, map, extra_bytes, ssc, mwt, mw2, s16, cfg.PerLevel))
             return EXIT_FAILURE;
 
-        binfiles.push_back(write_all(extra_bytes, asm_path, "_customsize.bin", 0x200));
+        binfiles.push_back(write_all(extra_bytes, asm_path, "_customsize.bin"));
         // close all the files.
         fclose(s16);
         fclose(ssc);
         fclose(mwt);
         fclose(mw2);
+    } else {
+        if (!generate_lm_data_ex_bytes_only(sprite_list, extra_bytes, cfg.PerLevel))
+            return EXIT_FAILURE;
+
+        binfiles.push_back(write_all(extra_bytes, asm_path, "_customsize.bin"));
     }
 
     // apply the actual patches
@@ -1981,6 +2118,9 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         }
     }
 
+    if (!check_warnings())
+        return EXIT_FAILURE;
+
     // patch(paths[ASM], "asm/overworld.asm", rom);
 
     //------------------------------------------------------------------------------------------
@@ -1998,6 +2138,10 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         meimei.configureSa1Def(cfg.AsmDirPath + "/sa1def.asm");
         retval = meimei.run();
     }
+
+    if (!check_warnings())
+        return EXIT_FAILURE;
+
     if (plugins::for_each_plugin(plugin_list, &plugins::plugin::after_patching) != EXIT_SUCCESS) {
         return EXIT_FAILURE;
     };

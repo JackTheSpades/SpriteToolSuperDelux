@@ -8,7 +8,8 @@
 
 bool generate_lm_data(const sprite (&sprite_list)[MAX_SPRITE_COUNT], map16 (&map)[MAP16_SIZE],
                       unsigned char (&extra_bytes)[0x200], FILE* ssc, FILE* mwt, FILE* mw2, FILE* s16, bool perlevel);
-
+bool generate_lm_data_ex_bytes_only(const sprite (&sprite_list)[MAX_SPRITE_COUNT], unsigned char (&extra_bytes)[0x200],
+                                    bool perlevel);
 std::pair<size_t, std::span<const map16>> generate_s16_data(const sprite* spr, const map16* map, size_t map_size);
 std::string generate_mwt_data(const sprite* spr, const collection& c, bool first);
 std::vector<char> generate_mw2_data(const sprite* spr, const collection& c);

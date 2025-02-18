@@ -11,7 +11,7 @@ endif
 
 macro debugmsg(msg)
 	!__debug ?= 0					; set debug flag to 0 if not set already
-	if !__debug = 1				; if set...
+	if !__debug == 1				; if set...
 		print "$",pc," <msg>"	; print the pc address.
 	endif
 endmacro

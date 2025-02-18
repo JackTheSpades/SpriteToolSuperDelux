@@ -1,6 +1,17 @@
 # Changelog
 
-## Version 1.41 (TBD)
+## Version 1.43 (TBD)
+- (Atari2.0) Fix bug with -no-lm-aux where it wouldn't generate \_customsize.bin and thus fail insertion.
+- (Atari2.0) Revert a change from 1.41 where CFG sprites would always show up in the custom sprite collection in LM, instead now to have a CFG sprite display in the LM custom sprite collection, append "display" to the corresponding list entry.
+- (Atari2.0) Fix a bug with per-level sprites where they wouldn't get cleaned at all before re-inserting them, thanks to BatataDouce for reporting this.
+
+## Version 1.42 (March 27, 2024)
+- (Fernap) Update %Random() routine to avoid having modulo bias.
+- (Atari2.0) Include LICENSE in release zip
+- (Atari2.0) Upgrade to Asar 1.91
+- (Atari2.0) Fix CFG Editor bug where loading a JSON file which used GFXInfo would cause a null reference exception.
+
+## Version 1.41 (March 11, 2024)
 - (mellonpizza) Add --stddefines and --stdincludes command line options.
 - (spooonsss) Add --symbols command line option to make asar output symbols file (can be WLA or nocash)
 - (spooonsss) Fix CFG Editor small visual bug
@@ -16,6 +27,15 @@
 - (Atari2.0) Fix a bug from 1.21 where the CFG editor feature to be able to edit ROMs directly (akin to Tweaker) introduced in 1.1 was accidentally disabled, thanks to SubconsciousEye for reporting this.
 - (Atari2.0) Fix a bug from 1.40 with some spawning routines where a missing XBA was making the routine not work properly. Special thanks to RussianMan for reporting this.
 - (Atari2.0) Minor README improvements (document the CFG file format mostly).
+- (Atari2.0) Warn when inserting sprite number $7B (goal tape) in ROMs that use LM 2.53+
+- (zuccha) FireballContact now checks exactly for player fireball value
+- (SubconsciousEye) Add custom GFX handler for sprite status 3
+- (MarioFanGamer) CFG Sprites will now also show up in the custom sprite collection in LM
+- (zuccha) Add command line flags for custom misc sprites directories in README
+- (Atari2.0) Fix SpawnCluster & other misc sprites routines using wrong positions and overwriting A, additionally set $18B8 to 1 when spawning a cluster sprite, thanks to kkevinm for reporting this.
+- (Atari2.0) Add %SpawnMinorExtendedOverwrite routine to spawn the sprite even if there's no slots free (overwrites oldest one)
+- (Atari2.0) Fix %ExtendedSpeed routine not applying gravity when speed was between $80 and $C0, thanks to anonimzwx for reporting this. 
+- (Atari2.0) Upgrade to Asar 1.90.
 
 ## Version 1.40 (November 23, 2022)
 - (Atari2.0) Fix list.txt parsing bug when paths would get wrongly split for containing spaces.

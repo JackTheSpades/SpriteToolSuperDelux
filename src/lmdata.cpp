@@ -1,7 +1,7 @@
 #include "lmdata.h"
 #include "iohandler.h"
-#include <sstream>
 #include <cstdio>
+#include <sstream>
 
 static const sprite* from_table(const sprite (&sprite_list)[MAX_SPRITE_COUNT], int level, int number, bool perlevel) {
     if (!perlevel)
@@ -16,7 +16,8 @@ static const sprite* from_table(const sprite (&sprite_list)[MAX_SPRITE_COUNT], i
     return nullptr;
 }
 
-std::pair<size_t, std::span<const map16>> generate_s16_data(const sprite* spr, const map16* const map, size_t map_size) {
+std::pair<size_t, std::span<const map16>> generate_s16_data(const sprite* spr, const map16* const map,
+                                                            size_t map_size) {
     size_t map16_tile = find_free_map(map, map_size, spr->map_data.size());
     auto map16_span = std::span{spr->map_data.data(), spr->map_data.size()};
     return std::make_pair(map16_tile, map16_span);
@@ -88,7 +89,7 @@ std::string generate_ssc_data(const sprite* spr, int i, size_t map16_tile) {
             const auto& gfx = d.gfx_files;
             ssc << fstring("%02X %02X ", i, prefix + 0x8);
             ssc << fstring("%X,%X,%X,%X ", gfx.gfx_files[0].value(), gfx.gfx_files[1].value(), gfx.gfx_files[2].value(),
-                    gfx.gfx_files[3].value());
+                           gfx.gfx_files[3].value());
             ssc << '\n';
         }
 
@@ -116,8 +117,8 @@ std::string generate_ssc_data(const sprite* spr, int i, size_t map16_tile) {
     return ssc.str();
 }
 
-
-bool generate_lm_data(const sprite (&sprite_list)[MAX_SPRITE_COUNT], map16 (&map)[MAP16_SIZE], unsigned char (&extra_bytes)[0x200], FILE* ssc, FILE* mwt, FILE* mw2, FILE* s16, bool perlevel) {
+bool generate_lm_data(const sprite (&sprite_list)[MAX_SPRITE_COUNT], map16 (&map)[MAP16_SIZE],
+                      unsigned char (&extra_bytes)[0x200], FILE* ssc, FILE* mwt, FILE* mw2, FILE* s16, bool perlevel) {
     auto& io = iohandler::get_global();
     for (int i = 0; i < 0x100; i++) {
         auto* spr = from_table(sprite_list, 0x200, i, perlevel);
@@ -169,5 +170,28 @@ bool generate_lm_data(const sprite (&sprite_list)[MAX_SPRITE_COUNT], map16 (&map
     }
     fputc(0xFF, mw2); // binary data ends with 0xFF (see SMW level data format)
     fwrite(map, sizeof(map16), MAP16_SIZE, s16);
+    return true;
+}
+
+bool generate_lm_data_ex_bytes_only(const sprite (&sprite_list)[MAX_SPRITE_COUNT], unsigned char (&extra_bytes)[0x200],
+                                    bool perlevel) {
+    for (int i = 0; i < 0x100; i++) {
+        auto* spr = from_table(sprite_list, 0x200, i, perlevel);
+        if (!spr || (perlevel && i >= 0xB0 && i < 0xC0)) {
+            extra_bytes[i] = 7; // 3 bytes + 4 extra bytes because the old one broke basically any sprite that wasn't
+                                // using exactly 9 extra bytes
+            extra_bytes[i + 0x100] = 7; // 12 was wrong anyway, should've been 15
+        } else {
+            // line number within the list file indicates we've got a filled out sprite
+            if (spr->line) {
+                extra_bytes[i] = (unsigned char)(3 + spr->byte_count);
+                extra_bytes[i + 0x100] = (unsigned char)(3 + spr->extra_byte_count);
+                // no line means unused sprite, so just set to default 3.
+            } else {
+                extra_bytes[i] = 3;
+                extra_bytes[i + 0x100] = 3;
+            }
+        }
+    }
     return true;
 }

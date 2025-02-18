@@ -74,8 +74,24 @@ The changelog is available [here](CHANGELOG.md).
     D0 Generator.cfg
   ```
 
-  Keep in mind that the areas for sprites (00-BF), shooters (C0-CF) and generators (D0-FF) are fixed.
+  Keep in mind that the areas for sprites (00-BF), shooters (C0-CF) and generators (D0-DF) are fixed.
   If you want to insert a shooter, it has to be in the range of C0 to CF due to the sprite type's different coding.
+
+  ### CFG Lunar magic in-editor displays
+
+  Sprites that use CFG files do not appear by default in Lunar Magic's custom sprite list, nor do they have a custom display.
+  To make your CFG sprite appear in the custom sprite list, you'll need to append `display` to the entry in the list.txt file.
+
+  For example:
+  ```
+    00 Blue.cfg display ; this will make Blue.cfg appear in the custom sprite list
+    01 Red.cfg   ; Red will not appear in the custom sprite listlist
+    02 Red.cfg   nodisplay ; Red will not appear in the custom sprite list
+  ```
+  
+  If you want to *explicitely* disable the display for a sprite, you can use `nodisplay` instead of `display`. This is the default behavior when omitted.
+
+  This is only supported CFG entries, JSON and ASM entries do not need and will not use this.
 
   ### Per-Level Sprites
 
@@ -171,6 +187,11 @@ The changelog is available [here](CHANGELOG.md).
   -g  <generators>        Specify a custom generators directory (Default generators/)
   -e  <extended>  Specify a custom extended sprites directory (Default extended/)
   -c  <cluster>   Specify a custom cluster sprites directory (Default cluster/)
+  -b  <bounce>    Specify a custom bounce sprites directory (Default misc_sprites/bounce/)
+  -me <minorextended>     Specify a custom minor extended sprites directory (Default misc_sprites/minorextended/)
+  -sc <score>     Specify a custom score sprites directory (Default misc_sprites/score/)
+  -sm <smoke>     Specify a custom smoke sprites directory (Default misc_sprites/smoke/)
+  -sn <spinningcoin>      Specify a custom spinning coin sprites directory (Default misc_sprites/spinningcoin/)
 
   -r  <sharedpath>        Specify a shared routine directory (Default routines/)
   -nr <number>			Specify a maximum number of shared routines (Default is 100, maximum is 310)
@@ -181,7 +202,7 @@ The changelog is available [here](CHANGELOG.md).
   -s16 <base s16>         Specify s16 file to be used as a base for <romname>.s16
                           Do not use <romname>.xxx as an argument as the file will be overwriten
 
-  --onepatch                   Applies all sprites into a single big path (Default value: false)
+  --onepatch                   Applies all sprites into a single big patch (Default value: false)
   --stdincludes <includepath>  Specify a text file with a list of search paths for asar (Default value: "<empty>")
   --stddefines <definepath>    Specify a text file with a list of defines for asar (Default value: "<empty>")
   --exerel                     Resolve list.txt and ssc/mw2/mwt/s16 paths relative to the executable rather than the ROM

@@ -13,23 +13,22 @@ types = {
 }
 
 def _get_pagecount(name):
-    spid, expectedpages = types[name]
-    uri = f'https://www.smwcentral.net/ajax.php?a=getsectionlist&s=smwsprites&f[tool][]=142&f[type][]={spid}'
+    _, expectedpages = types[name]
+    uri = f'https://www.smwcentral.net/ajax.php?a=getsectionlist&s=smwsprites&f[tool][]=pixi&f[type][]={name}'
     with requests.get(uri) as res:
         response = res.json()
     return response.get('last_page', expectedpages)
 
 def _download():
     with requests.Session() as sess:
-        for name, value in types.items():
+        for name, _ in types.items():
             with suppress(Exception):
                 os.mkdir(name)
             nameids = {}
-            spid, _ = value
             pages = _get_pagecount(name)
             for page in range(pages):
                 uri = f'https://www.smwcentral.net/ajax.php?a=getsectionlist&s=smwsprites&u=0&g=0&n={page + 1}' \
-                      f'&o=date&d=desc&f%5Btool%5D%5B%5D=142&f%5Btype%5D%5B%5D={spid}'
+                      f'&o=date&d=desc&f[tool][]=pixi&f[type][]={name}'
                 with sess.get(uri) as res:
                     response = res.json()
                 objects = response['data']

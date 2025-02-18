@@ -1,6 +1,6 @@
 # build CFG Editor first
 Push-Location "src/CFG Editor"
-nuget install Newtonsoft.Json -Version 13.0.1
+nuget restore "CFG Editor.sln"
 Push-Location "CFG Editor"
 dotnet restore
 msbuild.exe "CFG Editor Project.csproj" -p:Configuration=Release

@@ -35,6 +35,7 @@ test/*
 !test/zip_pixi_rasp.py
 !test/runner.py
 !test/downloader.py
+!test/apply_diffs.py
 !test/pixi_test.sh
 !test/pixi_test.ps1
 !test/EXPECTED.lst

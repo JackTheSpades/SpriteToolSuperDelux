@@ -90,7 +90,9 @@ else {
 }
 if (-not $JustSetup) {
     Move-Item -Force downloader_test/result.json result.json
-
+    if (Test-Path -Path downloader_test/diffs.txt) {
+        Move-Item -Force downloader_test/diffs.txt diffs.txt
+    }
     Remove-Item -Recurse -Force downloader_test
     Remove-Item -Recurse -Force pixi
     Remove-Item base.smc

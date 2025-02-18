@@ -145,7 +145,7 @@ PIXI_EXPORT pixi_status_pointers_t pixi_sprite_status_pointers(pixi_sprite_t pix
     return &pixi_sprite_ptr->ptrs;
 }
 PIXI_EXPORT pixi_pointer_t pixi_extended_cape_ptr(pixi_sprite_t pixi_sprite_ptr) {
-    return pixi_sprite_ptr->extended_cape_ptr.addr();
+    return pixi_sprite_ptr->extended_cape_ptr.raw();
 }
 PIXI_EXPORT int pixi_sprite_byte_count(pixi_sprite_t pixi_sprite_ptr) {
     return pixi_sprite_ptr->byte_count;
@@ -273,19 +273,19 @@ PIXI_EXPORT pixi_map8x8_t pixi_map16_bottom_right(pixi_map16_t pixi_map16_ptr) {
 
 // Status pointers information APIs
 PIXI_EXPORT pixi_pointer_t pixi_status_pointers_carriable(pixi_status_pointers_t pixi_status_pointers_ptr) {
-    return pixi_status_pointers_ptr->carriable.addr();
+    return pixi_status_pointers_ptr->carriable.raw();
 }
 PIXI_EXPORT pixi_pointer_t pixi_status_pointers_kicked(pixi_status_pointers_t pixi_status_pointers_ptr) {
-    return pixi_status_pointers_ptr->kicked.addr();
+    return pixi_status_pointers_ptr->kicked.raw();
 }
 PIXI_EXPORT pixi_pointer_t pixi_status_pointers_carried(pixi_status_pointers_t pixi_status_pointers_ptr) {
-    return pixi_status_pointers_ptr->carried.addr();
+    return pixi_status_pointers_ptr->carried.raw();
 }
 PIXI_EXPORT pixi_pointer_t pixi_status_pointers_mouth(pixi_status_pointers_t pixi_status_pointers_ptr) {
-    return pixi_status_pointers_ptr->mouth.addr();
+    return pixi_status_pointers_ptr->mouth.raw();
 }
 PIXI_EXPORT pixi_pointer_t pixi_status_pointers_goal(pixi_status_pointers_t pixi_status_pointers_ptr) {
-    return pixi_status_pointers_ptr->goal.addr();
+    return pixi_status_pointers_ptr->goal.raw();
 }
 
 // Sprite table information APIs
@@ -300,10 +300,10 @@ PIXI_EXPORT pixi_byte_array pixi_sprite_table_tweak(pixi_sprite_table_t pixi_spr
     return pixi_sprite_table_ptr->tweak;
 }
 PIXI_EXPORT pixi_pointer_t pixi_sprite_table_init(pixi_sprite_table_t pixi_sprite_table_ptr) {
-    return pixi_sprite_table_ptr->init.addr();
+    return pixi_sprite_table_ptr->init.raw();
 }
 PIXI_EXPORT pixi_pointer_t pixi_sprite_table_main(pixi_sprite_table_t pixi_sprite_table_ptr) {
-    return pixi_sprite_table_ptr->main.addr();
+    return pixi_sprite_table_ptr->main.raw();
 }
 PIXI_EXPORT pixi_byte_array pixi_sprite_table_extra(pixi_sprite_table_t pixi_sprite_table_ptr, int* size) {
     *size = 2;

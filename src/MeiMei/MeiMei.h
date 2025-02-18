@@ -7,12 +7,12 @@ class MeiMei {
     ROM prev;
     unsigned char prevEx[0x400];
     unsigned char nowEx[0x400];
-    bool always;
-    bool debug;
-    bool keepTemp;
+    bool always{false};
+    bool debug{false};
+    bool keepTemp{false};
     std::string sa1DefPath;
 
-    bool patch(const patchfile& file, const patchfile& binfile, ROM &rom);
+    bool patch(const patchfile& patch, const std::vector<patchfile>& patchfiles, ROM& rom);
     int run(ROM &rom);
 
   public:

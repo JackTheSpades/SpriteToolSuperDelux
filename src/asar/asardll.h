@@ -140,6 +140,7 @@ bool asar_init(void);
 
 // Same as above, but instead of automatically looking for and trying to load asar.dll, takes
 // a path to the Asar DLL and tries to load it.
+// The path is expected to be UTF-8-encoded, even on Windows.
 bool asar_init_with_dll_path(const char * dllpath);
 
 //Clears out all errors, warnings and printed statements, and clears the file cache. Not really
@@ -190,8 +191,8 @@ asarfunc const char * (*asar_getdefine)(const char * name);
 //Gets the values and names of all defines.
 asarfunc const struct definedata * (*asar_getalldefines)(int * count);
 
-//Parses all defines in the parameter. The parameter controls whether it'll learn new defines in
-// this string if it finds any. Note that it may emit errors.
+//Parses all defines in the parameter. If there were any errors, returns an empty string.
+//learnnew has not done anything for at least 12 years.
 asarfunc const char * (*asar_resolvedefines)(const char * data, bool learnnew);
 
 //Parses a string containing math. It automatically assumes global scope (no namespaces), and has
