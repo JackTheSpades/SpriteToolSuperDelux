@@ -18,8 +18,9 @@
    BRA ?.Y_Speed
 ?+ SBC #$03
    LDY !cluster_misc_1e52,x
-   BMI $04
+   BMI ?.adjustNegSpeed
    CPY #$40 : BPL ?.XY_SpeedNoGravity
+?.adjustNegSpeed:
    CLC : ADC !cluster_misc_1e52,x
    STA !cluster_misc_1e52,x
    BRA ?.XY_SpeedNoGravity
@@ -36,8 +37,9 @@ RTL
 
 ?.XY_Speed:
 LDA !cluster_misc_1e52,x	; YSpeed
-BMI $04
+BMI ?.negYSpeed
 CMP #$40 : BPL ?.XY_SpeedNoGravity
+?.negYSpeed:
 CLC : ADC #$03
 STA !cluster_misc_1e52,x	; YSpeed
 
