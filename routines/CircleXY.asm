@@ -5,7 +5,7 @@
 ;Output: $07 = X displacement (16 bit)
 ;        $09 = Y displacement (16 bit)
 
-	
+?main:
 	BIT #$7F
 	BEQ .Horizontal_or_vertical
 	
@@ -20,7 +20,7 @@ else
 endif
 	
 	TAX
-	LDA.l .SinCos_Table,x
+	LDA.l ?.SinCos_Table,x
 if !SA1 == 0
 	STA $4203
 	NOP
@@ -45,7 +45,7 @@ endif
 	TAX
 	TYA
 	ADC #$00 : LSR
-	LDA.l .SinCos_Table,x
+	LDA.l ?.SinCos_Table,x
 if !SA1 == 0
 	STA $4203
 	NOP
@@ -67,10 +67,10 @@ endif
 	PLX
 	RTL
 
-.Horizontal_or_vertical:
+?.Horizontal_or_vertical:
 	BIT #$80
-	BCS .Left_or_Top
-	BNE .Bottom
+	BCS ?.Left_or_Top
+	BNE ?.Bottom
 	REP #$20
 	TYA
 	STA $07
@@ -78,7 +78,7 @@ endif
 	SEP #$20
 	RTL
 	
-.Bottom:
+?.Bottom:
 	REP #$20
 	TYA
 	STA $09
@@ -86,8 +86,8 @@ endif
 	SEP #$20
 	RTL
 	
-.Left_or_Top:
-	BNE .Top
+?.Left_or_Top:
+	BNE ?.Top
 	REP #$20
 	TYA
 	EOR #$FFFF
@@ -97,7 +97,7 @@ endif
 	SEP #$20
 	RTL
 	
-.Top:
+?.Top:
 	REP #$20
 	TYA
 	EOR #$FFFF
@@ -108,7 +108,7 @@ endif
 	RTL
 
 
-.SinCos_Table:
+?.SinCos_Table:
 db $00,$03,$06,$09,$0C,$0F,$12,$15,$19,$1C,$1F,$22,$25,$28,$2B,$2E
 db $31,$35,$38,$3B,$3E,$41,$44,$47,$4A,$4D,$50,$53,$56,$59,$5C,$5F
 db $61,$64,$67,$6A,$6D,$70,$73,$75,$78,$7B,$7E,$80,$83,$86,$88,$8B
