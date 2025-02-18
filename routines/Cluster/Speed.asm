@@ -1,13 +1,13 @@
 
 ;Input:  A   = type of speed update
-;              0 ... x+y with gravity (YSpeed +3 exery flame)
+;              0 ... x+y with gravity (YSpeed +3 every frame)
 ;              1 ... x+y without gravity
 ;              2 ... x only
 ;              3 ... y only
-;              4 ... x+y with low gravity (YSpeed +1 exery flame)
-;              5 ... x+y with gravity (YSpeed +2 exery flame)
-;              6 ... x+y with gravity (YSpeed +3 exery flame)(Same as 0)
-;              7 ... x+y with high gravity (YSpeed +4 exery flame)
+;              4 ... x+y with low gravity (YSpeed +1 every frame)
+;              5 ... x+y with gravity (YSpeed +2 every frame)
+;              6 ... x+y with gravity (YSpeed +3 every frame)(Same as 0)
+;              7 ... x+y with high gravity (YSpeed +4 every frame)
 
 
 ?main:
@@ -47,7 +47,7 @@ STA !cluster_misc_1e52,x	; YSpeed
 PHX
 TXA
 CLC
-ADC #$14	; YSpeed to XSpeed
+ADC #!ClusterSize	; YSpeed to XSpeed
 TAX
 JSL ?.Y_Speed
 PLX
