@@ -17,8 +17,9 @@
    BRA ?.SpriteYSpd
 ?+ SBC #$03
    LDY !extended_y_speed,x
-   BMI $04
+   BMI ?+
    CPY #$40 : BPL ?.SpriteSpdNoGravity
+?+
    CLC : ADC !extended_y_speed,x
    STA !extended_y_speed,x
    BRA ?.SpriteSpdNoGravity
