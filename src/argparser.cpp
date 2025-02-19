@@ -312,7 +312,7 @@ void argparser::print_help() const {
                 builder << std::boolalpha << " (Default value: " << boolv << ")";
             } else if (opt.type == option::Type::Int) {
                 const auto& intv = std::get<int_ref>(opt.value).get();
-                builder << "(Default value: " << intv << ")";
+                builder << " (Default value: " << intv << ")";
             }
         }
         builder << '\n';
