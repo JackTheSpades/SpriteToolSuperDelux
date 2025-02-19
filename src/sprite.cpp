@@ -149,13 +149,24 @@ struct AsarHandler {
         int size = 0;
         const memoryfile file{"clean_labels.asm", "", 0};
         char fake_romdata = '\0';
-        struct patchparams params {
-            .structsize = sizeof(struct patchparams), .patchloc = "clean_labels.asm", .romdata = &fake_romdata,
-            .buflen = 0, .romlen = &size, .includepaths = nullptr, .numincludepaths = 0, .should_reset = true,
-            .additional_defines = nullptr, .additional_define_count = 0, .stdincludesfile = nullptr,
-            .stddefinesfile = nullptr, .warning_settings = nullptr, .warning_setting_count = 0, .memory_files = &file,
-            .memory_file_count = 1, .override_checksum_gen = false, .generate_checksum = true
-        };
+        struct patchparams params{.structsize = sizeof(struct patchparams),
+                                  .patchloc = "clean_labels.asm",
+                                  .romdata = &fake_romdata,
+                                  .buflen = 0,
+                                  .romlen = &size,
+                                  .includepaths = nullptr,
+                                  .numincludepaths = 0,
+                                  .should_reset = true,
+                                  .additional_defines = nullptr,
+                                  .additional_define_count = 0,
+                                  .stdincludesfile = nullptr,
+                                  .stddefinesfile = nullptr,
+                                  .warning_settings = nullptr,
+                                  .warning_setting_count = 0,
+                                  .memory_files = &file,
+                                  .memory_file_count = 1,
+                                  .override_checksum_gen = false,
+                                  .generate_checksum = true};
         if (!asar_patch_ex(&params)) {
             io.error(
                 "Failed to apply cleanup patch, this is an internal error, please report it here " GITHUB_ISSUE_LINK
@@ -1660,9 +1671,8 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         .add_option("--version", "Print version information", version_requested)
         .add_option("--rom", "ROMFILE",
                     "ROM file, when the --rom is not given, it is assumed to be the first unmatched argument", rom.name)
-        .add_option("-d", "Enable debug output, the option flag -out only works when this is set", cfg.DebugEnabled)
-        .add_option("--debug", "Enable debug output, the option flag -out only works when this is set",
-                    cfg.DebugEnabled)
+        .add_option("-d", "Enable debug output", cfg.DebugEnabled)
+        .add_option("--debug", "Enable debug output", cfg.DebugEnabled)
         .add_option("--exerel",
                     "Resolve list.txt and ssc/mw2/mwt/s16 paths relative to the executable rather than the ROM",
                     cfg.SearchForFilesInExePath)
