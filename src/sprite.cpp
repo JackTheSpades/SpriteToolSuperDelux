@@ -1764,7 +1764,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         const char message[]{"Pixi version %d.%d\n"
                              "Originally developed in 2017 by JackTheSpades\n"
                              "Maintained by RPGHacker (2018), Tattletale (2018-2020)\n"
-                             "Currently maintained by Atari2.0 (2020-2024)\n"};
+                             "Currently maintained by Atari2.0 (2020-2025)\n"};
         io.print(message, VERSION_MAJOR, VERSION_PARTIAL);
         return EXIT_SUCCESS;
     }

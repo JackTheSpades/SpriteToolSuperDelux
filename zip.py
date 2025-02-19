@@ -4,6 +4,7 @@ import re
 import glob
 import sys
 from mdtohtml import mdtohtml
+import argparse
 
 def in_github_ci():
     val = os.getenv('GITHUB_ACTIONS', default='false')
@@ -111,9 +112,19 @@ def choose_binary(search_path):
     else:
         return exes[0]
 
+parser = argparse.ArgumentParser(prog='zip.py', description='Create a release zip file for Pixi')
+parser.add_argument('-s', '--static', action='store_true', help='Use static binaries', default=False)
+args = parser.parse_args()
+
 cfgexe = "src/CFG Editor/CFG Editor/bin/Release/CFG Editor.exe"
-pixiexe = choose_binary(f'{os.getcwd()}{os.sep}**{os.sep}{pixi_exe_name()}')
-asarlib = choose_binary(f'{os.getcwd()}{os.sep}**{os.sep}{asar_lib_name()}')
+try:
+    pixiexe = choose_binary(f'{os.getcwd()}{os.sep}**{os.sep}{pixi_exe_name()}')
+    if not args.static:
+        asarlib = choose_binary(f'{os.getcwd()}{os.sep}**{os.sep}{asar_lib_name()}')
+except Exception as e:
+    print(e)
+    sys.exit(1)
+
 
 with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
 
@@ -143,7 +154,8 @@ with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
             "Newtonsoft.Json.dll",
         )
     pixizip.write(pixiexe.replace("/", os.sep), pixi_exe_name())
-    pixizip.write(asarlib.replace("/", os.sep), asar_lib_name())
+    if not args.static:
+        pixizip.write(asarlib.replace("/", os.sep), asar_lib_name())
 
     # asm
     for asm_folder_file in [
