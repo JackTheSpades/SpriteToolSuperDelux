@@ -18,7 +18,7 @@ PIXI_EXPORT int pixi_after_patching() {
     return 0;
 }
 PIXI_EXPORT int pixi_check_version() {
-    return 142;
+    return 143;
 }
 PIXI_EXPORT int pixi_before_unload() {
     if (global_file == NULL) {
