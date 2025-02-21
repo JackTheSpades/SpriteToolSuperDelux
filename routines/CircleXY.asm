@@ -7,7 +7,7 @@
 
 ?main:
 	BIT #$7F
-	BEQ .Horizontal_or_vertical
+	BEQ ?.Horizontal_or_vertical
 	
 	PHX
 
