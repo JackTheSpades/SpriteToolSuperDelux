@@ -266,6 +266,50 @@ TEST(PixiUnitTests, Disable255PerLevelUnsupported) {
     EXPECT_STREQ(error, expected_error.data());
 }
 
+TEST(PixiUnitTests, InsertAllRoutinesTest) {
+    std::vector<std::string> expected_prints{};
+    std::string_view list_contents{"00 test_sprite.json\n"};
+    {
+        std::ofstream list_file{"list.txt", std::ios::trunc};
+        list_file << list_contents;
+    }
+    {
+        std::ofstream sprite{"sprites/test_sprite.asm", std::ios::trunc};
+        sprite << R"(print "INIT",pc
+print "MAIN",pc
+)";
+        auto parent_path = fs::current_path() / "routines";
+        for (auto& entry : fs::recursive_directory_iterator{parent_path}) {
+            if (entry.is_regular_file() && entry.path().extension() == ".asm") {
+                auto path = fs::relative(entry.path(), parent_path).replace_extension().generic_string();
+                auto it = std::remove(path.begin(), path.end(), '/');
+                path.erase(it, path.end());
+                auto routine_name = "%" + path + "()";
+                sprite << routine_name << '\n';
+                expected_prints.push_back("Routine: " + path + " inserted at");
+            }
+        }
+        sprite << "RTL\n";
+    }
+    try {
+        copy_file_wrap("base.smc", "InsertAllRoutinesTest.smc");
+        copy_file_wrap("test_sprite.json", "sprites/test_sprite.json");
+    } catch (const fs::filesystem_error& error) {
+        std::cout << "Error happened while copying the files: " << error.what() << '\n';
+        EXPECT_FALSE(true);
+        return;
+    }
+    const char* argv[] = {"-d", "InsertAllRoutinesTest.smc"};
+    EXPECT_EQ(pixi_run(sizeof(argv) / sizeof(argv[0]), argv, false), EXIT_SUCCESS);
+
+    int size = 0;
+    pixi_string_array output = pixi_output(&size);
+    for (const auto& expected : expected_prints) {
+        EXPECT_TRUE(std::any_of(output, output + size,
+                                [&expected](const char* str) { return std::string_view{str}.find(expected) != std::string_view::npos; }));
+    }
+}
+
 TEST(PixiUnitTests, LMDataTest) {
     WinCheckMemLeak leakchecker{};
     constexpr const char expected_ssc[] =
