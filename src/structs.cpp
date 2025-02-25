@@ -21,8 +21,8 @@ const char* BOOL_STR(bool b) {
 bool patchfile::s_meimei_keep = false;
 bool patchfile::s_pixi_keep = false;
 
-patchfile::patchfile(const std::string& path, patchfile::openflags mode, bool from_mei_mei)
-    : m_fs_path{path}, m_data_stream{static_cast<std::ios::openmode>(mode)}, m_from_meimei{from_mei_mei} {
+patchfile::patchfile(const std::string& path, patchfile::openflags mode, origin origin)
+    : m_fs_path{path}, m_data_stream{static_cast<std::ios::openmode>(mode)}, m_from_meimei{origin == origin::meimei} {
     m_vfile = std::make_unique<memoryfile>();
     m_binary = (static_cast<std::ios::openmode>(mode) & std::ios::binary) != 0;
     std::transform(path.begin(), path.end(), std::back_inserter(m_path),

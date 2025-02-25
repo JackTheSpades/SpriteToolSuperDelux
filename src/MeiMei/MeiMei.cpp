@@ -172,7 +172,7 @@ int MeiMei::run(ROM& rom) {
         uint8_t sprCommonData[3];
         std::unordered_set<pcaddress> sprDataPointers{};
 
-        patchfile meimei_patch{"_meimei_fixup.asm", patchfile::openflags::w, /* from_mei_mei= */ true};
+        patchfile meimei_patch{"_meimei_fixup.asm", patchfile::openflags::w, patchfile::origin::meimei};
         meimei_patch.fprintf("incsrc \"%s\"\n", MeiMei::sa1DefPath.c_str());
         std::vector<patchfile> meimei_fixup_patches{};
 
@@ -255,7 +255,7 @@ int MeiMei::run(ROM& rom) {
                 std::string binaryFileName{"_tmp_bin_"};
                 binaryFileName.append(lvlstr);
                 binaryFileName.append(".bin");
-                patchfile binFile{binaryFileName, patchfile::openflags::wb, /* from_mei_mei= */ true};
+                patchfile binFile{binaryFileName, patchfile::openflags::wb, patchfile::origin::meimei};
                 binFile.fwrite(sprAllData, nowOfs);
                 binFile.close();
 
@@ -263,7 +263,7 @@ int MeiMei::run(ROM& rom) {
                 std::string fileName{"_tmp_"};
                 fileName.append(lvlstr);
                 fileName.append(".asm");
-                patchfile spriteDataPatch{fileName, patchfile::openflags::w, /* from_mei_mei= */ true};
+                patchfile spriteDataPatch{fileName, patchfile::openflags::w, patchfile::origin::meimei};
 
                 std::string binaryLabel{"SpriteData"};
                 binaryLabel.append(lvlstr);

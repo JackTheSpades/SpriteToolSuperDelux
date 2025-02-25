@@ -53,13 +53,14 @@ class patchfile {
                            std::ios::openmode>;
 
   public:
+    enum class origin { pixi, meimei };
     enum class openflags : openmode_t {
         w = std::ios::out,
         b = std::ios::binary,
         wb = std::ios::out | std::ios::binary
     };
     static void set_keep(bool pixi, bool meimei);
-    explicit patchfile(const std::string& path, openflags mode = openflags::w, bool from_mei_mei = false);
+    explicit patchfile(const std::string& path, openflags mode = openflags::w, origin origin = origin::pixi);
     patchfile(patchfile&&) noexcept;
     patchfile& operator=(patchfile&&) = delete;
     patchfile& operator=(const patchfile&) = delete;
