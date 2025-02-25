@@ -372,10 +372,17 @@ endif()
 
 
 if (PIXI_BUILD_EXE)
+
+    if (MINGW)
+        set(PIXI_SHARED_LIBRARY_PREFIX "")
+    else()
+        set(PIXI_SHARED_LIBRARY_PREFIX "${CMAKE_SHARED_LIBRARY_PREFIX}")
+    endif()
+
     if (ASAR_USE_DLL)
         add_custom_command(TARGET pixi POST_BUILD 
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:asar> $<TARGET_FILE_DIR:pixi>/${CMAKE_SHARED_LIBRARY_PREFIX}asar${CMAKE_SHARED_LIBRARY_SUFFIX}
+            $<TARGET_FILE:asar> $<TARGET_FILE_DIR:pixi>/${PIXI_SHARED_LIBRARY_PREFIX}asar${CMAKE_SHARED_LIBRARY_SUFFIX}
             COMMENT "Copying asar dynamic library to output directory"
         )
     endif()

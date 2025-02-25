@@ -53,8 +53,13 @@ add_custom_command(TARGET PixiUnitTest POST_BUILD
     COMMENT "Copying necessary files in test output directory"
 )
 if (ASAR_USE_DLL)
+    if (MINGW)
+        set(PIXI_SHARED_LIBRARY_PREFIX "")
+    else()
+        set(PIXI_SHARED_LIBRARY_PREFIX "${CMAKE_SHARED_LIBRARY_PREFIX}")
+    endif()
     add_custom_command(TARGET PixiUnitTest POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${ASAR_LIB_PATH} $<TARGET_FILE_DIR:PixiUnitTest>/${CMAKE_SHARED_LIBRARY_PREFIX}asar${CMAKE_SHARED_LIBRARY_SUFFIX}
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${ASAR_LIB_PATH} $<TARGET_FILE_DIR:PixiUnitTest>/${PIXI_SHARED_LIBRARY_PREFIX}asar${CMAKE_SHARED_LIBRARY_SUFFIX}
     )
 endif()
 if (MSVC)
