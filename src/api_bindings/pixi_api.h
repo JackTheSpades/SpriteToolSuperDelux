@@ -547,7 +547,7 @@ PIXI_IMPORT pixi_string pixi_last_error(int* size);
 /// Returns pixi's complete output as if it was stdout
 /// </summary>
 /// <param name="size">An out-param that receives the size of the string</param>
-/// <returns>A pixi string containing the entire output</returns>
+/// <returns>A pixi string array containing the entire output, one entry per line</returns>
 PIXI_IMPORT pixi_string_array pixi_output(int* size);
 
 /// <summary>
