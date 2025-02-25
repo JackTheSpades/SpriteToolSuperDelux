@@ -2,6 +2,7 @@ param(
     [Parameter(Mandatory=$false)]
     [string]$Branch = "master",
     [Parameter(Mandatory=$false)]
+    [ValidateSet("remote", "local")]
     [string]$RepoType = "remote",
     [Parameter(Mandatory=$false)]
     [bool]$JustSetup = $false
