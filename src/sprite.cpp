@@ -944,7 +944,7 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
                             return false;
                         }
                         auto pc_address = rom.snes_to_pc(custom_pointers_address);
-                        for (int i = 0; i < block_size / block_multiplier; i++) {
+                        for (size_t i = 0; i < block_size / block_multiplier; i++) {
                             auto offset = pc_address + i * block_multiplier;
                             auto ptrs = rom.read_struct<status_pointers>(offset);
                             if (verify_pointer(ptrs.carriable))
@@ -969,7 +969,7 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
                             return false;
                         }
                         auto pc_address = rom.snes_to_pc(sprite_data_address);
-                        for (int i = 0; i < block_size / block_multiplier; i++) {
+                        for (size_t i = 0; i < block_size / block_multiplier; i++) {
                             auto offset = pc_address + i * block_multiplier;
                             auto tbl = rom.read_struct<sprite_table>(offset);
                             if (verify_pointer(tbl.init))
