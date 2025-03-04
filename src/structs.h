@@ -96,25 +96,25 @@ class pcaddress {
     constexpr pcaddress(int val) : value{val} {};
     pcaddress(pointer ptr, const ROM& rom);
     pcaddress(snesaddress addr, const ROM& rom);
-    inline bool operator==(const pcaddress& other) const {
+    constexpr bool operator==(const pcaddress& other) const {
         return value == other.value;
     }
-    inline bool operator==(int other) const {
+    constexpr bool operator==(int other) const {
         return value == other;
     }
-    inline pcaddress operator+(pcaddress offset) const {
+    constexpr pcaddress operator+(pcaddress offset) const {
         return pcaddress{value + offset.value};
     }
-    inline pcaddress operator+(int offset) const {
+    constexpr pcaddress operator+(int offset) const {
         return pcaddress{value + offset};
     }
-    inline pcaddress operator-(pcaddress offset) const {
+    constexpr pcaddress operator-(pcaddress offset) const {
         return pcaddress{value - offset.value};
     }
-    inline pcaddress operator-(int offset) const {
+    constexpr pcaddress operator-(int offset) const {
         return pcaddress{value - offset};
     }
-    int raw_value() const {
+    constexpr int raw_value() const {
         return value;
     }
 };
@@ -129,25 +129,25 @@ class snesaddress {
     constexpr snesaddress(unsigned int val) : value{static_cast<int>(val)} {};
     snesaddress(pointer ptr);
     snesaddress(pcaddress addr, const ROM& rom);
-    inline bool operator==(const snesaddress& other) const {
+    constexpr bool operator==(const snesaddress& other) const {
         return value == other.value;
     }
-    inline bool operator==(int other) const {
+    constexpr bool operator==(int other) const {
         return value == other;
     }
-    inline snesaddress operator+(snesaddress offset) const {
+    constexpr snesaddress operator+(snesaddress offset) const {
         return snesaddress{value + offset.value};
     }
-    inline snesaddress operator+(int offset) const {
+    constexpr snesaddress operator+(int offset) const {
         return snesaddress{value + offset};
     }
-    inline snesaddress operator-(snesaddress offset) const {
+    constexpr snesaddress operator-(snesaddress offset) const {
         return snesaddress{value - offset.value};
     }
-    inline snesaddress operator-(int offset) const {
+    constexpr snesaddress operator-(int offset) const {
         return snesaddress{value - offset};
     }
-    int raw_value() const {
+    constexpr int raw_value() const {
         return value;
     }
 };
