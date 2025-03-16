@@ -5,6 +5,11 @@ incsrc "pointer_caller.asm"
 ; I'd advice against changing stuff in this hijack unless
 ; you also plan to update the tool itself
 ; ---------------------------------------------------
+
+!AlignedPerLevelSprPtrs = PerLevelSprPtrs-1
+!AlignedPerLevelTable = PerLevelTable-1
+!AlignedPerLevelCustomPtrTable = PerLevelCustomPtrTable-1
+
 org $02FFE2
     db "STSD"                        ;header!
     incbin "_versionflag.bin"    ;byte 1 is version number 1.xx
@@ -637,12 +642,12 @@ GetMainPtr:
         PLB
         LDA $00
         BRA -
-    +    PEA.w PerLevelTable>>8
+    +    PEA.w !AlignedPerLevelTable>>8
         PLB
         PLB
-        LDA.w PerLevelTable+$0B,y            ; load low-high byte of pointer
+        LDA.w !AlignedPerLevelTable+$0B,y            ; load low-high byte of pointer
         STA $00                                    ; 00=low, 01=high, 02=x
-        LDA.w PerLevelTable+$0C,y            ; load high-bank byte of pointer
+        LDA.w !AlignedPerLevelTable+$0C,y            ; load high-bank byte of pointer
         STA $01                                    ; 00=low, 01=high, 02=bank
         PLP
         PLB
@@ -659,7 +664,7 @@ if !PerLevel == 1
         LDA $010B|!Base2
         ASL
         TAY
-        PEA.w (bank(PerLevelSprPtrs)<<8)|bank(PerLevelLvlPtrs)
+        PEA.w (bank(!AlignedPerLevelSprPtrs)<<8)|bank(PerLevelLvlPtrs)
         PLB
         ; now in PerLevelLvlPtrs bank
         LDA.w PerLevelLvlPtrs,y
@@ -668,7 +673,7 @@ if !PerLevel == 1
         ; now in PerLevelSprPtrs bank
         ADC $00 ; carry cleared by ASL earlier
         TAY
-        LDA.w PerLevelSprPtrs-($B0*2),y
+        LDA.w !AlignedPerLevelSprPtrs-($B0*2),y
         TAY
         RTS
     .return
@@ -1085,6 +1090,7 @@ SetSpriteTables:
 
    if !PerLevel == 1
     .perlevel
+		print "Hey shitstain, per level stuff at ",pc
         JSR GetPerLevelAddr
         BNE +
         PHK
@@ -1095,34 +1101,34 @@ SetSpriteTables:
         PHK : PLB
         SEP #$20
         %SwapXAndY()
-        LDA.l PerLevelTable+$01,x
+        LDA.l !AlignedPerLevelTable+$01,x
         STA !9E,y
-        LDA.l PerLevelTable+$02,x
+        LDA.l !AlignedPerLevelTable+$02,x
         STA !1656,y
-        LDA.l PerLevelTable+$03,x
+        LDA.l !AlignedPerLevelTable+$03,x
         STA !1662,y
-        LDA.l PerLevelTable+$04,x
+        LDA.l !AlignedPerLevelTable+$04,x
         STA !166E,y
         AND #$0F
         STA !15F6,y
-        LDA.l PerLevelTable+$05,x
+        LDA.l !AlignedPerLevelTable+$05,x
         STA !167A,y
-        LDA.l PerLevelTable+$06,x
+        LDA.l !AlignedPerLevelTable+$06,x
         STA !1686,y
-        LDA.l PerLevelTable+$07,x
+        LDA.l !AlignedPerLevelTable+$07,x
         STA !190F,y
-        LDA.l PerLevelTable+$00,x
+        LDA.l !AlignedPerLevelTable+$00,x
         STA !new_code_flag
         BEQ .perLevelNotCustom
-        LDA.l PerLevelTable+$0E,x
+        LDA.l !AlignedPerLevelTable+$0E,x
         STA $03
-        LDA.l PerLevelTable+$0F,x
+        LDA.l !AlignedPerLevelTable+$0F,x
         STA $04
-        LDA.l PerLevelTable+$08,x
+        LDA.l !AlignedPerLevelTable+$08,x
         STA $00
-        LDA.l PerLevelTable+$09,x
+        LDA.l !AlignedPerLevelTable+$09,x
         STA $01
-        LDA.l PerLevelTable+$0A,x
+        LDA.l !AlignedPerLevelTable+$0A,x
         STA $02                 ; INIT pointer to [$00]
         %SwapXAndY()
         LDA $03
@@ -1207,7 +1213,7 @@ ExecuteCustomPtr:
         BRA .normal
     +    ; execute per-level custom pointers here
         PHK : PLB
-        %CallPerLevelStatusPtr(PerLevelCustomPtrTable, IndexPtrTable, vanillaHandler)
+        %CallPerLevelStatusPtr(!AlignedPerLevelCustomPtrTable, IndexPtrTable, vanillaHandler)
         SEP #$30
         BRA .return            ; once done with per-level custom pointers, just return
         .normal
@@ -1305,7 +1311,7 @@ TestSilverCoinBit:
     + SEP #$20
       PHX
       TYX
-      LDA.l PerLevelTable+$07,x
+      LDA.l !AlignedPerLevelTable+$07,x
       PLX
       PLP
       JML $02A9AB|!BankB
@@ -1365,32 +1371,22 @@ if !PerLevel == 1
     ; it is VITALLY important that these PROT commands don't change order
     ; the C++ cleanup code that cleans up the previous pixi run
     ; relies on them being in this specific order, thus, if the order is changed, the cleanup code will also need to change.
-    prot PerLevelSprPtrs_data
-    prot PerLevelTable_data
-    prot PerLevelCustomPtrTable_data
+    prot PerLevelSprPtrs
+    prot PerLevelTable
+    prot PerLevelCustomPtrTable
     PerLevelLvlPtrs:
         print "Per-level sprite level pointers at ", pc
         incbin "_perlevellvlptrs.bin"
     freedata
-        ; i have no idea how to explain why i did it like this but trust me it works, and it's necessary to allow the full 0x800 per-level sprites
-        skip -1
     PerLevelTable:
-        skip 1
-        .data:
         print "Level Table at ", pc
         incbin "_perlevelt.bin"
     freedata
-        skip -1
     PerLevelCustomPtrTable:
-        skip 1
-        .data:
         print "Level Pointers Table at ", pc
         incbin "_perlevelcustomptrtable.bin"
     freedata
-        skip -1
     PerLevelSprPtrs:
-        skip 1
-        .data:
         print "Per-level sprite pointers at ", pc
         incbin "_perlevelsprptrs.bin"
 endif
