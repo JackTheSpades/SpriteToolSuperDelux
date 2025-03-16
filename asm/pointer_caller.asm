@@ -153,7 +153,7 @@ macro CallPerLevelStatusPtr(label, indextable, vanillaroutine)
 	REP #$30
 	PLY : PLX
 	SEP #$30
-	LDA #$01 : PHA : PLB 	; restore bank that got destroyed by GetPerLevelAddr
+	LDA #bank(<vanillaroutine>) : PHA : PLB 	; restore bank that got destroyed by GetPerLevelAddr
 	LDA !14C8,x
 	JMP <vanillaroutine> 	; if the bank if 00, (aka invalid, just go back to running old main.asm code)
 	?continue
@@ -161,11 +161,12 @@ macro CallPerLevelStatusPtr(label, indextable, vanillaroutine)
 	LDA $03, s			; get x back from stack
 	TAX
 
-	LDA #$01 : PHA : PLB  ; restore bank that got destroyed by GetPerLevelAddr
+	PHB : LDA $02 : PHA : PLB  ; restore bank that got destroyed by GetPerLevelAddr
 	PHK 
 	PEA ?return-1
 	JML [!Base1]
 ?return
+	PLB
 	REP #$30
 	PLY
 	PLX
