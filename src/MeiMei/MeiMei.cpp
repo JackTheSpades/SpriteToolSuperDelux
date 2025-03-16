@@ -70,7 +70,6 @@ bool MeiMei::patch(const patchfile& patch, const std::vector<patchfile>& patchfi
                        .romlen = &rom.size,
                        .includepaths = nullptr,
                        .numincludepaths = 0,
-                       .should_reset = true,
                        .additional_defines = nullptr,
                        .additional_define_count = 0,
                        .stdincludesfile = nullptr,
@@ -81,7 +80,7 @@ bool MeiMei::patch(const patchfile& patch, const std::vector<patchfile>& patchfi
                        .memory_file_count = static_cast<int>(memfiles.size()),
                        .override_checksum_gen = false,
                        .generate_checksum = true};
-    if (!asar_patch_ex(&params)) {
+    if (!asar_patch(&params)) {
         int error_count;
         const errordata* errors = asar_geterrors(&error_count);
         io.error("An error has been detected:\n");

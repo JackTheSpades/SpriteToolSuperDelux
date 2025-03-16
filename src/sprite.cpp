@@ -156,7 +156,6 @@ struct AsarHandler {
                                   .romlen = &size,
                                   .includepaths = nullptr,
                                   .numincludepaths = 0,
-                                  .should_reset = true,
                                   .additional_defines = nullptr,
                                   .additional_define_count = 0,
                                   .stdincludesfile = nullptr,
@@ -167,7 +166,7 @@ struct AsarHandler {
                                   .memory_file_count = 1,
                                   .override_checksum_gen = false,
                                   .generate_checksum = true};
-        if (!asar_patch_ex(&params)) {
+        if (!asar_patch(&params)) {
             io.error(
                 "Failed to apply cleanup patch, this is an internal error, please report it here " GITHUB_ISSUE_LINK
                 "\n");
@@ -249,7 +248,6 @@ template <typename T> T* from_table(T* table, int level, int number) {
         .romlen = &rom.size, 
         .includepaths = nullptr,
         .numincludepaths = 0,
-        .should_reset = true,
         .additional_defines = g_config_defines.data(), 
         .additional_define_count = static_cast<int>(g_config_defines.size()),
         .stdincludesfile = cfg.AsarStdIncludes.empty() ? nullptr : cfg.AsarStdIncludes.c_str(),
@@ -262,7 +260,7 @@ template <typename T> T* from_table(T* table, int level, int number) {
         .generate_checksum = true
     };
     // clang-format on
-    if (!asar_patch_ex(&params)) {
+    if (!asar_patch(&params)) {
         int error_count;
         const errordata* errors = asar_geterrors(&error_count);
         io.error("An error has been detected while applying patch %s:\n", file.path().c_str());
@@ -307,7 +305,6 @@ template <typename T> T* from_table(T* table, int level, int number) {
         .romlen = &rom.size, 
         .includepaths = nullptr,
         .numincludepaths = 0,
-        .should_reset = true,
         .additional_defines = g_config_defines.data(), 
         .additional_define_count = static_cast<int>(g_config_defines.size()),
         .stdincludesfile = cfg.AsarStdIncludes.empty() ? nullptr : cfg.AsarStdIncludes.c_str(),
@@ -320,7 +317,7 @@ template <typename T> T* from_table(T* table, int level, int number) {
         .generate_checksum = true
     };
     // clang-format on
-    if (!asar_patch_ex(&params)) {
+    if (!asar_patch(&params)) {
         int error_count;
         const errordata* errors = asar_geterrors(&error_count);
         io.error("An error has been detected while applying patch %s:\n", patch_path.c_str());
@@ -776,7 +773,7 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
         int error_count;
         const errordata* cerrors = asar_geterrors(&error_count);
         std::span errors{cerrors, static_cast<size_t>(error_count)};
-        if (std::any_of(errors.begin(), errors.end(), [](const errordata& err) { return err.errid == 5095; })) {
+        if (std::any_of(errors.begin(), errors.end(), [](const errordata& err) { return strcmp(err.errname, "Emacro_redefined") == 0; })) {
             io.error("Macro redefinition errors can mean that two sprites define the same macro. This is "
                      "incompatible with the `--onepatch` command line option. Please attempt insertion without it.");
         }
