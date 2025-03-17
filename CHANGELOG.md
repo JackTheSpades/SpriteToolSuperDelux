@@ -7,6 +7,7 @@
 - (Iwakoro) Add CircleXY, ClusterSpeed routines
 - (Iwakoro) Add support for varying gravity values in ExtendedSpeed routine
 - (Fernap) Add ReplaceSelf routine
+- (Atari2.0) Fix a bug with per-level sprites and custom status pointers where they would get called with wrong data bank set even thought it was explicitely said in the README that it would be.
 
 ## Version 1.42 (March 27, 2024)
 - (Fernap) Update %Random() routine to avoid having modulo bias.
