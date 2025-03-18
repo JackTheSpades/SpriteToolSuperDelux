@@ -6,6 +6,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <algorithm>
 
 using namespace std::string_view_literals;
 namespace fs = std::filesystem;

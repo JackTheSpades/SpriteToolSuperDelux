@@ -38,14 +38,6 @@ jobs:
            python -m pip install --upgrade pip
            python -m pip install beautifulsoup4 mistune
 
-    - name: Setup compilers
-      run:  |
-            sudo apt update
-            sudo apt install gcc-11 g++-11
-            sudo apt install gcc-11-multilib g++-11-multilib
-      shell: bash
-      if: matrix.os == 'ubuntu-latest'
-
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
 
@@ -71,9 +63,6 @@ jobs:
       shell: bash
       working-directory: ${{github.workspace}}/build
       run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DPIXI_CI_BUILD=ON
-      env:
-        CC: gcc-11
-        CXX: g++-11
       if: matrix.os == 'ubuntu-latest'
 
     - name: Build
@@ -141,13 +130,6 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install beautifulsoup4 requests
 
-      - name: Setup compilers
-        run:  |
-              sudo apt update
-              sudo apt install gcc-11 g++-11
-        shell: bash
-        if: matrix.os == 'ubuntu-latest'
-
       - name: Get branch name
         id: branch-name
         uses: tj-actions/branch-names@v7.0.7
@@ -164,8 +146,6 @@ jobs:
         shell: bash
         run: bash pixi_test.sh ${{steps.branch-name.outputs.current_branch}} remote
         env:
-          CC: gcc-11
-          CXX: g++-11
           ARTIFACT_PATH: ${{steps.download.outputs.download-path}}/pixi.zip
         if: matrix.os == 'ubuntu-latest'
 
