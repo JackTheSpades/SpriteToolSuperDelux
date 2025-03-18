@@ -11,7 +11,12 @@ param(
 $env:PIXI_TESTING = "true"
 
 if ($JustSetup) {
-    Write-Output "Just running setup"
+    if ((Test-Path -Path ".sprites_dl_cache") -and (Test-Path -Path ".sprites_dl_cache\*")) {
+        Write-Output "Just running setup"
+    } else {
+        Write-Output "Cannot run just setup without cached sprites, aborting..."
+        exit 1
+    }
 } else {
     Write-Output "Running full test"
 }

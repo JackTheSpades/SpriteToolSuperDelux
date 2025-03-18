@@ -1,3 +1,4 @@
+#!/bin/bash
 # download base file
 argc=$#
 
@@ -36,13 +37,11 @@ wget www.atarismwc.com/base.smc
 
 if [[ -z "${ARTIFACT_PATH}" ]]; then
     # clone current pixi repo and build zip
-    CC=gcc-11
-    CXX=g++-11
-    git clone $repourl
-    cd SpriteToolSuperDelux
-    git checkout $branch
+    git clone "$repourl"
+    cd SpriteToolSuperDelux || exit
+    git checkout "$branch"
     mkdir build
-    cd build
+    cd build || exit
     cmake -S .. -B . -DCMAKE_BUILD_TYPE=Release
     cmake --build . --target pixi
     cd ..
@@ -72,7 +71,7 @@ cp base.smc downloader_test/pixi/base.smc
 # check if directory exists and is not empty
 if [ -d ".sprites_dl_cache" ] && [ -n "$(ls -A .sprites_dl_cache)" ]; then
     cp -r .sprites_dl_cache/* downloader_test
-    cd downloader_test 
+    cd downloader_test || exit 
     if [[ "$justSetup" == "false" ]]; then
         if [[ "$OSTYPE" != "darwin"* ]]; then
             yes | python3 runner.py --cached
@@ -84,7 +83,7 @@ if [ -d ".sprites_dl_cache" ] && [ -n "$(ls -A .sprites_dl_cache)" ]; then
     cd ..
 else
     mkdir .sprites_dl_cache
-    cd downloader_test
+    cd downloader_test || exit
     if [[ "$justSetup" == "false" ]]; then
         if [[ "$OSTYPE" != "darwin"* ]]; then
             yes | python3 runner.py
