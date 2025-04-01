@@ -76,14 +76,14 @@ if (PIXI_BUILD_EXE OR PIXI_BUILD_DLL OR PIXI_BUILD_LIB)
         FetchContent_Declare(
 	        asar
 	        GIT_REPOSITORY https://github.com/RPGHacker/asar
-	        GIT_TAG 1ec5e17bbc968d964b972bb40c54ffe25cfc8c8a
+	        GIT_TAG 058743e0f7e55410e10373ff296ebae2667f1e36
 	        SOURCE_SUBDIR src
         )
     else()
         FetchContent_Declare(
 	        asar
 	        GIT_REPOSITORY https://github.com/RPGHacker/asar
-	        GIT_TAG 1ec5e17bbc968d964b972bb40c54ffe25cfc8c8a
+	        GIT_TAG 058743e0f7e55410e10373ff296ebae2667f1e36
 	        SOURCE_SUBDIR src
         )
     endif()
