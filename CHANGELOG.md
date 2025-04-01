@@ -8,6 +8,9 @@
 - (Iwakoro) Add support for varying gravity values in ExtendedSpeed routine
 - (Fernap) Add ReplaceSelf routine
 - (Atari2.0) Fix a bug with per-level sprites and custom status pointers where they would get called with wrong data bank set even thought it was explicitely said in the README that it would be.
+- (Atari2.0) Make the -w command line option default to true, so now warnings are printed by default, -w is not deprecated and adding it to the command line does nothing.
+- (Atari2.0) Added the -wno command line option to disable asar warnings, this is not recommended and should only be used if you know what you're doing.
+- (Atari2.0) Added the --script-mode command line options to disable the user prompts during the insertion process, this is useful for scripting purposes, note that in script mode, the ROM path is required to be passed as a command line argument.
 
 ## Version 1.42 (March 27, 2024)
 - (Fernap) Update %Random() routine to avoid having modulo bias.
