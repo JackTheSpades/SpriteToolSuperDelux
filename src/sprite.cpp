@@ -776,7 +776,7 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
         int error_count;
         const errordata* cerrors = asar_geterrors(&error_count);
         std::span errors{cerrors, static_cast<size_t>(error_count)};
-        if (std::any_of(errors.begin(), errors.end(), [](const errordata& err) { return err.errid == 5095; })) {
+        if (std::any_of(errors.begin(), errors.end(), [](const errordata& err) { return err.errid == 5095 /* error_id_macro_redefined */; })) {
             io.error("Macro redefinition errors can mean that two sprites define the same macro. This is "
                      "incompatible with the `--onepatch` command line option. Please attempt insertion without it.");
         }
