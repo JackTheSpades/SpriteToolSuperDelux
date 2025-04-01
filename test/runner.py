@@ -119,7 +119,7 @@ def exec_pixi(*, pixi_executable, current_rom, listname):
             for existing in existing_routines:
                 if os.path.basename(existing) == routine:
                     os.remove(existing)
-        proc = subprocess.Popen([pixi_executable, '-l', listname, current_rom],
+        proc = subprocess.Popen([pixi_executable, '--script-mode', '-l', listname, current_rom],
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         (stdout, _) = proc.communicate(input=b'yes\n')
         retval = proc.returncode

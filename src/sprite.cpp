@@ -1482,17 +1482,22 @@ void remove(std::string_view dir, const char* file) {
 }
 
 bool check_warnings() {
-    if (!warnings.empty() && cfg.Warnings) {
+    if (!warnings.empty() && cfg.warningsEnabled()) {
         io.print("One or more warnings have been detected:\n");
         for (const std::string& warning : warnings) {
             io.print("%s\n", warning.c_str());
         }
-        io.print("Do you want to continue insertion anyway? [Y/n] (Default is yes):\n");
-        char c = io.getc();
-        if (tolower(c) == 'n') {
-            io.print("Insertion was stopped, press any button to exit...\n");
-            io.getc();
-            return false;
+        if (!cfg.ScriptMode) {
+            io.print("Do you want to continue insertion anyway? [Y/n] (Default is yes):\n");
+            char c = io.getc();
+            if (tolower(c) == 'n') {
+                io.print("Insertion was stopped, press any button to exit...\n");
+                io.getc();
+                return false;
+            }
+        }
+        else {
+            io.print("Script mode is enabled, continuing insertion...\n");
         }
     }
     return true;
@@ -1684,7 +1689,9 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         .add_option("-npl", "Disable per level sprites (default), kept for compatibility reasons", argparser::no_value)
         .add_option("-d255spl", "Disable 255 sprites per level support (won't do the 1938 remap)",
                     cfg.Disable255Sprites)
-        .add_option("-w", "Enable asar warnings check, recommended to use when developing sprites.", cfg.Warnings)
+        .add_option("-w", "[Deprecated and unused] Enable asar warnings check, recommended to use when developing sprites", cfg.Warnings)
+        .add_option("-wno", "Disable asar warnings check, only present for backwards compatibility, not recommended", cfg.NoWarnings)
+        .add_option("--script-mode", "Disable all user confirmation prompts", cfg.ScriptMode)
         .add_option("-a", "asm", "Specify a custom asm directory", cfg[PathType::Asm])
         .add_option("-sp", "sprites", "Specify a custom sprites directory", cfg[PathType::Sprites])
         .add_option("-sh", "shooters", "Specify a custom shooters sprites directory", cfg[PathType::Shooters])
@@ -1740,7 +1747,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
                  "moving the table from 1938 is used by misc tables for minor sprite types");
         return EXIT_FAILURE;
     }
-    if (argc < 2) {
+    if (argc < 2 && !cfg.ScriptMode) {
         atexit(double_click_exit);
     }
     if (cfg.DebugEnabled) {
@@ -1796,6 +1803,10 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
     //------------------------------------------------------------------------------------------
 
     if (optparser.unmatched().empty() && rom.name.empty()) {
+        if (cfg.ScriptMode) {
+            io.error("A ROM file must be passed as an argument in script mode\n");
+            return EXIT_FAILURE;
+        }
         io.print("Enter a ROM file name, or drag and drop the ROM here: ");
         char ROM_name[FILENAME_MAX];
         if (auto readlen = libconsole::read(ROM_name, FILENAME_MAX, libconsole::handle::in); readlen.has_value()) {
@@ -1855,21 +1866,30 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
             "You're inserting Pixi without having modified a level in Lunar Magic, this will cause bugs\nDo you "
             "want to abort insertion now [y/n]?\nIf you choose 'n', to fix the bugs just reapply Pixi after having "
             "modified a level\n");
-        char c = io.getc();
-        if (tolower(c) == 'y') {
-            rom.close();
-            io.error("Insertion was stopped, press any button to exit...\n");
-            io.getc();
+        if (!cfg.ScriptMode) {
+            char c = io.getc();
+            if (tolower(c) == 'y') {
+                rom.close();
+                io.error("Insertion was stopped, press any button to exit...\n");
+                io.getc();
+                return EXIT_FAILURE;
+            }
+            fflush(stdin); // uff
+        }
+        else {
+            io.print("Script mode, defaulting to yes\n");
+            io.error("Insertion was stopped\n");
             return EXIT_FAILURE;
         }
-        fflush(stdin); // uff
     }
 
     unsigned char vram_jump = rom.data[rom.snes_to_pc(0x00F6E4)];
     if (vram_jump != 0x5C) {
         io.error("You haven't installed the VRAM optimization patch in Lunar Magic, this will cause many features of "
                  "Pixi to work incorrectly, insertion was aborted...\n");
-        io.getc();
+        if (!cfg.ScriptMode) {
+            io.getc();
+        }
         return EXIT_FAILURE;
     }
 
