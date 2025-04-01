@@ -174,7 +174,9 @@ class PixiConfig {
     bool KeepFiles = false;
     bool PerLevel = false;
     bool Disable255Sprites = false;
-    bool Warnings = false;
+    bool Warnings = true; // this flag is here for backwards compatibility. It's not used anymore.
+    bool NoWarnings = false; 
+    bool ScriptMode = false;
     bool ExtModDisabled = false;
     bool DisableMeiMei = false;
     bool DisableAllExtensionFiles = false;
@@ -186,4 +188,7 @@ class PixiConfig {
     std::string SymbolsType{};
     std::string AsarStdIncludes{};
     std::string AsarStdDefines{};
+    constexpr bool warningsEnabled() const {
+        return Warnings && !NoWarnings;
+    }
 };
