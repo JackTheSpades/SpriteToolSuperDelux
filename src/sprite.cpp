@@ -236,7 +236,7 @@ template <typename T> T* from_table(T* table, int level, int number) {
     // clang-format off
     constexpr struct warnsetting disabled_warnings[] {
         {.warnid = "Wrelative_path_used", .enabled = false},
-        {.warnid = "W65816_xx_y_assume_16_bit", .enabled = false}
+        {.warnid = "Wassuming_address_mode", .enabled = false}
     };
     addtempfile tmp{file};
     const int memfiles_size = static_cast<int>(g_memory_files.size());
@@ -295,7 +295,7 @@ template <typename T> T* from_table(T* table, int level, int number) {
     // clang-format off
     constexpr warnsetting disabled_warnings[] {
         {.warnid = "Wrelative_path_used", .enabled = false},
-        {.warnid = "W65816_xx_y_assume_16_bit", .enabled = false}
+        {.warnid = "Wassuming_address_mode", .enabled = false}
     };
     patchparams params {
         .structsize = sizeof(patchparams), 
@@ -423,7 +423,7 @@ static bool strccmp(std::string_view first, std::string_view second) {
     const char prelude[] = R"(namespace nested on
 warnings push
 warnings disable Wrelative_path_used
-warnings disable W65816_xx_y_assume_16_bit
+warnings disable Wassuming_address_mode
 incsrc "%ssa1def.asm"
 )";
     const char epilogue[] = R"(incsrc "shared.asm"
@@ -464,7 +464,7 @@ print "__PIXI_INTERNAL_SPRITE_SEPARATOR__"
     const char prefix[] = R"(namespace nested on
 warnings push
 warnings disable Wrelative_path_used
-warnings disable W65816_xx_y_assume_16_bit
+warnings disable Wassuming_address_mode
 incsrc "%ssa1def.asm"
 )";
     const char postfix[] = R"(incsrc "shared.asm"
