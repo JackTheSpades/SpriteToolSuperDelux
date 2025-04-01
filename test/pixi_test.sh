@@ -2,13 +2,13 @@
 # download base file
 argc=$#
 
-if [ "$argc" -eq "3" ]; then
+if [ "$argc" -ge "3" ]; then
     justSetup=$3
 else
     justSetup="false"
 fi
 
-if [ "$argc" -eq "2" ]; then
+if [ "$argc" -ge "2" ]; then
     repotype=$2
 else
     repotype="remote"
@@ -24,10 +24,10 @@ fi
 
 if [ "$repotype" = "remote" ]; then
     echo "Using remote repository"
-    repourl="https://github.com/JackTheSpades/SpriteToolSuperDelux"
+    repourl=("https://github.com/JackTheSpades/SpriteToolSuperDelux")
 elif [ "$repotype" = "local" ]; then
     echo "Using local repository"
-    repourl=".. SpriteToolSuperDelux"
+    repourl=(".. SpriteToolSuperDelux")
 else
     echo "Wrong repository type"
     exit 1
@@ -37,7 +37,7 @@ wget www.atarismwc.com/base.smc
 
 if [[ -z "${ARTIFACT_PATH}" ]]; then
     # clone current pixi repo and build zip
-    git clone "$repourl"
+    git clone "${repourl[@]}"
     cd SpriteToolSuperDelux || exit
     git checkout "$branch"
     mkdir build
