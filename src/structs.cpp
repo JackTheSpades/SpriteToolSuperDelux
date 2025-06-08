@@ -320,7 +320,7 @@ void sprite::print() {
         }
     }
 }
-#define DEFAULT_PTR ((RTL_BANK << 16) | (RTL_HIGH << 8) | (RTL_LOW))
+constexpr pointer DEFAULT_PTR = pointer{(RTL_BANK << 16) | (RTL_HIGH << 8) | (RTL_LOW)};
 void sprite::clear() {
     line = 0;
     number = 0;

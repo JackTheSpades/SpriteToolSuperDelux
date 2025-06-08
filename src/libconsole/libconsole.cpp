@@ -10,7 +10,6 @@
 #include <vector>
 #ifdef ON_WINDOWS
 #include <Windows.h>
-#include <bit>
 #include <io.h>
 #endif
 
@@ -23,7 +22,7 @@ struct ConversionResult {
 HANDLE handle_from_file(FILE* ptr) {
     return std::bit_cast<HANDLE>(_get_osfhandle(_fileno(ptr)));
 }
-std::optional<size_t> WideToUTF8(const wchar_t* from, const int from_size, char* to, const int to_max) {
+static std::optional<size_t> WideToUTF8(const wchar_t* from, const int from_size, char* to, const int to_max) {
     int required_size = WideCharToMultiByte(CP_UTF8, 0, from, from_size, NULL, 0, NULL, NULL);
     if (to_max < required_size)
         return std::nullopt;
@@ -31,7 +30,7 @@ std::optional<size_t> WideToUTF8(const wchar_t* from, const int from_size, char*
     to[size] = '\0';
     return size_t{static_cast<size_t>(size)};
 }
-ConversionResult UTF8ToWide(const char* from, const int from_size, DWORD& conv) {
+static ConversionResult UTF8ToWide(const char* from, const int from_size, DWORD& conv) {
     int convertResult = MultiByteToWideChar(CP_UTF8, 0, from, from_size, NULL, 0);
     if (convertResult <= 0) {
         return {{}, false};
@@ -42,7 +41,7 @@ ConversionResult UTF8ToWide(const char* from, const int from_size, DWORD& conv) 
         return {std::move(wstr), true};
     }
 }
-bool HasConsole(HANDLE hdl) {
+static bool HasConsole(HANDLE hdl) {
     // https://github.com/rust-lang/rust/blob/7355d971a954ed63293e4191f6677f60c1bc07d9/library/std/src/sys/windows/stdio.rs#L78
     DWORD mode = 0;
     BOOL res = GetConsoleMode(hdl, &mode);
@@ -54,7 +53,7 @@ bool HasConsole(HANDLE hdl) {
 namespace libconsole {
 
 #ifdef ON_WINDOWS
-HANDLE map_handle(handle hdl) {
+static HANDLE map_handle(handle hdl) {
     static struct {
         HANDLE err = GetStdHandle(STD_ERROR_HANDLE);
         HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -71,7 +70,7 @@ HANDLE map_handle(handle hdl) {
     return NULL;
 }
 #else
-FILE* map_handle(handle hdl) {
+static FILE* map_handle(handle hdl) {
     switch (hdl) {
     case handle::err:
         return stderr;
@@ -85,14 +84,14 @@ FILE* map_handle(handle hdl) {
 #endif
 
 #ifdef ON_WINDOWS
-BOOL GenericRead(HANDLE hdl, wchar_t* wbuffer, DWORD wbufsize, char* buffer, DWORD bufsize, LPDWORD read) {
+static BOOL GenericRead(HANDLE hdl, wchar_t* wbuffer, DWORD wbufsize, char* buffer, DWORD bufsize, LPDWORD read) {
     if (winutil::HasConsole(hdl))
         return ReadConsole(hdl, wbuffer, wbufsize, read, NULL);
     else
         return ReadFile(hdl, buffer, bufsize, read, NULL);
 }
 
-BOOL GenericWrite(HANDLE hdl, const char* buffer, DWORD bufsize) {
+static BOOL GenericWrite(HANDLE hdl, const char* buffer, DWORD bufsize) {
     BOOL ret = FALSE;
     DWORD written = 0;
     DWORD conv = 0;

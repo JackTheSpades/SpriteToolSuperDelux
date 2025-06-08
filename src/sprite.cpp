@@ -568,7 +568,16 @@ namespace nested off
                     return false;
                 }
             } else {
-                ptr_map[ch.name] = strtol(prints[i].c_str() + ch.name.size(), nullptr, 16);
+                int ptr = 0;
+                auto err = std::from_chars(prints[i].c_str() + ch.name.size(), prints[i].c_str() + prints[i].size(), ptr, 16);
+                if (err.ec != std::errc{}) {
+                    io.error("Invalid pointer at print %s in sprite %s, expected a valid hexadecimal number got %s "
+                             "instead\n",
+                             ch.name.data(), spr->asm_file.c_str(), prints[i].c_str() + ch.name.size());
+                    return false;
+                } else {
+                    ptr_map[ch.name] = ptr;
+                }
             }
 
         } else {
