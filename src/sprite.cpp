@@ -569,11 +569,13 @@ namespace nested off
                 }
             } else {
                 int ptr = 0;
-                auto err = std::from_chars(prints[i].c_str() + ch.name.size(), prints[i].c_str() + prints[i].size(), ptr, 16);
+                auto address = prints[i].substr(ch.name.size());
+                trim(address);
+                auto err = std::from_chars(address.c_str(), address.c_str() + address.size(), ptr, 16);
                 if (err.ec != std::errc{}) {
-                    io.error("Invalid pointer at print %s in sprite %s, expected a valid hexadecimal number got %s "
+                    io.error("Invalid pointer at print %s in sprite %s, expected a valid hexadecimal number got \"%s\" "
                              "instead\n",
-                             ch.name.data(), spr->asm_file.c_str(), prints[i].c_str() + ch.name.size());
+                             ch.name.data(), spr->asm_file.c_str(), address.c_str());
                     return false;
                 } else {
                     ptr_map[ch.name] = ptr;
