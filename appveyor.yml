@@ -19,7 +19,7 @@ for:
   -
    matrix:
      only:
-       - image: Ubuntu2004
+       - image: Ubuntu2204
    build_script:
      - sh: chmod +x ./build_script.sh
      - sh: ./build_script.sh
@@ -28,7 +28,7 @@ for:
   -
    matrix:
      only:
-       - image: macos-monterey
+       - image: macos-sonoma
    build_script:
      - sh: chmod +x ./build_script.sh
      - sh: ./build_script.sh
