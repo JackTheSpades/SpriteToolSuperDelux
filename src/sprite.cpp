@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
+#include <charconv>
 
 #include "MeiMei/MeiMei.h"
 #include "argparser.h"

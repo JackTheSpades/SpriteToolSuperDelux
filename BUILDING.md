@@ -7,13 +7,13 @@
 - (Test suite only) The `requests` and `beatifulsoup4` Python modules.
 
 ### Windows
-- Visual Studio 2019/2022 with the C++ workload installed or MinGW-w64
+- Visual Studio 2022 with the C++ workload installed or MinGW-w64
 
 ### Linux
-- Clang 13+ or GCC 11+.
+- Clang 14+ or GCC 13+.
 
 ### MacOS
-- AppleClang 13+
+- AppleClang 14+
 
 ## Steps
 
@@ -74,4 +74,4 @@ Doing these steps will result in the build of both the pixi executable and the P
 # Building CFG Editor
 
 ## Windows only
-To build the CFG Editor, you'll simply need Visual Studio 2019/2022 with the C# workload installed. Open the repository in VS, configure and build the solution.
+To build the CFG Editor, you'll simply need Visual Studio 2022 with the C# workload installed. Open the repository in VS, configure and build the solution.

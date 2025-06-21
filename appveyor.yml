@@ -1,7 +1,7 @@
 image: 
     - Visual Studio 2022
-    - Ubuntu2004
-    - macos-monterey
+    - Ubuntu2204
+    - macos-sonoma
 environment:
   ATARISMWC_AUTH_KEY:
     secure: vlzlBrls8WMRZ/TcnsuPMRp18dmhpznf+hZVaXEf9HE=
