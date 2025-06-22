@@ -291,7 +291,8 @@ int MeiMei::run(ROM& rom) {
                     "\tprint \"Data pointer from $\",hex(!level_%03X_oldDataPointer),\" to "
                     "$\",hex(!level_%03X_newDataPointer)\n"
                     "\tprint \"Data size    from $\",hex(!level_%03X_oldDataSize),\" to $\",hex(%s_end-%s)\n",
-                    lv, levelWordAddress, levelBankAddress, lv, lv, lv, levelBankAddress, binL, levelWordAddress, binL,
+                    lv, levelWordAddress.raw_value(), levelBankAddress.raw_value(), lv, lv, lv,
+                    levelBankAddress.raw_value(), binL, levelWordAddress.raw_value(), binL,
                     binL, lv, binL, binaryFileName.c_str(), binL, lv, lv, lv, lv, binL, binL);
                 spriteDataPatch.close();
 
