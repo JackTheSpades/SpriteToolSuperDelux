@@ -51,8 +51,8 @@ macro invoke_snes(addr)
 	STA $0185
 	LDA #$D0
 	STA $2209
--	LDA $018A
-	BEQ -
+?-	LDA $018A
+	BEQ ?-
 	STZ $018A
 endmacro
 
