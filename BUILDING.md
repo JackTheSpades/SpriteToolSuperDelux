@@ -2,7 +2,7 @@
 
 ## Prerequisites
 - CMake 3.18 or newer.
-- Python 3.8 or newer.
+- Python 3.10 or newer.
 - (Test suite only | Linux only) `unzip` (can be installed with `sudo apt install unzip` on Ubuntu)
 - (Test suite only) The `requests` and `beatifulsoup4` Python modules.
 
