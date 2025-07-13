@@ -27,7 +27,7 @@ if [ "$repotype" = "remote" ]; then
     repourl=("https://github.com/JackTheSpades/SpriteToolSuperDelux")
 elif [ "$repotype" = "local" ]; then
     echo "Using local repository"
-    repourl=(".. SpriteToolSuperDelux")
+    repourl=(".." "SpriteToolSuperDelux")
 else
     echo "Wrong repository type"
     exit 1
