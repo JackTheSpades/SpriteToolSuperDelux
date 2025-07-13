@@ -3,6 +3,7 @@ from contextlib import suppress
 import os
 import json
 import zipfile
+import time
 
 types = {
     'standard': (46, 17),
@@ -30,23 +31,44 @@ def _download():
                 uri = f'https://www.smwcentral.net/ajax.php?a=getsectionlist&s=smwsprites&u=0&g=0&n={page + 1}' \
                       f'&o=date&d=desc&f[tool][]=pixi&f[type][]={name}'
                 with sess.get(uri) as res:
-                    response = res.json()
+                    match res.status_code:
+                        case 429:
+                            retry_after = int(res.headers['Retry-After'])
+                            assert retry_after < 300, "Retry-After should be less than 5 minutes"
+                            print(f"Rate limit exceeded, waiting for reset: {retry_after} second(s)")
+                            time.sleep(retry_after + 1) # Adding 1 second to ensure the rate limit is reset
+                            continue
+                        case 200:    
+                            response = res.json()
+                        case _:
+                            print(f"Unexpected status code {res.status_code} received")
+                            raise Exception(f"Unexpected status code {res.status_code} received")
                 objects = response['data']
                 print(f"Downloading {name} sprites page {page + 1} of {pages} ({len(objects)} sprites)")
-                for obj in objects:
+                objnumber = 0
+                total_objects = len(objects)
+                while objnumber < total_objects:
+                    obj = objects[objnumber]
                     link = obj['download_url']
                     submission_id = obj['id']
                     sublink = f'https://www.smwcentral.net/?p=section&a=details&id={submission_id}'
                     spritename = obj['name']
                     nameids[sublink] = [submission_id, spritename]
                     with sess.get(link) as res:
-                        if res.status_code != 200:
+                        if res.status_code != 200 and res.status_code != 429:
                             del nameids[sublink]
                             with open(f'{name}/{submission_id}_error.html', 'wb') as p:
                                 p.write(res.content)
-                        else:
+                            objnumber += 1 # Unknown error, skip to next object
+                        elif res.status_code == 429:
+                            retry_after = int(res.headers['Retry-After'])
+                            assert retry_after < 300, "Retry-After should be less than 5 minutes"
+                            print(f"Rate limit exceeded, waiting for reset: {retry_after} second(s)")
+                            time.sleep(retry_after + 1) # Adding 1 second to ensure the rate limit is reset
+                        else: # 200 OK
                             with open(f'{name}/{submission_id}.zip', 'wb') as p:
                                 p.write(res.content)
+                            objnumber += 1
             with open(name + '/' + 'names.json', 'w') as f:
                 f.write(json.dumps(nameids, indent=4))
 
