@@ -13,7 +13,7 @@ types = {
     'extended': (65, 1),
 }
 
-def _get_pagecount(name):
+def _get_pagecount(name) -> int:
     _, expectedpages = types[name]
     uri = f'https://www.smwcentral.net/ajax.php?a=getsectionlist&s=smwsprites&f[tool][]=pixi&f[type][]={name}'
     with requests.get(uri) as res:
@@ -26,9 +26,10 @@ def _download():
             with suppress(Exception):
                 os.mkdir(name)
             nameids = {}
-            pages = _get_pagecount(name)
-            for page in range(pages):
-                uri = f'https://www.smwcentral.net/ajax.php?a=getsectionlist&s=smwsprites&u=0&g=0&n={page + 1}' \
+            pagecount = _get_pagecount(name)
+            pagenumber = 0
+            while pagenumber < pagecount:
+                uri = f'https://www.smwcentral.net/ajax.php?a=getsectionlist&s=smwsprites&u=0&g=0&n={pagenumber + 1}' \
                       f'&o=date&d=desc&f[tool][]=pixi&f[type][]={name}'
                 with sess.get(uri) as res:
                     match res.status_code:
@@ -40,11 +41,12 @@ def _download():
                             continue
                         case 200:    
                             response = res.json()
+                            pagenumber += 1
                         case _:
-                            print(f"Unexpected status code {res.status_code} received")
-                            raise Exception(f"Unexpected status code {res.status_code} received")
+                            print(f"Unexpected status code {res.status_code} received") # Unexpected status code, raise an exception
+                            raise RuntimeError(f"Unexpected status code {res.status_code} received")
                 objects = response['data']
-                print(f"Downloading {name} sprites page {page + 1} of {pages} ({len(objects)} sprites)")
+                print(f"Downloading {name} sprites page {pagenumber} of {pagecount} ({len(objects)} sprites)")
                 objnumber = 0
                 total_objects = len(objects)
                 while objnumber < total_objects:
@@ -90,7 +92,7 @@ def download():
     try:
         _download()
         return False
-    except requests.exceptions.RequestException as e:
+    except (requests.exceptions.RequestException, KeyError, RuntimeError) as e:
         print(f'Download from SMWC failed because {str(e)}, using other source')
         _download_if_smwc_failed()
         return True
