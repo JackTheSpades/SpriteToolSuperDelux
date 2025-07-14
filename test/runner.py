@@ -189,6 +189,7 @@ argparser.add_argument('-c', '--cached', action='store_true', help='Use cached s
 argparser.add_argument('-s', '--sprites', nargs='*', help='Sprites to test (ids)', required=False, default=None)
 args = argparser.parse_args()
 
+
 try:
     if not args.cached:
         args.cached = download()
