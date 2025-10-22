@@ -13,9 +13,9 @@
 
 ?.divide:
     if !sa1 == 0
-        jsl $01ACF9|!bank               ; first byte in both A and $148C, second in $148D
+        jsl $01ACF9|!bank               ; first byte in both A and $148D, second in $148E
         sta $4204                       ; dividend, low byte
-        lda $148D|!addr : sta $4205     ; dividend, high byte
+        lda $148E|!addr : sta $4205     ; dividend, high byte
         pla : inc
         sta $4206                       ; divisor
         nop #5 : bra $00                ; wait 16 cycles (3 cycles are taken up the lda that reads the result, so we only need to wait 13 more)
@@ -23,9 +23,9 @@
         lda $4216                       ; remainder
     else
         lda #$01 : sta $2250            ; select division
-        jsl $01ACF9|!bank               ; first byte in both A and $148C, second in $148D
+        jsl $01ACF9|!bank               ; first byte in both A and $148D, second in $148E
         sta $2251                       ; dividend, low byte
-        lda $148D|!addr : lsr           ; workaround for snes9x bug: https://github.com/snes9xgit/snes9x/issues/799 (don't really want a negative dividend anyway)
+        lda $148E|!addr : lsr           ; workaround for snes9x bug: https://github.com/snes9xgit/snes9x/issues/799 (don't really want a negative dividend anyway)
         sta $2252                       ; dividend, high byte
         pla : inc
         sta $2253                       ; divisor, low byte
@@ -42,6 +42,7 @@
 ?.powOf2:
     jsl $01ACF9|!bank
     pla
-    and $148C|!addr
+    and $148D|!addr
     plp : plx
     rtl
+
