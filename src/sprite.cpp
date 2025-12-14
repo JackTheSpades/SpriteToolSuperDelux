@@ -1200,13 +1200,13 @@ std::vector<std::string> listExtraAsm(const std::string& path, bool& has_error) 
         return false;
     }
     try {
-        for (const auto& routine_file : fs::recursive_directory_iterator{routine_path}) {
+        for (const auto& routine_file : fs::recursive_directory_iterator{routine_path, fs::directory_options::follow_directory_symlink}) {
             if (!routine_file.is_regular_file())
                 continue;
             const fs::path& p = routine_file.path();
             if (p.extension() != ".asm")
                 continue;
-            fs::path rel = fs::relative(p, routine_path);
+            fs::path rel = p.lexically_relative(routine_path); // lexically relative does not resolve symlinks, which is what we want
             std::string path{rel.generic_string()};
             std::string name{};
             for (const auto& path_part : rel.replace_extension()) {
