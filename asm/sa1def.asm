@@ -126,17 +126,17 @@ endif
 	
 macro define_sprite_table(name, addr, addr_sa1)
 	if !SA1 == 0
-		!<name> = <addr>
+		!<name> #= <addr>
 	else
-		!<name> = <addr_sa1>
+		!<name> #= <addr_sa1>
 	endif
 endmacro
 
 macro define_base2_address(name, addr)
 	if !SA1 == 0
-		!<name> = <addr>
+		!<name> #= <addr>
 	else
-		!<name> = <addr>|!Base2
+		!<name> #= <addr>|!Base2
 	endif
 endmacro
 
@@ -144,7 +144,7 @@ macro define_exsprite_table(name, addr, addr_more)
 	if !More_ExSprite == 0
 		%define_base2_address(<name>, <addr>)
 	else
-		!<name> = <addr_more>
+		!<name> #= <addr_more>
 	endif
 endmacro
 
