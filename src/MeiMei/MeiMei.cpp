@@ -15,7 +15,8 @@
 #include "../asar/asar.h"
 #endif
 
-constexpr auto SPR_ADDR_LIMIT = 0x800;
+constexpr auto SPR_ADDR_LIMIT =
+    (255 * 16) + 1; // maximum number of sprites * maximum sprite size (15 + 1 byte for exlevel commands) + 1 byte for the header
 
 #define ERR(msg)                                                                                                       \
     {                                                                                                                  \
@@ -195,7 +196,7 @@ int MeiMei::run(ROM& rom) {
             int nowOfs = 1;
             bool exlevelFlag = sprAllData[0] & (uint8_t)0x20;
             bool changeData = false;
-
+            size_t spriteQuantity = 0;
             while (true) {
                 now.read_data(sprCommonData, 3, sprAddrPC + prevOfs);
                 if (nowOfs >= SPR_ADDR_LIMIT - 3) {
@@ -247,6 +248,13 @@ int MeiMei::run(ROM& rom) {
                     }
                 }
                 prevOfs += prevEx[sprNum];
+                spriteQuantity++;
+            }
+
+            
+            if (spriteQuantity > 0xFF) {
+                io.error("Error: %s %llu!\n", "Sprite data has too many sprites, expected 255 but got", spriteQuantity);
+                goto end;
             }
 
             if (changeData) {
