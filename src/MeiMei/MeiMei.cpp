@@ -18,16 +18,6 @@
 constexpr auto SPR_ADDR_LIMIT =
     (255 * 16) + 1; // maximum number of sprites * maximum sprite size (15 + 1 byte for exlevel commands) + 1 byte for the header
 
-#define ERR(msg)                                                                                                       \
-    {                                                                                                                  \
-        io.error("Error: %s", msg);                                                                                    \
-        goto end;                                                                                                      \
-    }
-
-#define ASSERT_SPR_DATA_ADDR_SIZE(val)                                                                                 \
-    if ((val) >= SPR_ADDR_LIMIT)                                                                                       \
-        ERR("Sprite data is too large!");
-
 bool& MeiMei::AlwaysRemap() {
     return MeiMei::always;
 }
@@ -169,7 +159,8 @@ int MeiMei::run(ROM& rom) {
     }
 
     if (changeEx || MeiMei::always) {
-        uint8_t sprAllData[SPR_ADDR_LIMIT]{};
+        std::vector<uint8_t> sprAllData{};
+        sprAllData.reserve(SPR_ADDR_LIMIT);
         uint8_t sprCommonData[3];
         std::unordered_set<pcaddress> sprDataPointers{};
 
@@ -178,38 +169,38 @@ int MeiMei::run(ROM& rom) {
         std::vector<patchfile> meimei_fixup_patches{};
 
         for (int lv = 0; lv < 0x200; lv++) {
+            sprAllData.clear();
 
             int sprAddrSNES = (now.read_byte(AddressConstants::LMLevelSpriteDataBankBytePointer + lv) << 16) +
                               now.read_word(AddressConstants::LevelSpriteDataPointerTable + lv * 2);
             auto sprAddrPC = now.snes_to_pc(sprAddrSNES);
             if (sprAddrPC == -1) {
-                ERR("Sprite Data has invalid address.")
+                io.error("Error: level %03X has invalid sprite data pointer $%06X!\n", lv, sprAddrSNES);
+                goto end;
             }
             auto [_, inserted] = sprDataPointers.insert(sprAddrPC);
             if (!inserted)
                 continue;
 
-            memset(sprAllData, 0, SPR_ADDR_LIMIT);
-
-            sprAllData[0] = now.read_byte(sprAddrPC);
+            const uint8_t spriteHeader = now.read_byte(sprAddrPC);
+            sprAllData.push_back(spriteHeader);
             int prevOfs = 1;
             int nowOfs = 1;
-            bool exlevelFlag = sprAllData[0] & (uint8_t)0x20;
+            bool exlevelFlag = spriteHeader & (uint8_t)0x20;
             bool changeData = false;
             size_t spriteQuantity = 0;
             while (true) {
                 now.read_data(sprCommonData, 3, sprAddrPC + prevOfs);
-                if (nowOfs >= SPR_ADDR_LIMIT - 3) {
-                    ERR("Sprite data is too large!")
-                }
 
                 if (sprCommonData[0] == 0xFF) {
-                    sprAllData[nowOfs++] = 0xFF;
+                    sprAllData.push_back(0xFF);
+                    nowOfs++;
                     if (!exlevelFlag) {
                         break;
                     }
 
-                    sprAllData[nowOfs++] = sprCommonData[1];
+                    sprAllData.push_back(sprCommonData[1]);
+                    nowOfs++;
                     if (sprCommonData[1] == 0xFE) {
                         break;
                     } else {
@@ -218,9 +209,10 @@ int MeiMei::run(ROM& rom) {
                     }
                 }
 
-                sprAllData[nowOfs++] = sprCommonData[0]; // YYYYEEsy
-                sprAllData[nowOfs++] = sprCommonData[1]; // XXXXSSSS
-                sprAllData[nowOfs++] = sprCommonData[2]; // NNNNNNNN
+                sprAllData.push_back(sprCommonData[0]);  // YYYYEEsy
+                sprAllData.push_back(sprCommonData[1]);  // XXXXSSSS
+                sprAllData.push_back(sprCommonData[2]);  // NNNNNNNN
+                nowOfs += 3;
 
                 int sprNum = ((sprCommonData[0] & 0x0C) << 6) | (sprCommonData[2]);
 
@@ -228,32 +220,37 @@ int MeiMei::run(ROM& rom) {
                     changeData = true;
                     int i;
                     for (i = 3; i < prevEx[sprNum]; i++) {
-                        sprAllData[nowOfs++] = now.read_byte(sprAddrPC + prevOfs + i);
-                        ASSERT_SPR_DATA_ADDR_SIZE(nowOfs)
+                        sprAllData.push_back(now.read_byte(sprAddrPC + prevOfs + i));
+                        nowOfs++;
                     }
                     for (; i < nowEx[sprNum]; i++) {
-                        sprAllData[nowOfs++] = 0x00;
-                        ASSERT_SPR_DATA_ADDR_SIZE(nowOfs)
+                        sprAllData.push_back(0x00);
+                        nowOfs++;
                     }
                 } else if (nowEx[sprNum] < prevEx[sprNum]) {
                     changeData = true;
                     for (int i = 3; i < nowEx[sprNum]; i++) {
-                        sprAllData[nowOfs++] = now.read_byte(sprAddrPC + prevOfs + i);
-                        ASSERT_SPR_DATA_ADDR_SIZE(nowOfs)
+                        sprAllData.push_back(now.read_byte(sprAddrPC + prevOfs + i));
+                        nowOfs++;
                     }
                 } else {
                     for (int i = 3; i < nowEx[sprNum]; i++) {
-                        sprAllData[nowOfs++] = now.read_byte(sprAddrPC + prevOfs + i);
-                        ASSERT_SPR_DATA_ADDR_SIZE(nowOfs)
+                        sprAllData.push_back(now.read_byte(sprAddrPC + prevOfs + i));
+                        nowOfs++;
                     }
                 }
                 prevOfs += prevEx[sprNum];
                 spriteQuantity++;
             }
 
+            if (nowOfs != sprAllData.size()) {
+                io.error("Error: internal error when processing level %03X sprite data, expected %llu but got %d!\n", lv, sprAllData.size(), nowOfs);
+                goto end;
+            }
             
             if (spriteQuantity > 0xFF) {
-                io.error("Error: %s %llu!\n", "Sprite data has too many sprites, expected 255 but got", spriteQuantity);
+                io.error("Error: level %03X has too many sprites! Even thought Lunar Magic supports more than 255 sprites in a level "
+                    "Pixi is only built to support 255 sprites, total sprites found in level: %llu, please remove some.\n", lv, spriteQuantity);
                 goto end;
             }
 
@@ -264,7 +261,7 @@ int MeiMei::run(ROM& rom) {
                 binaryFileName.append(lvlstr);
                 binaryFileName.append(".bin");
                 patchfile binFile{binaryFileName, patchfile::openflags::wb, patchfile::origin::meimei};
-                binFile.fwrite(sprAllData, nowOfs);
+                binFile.fwrite(sprAllData.data(), nowOfs);
                 binFile.close();
 
                 // create patch for sprite data binary
@@ -315,7 +312,8 @@ int MeiMei::run(ROM& rom) {
 
         if (!meimei_fixup_patches.empty()) {
             if (!MeiMei::patch(meimei_patch, meimei_fixup_patches, rom)) {
-                ERR("An error occured when patching sprite data with asar.")
+                io.error("An error occured when applying MeiMei fixup sprite data with asar.");
+                goto end;
             }
         }
 
