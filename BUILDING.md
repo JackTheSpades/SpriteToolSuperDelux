@@ -7,7 +7,7 @@
 - (Test suite only) The `requests` and `beatifulsoup4` Python modules.
 
 ### Windows
-- Visual Studio 2022 with the C++ workload installed or MinGW-w64
+- Visual Studio 2022 with the C++ workload installed or MinGW-w64, plus the C# workload if you want to build the CFG Editor.
 
 ### Linux
 - Clang 14+ or GCC 13+.
@@ -15,9 +15,21 @@
 ### MacOS
 - AppleClang 14+
 
-## Steps
+## Build scripts
+There are the 2 build scripts (`build_script.ps1`, `build_script.sh`) that can be used to build the project, but if you want to do it manually, follow the steps below.
 
-I know that there are 2 scripts (`build_script.ps1`/`build_script.sh`) that may seem tempting to use to build the project, however those are specifically used just for automated CI and they assume a lot about the environment they are running in. It is recommended instead to use the steps below to build the project. 
+The build scripts require the following to complete successfully:
+- CMake 3.18+
+- Python 3.10+, with the beatifulsoup4 and mistune modules installed, the build script will attempt to install them automatically if they are missing.
+- WINDOWS ONLY: Visual Studio 2022 with the C++ and the C# workloads installed
+- WINDOWS ONLY: the script needs to be ran from a Developer PowerShell for VS 2022.
+- LINUX ONLY: GCC 13+ or Clang 14+
+- MACOS ONLY: AppleClang 14+
+
+The scripts will create a `build` folder in the repository and place all the build files there.
+After the build is done, there will be 1 or 2 zips created in the repository folder, one with the Pixi 64 bit release build and one with Pixi 32 bit release build (Windows only).
+
+## Steps
 
 ### Windows
 With Visual Studio, simply open the repository in VS, let it configure the project and then hit the `Build All` button.

@@ -1,16 +1,55 @@
-mkdir build
-cd build
-if [[ "$APPVEYOR_BUILD_WORKER_IMAGE" == "Ubuntu2204" ]]; then
-	cmake -DASAR_USE_DLL=OFF -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 -DPIXI_BUILD_TESTS=OFF -DPIXI_BUILD_DLL=OFF -DPIXI_BUILD_LIB=OFF -DCMAKE_BUILD_TYPE=Release -S ..
+#!/bin/bash
+set -e 
+
+ASAR_TYPE="lib"
+
+if [[ -n "$1" ]]; then
+    if [[ "$1" == "dll" || "$1" == "lib" ]]; then
+        ASAR_TYPE="$1"
+    else
+        echo "Error: Invalid argument '$1'. Allowed values are 'dll' or 'lib'."
+        exit 1
+    fi
+fi
+
+if [[ "$ASAR_TYPE" == "dll" ]]; then
+    CMAKE_ASAR_USE_DLL="ON"
+    PYTHON_ARGS=""
 else
-	cmake -DASAR_USE_DLL=OFF -DPIXI_BUILD_TESTS=OFF -DPIXI_BUILD_DLL=OFF -DPIXI_BUILD_LIB=OFF -DCMAKE_BUILD_TYPE=Release -S ..
+    CMAKE_ASAR_USE_DLL="OFF"
+    PYTHON_ARGS="--static"
 fi
-cmake --build . --target pixi --config MinSizeRel --parallel $(nproc)
+
+OS_NAME=$(uname -s)
+COMPILER_FLAGS=""
+ZIP_SUFFIX=""
+CPU_CORES=1
+
+if [[ "$OS_NAME" == "Linux" ]]; then
+    ZIP_SUFFIX="linux-x64"
+elif [[ "$OS_NAME" == "Darwin" ]]; then
+    ZIP_SUFFIX="macos-x64"
+else
+    echo "Unsupported OS: $OS_NAME"
+    exit 1
+fi
+
+mkdir -p build
+cd build
+
+cmake -DASAR_USE_DLL=$CMAKE_ASAR_USE_DLL \
+      $COMPILER_FLAGS \
+      -DPIXI_BUILD_TESTS=OFF \
+      -DPIXI_BUILD_DLL=OFF \
+      -DPIXI_BUILD_LIB=OFF \
+      -DCMAKE_BUILD_TYPE=Release \
+      -S ..
+
+cmake --build . --target pixi --config MinSizeRel --parallel
+
 cd ..
+
 python3 -m pip install mistune bs4
-python3 zip.py --static
-if [[ "$APPVEYOR_BUILD_WORKER_IMAGE" == "Ubuntu2204" ]]; then
-	mv pixi.zip pixi-linux-x64.zip
-elif [[ "$APPVEYOR_BUILD_WORKER_IMAGE" == "macOS-Sonoma" ]]; then
-	mv pixi.zip pixi-macos-x64.zip
-fi
+python3 zip.py $PYTHON_ARGS
+
+mv pixi.zip "pixi-${ZIP_SUFFIX}.zip"

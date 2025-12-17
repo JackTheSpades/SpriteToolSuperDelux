@@ -1701,8 +1701,8 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         .add_option("-npl", "Disable per level sprites (default), kept for compatibility reasons", argparser::no_value)
         .add_option("-d255spl", "Disable 255 sprites per level support (won't do the 1938 remap)",
                     cfg.Disable255Sprites)
-        .add_option("-w", "[Deprecated and unused] Enable asar warnings check, recommended to use when developing sprites", cfg.Warnings)
-        .add_option("-wno", "Disable asar warnings check, only present for backwards compatibility, not recommended", cfg.NoWarnings)
+        .add_option("-w", "[Deprecated and ignored] Enable asar warnings check, recommended to use when developing sprites, defaults to true since Pixi 1.43 and cannot be changed", cfg.Warnings)
+        .add_option("-wno", "Disable asar warnings checks, only present for backwards compatibility, not recommended", cfg.NoWarnings)
         .add_option("--script-mode", "Disable all user confirmation prompts", cfg.ScriptMode)
         .add_option("-a", "asm", "Specify a custom asm directory", cfg[PathType::Asm])
         .add_option("-sp", "sprites", "Specify a custom sprites directory", cfg[PathType::Sprites])

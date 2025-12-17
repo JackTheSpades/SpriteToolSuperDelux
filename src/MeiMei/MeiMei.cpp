@@ -243,7 +243,7 @@ int MeiMei::run(ROM& rom) {
                 spriteQuantity++;
             }
 
-            if (nowOfs != sprAllData.size()) {
+            if (static_cast<size_t>(nowOfs) != sprAllData.size()) {
                 io.error("Error: internal error when processing level %03X sprite data, expected %llu but got %d!\n", lv, sprAllData.size(), nowOfs);
                 goto end;
             }

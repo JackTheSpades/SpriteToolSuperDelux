@@ -13,6 +13,8 @@ Keep in mind that Github artifacts only last for 60 days, so if you're looking f
 
 If you're a developer looking to contribute to this project, please see the [contribution guide](CONTRIBUTING.md).
 
+Since Pixi 1.43, **asar** is not used as a dll anymore, it is instead statically linked into the executable. If you want the old behavior, keeping asar dinamically linked and have the separate DLL, you can do so by building Pixi from source yourself and passing -DASAR_USE_DLL:BOOL=ON to the CMake options when configuring the build.
+
 If you are using a custom pixi build (read: with modification to either C++ code or asm code), do not report issues here unless you can prove said issues also happen on an unmodified official version of the tool, reported issues that derive from external coding modifications will be ignored and closed.
 
 The changelog is available [here](CHANGELOG.md).
@@ -168,48 +170,51 @@ The changelog is available [here](CHANGELOG.md).
   The tool assumes a lot of default paths and files. You can change them when calling the tool from
   the command line interface by typing them as in the example below.
   ```
-  Usage: pixi <options> <ROM>
-  Options are:
-  -d              Enable debug output
-  --debug         Enable debug output
-  -k              Keep debug files
-  --symbols <symbols_type>       Enable writing debugging symbols files in format wla or nocash (Default value: <empty>)
-  -l  <listpath>  Specify a custom list file (Default: list.txt)
-  -pl				Per level sprites - will insert perlevel sprite code
-  -npl            Same as the current default, no sprite per level will be inserted, left dangling for compatibility reasons
-  -d255spl		disables 255 sprite per level support (won't do the 1938 remap)
-  -w              Enable asar warnings check, recommended to use when developing sprites
-
-  -a  <asm>       Specify a custom asm directory (Default asm/)
-
-  -sp <sprites>   Specify a custom sprites directory (Default sprites/)
-  -sh <shooters>  Specify a custom shooters directory (Default shooters/)
-  -g  <generators>        Specify a custom generators directory (Default generators/)
-  -e  <extended>  Specify a custom extended sprites directory (Default extended/)
-  -c  <cluster>   Specify a custom cluster sprites directory (Default cluster/)
-  -b  <bounce>    Specify a custom bounce sprites directory (Default misc_sprites/bounce/)
-  -me <minorextended>     Specify a custom minor extended sprites directory (Default misc_sprites/minorextended/)
-  -sc <score>     Specify a custom score sprites directory (Default misc_sprites/score/)
-  -sm <smoke>     Specify a custom smoke sprites directory (Default misc_sprites/smoke/)
-  -sn <spinningcoin>      Specify a custom spinning coin sprites directory (Default misc_sprites/spinningcoin/)
-
-  -r  <sharedpath>        Specify a shared routine directory (Default routines/)
-  -nr <number>			Specify a maximum number of shared routines (Default is 100, maximum is 310)
-
-  -ssc <append ssc>       Specify ssc file to be copied into <romname>.ssc
-  -mwt <append mwt>       Specify mwt file to be copied into <romname>.mwt
-  -mw2 <append mw2>       Specify mw2 file to be copied into <romname>.mw2, the provided file is assumed to have 0x00 first byte sprite header and the 0xFF end byte
-  -s16 <base s16>         Specify s16 file to be used as a base for <romname>.s16
-                          Do not use <romname>.xxx as an argument as the file will be overwriten
-
-  --onepatch                   Applies all sprites into a single big patch (Default value: false)
-  --stdincludes <includepath>  Specify a text file with a list of search paths for asar (Default value: "<empty>")
-  --stddefines <definepath>    Specify a text file with a list of defines for asar (Default value: "<empty>")
-  --exerel                     Resolve list.txt and ssc/mw2/mwt/s16 paths relative to the executable rather than the ROM
-
-  -no-lm-aux        Disables all of the Lunar Magic auxiliary files creation (ssc, mwt, mw2, s16) (Default value: false)
-  -extmod-off 		Disables extmod file logging (check LM's readme for more info on what extmod is) (Default value: false)
-  -lm-handle <lm_handle_code>		Special command line to be used only within LM's custom user toolbar file. Available only on Windows.
+pixi.exe, Version: 1.43
+pixi <options> [ROM]
+Options:
+        -v                           Print version information (Default value: false)
+        --version                    Print version information (Default value: false)
+        --rom <ROMFILE>              ROM file, when the --rom is not given, it is assumed to be the first unmatched argument (Default value: "<empty>")
+        -d                           Enable debug output (Default value: false)
+        --debug                      Enable debug output (Default value: false)
+        --exerel                     Resolve list.txt and ssc/mw2/mwt/s16 paths relative to the executable rather than the ROM (Default value: false)
+        -k                           Keep debug files (Default value: false)
+        --symbols <SYMBOLSTYPE>      Enable writing debugging symbols files in format wla or nocash (Default value: "<empty>")
+        -l <list path>               Specify a custom list file (Default value: "list.txt")
+        -pl                          Per level sprites - will insert perlevel sprite code (Default value: false)
+        -npl                         Disable per level sprites (default), kept for compatibility reasons
+        -d255spl                     Disable 255 sprites per level support (won't do the 1938 remap) (Default value: false)
+        -w                           [Deprecated and ignored] Enable asar warnings check, recommended to use when developing sprites, defaults to true since Pixi 1.43 and cannot be changed (Default value: true)
+        -wno                         Disable asar warnings checks, only present for backwards compatibility, not recommended, only to be used in extreme cases (Default value: false)
+        --script-mode                Disable all user confirmation prompts (Default value: false)
+        -a <asm>                     Specify a custom asm directory (Default value: "asm/")
+        -sp <sprites>                Specify a custom sprites directory (Default value: "sprites/")
+        -sh <shooters>               Specify a custom shooters sprites directory (Default value: "shooters/")
+        -g <generators>              Specify a custom generators sprites directory (Default value: "generators/")
+        -e <extended>                Specify a custom extended sprites directory (Default value: "extended/")
+        -c <cluster>                 Specify a custom cluster sprites directory (Default value: "cluster/")
+        -me <minorextended>          Specify a custom minor extended sprites directory (Default value: "misc_sprites/minorextended/")
+        -b <bounce>                  Specify a custom bounce sprites directory (Default value: "misc_sprites/bounce/")
+        -sm <smoke>                  Specify a custom smoke sprites directory (Default value: "misc_sprites/smoke/")
+        -sn <spinningcoin>           Specify a custom spinningcoin sprites directory (Default value: "misc_sprites/spinningcoin/")
+        -sc <score>                  Specify a custom score sprites directory (Default value: "misc_sprites/score/")
+        -r <routines>                Specify a shared routine directory (Default value: "routines/")
+        -nr <number>                 Specify limit to shared routines, the maximum number is 310 (Default value: 100)
+        -extmod-off                  Disables extmod file logging (check LM's readme for more info on what extmod is) (Default value: false)
+        -ssc <append ssc>            Specify ssc file to be copied into <romname>.ssc (Default value: "<empty>")
+        -mwt <append mwt>            Specify mwt file to be copied into <romname>.mwt (Default value: "<empty>")
+        -mw2 <append mw2>            Specify mw2 file to be copied into <romname>.mw2 (Default value: "<empty>")
+        -s16 <base s16>              Specify s16 file to be used as a base for <romname>.s16 (Default value: "<empty>")
+        -no-lm-aux                   Disables all of the Lunar Magic auxiliary files creation (ssc, mwt, mw2, s16) (Default value: false)
+        -meimei-off                  Shuts down MeiMei completely (Default value: false)
+        -meimei-a                    Enables always remap sprite data (Default value: false)
+        -meimei-k                    Enables keep temp patches files (Default value: false)
+        -meimei-d                    Enables debug for MeiMei patches (Default value: false)
+        --onepatch                   Applies all sprites into a single big patch (Default value: false)
+        --stdincludes <INCLUDEPATH>  Specify a text file with a list of search paths for asar (Default value: "<empty>")
+        --stddefines <DEFINEPATH>    Specify a text file with a list of defines for asar (Default value: "<empty>")
+        -lm-handle <lm_handle_code>  To be used only within LM's custom user toolbar file, it receives LM's handle to reload the rom (Default value: "<empty>")
 ```
 
   #### MeiMei: 
@@ -601,7 +606,7 @@ The changelog is available [here](CHANGELOG.md).
   - 2017: JackTheSpades
   - 2018: RpgHacker
   - 2018-2020: Tattletale
-  - 2020-Present: Atari2.0
+  - 2020-2025: Atari2.0
   
   ### Other contributors:
   - KevinM
@@ -612,4 +617,5 @@ The changelog is available [here](CHANGELOG.md).
   - akaginite
   - Lx5
   - spooonsss
+  - Fernap
   - and others...

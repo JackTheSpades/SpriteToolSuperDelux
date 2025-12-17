@@ -1,6 +1,12 @@
 # Changelog
 
-## Version 1.43 (TBD)
+## Version 1.43 (December 12, 2025)
+- (Atari2.0) Link statically to Asar instead of dynamically so Pixi doesn't need asar.dll to run anymore, if an external tool prefers dynamic linking, they can still build from source and link dynamically by setting the CMake variable ASAR_USE_DLL to ON.
+- (Atari2.0) Fix MeiMei incorrectly capping sprite data size at 0x800 and report when sprites in a level go beyond 255.
+- (Atari2.0) Fix a feature_deprecated warning in sa1def.asm by using immediate define assignment, thanks to Koopster for reporting this.
+- (Atari2.0) Fix incorrect symlink handling in shared routines insertion
+- (Fernap) Fix a bug with %Random() where an off-by-one error in the reading of the random number address would cause bias in the generated random numbers.
+- (Fernap) Change labels in %invoke_snes() to be macro-local.
 - (Atari2.0) Fix bug with -no-lm-aux where it wouldn't generate \_customsize.bin and thus fail insertion.
 - (Atari2.0) Revert a change from 1.41 where CFG sprites would always show up in the custom sprite collection in LM, instead now to have a CFG sprite display in the LM custom sprite collection, append "display" to the corresponding list entry.
 - (Atari2.0) Fix a bug with per-level sprites where they wouldn't get cleaned at all before re-inserting them, thanks to BatataDouce for reporting this.
