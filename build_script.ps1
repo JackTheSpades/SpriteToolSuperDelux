@@ -26,7 +26,7 @@ Remove-Item -Recurse -Force build
 # build Pixi 64 bit
 mkdir build
 Push-Location build
-cmake -DASAR_USE_DLL=$CMAKE_ASAR_USE_DLL -DPIXI_BUILD_TESTS=OFF -DPIXI_BUILD_DLL=OFF -DPIXI_BUILD_LIB=OFF -G "Visual Studio 17 2022" -A x64 -S ..
+cmake -DASAR_USE_DLL="$CMAKE_ASAR_USE_DLL" -DPIXI_BUILD_TESTS=OFF -DPIXI_BUILD_DLL=OFF -DPIXI_BUILD_LIB=OFF -G "Visual Studio 17 2022" -A x64 -S ..
 cmake --build . --config MinSizeRel --target pixi
 Pop-Location
 
@@ -40,7 +40,7 @@ Remove-Item -Recurse -Force build
 # build Pixi 32 bit
 mkdir build
 Push-Location build
-cmake -DASAR_USE_DLL=$CMAKE_ASAR_USE_DLL -DPIXI_BUILD_TESTS=OFF -DPIXI_BUILD_DLL=OFF -DPIXI_BUILD_LIB=OFF -G "Visual Studio 17 2022" -A Win32 -S ..
+cmake -DASAR_USE_DLL="$CMAKE_ASAR_USE_DLL" -DPIXI_BUILD_TESTS=OFF -DPIXI_BUILD_DLL=OFF -DPIXI_BUILD_LIB=OFF -G "Visual Studio 17 2022" -A Win32 -S ..
 cmake --build . --config MinSizeRel --target pixi
 Pop-Location
 
