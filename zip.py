@@ -50,6 +50,16 @@ def pixi_exe_name():
     else:
         raise Exception("Unsupported platform: " + sys.platform)
 
+def pixi_api_lib_name():
+    if sys.platform == 'linux':
+        return "libpixi_api.so"
+    elif sys.platform == 'win32':
+        return "pixi_api.dll"
+    elif sys.platform == 'darwin':
+        return "libpixi_api.dylib"
+    else:
+        raise Exception("Unsupported platform: " + sys.platform)
+
 def isExcludeFile(path, excludes):
     if excludes is None:
         return False
@@ -121,6 +131,8 @@ try:
     pixiexe = choose_binary(f'{os.getcwd()}{os.sep}**{os.sep}{pixi_exe_name()}')
     if not args.static:
         asarlib = choose_binary(f'{os.getcwd()}{os.sep}**{os.sep}{asar_lib_name()}')
+    if CALLED_BY_TESTS:
+        pixiapilib = choose_binary(f'{os.getcwd()}{os.sep}**{os.sep}{pixi_api_lib_name()}')
 except Exception as e:
     print(e)
     sys.exit(1)
@@ -156,6 +168,9 @@ with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
     pixizip.write(pixiexe.replace("/", os.sep), pixi_exe_name())
     if not args.static:
         pixizip.write(asarlib.replace("/", os.sep), asar_lib_name())
+    if CALLED_BY_TESTS:
+        pixizip.write(pixiapilib.replace("/", os.sep), pixi_api_lib_name())
+        pixizip.write(os.path.join("src", "api_bindings", "pixi_api.py"), "pixi_api.py")
 
     # asm
     for asm_folder_file in [

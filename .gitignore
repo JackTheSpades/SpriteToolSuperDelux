@@ -35,12 +35,16 @@ test/*
 !test/zip_pixi_rasp.py
 !test/runner.py
 !test/downloader.py
+!test/emulator.py
 !test/apply_diffs.py
 !test/pixi_test.sh
 !test/pixi_test.ps1
 !test/EXPECTED.lst
+!test/asar.py
 src/pixi.rc
 !unittests/testing_files/base.smc
 mingw-build/
 __pycache__
 *.html
+*.log
+result.json

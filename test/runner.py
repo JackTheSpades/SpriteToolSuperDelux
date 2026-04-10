@@ -9,6 +9,20 @@ import traceback
 import sys
 import argparse
 from downloader import download
+from emulator import run_emulator_test
+if sys.platform == 'win32':
+    LIBPIXI_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pixi', 'pixi_api.dll')
+elif sys.platform == 'darwin':
+    LIBPIXI_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pixi', 'libpixi_api.dylib')
+elif sys.platform == 'linux':
+    LIBPIXI_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pixi', 'libpixi_api.so')
+else:
+    raise NotImplementedError(f'Unsupported platform: {sys.platform}')
+os.environ["PIXI_API_DLL_PATH"] = LIBPIXI_PATH
+from pixi.pixi_api import ParsedListResult, ListType
+
+_EMU_TESTING_ROM = 'testing.smc'
+_DEBUG_SCREENSHOTS = os.environ.get('PIXITEST_DEBUG_SCREENSHOTS', None) is not None
 
 list_types = {
     'standard': ('SPRITE:', 0),
@@ -130,18 +144,66 @@ def exec_pixi(*, pixi_executable, current_rom, listname):
     return good, stdout
 
 
-def test_normal_sprites(sprites = None):
+def _run_emu_tests(pixi_exe, listname, smwc_id: int):
+    if not os.path.isfile(_EMU_TESTING_ROM):
+        print('  [emu] testing.smc not found, skipping runtime tests.')
+        return {}
+
+    copyfile(_EMU_TESTING_ROM, 'emu_test.smc')
+    proc = subprocess.Popen(
+        [pixi_exe, '--script-mode', '-l', listname, 'emu_test.smc'],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+    proc.communicate(input=b'yes\n')
+    if proc.returncode != 0:
+        print('  [emu] Insertion into testing ROM failed, skipping runtime tests.')
+        os.remove('emu_test.smc')
+        return {}
+
+    list_result = ParsedListResult(os.path.abspath(listname))
+    if not list_result.success():
+        print('  [emu] Failed to parse sprite list, skipping runtime tests.')
+        return {}
+
+    emu_rom = os.path.abspath('emu_test.smc')
+    results = {}
+    for spr in list_result.sprite_array(ListType.Normal):
+        sprite_num  = spr.number()
+        sprite_name = spr.cfg_file()
+        colls       = spr.collections()
+        extra_bit        = bool(colls[0].extra_bit()) if colls else False
+        extra_byte_count = spr.extra_byte_count() if extra_bit else spr.byte_count()
+        extra_prop_bytes = list(colls[0].prop()) if colls else []
+        if smwc_id == 13807: # Special case for the BooRing, this is horrible...
+            extra_prop_bytes = [0x0A, 0x28, 0x50, 0x10]
+        print(f'  [emu] sprite ${sprite_num:02X} ({sprite_name})... ', end='', flush=True)
+        ok = run_emulator_test(emu_rom, sprite_num,
+                                smwc_id=smwc_id,
+                                extra_bit=extra_bit,
+                                extra_byte_count=extra_byte_count,
+                                extra_prop_bytes=extra_prop_bytes)
+        results[sprite_num] = ok
+        print('PASS' if ok else 'FAIL')
+
+    os.remove('emu_test.smc')
+    return results
+
+
+def test_normal_sprites(sprites = None, run_emu = False) -> tuple[dict[int, str], dict[int, str], dict[int, dict[str, bool]]]:
     execlist = [executable_name('./pixi'), 'work.smc']
     successes = {}
     errors = {}
+    emu_results = {}
     base = 'standard'
     folders = [folder.rstrip(os.sep) for folder in glob.glob(base + '/*/')]
     if sprites is not None:
         folders = [folder for folder in folders if int(folder.split(os.sep)[-1]) in sprites]
     copyfile('pixi/sprites/_header.asm', '_header.asm')
     copytree('pixi/routines', 'routines', dirs_exist_ok=True)
+    if _DEBUG_SCREENSHOTS:
+        os.makedirs('screenshots', exist_ok=True)
     for i, folder in enumerate(folders):
-        listname = 'list' + folder.split(os.sep)[-1] + '.txt'
+        sprite_folder_id = folder.split(os.sep)[-1]
+        listname = 'list' + sprite_folder_id + '.txt'
         copyfile(folder + '/' + listname, 'pixi/' + listname)
         rmtree('pixi/sprites/')
         rmtree('pixi/routines/')
@@ -151,20 +213,28 @@ def test_normal_sprites(sprites = None):
             lrdir = rdir.lower()
             if 'routines' in lrdir:
                 for file in glob.glob(rdir + '*'):
-                    copyfile(file, 'pixi/routines/' + os.path.basename(file))
+                    if os.path.isfile(file):
+                        copyfile(file, 'pixi/routines/' + os.path.basename(file))
         copyfile('_header.asm', 'pixi/sprites/_header.asm')
-        os.remove('pixi/sprites/list' + folder.split(os.sep)[-1] + '.txt')
+        os.remove('pixi/sprites/list' + sprite_folder_id + '.txt')
         copyfile('pixi/base.smc', 'pixi/work.smc')
         wrkdir = os.getcwd()
         os.chdir('pixi')
-        print(f'Testing sprite {i+1} out of {len(folders)}')
-        sprite_folder_id = int(folder.split(os.sep)[-1])
+        print(f'Testing sprite {i+1} (id: {sprite_folder_id}) out of {len(folders)}')
         pixi_exe, rom_name = execlist
         good, stdout = exec_pixi(pixi_executable=pixi_exe, current_rom=rom_name, listname=listname)
+        sprite_folder_id = int(sprite_folder_id)
         try:
             stdout_str = stdout.decode('utf-8')
             if good:
                 successes[sprite_folder_id] = stdout_str
+                if run_emu:
+                    emu_result = _run_emu_tests(pixi_exe, listname, smwc_id=sprite_folder_id)
+                    emu_results[sprite_folder_id] = emu_result
+                    if _DEBUG_SCREENSHOTS:
+                        screenshots = glob.glob('*.png')
+                        for ss in screenshots:
+                            copyfile(ss, os.path.join(wrkdir, 'screenshots', ss))
             else:
                 errors[sprite_folder_id] = stdout_str
         except UnicodeEncodeError:
@@ -173,7 +243,7 @@ def test_normal_sprites(sprites = None):
         os.remove('pixi/' + listname)
     rmtree('routines')
     os.remove('_header.asm')
-    return successes, errors
+    return successes, errors, emu_results
 
 def read_expected():
     expected_results = {'PASS': [], 'FAIL': []}
@@ -187,6 +257,8 @@ def read_expected():
 argparser = argparse.ArgumentParser('runner.py', description='Test sprites with pixi')
 argparser.add_argument('-c', '--cached', action='store_true', help='Use cached sprites', required=False, default=False)
 argparser.add_argument('-s', '--sprites', nargs='*', help='Sprites to test (ids)', required=False, default=None)
+argparser.add_argument('-e', '--emu', action='store_true', default=False,
+                       help='Also run in-game stability tests via snes9x-libretro (requires emu/ setup)')
 args = argparser.parse_args()
 
 
@@ -197,7 +269,7 @@ try:
         print("Using cached sprites")
     create_list_files(cached=args.cached)
     sprites_to_test = [int(spr) for spr in args.sprites] if args.sprites is not None else None
-    success, error = test_normal_sprites(sprites=sprites_to_test)
+    success, error, emu_results = test_normal_sprites(sprites=sprites_to_test, run_emu=args.emu)
     diffs = ''
     expected_res = read_expected()
     for s in success.keys():
@@ -234,8 +306,11 @@ try:
                 print(f"Sprite {s} should have failed but passed")
     print("Finished testing all sprites")
     filename = 'result.json'
+    result = {'success': success, 'error': error, 'emu_failures': []}
+    if emu_results:
+        result['emu_failures'] = [{sprite_id: [test for test, ok in tests.items() if not ok]} for sprite_id, tests in emu_results.items() if any(not ok for ok in tests.values())]
     with open(filename, 'w') as f:
-        f.write(json.dumps({'success': success, 'error': error}, indent=4))
+        f.write(json.dumps(result, indent=4))
     print("Written results to file")
     if diffs != '':
         with open('diffs.txt', 'w') as f:

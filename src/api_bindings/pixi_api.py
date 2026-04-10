@@ -1,5 +1,6 @@
 from __future__ import annotations
 from ctypes import CDLL, POINTER, c_char, c_char_p, c_int, c_void_p, c_ubyte, byref, c_bool, string_at
+import os
 import sys
 from typing import Callable, Optional
 from enum import IntEnum
@@ -34,7 +35,10 @@ def __init_pixi_dll():
     global _pixi
     if _pixi:
         return
-    if sys.platform == "win32":
+    _pixi_dll_path = os.environ.get("PIXI_API_DLL_PATH")
+    if _pixi_dll_path:
+        _pixi = _PixiDll(_pixi_dll_path)
+    elif sys.platform == "win32":
         _pixi = _PixiDll("./pixi_api.dll")
     elif sys.platform == "darwin":
         _pixi = _PixiDll("./libpixi_api.dylib")

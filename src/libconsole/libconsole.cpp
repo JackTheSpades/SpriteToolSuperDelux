@@ -126,7 +126,9 @@ std::optional<size_t> read(char* buffer, int bufsize, handle hdl) {
     }
     return size_t{read};
 #else
-    fgets(buffer, bufsize, map_handle(hdl));
+    auto res = fgets(buffer, bufsize, map_handle(hdl));
+    if (res == nullptr)
+        return std::nullopt;
     const size_t read_size = strlen(buffer);
     return read_size;
 #endif
