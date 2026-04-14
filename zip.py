@@ -204,4 +204,4 @@ with zipfile.ZipFile(PIXI_ZIP_NAME, "w", zipfile.ZIP_DEFLATED) as pixizip:
     pixizip.write("removedResources.txt")
     pixizip.write("LICENSE")
 
-print("pixi.zip created")
+print(f"${PIXI_ZIP_NAME} created")

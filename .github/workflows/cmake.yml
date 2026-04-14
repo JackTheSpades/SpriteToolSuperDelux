@@ -110,7 +110,7 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: pixi_${{matrix.os}}_${{matrix.platform}}_test
-        path: ${{github.workspace}}/pixi.zip
+        path: ${{github.workspace}}/pixi_test.zip
     
   test:
 
@@ -129,7 +129,7 @@ jobs:
         id: download
         uses: actions/download-artifact@v8
         with:
-          name: pixi_${{matrix.os}}_x64
+          name: pixi_${{matrix.os}}_x64_test
           path: ${{github.workspace}}/build_artifact
 
       - name: Setup python
