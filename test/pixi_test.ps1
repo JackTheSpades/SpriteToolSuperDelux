@@ -68,6 +68,7 @@ if ($env:ARTIFACT_PATH) {
 }
 
 Expand-Archive pixi.zip -DestinationPath pixi
+Copy-Item SpriteToolSuperDelux/src/api_bindings/pixi_api.py pixi/pixi_api.py
 
 mkdir downloader_test
 Copy-Item runner.py downloader_test/runner.py

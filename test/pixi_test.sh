@@ -72,6 +72,7 @@ else
 fi
 
 unzip pixi.zip -d pixi
+cp  SpriteToolSuperDelux/src/api_bindings/pixi_api.py pixi/pixi_api.py
 
 mkdir downloader_test
 cp runner.py downloader_test/runner.py
