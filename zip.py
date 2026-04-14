@@ -138,7 +138,9 @@ except Exception as e:
     sys.exit(1)
 
 
-with zipfile.ZipFile("pixi.zip", "w", zipfile.ZIP_DEFLATED) as pixizip:
+PIXI_ZIP_NAME = "pixi_test.zip" if CALLED_BY_TESTS and CALLED_BY_CI else "pixi.zip"
+
+with zipfile.ZipFile(PIXI_ZIP_NAME, "w", zipfile.ZIP_DEFLATED) as pixizip:
 
     for folder_name in [
         "sprites",

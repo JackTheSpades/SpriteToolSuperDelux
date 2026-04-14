@@ -83,17 +83,17 @@ cp -r pixi downloader_test/pixi
 cp base.smc downloader_test/pixi/base.smc
 
 wget www.atarismwc.com/testing.smc
-$LIBRETRO_LIB_ZIP=""
+LIBRETRO_LIB_ZIP=""
 if [[ "$OSTYPE" != "darwin"* ]]; then
     wget https://buildbot.libretro.com/nightly/linux/x86_64/latest/snes9x_libretro.so.zip
     unzip  snes9x_libretro.so.zip -d .
     mv    snes9x_libretro.so downloader_test/snes9x_libretro.so
-    $LIBRETRO_LIB_ZIP="snes9x_libretro.so.zip"
+    LIBRETRO_LIB_ZIP="snes9x_libretro.so.zip"
 else
     wget https://buildbot.libretro.com/nightly/osx/x86_64/latest/snes9x_libretro.dylib.zip
     unzip  snes9x_libretro.dylib.zip -d .
     mv    snes9x_libretro.dylib downloader_test/snes9x_libretro.dylib
-    $LIBRETRO_LIB_ZIP="snes9x_libretro.dylib.zip"
+    LIBRETRO_LIB_ZIP="snes9x_libretro.dylib.zip"
 fi
 mv    testing.smc        downloader_test/pixi/testing.smc
 cp    emulator.py        downloader_test/emulator.py

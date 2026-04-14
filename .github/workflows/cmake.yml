@@ -100,6 +100,17 @@ jobs:
       with:
         name: pixi_${{matrix.os}}_${{matrix.platform}}
         path: ${{github.workspace}}/pixi.zip
+        
+    - name: Create pixi.zip release (tests)
+      env:
+        PIXI_TESTING: true
+      run: python ${{github.workspace}}/zip.py
+    
+    - name: Upload (tests)
+      uses: actions/upload-artifact@v7
+      with:
+        name: pixi_${{matrix.os}}_${{matrix.platform}}_test
+        path: ${{github.workspace}}/pixi.zip
     
   test:
 
@@ -116,7 +127,7 @@ jobs:
 
       - name: Download build artifact
         id: download
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: pixi_${{matrix.os}}_x64
           path: ${{github.workspace}}/build_artifact
@@ -137,7 +148,7 @@ jobs:
 
       - name: Cache sprites
         id: cache-sprites
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
             path: ${{github.workspace}}/test/.sprites_dl_cache
             key: pixi-test-sprites
@@ -147,7 +158,7 @@ jobs:
         shell: bash
         run: bash pixi_test.sh ${{steps.branch-name.outputs.current_branch}} remote
         env:
-          ARTIFACT_PATH: ${{steps.download.outputs.download-path}}/pixi.zip
+          ARTIFACT_PATH: ${{steps.download.outputs.download-path}}/pixi_test.zip
         if: matrix.os == 'ubuntu-latest'
 
       - name: Test (windows)
@@ -157,7 +168,7 @@ jobs:
           Set-Alias py python
           ./pixi_test.ps1 -Branch ${{steps.branch-name.outputs.current_branch}} -RepoType remote
         env:
-          ARTIFACT_PATH: ${{steps.download.outputs.download-path}}/pixi.zip
+          ARTIFACT_PATH: ${{steps.download.outputs.download-path}}/pixi_test.zip
         if: matrix.os == 'windows-latest'
 
       - name: Upload test results
