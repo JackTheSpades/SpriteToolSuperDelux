@@ -84,6 +84,8 @@ Expand-Archive snes9x_libretro.dll.zip -DestinationPath .
 Move-Item snes9x_libretro.dll downloader_test/snes9x_libretro.dll
 Move-Item testing.smc downloader_test/pixi/testing.smc
 Copy-Item emulator.py downloader_test/emulator.py
+Copy-Item asar.py downloader_test/asar.py
+
 
 # delete temp files
 if (!$env:ARTIFACT_PATH) {

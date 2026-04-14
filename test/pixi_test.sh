@@ -96,6 +96,7 @@ else
 fi
 mv    testing.smc        downloader_test/pixi/testing.smc
 cp    emulator.py        downloader_test/emulator.py
+cp    asar.py            downloader_test/asar.py
 
 # delete temp files
 if [[ -z "${ARTIFACT_PATH}" ]]; then
