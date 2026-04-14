@@ -156,7 +156,7 @@ jobs:
       - name: Test (linux)
         working-directory: ${{github.workspace}}/test
         shell: bash
-        run: bash pixi_test.sh ${{steps.branch-name.outputs.current_branch}} remote
+        run: bash pixi_test.sh ${{steps.branch-name.outputs.current_branch}} remote false emu
         env:
           ARTIFACT_PATH: ${{steps.download.outputs.download-path}}/pixi_test.zip
         if: matrix.os == 'ubuntu-latest'
@@ -166,7 +166,7 @@ jobs:
         shell: pwsh
         run: |
           Set-Alias py python
-          ./pixi_test.ps1 -Branch ${{steps.branch-name.outputs.current_branch}} -RepoType remote
+          ./pixi_test.ps1 -Branch ${{steps.branch-name.outputs.current_branch}} -RepoType remote -Emu
         env:
           ARTIFACT_PATH: ${{steps.download.outputs.download-path}}/pixi_test.zip
         if: matrix.os == 'windows-latest'
