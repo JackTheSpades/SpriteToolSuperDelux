@@ -126,10 +126,12 @@ def __init_pixi_dll():
 
 __init_pixi_dll()
 
-def _get_cstr_len(cstr: c_char_p) -> int:
-    return len(cstr.value) if cstr.value else 0
+def _get_cstr_len(cstr: c_char_p | bytes) -> int:
+    if hasattr(cstr, "value"):
+        return len(cstr.value) if cstr.value else 0
+    return len(cstr)
 
-def _check_cstr(cstr: c_char_p, expected_len: c_int):
+def _check_cstr(cstr: c_char_p | bytes, expected_len: c_int):
     actual_len = _get_cstr_len(cstr)
     assert(actual_len == expected_len.value), f"Expected C string of length {expected_len.value}, got {actual_len}"
 
