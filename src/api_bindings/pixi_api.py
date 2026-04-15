@@ -6,7 +6,7 @@ from typing import Callable, Optional
 from enum import IntEnum
 
 __all__ = ["run", "api_version", "check_api_version", "Sprite", "ParsedListResult", "SpriteTable", "Tile", "StatusPointers", "Map8x8", "Map16", "Display", "Collection"]
-_pixi = None
+_pixi: _PixiDll = None # type: ignore
 
 class ListType(IntEnum):
     Normal = 0
@@ -126,6 +126,14 @@ def __init_pixi_dll():
 
 __init_pixi_dll()
 
+def __get_cstr_len(cstr: c_char_p) -> int:
+    return len(cstr.value) if cstr.value else 0
+
+def __check_cstr(cstr: c_char_p, expected_len: c_int):
+    actual_len = __get_cstr_len(cstr)
+    assert(actual_len == expected_len.value), f"Expected C string of length {expected_len.value}, got {actual_len}"
+
+
 class Tile:
     data_ptr: c_void_p
     def __init__(self, data_ptr: c_void_p):
@@ -143,7 +151,7 @@ class Tile:
     def text(self) -> str:
         size = c_int()
         cstr: c_char_p = _pixi.funcs["tile_text"](self.data_ptr, byref(size))
-        assert(len(cstr) == size.value)
+        __check_cstr(cstr, size)
         return str(cstr, encoding="utf-8")
 
 class SpriteTable:
@@ -160,7 +168,7 @@ class SpriteTable:
     
     def tweak(self) -> bytearray:
         size = c_int()
-        ptr: POINTER(c_ubyte) = _pixi.funcs["sprite_table_tweak"](self.data_ptr, byref(size))
+        ptr = _pixi.funcs["sprite_table_tweak"](self.data_ptr, byref(size))
         tweaks = bytearray()
         for i in range(int(size.value)):
             tweaks.append(ptr[i])
@@ -174,7 +182,7 @@ class SpriteTable:
     
     def extra(self) -> bytearray:
         size = c_int()
-        ptr: POINTER(c_ubyte) = _pixi.funcs["sprite_table_extra"](self.data_ptr, byref(size))
+        ptr = _pixi.funcs["sprite_table_extra"](self.data_ptr, byref(size))
         extras = bytearray()
         for i in range(int(size.value)):
             extras.append(ptr[i])
@@ -240,12 +248,12 @@ class Display:
     def description(self) -> str:
         size = c_int()
         cstr: c_char_p = _pixi.funcs["display_description"](self.data_ptr, byref(size))
-        assert(len(cstr) == size.value)
+        __check_cstr(cstr, size)
         return str(cstr, encoding="utf-8")
     
     def tiles(self) -> list[Tile]:
         size = c_int()
-        ptr: POINTER(c_void_p) = _pixi.funcs["display_tiles"](self.data_ptr, byref(size))
+        ptr = _pixi.funcs["display_tiles"](self.data_ptr, byref(size))
         tiles = []
         for i in range(int(size.value)):
             tiles.append(Tile(ptr[i]))
@@ -269,7 +277,7 @@ class Collection:
     def name(self) -> str:
         size = c_int()
         cstr: c_char_p = _pixi.funcs["collection_name"](self.data_ptr, byref(size))
-        assert(len(cstr) == size.value)
+        __check_cstr(cstr, size)
         return str(cstr, encoding="utf-8")
     
     def extra_bit(self) -> int:
@@ -277,7 +285,7 @@ class Collection:
     
     def prop(self) -> bytearray:
         size = c_int()
-        ptr: POINTER(c_ubyte) = _pixi.funcs["collection_prop"](self.data_ptr, byref(size))
+        ptr = _pixi.funcs["collection_prop"](self.data_ptr, byref(size))
         props = bytearray()
         for i in range(int(size.value)):
             props.append(ptr[i])
@@ -292,7 +300,7 @@ class Sprite:
     _s16: Optional[list[Map16]]
 
 
-    def __init__(self, filename: str = None):
+    def __init__(self, filename: str | None = None):
         self.freed = False
         self.map16_data = c_void_p(0)
         self._s16 = None
@@ -373,24 +381,24 @@ class Sprite:
     def directory(self) -> str:
         size = c_int()
         cstr: c_char_p = _pixi.funcs["sprite_directory"](self.data_ptr, byref(size))
-        assert(len(cstr) == size.value)
+        __check_cstr(cstr, size)
         return str(cstr, encoding="utf-8")
     
     def asm_file(self) -> str:
         size = c_int()
         cstr: c_char_p = _pixi.funcs["sprite_asm_file"](self.data_ptr, byref(size))
-        assert(len(cstr) == size.value)
+        __check_cstr(cstr, size)
         return str(cstr, encoding="utf-8")
     
     def cfg_file(self) -> str:
         size = c_int()
         cstr: c_char_p = _pixi.funcs["sprite_cfg_file"](self.data_ptr, byref(size))
-        assert(len(cstr) == size.value)
+        __check_cstr(cstr, size)
         return str(cstr, encoding="utf-8")
     
     def map_data(self) -> list[Map16]:
         size = c_int()
-        ptr: POINTER(c_void_p) = _pixi.funcs["sprite_map_data"](self.data_ptr, byref(size))
+        ptr = _pixi.funcs["sprite_map_data"](self.data_ptr, byref(size))
         map_data = []
         for i in range(int(size.value)):
             map_data.append(Map16(ptr[i]))
@@ -399,7 +407,7 @@ class Sprite:
     
     def displays(self) -> list[Display]:
         size = c_int()
-        ptr: POINTER(c_void_p) = _pixi.funcs["sprite_displays"](self.data_ptr, byref(size))
+        ptr = _pixi.funcs["sprite_displays"](self.data_ptr, byref(size))
         map_data = []
         for i in range(int(size.value)):
             map_data.append(Display(ptr[i]))
@@ -408,7 +416,7 @@ class Sprite:
     
     def collections(self) -> list[Collection]:
         size = c_int()
-        ptr: POINTER(c_void_p) = _pixi.funcs["sprite_collections"](self.data_ptr, byref(size))
+        ptr = _pixi.funcs["sprite_collections"](self.data_ptr, byref(size))
         map_data = []
         for i in range(size.value):
             map_data.append(Collection(ptr[i]))
@@ -421,7 +429,7 @@ class Sprite:
             map16_size_raw: c_int = c_int(map16_size)
             self._s16 = []
             self.map16_data = _pixi.funcs["create_map16_array"](map16_size)
-            raw_s16: POINTER(c_void_p) = _pixi.funcs["generate_s16"](self.data_ptr, self.map16_data, map16_size_raw, byref(size), byref(self.map16_tile))
+            raw_s16 = _pixi.funcs["generate_s16"](self.data_ptr, self.map16_data, map16_size_raw, byref(size), byref(self.map16_tile))
             for i in range(size.value):
                 self._s16.append(Map16(raw_s16[i]))
         return self._s16
@@ -436,7 +444,7 @@ class Sprite:
     
     def mwt(self, index: int = 0) -> str:
         size: c_int = c_int()
-        carr: POINTER(c_void_p) = _pixi.funcs["sprite_collections"](self.data_ptr, byref(size))
+        carr = _pixi.funcs["sprite_collections"](self.data_ptr, byref(size))
         indexraw: c_int = c_int(min(index, size.value - 1))
         cstr: c_void_p = _pixi.funcs["generate_mwt"](self.data_ptr, carr[indexraw.value], indexraw)
         _pixi.funcs["free_collection_array"](carr)
@@ -446,7 +454,7 @@ class Sprite:
 
     def mw2(self, index: int = 0) -> bytearray:
         size: c_int = c_int()
-        carr: POINTER(c_void_p) = _pixi.funcs["sprite_collections"](self.data_ptr, byref(size))
+        carr = _pixi.funcs["sprite_collections"](self.data_ptr, byref(size))
         indexraw: c_int = c_int(min(index, size.value - 1))
         mw2size: c_int = c_int()
         mw2raw = _pixi.funcs["generate_mw2"](self.data_ptr, carr[indexraw.value], byref(mw2size))
@@ -477,7 +485,7 @@ class ParsedListResult:
     
     def sprite_array(self, sprite_type: ListType) -> list[Sprite]:
         size = c_int()
-        ptr: POINTER(c_void_p) = _pixi.funcs["list_result_sprite_array"](self.data_ptr, c_int(sprite_type.value), byref(size))
+        ptr = _pixi.funcs["list_result_sprite_array"](self.data_ptr, c_int(sprite_type.value), byref(size))
         sprites = []
         for i in range(int(size.value)):
             sprites.append(Sprite.from_raw_ptr(ptr[i]))
@@ -502,7 +510,7 @@ class ParsedListResult:
 
 
 def run(
-    argv: list[list[str]]
+    argv: list[str]
 ) -> int:
     """
     Run a PIXI program.
@@ -510,10 +518,10 @@ def run(
     :param argv: A list of strings, each of which is an argument to the PIXI program.
     :return: The return code of the PIXI program.
     """
-    argv = (c_char_p * len(argv))(*[arg.encode() for arg in argv])
+    arguments = (c_char_p * len(argv))(*[arg.encode() for arg in argv])
     argc = c_int(len(argv))
     skip_first = c_bool(False)
-    return int(_pixi.funcs["run"](argc, argv, skip_first)) 
+    return int(_pixi.funcs["run"](argc, arguments, skip_first)) 
 
 def api_version() -> int:
     """
@@ -553,7 +561,7 @@ def output() -> list[str]:
     """
     retval: list[str] = []
     size = c_int()
-    cstr: POINTER(c_char_p) = _pixi.funcs["output"](byref(size))
+    cstr = _pixi.funcs["output"](byref(size))
     for i in range(size.value):
         retval.append(str(cstr[i], encoding="utf-8"))
     return retval

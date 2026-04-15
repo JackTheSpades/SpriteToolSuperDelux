@@ -1090,7 +1090,6 @@ SetSpriteTables:
 
    if !PerLevel == 1
     .perlevel
-		print "Hey shitstain, per level stuff at ",pc
         JSR GetPerLevelAddr
         BNE +
         PHK
