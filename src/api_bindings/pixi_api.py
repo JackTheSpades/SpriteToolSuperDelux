@@ -1,6 +1,9 @@
 from __future__ import annotations
 from typing import Callable, TYPE_CHECKING, Optional
-from ctypes import CDLL, POINTER, c_char_p, c_int, c_void_p, c_ubyte, byref, c_bool, string_at, Array, _Pointer, _CArgObject
+if TYPE_CHECKING:
+    from ctypes import CDLL, POINTER, c_char_p, c_int, c_void_p, c_ubyte, byref, c_bool, string_at, Array, _Pointer, _CArgObject
+else:
+    from ctypes import CDLL, POINTER, c_char_p, c_int, c_void_p, c_ubyte, byref, c_bool, string_at, Array
 import sys
 from enum import IntEnum
 
