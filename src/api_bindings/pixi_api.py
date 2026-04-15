@@ -122,11 +122,11 @@ def __init_pixi_dll():
 
 __init_pixi_dll()
 
-def __get_cstr_len(cstr: c_char_p) -> int:
+def _get_cstr_len(cstr: c_char_p) -> int:
     return len(cstr.value) if cstr.value else 0
 
-def __check_cstr(cstr: c_char_p, expected_len: c_int):
-    actual_len = __get_cstr_len(cstr)
+def _check_cstr(cstr: c_char_p, expected_len: c_int):
+    actual_len = _get_cstr_len(cstr)
     assert(actual_len == expected_len.value), f"Expected C string of length {expected_len.value}, got {actual_len}"
 
 
@@ -147,7 +147,7 @@ class Tile:
     def text(self) -> str:
         size = c_int()
         cstr: c_char_p = _pixi.funcs["tile_text"](self.data_ptr, byref(size))
-        __check_cstr(cstr, size)
+        _check_cstr(cstr, size)
         return str(cstr, encoding="utf-8")
 
 class SpriteTable:
@@ -244,7 +244,7 @@ class Display:
     def description(self) -> str:
         size = c_int()
         cstr: c_char_p = _pixi.funcs["display_description"](self.data_ptr, byref(size))
-        __check_cstr(cstr, size)
+        _check_cstr(cstr, size)
         return str(cstr, encoding="utf-8")
     
     def tiles(self) -> list[Tile]:
@@ -273,7 +273,7 @@ class Collection:
     def name(self) -> str:
         size = c_int()
         cstr: c_char_p = _pixi.funcs["collection_name"](self.data_ptr, byref(size))
-        __check_cstr(cstr, size)
+        _check_cstr(cstr, size)
         return str(cstr, encoding="utf-8")
     
     def extra_bit(self) -> int:
@@ -377,19 +377,19 @@ class Sprite:
     def directory(self) -> str:
         size = c_int()
         cstr: c_char_p = _pixi.funcs["sprite_directory"](self.data_ptr, byref(size))
-        __check_cstr(cstr, size)
+        _check_cstr(cstr, size)
         return str(cstr, encoding="utf-8")
     
     def asm_file(self) -> str:
         size = c_int()
         cstr: c_char_p = _pixi.funcs["sprite_asm_file"](self.data_ptr, byref(size))
-        __check_cstr(cstr, size)
+        _check_cstr(cstr, size)
         return str(cstr, encoding="utf-8")
     
     def cfg_file(self) -> str:
         size = c_int()
         cstr: c_char_p = _pixi.funcs["sprite_cfg_file"](self.data_ptr, byref(size))
-        __check_cstr(cstr, size)
+        _check_cstr(cstr, size)
         return str(cstr, encoding="utf-8")
     
     def map_data(self) -> list[Map16]:
