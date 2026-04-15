@@ -6,6 +6,7 @@ else:
     from ctypes import CDLL, POINTER, c_char_p, c_int, c_void_p, c_ubyte, byref, c_bool, string_at, Array
 import sys
 from enum import IntEnum
+import os
 
 __all__ = ["run", "api_version", "check_api_version", "Sprite", "ParsedListResult", "SpriteTable", "Tile", "StatusPointers", "Map8x8", "Map16", "Display", "Collection"]
 _pixi: _PixiDll = None # type: ignore
