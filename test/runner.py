@@ -215,6 +215,8 @@ def test_normal_sprites(sprites = None, run_emu = False) -> tuple[dict[int, str]
                 for file in glob.glob(rdir + '*'):
                     if os.path.isfile(file):
                         copyfile(file, 'pixi/routines/' + os.path.basename(file))
+                    elif os.path.isdir(file):
+                        copytree(file, 'pixi/routines/' + os.path.basename(file), dirs_exist_ok=True)
         copyfile('_header.asm', 'pixi/sprites/_header.asm')
         os.remove('pixi/sprites/list' + sprite_folder_id + '.txt')
         copyfile('pixi/base.smc', 'pixi/work.smc')

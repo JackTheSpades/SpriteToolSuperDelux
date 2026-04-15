@@ -1,5 +1,7 @@
 # Changelog
 
+## Version 1.44 (TBD)
+
 ## Version 1.43 (December 12, 2025)
 - (Atari2.0) Link statically to Asar instead of dynamically so Pixi doesn't need asar.dll to run anymore, if an external tool prefers dynamic linking, they can still build from source and link dynamically by setting the CMake variable ASAR_USE_DLL to ON.
 - (Atari2.0) Fix MeiMei incorrectly capping sprite data size at 0x800 and report when sprites in a level go beyond 255.
