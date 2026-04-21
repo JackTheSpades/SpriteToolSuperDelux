@@ -25,8 +25,15 @@ patchfile::patchfile(const std::string& path, patchfile::openflags mode, origin 
     : m_fs_path{path}, m_data_stream{static_cast<std::ios::openmode>(mode)}, m_from_meimei{origin == origin::meimei} {
     m_vfile = std::make_unique<memoryfile>();
     m_binary = (static_cast<std::ios::openmode>(mode) & std::ios::binary) != 0;
+    // on linux the filesystem is case sensitive so we can just use the path as is
+    // I honestly cannot remember why we lowercase it on Windows but I don't want to risk breaking something by removing it
+    // so let's just make linux/macos work
+#ifdef _WIN32
     std::transform(path.begin(), path.end(), std::back_inserter(m_path),
                    [](char c) { return static_cast<char>(std::tolower(c)); });
+#else
+    m_path = path;
+#endif
 }
 
 patchfile::patchfile(patchfile&& other) noexcept
@@ -359,7 +366,8 @@ void sprite::clear() {
 
 pcaddress::pcaddress(pointer ptr, const ROM& rom) : value{rom.snes_to_pc(ptr.addr()).value} {};
 pcaddress::pcaddress(snesaddress addr, const ROM& rom) : value{rom.snes_to_pc(addr).value} {};
-snesaddress::snesaddress(pointer ptr) : value{ptr.raw()} {}
+snesaddress::snesaddress(pointer ptr) : value{ptr.raw()} {
+}
 snesaddress::snesaddress(pcaddress addr, const ROM& rom) : value{rom.pc_to_snes(addr).value} {};
 
 romdata::romdata(ROM& rom) : m_rom{rom} {};

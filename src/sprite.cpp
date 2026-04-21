@@ -949,45 +949,55 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
                     if (auto custom_pointers_size = rom.get_rats_size(pcaddress{custom_pointers_address, rom});
                         custom_pointers_size.has_value()) {
                         uint16_t block_size = custom_pointers_size.value();
-                        constexpr size_t block_multiplier = sizeof(status_pointers) + 1;
-                        if (block_size % block_multiplier != 0) {
-                            io.error("Custom pointers block size is not a multiple of %d, aborting cleanup\n",
-                                     block_multiplier);
-                            return false;
-                        }
-                        auto pc_address = rom.snes_to_pc(custom_pointers_address);
-                        for (size_t i = 0; i < block_size / block_multiplier; i++) {
-                            auto offset = pc_address + static_cast<int>(i * block_multiplier);
-                            auto ptrs = rom.read_struct<status_pointers>(offset);
-                            if (verify_pointer(ptrs.carriable))
-                                cleanup_ptr(ptrs.carriable, "Per-level custom carriable pointer");
-                            if (verify_pointer(ptrs.carried))
-                                cleanup_ptr(ptrs.carried, "Per-level custom carried pointer");
-                            if (verify_pointer(ptrs.goal))
-                                cleanup_ptr(ptrs.goal, "Per-level custom goal pointer");
-                            if (verify_pointer(ptrs.kicked))
-                                cleanup_ptr(ptrs.kicked, "Per-level custom kicked pointer");
-                            if (verify_pointer(ptrs.mouth))
-                                cleanup_ptr(ptrs.mouth, "Per-level custom mouth pointer");
+                        // when block_size is one it means that the dummy 0xFF single-byte value was inserted
+                        // this means that there are no custom pointers to clean up, so we can skip the rest of the
+                        // checks and just not do anything
+                        if (block_size > 1) {
+                            constexpr size_t block_multiplier = sizeof(status_pointers) + 1;
+                            if (block_size % block_multiplier != 0) {
+                                io.error("Custom pointers block size is not a multiple of %d, found %d, aborting cleanup\n",
+                                         block_multiplier, block_size);
+                                return false;
+                            }
+                            auto pc_address = rom.snes_to_pc(custom_pointers_address);
+                            for (size_t i = 0; i < block_size / block_multiplier; i++) {
+                                auto offset = pc_address + static_cast<int>(i * block_multiplier);
+                                auto ptrs = rom.read_struct<status_pointers>(offset);
+                                if (verify_pointer(ptrs.carriable))
+                                    cleanup_ptr(ptrs.carriable, "Per-level custom carriable pointer");
+                                if (verify_pointer(ptrs.carried))
+                                    cleanup_ptr(ptrs.carried, "Per-level custom carried pointer");
+                                if (verify_pointer(ptrs.goal))
+                                    cleanup_ptr(ptrs.goal, "Per-level custom goal pointer");
+                                if (verify_pointer(ptrs.kicked))
+                                    cleanup_ptr(ptrs.kicked, "Per-level custom kicked pointer");
+                                if (verify_pointer(ptrs.mouth))
+                                    cleanup_ptr(ptrs.mouth, "Per-level custom mouth pointer");
+                            }
                         }
                     }
                     if (auto sprite_data_size = rom.get_rats_size(pcaddress{sprite_data_address, rom});
                         sprite_data_size.has_value()) {
                         uint16_t block_size = sprite_data_size.value();
-                        constexpr size_t block_multiplier = sizeof(sprite_table);
-                        if (block_size % block_multiplier != 0) {
-                            io.error("Custom pointers block size is not a multiple of %d, aborting cleanup\n",
-                                     block_multiplier);
-                            return false;
-                        }
-                        auto pc_address = rom.snes_to_pc(sprite_data_address);
-                        for (size_t i = 0; i < block_size / block_multiplier; i++) {
-                            auto offset = pc_address + static_cast<int>(i * block_multiplier);
-                            auto tbl = rom.read_struct<sprite_table>(offset);
-                            if (verify_pointer(tbl.init))
-                                cleanup_ptr(tbl.init, "Per-level custom init pointer");
-                            if (verify_pointer(tbl.main))
-                                cleanup_ptr(tbl.main, "Per-level custom main pointer");
+                        // when block_size is one it means that the dummy 0xFF single-byte value was inserted
+                        // this means that there are no custom pointers to clean up, so we can skip the rest of the
+                        // checks and just not do anything
+                        if (block_size > 1) {
+                            constexpr size_t block_multiplier = sizeof(sprite_table);
+                            if (block_size % block_multiplier != 0) {
+                                io.error("Custom pointers block size is not a multiple of %d, found %d, aborting cleanup\n",
+                                         block_multiplier, block_size);
+                                return false;
+                            }
+                            auto pc_address = rom.snes_to_pc(sprite_data_address);
+                            for (size_t i = 0; i < block_size / block_multiplier; i++) {
+                                auto offset = pc_address + static_cast<int>(i * block_multiplier);
+                                auto tbl = rom.read_struct<sprite_table>(offset);
+                                if (verify_pointer(tbl.init))
+                                    cleanup_ptr(tbl.init, "Per-level custom init pointer");
+                                if (verify_pointer(tbl.main))
+                                    cleanup_ptr(tbl.main, "Per-level custom main pointer");
+                            }
                         }
                     }
                 }
