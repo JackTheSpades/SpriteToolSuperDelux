@@ -42,6 +42,7 @@ namespace fs = std::filesystem;
 #include <chrono>
 namespace cr = std::chrono;
 struct PatchTimer {
+    static bool is_enabled;
     cr::high_resolution_clock::time_point m_start;
     std::string m_name;
 
@@ -51,11 +52,13 @@ struct PatchTimer {
     ~PatchTimer() {
         auto end = cr::high_resolution_clock::now();
         [[maybe_unused]] auto dur = cr::duration_cast<cr::milliseconds>(end - m_start);
-#if 0
-        iohandler::get_global().debug("%s took %lld ms to patch\n", m_name.c_str(), dur.count());
-#endif
+        if (is_enabled) {
+            iohandler::get_global().print("%s took %lld ms to patch\n", m_name.c_str(), dur.count());
+        }
     }
 };
+
+bool PatchTimer::is_enabled = false;
 
 #define STRIMPL(x) #x
 #define STR(x) STRIMPL(x)
@@ -864,6 +867,7 @@ bool fill_single_sprite(sprite* spr, std::span<std::string> prints) {
         }
 
         if (!duplicate) {
+            PatchTimer timer{spr->asm_file};
             if (!patch_sprite(extraDefines, spr, rom))
                 return false;
         }
@@ -1711,8 +1715,12 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         .add_option("-npl", "Disable per level sprites (default), kept for compatibility reasons", argparser::no_value)
         .add_option("-d255spl", "Disable 255 sprites per level support (won't do the 1938 remap)",
                     cfg.Disable255Sprites)
-        .add_option("-w", "[Deprecated and ignored] Enable asar warnings check, recommended to use when developing sprites, defaults to true since Pixi 1.43 and cannot be changed", cfg.Warnings)
-        .add_option("-wno", "Disable asar warnings checks, only present for backwards compatibility, not recommended", cfg.NoWarnings)
+        .add_option("-w",
+                    "[Deprecated and ignored] Enable asar warnings check, recommended to use when developing sprites, "
+                    "defaults to true since Pixi 1.43 and cannot be changed",
+                    cfg.Warnings)
+        .add_option("-wno", "Disable asar warnings checks, only present for backwards compatibility, not recommended",
+                    cfg.NoWarnings)
         .add_option("--script-mode", "Disable all user confirmation prompts", cfg.ScriptMode)
         .add_option("-a", "asm", "Specify a custom asm directory", cfg[PathType::Asm])
         .add_option("-sp", "sprites", "Specify a custom sprites directory", cfg[PathType::Sprites])
@@ -1747,6 +1755,8 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
                     cfg.AsarStdIncludes)
         .add_option("--stddefines", "DEFINEPATH", "Specify a text file with a list of defines for asar",
                     cfg.AsarStdDefines)
+        .add_option("--measure", "Enables measuring the time it takes to apply each sprite's asm patch",
+                    PatchTimer::is_enabled)
 #ifdef ON_WINDOWS
         .add_option("-lm-handle", "lm_handle_code",
                     "To be used only within LM's custom user toolbar file, it receives LM's handle to reload the rom",

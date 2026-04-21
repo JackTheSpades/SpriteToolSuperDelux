@@ -4,6 +4,7 @@
 - (Atari2.0) Fix a bug where by having -pl on the command line but then having no per-level sprites in the list would cause the tool to insert the 0xFF "dummy" byte which caused the cleanup code to report "block size not multiple of 16" error, thanks to imamelia for giving me a repro case.
 - (Atari2.0) Fix a bug where if MeiMei had to change sprite data for more than 125 levels we would hit asar's per-patch freespace limit and thus fail to insert.
 - (Atari2.0) Fix a bug only on Linux/MacOS where lowercasing the paths passed to asar would cause it to not find the files on case-sensitive file systems.
+- (Atari2.0) Add a --measure cli switch that measures the time taken by each call to asar_patch. This is useful for debugging and optimization purposes, especially to find out which routines are taking the most time to insert.
 
 ## Version 1.43 (December 12, 2025)
 - (Atari2.0) Link statically to Asar instead of dynamically so Pixi doesn't need asar.dll to run anymore, if an external tool prefers dynamic linking, they can still build from source and link dynamically by setting the CMake variable ASAR_USE_DLL to ON.

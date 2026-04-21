@@ -214,6 +214,7 @@ Options:
         --onepatch                   Applies all sprites into a single big patch (Default value: false)
         --stdincludes <INCLUDEPATH>  Specify a text file with a list of search paths for asar (Default value: "<empty>")
         --stddefines <DEFINEPATH>    Specify a text file with a list of defines for asar (Default value: "<empty>")
+        --measure                    Measure insertion time of each asar patch (Default value: false)
         -lm-handle <lm_handle_code>  To be used only within LM's custom user toolbar file, it receives LM's handle to reload the rom (Default value: "<empty>")
 ```
 
