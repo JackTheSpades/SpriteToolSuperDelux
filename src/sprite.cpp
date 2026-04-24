@@ -276,8 +276,12 @@ template <typename T> T* from_table(T* table, int level, int number) {
     }
     int warn_count = 0;
     const errordata* loc_warnings = asar_getwarnings(&warn_count);
-    for (int i = 0; i < warn_count; i++)
+    for (int i = 0; i < warn_count; i++) {
+        if (cfg.NoDeprecationWarnings && loc_warnings[i].errid == 1030 /* warning_id_feature_deprecated */) {
+            continue;
+        }
         warnings.emplace_back(loc_warnings[i].fullerrdata);
+    }
     int print_count = 0;
     const char* const* asar_prints = asar_getprints(&print_count);
     for (int i = 0; i < print_count; i++)
@@ -334,8 +338,12 @@ template <typename T> T* from_table(T* table, int level, int number) {
     }
     int warn_count = 0;
     const errordata* loc_warnings = asar_getwarnings(&warn_count);
-    for (int i = 0; i < warn_count; i++)
+    for (int i = 0; i < warn_count; i++) {
+        if (cfg.NoDeprecationWarnings && loc_warnings[i].errid == 1030 /* warning_id_feature_deprecated */) {
+            continue;
+        }
         warnings.emplace_back(loc_warnings[i].fullerrdata);
+    }
 
     if (!cfg.SymbolsType.empty()) {
         const char* symbols_contents = asar_getsymbolsfile(cfg.SymbolsType.c_str());
@@ -1507,12 +1515,13 @@ void remove(std::string_view dir, const char* file) {
     fs::remove(fs::path{dir} / file);
 }
 
-bool check_warnings() {
+bool check_warnings(std::string_view cause) {
     if (!warnings.empty() && cfg.warningsEnabled()) {
-        io.print("One or more warnings have been detected:\n");
+        io.print("One or more warnings have been detected after %s:\n", cause.data());
         for (const std::string& warning : warnings) {
             io.print("%s\n", warning.c_str());
         }
+        warnings.clear(); // clear out warnings after printing them once
         if (!cfg.ScriptMode) {
             io.print("Do you want to continue insertion anyway? [Y/n] (Default is yes):\n");
             char c = io.getc();
@@ -1721,6 +1730,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
                     cfg.Warnings)
         .add_option("-wno", "Disable asar warnings checks, only present for backwards compatibility, not recommended",
                     cfg.NoWarnings)
+        .add_option("-wnodep", "Disable asar deprecation warnings", cfg.NoDeprecationWarnings)
         .add_option("--script-mode", "Disable all user confirmation prompts", cfg.ScriptMode)
         .add_option("-a", "asm", "Specify a custom asm directory", cfg[PathType::Asm])
         .add_option("-sp", "sprites", "Specify a custom sprites directory", cfg[PathType::Sprites])
@@ -2012,7 +2022,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         }
     }
 
-    if (!check_warnings())
+    if (!check_warnings("patching sprites"))
         return EXIT_FAILURE;
 
 #ifdef DEBUGMSG
@@ -2180,7 +2190,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         }
     }
 
-    if (!check_warnings())
+    if (!check_warnings("patching user-defined hijacks"))
         return EXIT_FAILURE;
 
     // patch(paths[ASM], "asm/overworld.asm", rom);
@@ -2201,7 +2211,7 @@ PIXI_EXPORT int pixi_run(int argc, const char** argv, bool skip_first) {
         retval = meimei.run();
     }
 
-    if (!check_warnings())
+    if (!check_warnings("applying MeiMei"))
         return EXIT_FAILURE;
 
     if (plugins::for_each_plugin(plugin_list, &plugins::plugin::after_patching) != EXIT_SUCCESS) {

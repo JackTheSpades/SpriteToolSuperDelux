@@ -187,6 +187,7 @@ Options:
         -d255spl                     Disable 255 sprites per level support (won't do the 1938 remap) (Default value: false)
         -w                           [Deprecated and ignored] Enable asar warnings check, recommended to use when developing sprites, defaults to true since Pixi 1.43 and cannot be changed (Default value: true)
         -wno                         Disable asar warnings checks, only present for backwards compatibility, not recommended, only to be used in extreme cases (Default value: false)
+        -wnodep                      Disable asar deprecation warnings (Default value: false)
         --script-mode                Disable all user confirmation prompts (Default value: false)
         -a <asm>                     Specify a custom asm directory (Default value: "asm/")
         -sp <sprites>                Specify a custom sprites directory (Default value: "sprites/")

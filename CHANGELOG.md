@@ -1,6 +1,8 @@
 # Changelog
 
 ## Version 1.44 (TBD)
+- (Atari2.0) Added a -wnodep command line option to disable exclusively asar deprecation warnings while keeping other warnings enabled, this is not recommended and should only be used if you know what you're doing.
+- (Atari2.0) Fix a bug where warnings would be printed more than once because they weren't cleared.
 - (Atari2.0) Fix a bug where by having -pl on the command line but then having no per-level sprites in the list would cause the tool to insert the 0xFF "dummy" byte which caused the cleanup code to report "block size not multiple of 16" error, thanks to imamelia for giving me a repro case.
 - (Atari2.0) Fix a bug where if MeiMei had to change sprite data for more than 125 levels we would hit asar's per-patch freespace limit and thus fail to insert.
 - (Atari2.0) Fix a bug only on Linux/MacOS where lowercasing the paths passed to asar would cause it to not find the files on case-sensitive file systems.
