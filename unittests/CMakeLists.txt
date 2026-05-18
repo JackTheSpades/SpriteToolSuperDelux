@@ -9,7 +9,6 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/google/googletest
     GIT_TAG main
 )
-enable_testing()
 include(GoogleTest)
 
 set(SAVED_C_FLAGS ${CMAKE_C_FLAGS})

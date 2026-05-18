@@ -60,6 +60,7 @@ add_custom_target(
 add_subdirectory(src)
 if (PIXI_BUILD_TESTS AND PIXI_BUILD_LIB)
 	message(STATUS "Building test suite")
+	enable_testing()
 	add_subdirectory(unittests)
 endif()
 if (PIXI_BUILD_EXE)
