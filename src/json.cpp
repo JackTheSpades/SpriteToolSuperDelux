@@ -138,7 +138,7 @@ bool read_json_file(sprite* spr) {
             }
 
             if (jdisplay.at("UseText")) {
-                dis.tiles.push_back({0, 0, 0, jdisplay.at("DisplayText")});
+                dis.tiles.push_back({0, 0, 0, jdisplay.at("DisplayText"), false});
             } else {
                 dis.tiles.resize(jdisplay.at("Tiles").size());
                 int counter2 = 0;
