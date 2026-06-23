@@ -147,6 +147,14 @@ bool read_json_file(sprite* spr) {
                     til.x_offset = jtile.at("X offset");
                     til.y_offset = jtile.at("Y offset");
                     til.tile_number = jtile.at("map16 tile");
+                    if (jtile.find("Translucent") != jtile.end())
+                        til.translucent = jtile.at("Translucent");
+                    else
+                        til.translucent = false;
+                    if ((til.tile_number & 0x8000) == 0x8000) {
+                        til.translucent = true;
+                        til.tile_number -= 0x8000;
+                    }
                     counter2++;
                 }
             }

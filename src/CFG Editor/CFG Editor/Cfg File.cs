@@ -297,6 +297,12 @@ namespace CFG
             return sb.ToString().TrimEnd('\r', '\n');
         }
 
+        private const string translucencyWarning = @"
+Warning: Some Map16 tiles in the displays of this sprite were marked as translucent (0x7F00 or 0x8000). 
+This is not supported in this version of the CFG Editor and will be ignored on load and overwritten on save. 
+If you don't want this to happen, you will have to edit your JSON display by hand
+";
+
         /// <summary>
         /// Read the data from a json string.
         /// </summary>
@@ -304,6 +310,27 @@ namespace CFG
         public void FromJson(string json)
         {
             var cfgJson = Newtonsoft.Json.JsonConvert.DeserializeObject<CFG.Json.JsonCfgFile>(json);
+            bool warningTranslucency = false;
+            foreach (var display in cfgJson.Displays)
+            {
+                foreach (var tile in display.Tiles)
+                {
+                    if ((tile.Map16Number & 0x8000) == 0x8000)
+                    {
+                        tile.Map16Number -= 0x8000;
+                        warningTranslucency = true;
+                    }
+                    if ((tile.Map16Number & 0x7F00) == 0x7F00)
+                    {
+                        tile.Map16Number -= 0x7F00;
+                        warningTranslucency = true;
+                    }
+                }
+            }
+            if (warningTranslucency)
+            {
+                MessageBox.Show(translucencyWarning, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
             cfgJson.FillData(this);
         }
         /// <summary>

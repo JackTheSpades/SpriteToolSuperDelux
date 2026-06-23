@@ -330,7 +330,7 @@ int MeiMei::run(ROM& rom) {
         }
 
         if (!meimei_fixup_patches.empty()) {
-            for (auto& [name, mp] : meimei_patches) {
+            for (auto& [_, mp] : meimei_patches) {
                 mp.close();
                 if (!MeiMei::patch(mp, meimei_fixup_patches, rom)) {
                     io.error("An error occured when applying MeiMei fixup sprite data with asar.");

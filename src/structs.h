@@ -194,6 +194,7 @@ struct tile {
     int x_offset = 0;
     int y_offset = 0;
     int tile_number = 0;
+    bool translucent = false;
     std::string text{};
 };
 

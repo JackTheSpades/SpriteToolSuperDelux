@@ -7,6 +7,8 @@
 - (Atari2.0) Fix a bug where if MeiMei had to change sprite data for more than 125 levels we would hit asar's per-patch freespace limit and thus fail to insert.
 - (Atari2.0) Fix a bug only on Linux/MacOS where lowercasing the paths passed to asar would cause it to not find the files on case-sensitive file systems.
 - (Atari2.0) Add a --measure cli switch that measures the time taken by each call to asar_patch. This is useful for debugging and optimization purposes, especially to find out which routines are taking the most time to insert.
+- (Atari2.0) Add minimal support for translucent tiles in the JSON sprite displays. To make a tile translucent, you must add 0x8000 to it. Keep in mind that doing so makes the JSON incompatible with the CFG Editor.
+- (Atari2.0) Make the C# CFG Editor load sprites with translucent tiles in the JSON without crashing, but not support them. It prints a warning saying that they are explicitely unsupported.
 
 ## Version 1.43 (December 12, 2025)
 - (Atari2.0) Link statically to Asar instead of dynamically so Pixi doesn't need asar.dll to run anymore, if an external tool prefers dynamic linking, they can still build from source and link dynamically by setting the CMake variable ASAR_USE_DLL to ON.

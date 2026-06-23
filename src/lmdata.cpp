@@ -108,6 +108,8 @@ std::string generate_ssc_data(const sprite* spr, int i, size_t map16_tile) {
                 int tile_num = t.tile_number;
                 if (tile_num >= 0x300)
                     tile_num += 0x100 + static_cast<int>(map16_tile);
+                if (t.translucent)
+                    tile_num += 0x8000;
                 // note we're using %d because x/y are signed integers here
                 ssc << fstring(" %d,%d,%X", t.x_offset, t.y_offset, tile_num);
             }
