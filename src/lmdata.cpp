@@ -105,8 +105,9 @@ std::string generate_ssc_data(const sprite* spr, int i, size_t map16_tile) {
             } else {
                 // tile numbers > 0x300 indicates it's a "custom" map16 tile, so we add the offset we got
                 // earlier +0x100 because in LM these start at 0x400.
+                // skip offsetting if tile number is past 0x3FF for the sake of external graphics
                 int tile_num = t.tile_number;
-                if (tile_num >= 0x300)
+                if (tile_num >= 0x300 && tile_num <= 0x3FF)
                     tile_num += 0x100 + static_cast<int>(map16_tile);
                 if (t.translucent)
                     tile_num += 0x8000;
