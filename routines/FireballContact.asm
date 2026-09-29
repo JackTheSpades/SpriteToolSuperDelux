@@ -15,37 +15,43 @@
 ;;
 ;; Clobbers: A
 
+if !More_ExSprite == 1
+    !MESF = 16                      ; first fireball slot with 'More Extended Sprites'
+else
+    !MESF = 8                       ; first fireball slot withOUT 'More Extended Sprites'
+endif
+
 ?main:
 ?.FireballContact
     PHX                             ; Preserve X.
     LDY #$00                        ; Set initial fireball index.
-?-   LDA !extended_num+8,y           ; If there is no fireball in this slot,
+?-  LDA !extended_num+!MESF,y       ; If there is no fireball in this slot,
     CMP #$05
-    BNE ?.nothing                    ; check the next one.
-    LDA !extended_x_low+8,y         ; Store clipping B of fireball.
+    BNE ?.nothing                   ; check the next one.
+    LDA !extended_x_low+!MESF,y     ; Store clipping B of fireball.
     SEC : SBC #$02
     STA $00
-    LDA !extended_x_high+8,y
+    LDA !extended_x_high+!MESF,y
     SBC #$00
     STA $08
     LDA #$0C
     STA $02
-    LDA !extended_y_low+8,y
+    LDA !extended_y_low+!MESF,y
     SEC : SBC #$04
     STA $01
-    LDA !extended_y_high+8,y
+    LDA !extended_y_high+!MESF,y
     SBC #$00
     STA $09
     LDA #$13
     STA $03
     PHY                             ; Preserve fireball index.
-    JSL $03B69F|!bank              ; Get sprite A clipping.
-    JSL $03B72B|!bank              ; Check for contact.
-    BCS ?.foundFireball              ; Return if fireball found.
+    JSL $03B69F|!bank               ; Get sprite A clipping.
+    JSL $03B72B|!bank               ; Check for contact.
+    BCS ?.foundFireball             ; Return if fireball found.
     PLY                             ; Pull fireball index.
 ?.nothing
     CPY #$00
-    BNE ?.noFire                     ; If second fireball failed, end.
+    BNE ?.noFire                    ; If second fireball failed, end.
     INY
     BRA ?-
 

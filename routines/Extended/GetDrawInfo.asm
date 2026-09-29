@@ -1,10 +1,17 @@
-
 ; Gets the OAM index to be used, deletes when off screen, etc.
+; Now modified by Anas for compatibility with Isikoro's 'More Extended Sprites'
 
 ?main:
+if !More_ExSprite = 1
+    TXA
+    ASL #2
+    ADC #$80
+    TAY
+else
     LDA.l $02A153|!BankB,x
     TAY
-   
+endif
+
 ?.noIndex
     LDA !extended_x_speed,x
     AND #$80

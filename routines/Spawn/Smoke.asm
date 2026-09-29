@@ -14,7 +14,7 @@
 ;       #$02 = Contact graphic.
 ;       #$03 = Smoke when the player turns around abruptly.
 ;       #$04 = Unused/None.
-;       #$05 = Glitter sprite. 
+;       #$05 = Glitter sprite.
 ;
 ;Common combination:
 ;        STZ $00 : STZ $01
@@ -23,29 +23,29 @@
 ;        %SpawnSmoke()
 
 ?main:
-        LDY #$03                ; \ find a free slot to display effect
-        XBA
-?.loop
-        LDA $17C0|!Base2,y      ; |
-        BEQ ?+                   ; |
+        LDY.b #!SmokeSize-1     ; \ find a free slot to display effect
+        XBA                     ; |
+?.loop                          ; |
+        LDA !smoke_num,y        ; |
+        BEQ ?+                  ; |
         DEY                     ; |
-        BPL ?.loop               ; |
+        BPL ?.loop              ; |
         SEC                     ; |
-        RTL                     ; /  RETURN if no slots open
+        RTL                     ; / RETURN if no slots open
 
-?+        XBA                     ; \ set effect graphic to smoke graphic
-        STA $17C0|!Base2,y      ; /
+?+      XBA                     ; \ set effect graphic to smoke graphic
+        STA !smoke_num,y        ; /
         LDA $02                 ; \ set time to show smoke
-        STA $17CC|!Base2,y      ; /
+        STA !smoke_timer,y      ; /
 
         LDA !D8,x               ; \
         CLC                     ; | set smoke y position based on direction of shot
         ADC $01                 ; |
-        STA $17C4|!Base2,y      ; /
+        STA !smoke_y_low,y      ; /
 
         LDA !E4,x               ; \
         CLC                     ; | set smoke x position based on direction of shot
         ADC $00                 ; |
-        STA $17C8|!Base2,y      ; /
+        STA !smoke_x_low,y      ; /
         CLC
         RTL

@@ -21,6 +21,9 @@
     JSL $03B664|!BankB
     JSL $03B72B|!BankB
     BCC ?.skip
+    LDA $13F9|!addr             ;\ If the player or fireball is behind nets or other such foreground, don't interact!
+    EOR !extended_behind,x      ;| (I check this here for compatibility with certain extended sprites like Sonikku's boomerang)
+    BNE ?.skip                  ;/
     PHB
     LDA.b #$02|!Bank8
     PHA
@@ -30,6 +33,6 @@
     PEA.w $B888
     JML $02A469|!BankB
 ?.return
-    PLB 
+    PLB
 ?.skip
     RTL
